@@ -1,0 +1,212 @@
+Je veux créer un projet Spring Boot microservices pour une application de comptabilité appelée COMPTA ERP.
+
+ARCHITECTURE GLOBALE:
+- API Gateway (Spring Cloud Gateway) sur port 8080
+- 5 services backend (Spring Boot + 1 NestJS)
+- 1 service de migration dédié (Flyway)
+- Base de données PostgreSQL unique (sans schemas, tables à plat avec FK)
+- Frontend React + TypeScript
+
+STACK TECHNIQUE:
+- Java 21 + Spring Boot 3.5.8
+- Spring Cloud Gateway
+- PostgreSQL 16 (base unique "compta_db")
+- RabbitMQ 4.2 (messaging)
+- MinIO (stockage documents)
+- Redis 8.4 (cache)
+- NestJS 11 (notification service)
+- React 18 + TypeScript + Vite + TailwindCSS + shadcn/ui (frontend)
+
+SERVICES À CRÉER:
+
+1. **gateway** (Spring Cloud Gateway)
+   - Port: 8080
+   - Routing vers tous les services
+   - Authentification JWT (validation)
+   - Rate limiting
+   - CORS
+   - Swagger aggregation
+   - Dependencies: spring-cloud-starter-gateway, spring-boot-starter-security, spring-boot-starter-data-redis-reactive, jjwt (0.11.5), springdoc-openapi-starter-webflux-ui (2.3.0)
+
+2. **services/migration-service** (Flyway)
+   - Service dédié pour gérer TOUTES les migrations
+   - Flyway avec toutes les migrations dans db/migration/
+   - Controller REST pour: status, migrate, repair, history
+   - Run once au démarrage puis s arrête
+   - Dependencies: spring-boot-starter-web, spring-boot-starter-jdbc, flyway-core, postgresql
+
+3. **services/auth-service** (Spring Boot)
+   - Gestion users, companies, roles, permissions
+   - Login/Register (JWT generation)
+   - Multi-tenant: UserCompanyRole (un COMPTABLE peut gérer plusieurs SOCIETES)
+   - Permissions granulaires
+   - Dependencies: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-security, jjwt, postgresql, validation
+
+4. **services/accounting-service** (Spring Boot)
+   - Plan comptable (accounts)
+   - Journaux (journals)
+   - Écritures comptables (journal_entries + lines)
+   - Exercices fiscaux (fiscal_years)
+   - Grand livre, Balance
+   - Déclarations TVA
+   - Dependencies: spring-boot-starter-web, spring-boot-starter-data-jpa, postgresql, validation
+
+5. **services/document-service** (Spring Boot)
+   - GED (Gestion Électronique Documents)
+   - Upload/Download documents (MinIO)
+   - Versioning documents
+   - Partage documents entre users
+   - OCR (extraction texte)
+   - Categories, tags
+   - Dependencies: spring-boot-starter-web, spring-boot-starter-data-jpa, minio (8.5.7), postgresql
+
+6. **services/hr-service** (Spring Boot)
+   - Employés, contrats
+   - Fiches de paie (payslips)
+   - Gestion congés (leave_requests, leave_balances)
+   - Présences (attendances)
+   - Départements, positions
+   - Dependencies: spring-boot-starter-web, spring-boot-starter-data-jpa, postgresql, validation
+
+7. **services/notification-service** (NestJS)
+   - Email (SMTP)
+   - SMS
+   - Push notifications
+   - Templates (Handlebars)
+   - Queue RabbitMQ pour async
+   - Historique notifications
+   - Dependencies: @nestjs/core, @nestjs/common, @nestjs/typeorm, pg, @nestjs/microservices, amqplib, nodemailer, handlebars
+
+SCHÉMA BASE DE DONNÉES (PostgreSQL - DB unique "compta_db"):
+
+Tables principales (avec FK, pas de schemas):
+
+**Auth:**
+- users (id, email, password_hash, first_name, last_name, phone, is_active, created_at, updated_at)
+- companies (id, name, legal_name, tax_id, address, is_active, created_at)
+- roles (id, name [ADMIN, COMPTABLE, SOCIETE, EMPLOYEE], description)
+- permissions (id, code, resource, action, description)
+- role_permissions (role_id FK, permission_id FK)
+- user_company_roles (id, user_id FK, company_id FK, role_id FK, can_read, can_write, can_validate)
+- user_permissions (id, user_id FK, company_id FK, permission_id FK, granted)
+
+**Accounting:**
+- accounts (id, company_id FK, account_number, account_name, account_type, parent_account_id FK)
+- journals (id, company_id FK, code, name, journal_type)
+- fiscal_years (id, company_id FK, year, start_date, end_date, is_closed)
+- journal_entries (id, company_id FK, journal_id FK, fiscal_year_id FK, entry_number, entry_date, status, created_by FK)
+- journal_entry_lines (id, journal_entry_id FK, account_id FK, debit, credit, label, line_number)
+- bank_accounts (id, company_id FK, account_id FK, bank_name, account_number, iban)
+- tax_declarations (id, company_id FK, fiscal_year_id FK, period_start, period_end, tva_collected, tva_to_pay)
+
+**Documents:**
+- document_categories (id, company_id FK, name, parent_id FK)
+- documents (id, company_id FK, category_id FK, document_type, title, file_path, file_size, version, status, created_by FK)
+- document_versions (id, document_id FK, version_number, file_path, created_by FK)
+- document_shares (id, document_id FK, shared_with_user_id FK, can_read, can_write, shared_by FK)
+
+**HR:**
+- departments (id, company_id FK, name, code, manager_id FK employees)
+- positions (id, company_id FK, title, code, department_id FK)
+- employees (id, company_id FK, user_id FK nullable, employee_number, first_name, last_name, cin, hire_date, department_id FK, position_id FK, manager_id FK, is_active)
+- contracts (id, company_id FK, employee_id FK, contract_type, start_date, end_date, salary, document_id FK, status)
+- payslips (id, company_id FK, employee_id FK, contract_id FK, period_start, period_end, gross_salary, net_salary, cnss_employee, tax_amount, document_id FK)
+- leave_types (id, company_id FK, name, code, days_per_year)
+- leave_requests (id, company_id FK, employee_id FK, leave_type_id FK, start_date, end_date, days_count, status, reviewed_by FK)
+- leave_balances (id, company_id FK, employee_id FK, leave_type_id FK, year, total_days, used_days, remaining_days)
+- attendances (id, company_id FK, employee_id FK, attendance_date, check_in, check_out, hours_worked, status)
+
+**Notifications:**
+- notification_templates (id, name, template_type, subject_template, body_template, variables JSONB)
+- notifications (id, user_id FK, company_id FK, notification_type, subject, body, status, sent_at, metadata JSONB)
+
+MIGRATIONS FLYWAY (dans migration-service):
+- V1__init_database.sql (extensions, functions)
+- V2__create_users_companies.sql (auth tables)
+- V3__create_accounting_tables.sql
+- V4__create_document_tables.sql
+- V5__create_hr_tables.sql
+- V6__create_notification_tables.sql
+- V7__create_indexes.sql (tous les indexes de performance)
+- V8__create_constraints.sql (FK constraints)
+- V9__seed_initial_data.sql (roles, permissions, leave_types, templates)
+
+CONFIGURATION IMPORTANTE:
+
+Tous les services Spring Boot:
+- application.yml avec profiles (dev, prod)
+- spring.datasource.url: jdbc:postgresql://postgres:5432/compta_db
+- spring.jpa.hibernate.ddl-auto: validate (JAMAIS update!)
+- Pas de Flyway dans les services (sauf migration-service)
+
+Gateway:
+- Routes vers tous les services
+- JWT validation (même secret que auth-service)
+- Injection headers: X-User-Id, X-User-Email, X-User-Roles
+- Swagger aggregation (urls vers /api/auth/v3/api-docs, /api/accounting/v3/api-docs, etc.)
+
+Auth Service:
+- JWT generation avec secret partagé
+- Endpoints: POST /auth/login, POST /auth/register, GET /auth/me
+- Service: getUserPermissions(userId, companyId) pour vérifier droits
+
+Shared Library (compta-commons):
+- Annotation @AuthenticatedUser (injecte userId depuis header)
+- Annotation @RequireRole("COMPTABLE")
+- Exceptions (NotFoundException, ForbiddenException, UnauthorizedException)
+- DTOs communs (PageDto, ErrorDto, ApiResponse)
+
+Docker Compose:
+- postgres (port 5432)
+- rabbitmq (ports 5672, 15672)
+- minio (ports 9000, 9001)
+- redis (port 6379)
+- migration-service (restart: no - run once)
+- api-gateway (port 8080)
+- auth-service, accounting-service, document-service, hr-service (expose 8080)
+- notification-service (expose 3000)
+- frontend (port 3000)
+
+FICHIERS RACINE À CRÉER:
+- README.md (description projet)
+- .gitignore (standard Java + Node)
+- .env.example (DB_PASSWORD, JWT_SECRET, MINIO_USER, SMTP_*)
+- docker-compose.yml
+
+IMPORTANT:
+- Package name: tn.compta.*
+- Group ID: tn.compta
+- Java version: 17
+- Spring Boot: 3.2.0
+- Spring Cloud: 2023.0.0
+- Toujours utiliser BIGINT pour les IDs
+- Toujours créer created_at, updated_at sur les tables
+- Index sur toutes les FK et colonnes souvent filtrées
+- Multi-tenant: toujours filtrer par company_id
+
+Commence par créer l arborescence complète, puis génère les fichiers un par un en commençant par:
+1. docker-compose.yml
+2. migration-service complet avec toutes les migrations SQL
+3. gateway
+4. auth-service
+5. Les autres services
+6. Shared library
+7. Frontend basic
+
+Pour chaque service, créer:
+- pom.xml (ou package.json pour NestJS)
+- Dockerfile
+- Application.java
+- application.yml
+- Toutes les entities
+- Tous les repositories
+- Tous les services
+- Tous les controllers
+- DTOs
+
+Génère du code production-ready avec:
+- Gestion erreurs complète
+- Validation des inputs
+- Logging approprié
+- Documentation OpenAPI
+- Tests unitaires de base

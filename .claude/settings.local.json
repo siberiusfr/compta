@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(dir /s /b)",
+      "Bash(cmd /c dir /s /b)",
+      "Bash(powershell:*)",
+      "Bash(mvn clean install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
