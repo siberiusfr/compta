@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(mvn clean install:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(dir:*)"
     ]
   }
 }

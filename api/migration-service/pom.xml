@@ -22,6 +22,17 @@
 			<artifactId>compta-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
+		<!-- Flyway pour les migrations de base de données -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

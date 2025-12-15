@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: compta-api
+
+  # Configuration PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/compta_db
+    username: compta_user
+    password: compta_password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # Configuration JOOQ
+  jooq:
+    sql-dialect: POSTGRES
+
+  # Configuration Jackson
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+
+# Configuration OpenAPI/Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method
+    tagsSorter: alpha
+  show-actuator: true
+
+# Configuration Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# Configuration Logging
+logging:
+  level:
+    root: INFO
+    tn.cyberious.compta: DEBUG
+    org.jooq: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Configuration du serveur (peut être surchargée dans chaque service)
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on-param
+    include-exception: false
