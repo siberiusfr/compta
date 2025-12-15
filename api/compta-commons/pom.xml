@@ -19,12 +19,6 @@
     <description>API REST pour la gestion de portefeuille</description>
 
     <dependencies>
-        <!-- Module interne -->
-        <dependency>
-            <groupId>com.dapm</groupId>
-            <artifactId>portfolio-core</artifactId>
-        </dependency>
-
         <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
