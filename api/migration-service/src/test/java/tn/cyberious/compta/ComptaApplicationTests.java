@@ -1,15 +1,14 @@
 package tn.cyberious.compta;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import tn.cyberious.compta.test.AbstractIntegrationTest;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class ComptaApplicationTests {
+class ComptaApplicationTests extends AbstractIntegrationTest {
 
 	@Test
 	void contextLoads() {
+		// Le contexte Spring Boot démarre avec une vraie base PostgreSQL via Testcontainers
+		// Flyway exécute les migrations automatiquement
 	}
 
 }
