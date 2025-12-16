@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: notification-service
+
+  # Activer Flyway pour ce service
+  flyway:
+    enabled: true
+    schemas: notification
+    default-schema: notification
+
+# Port spécifique pour ce service
+server:
+  port: 8086

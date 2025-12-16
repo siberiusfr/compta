@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: hr-service
+
+  # Activer Flyway pour ce service
+  flyway:
+    enabled: true
+    schemas: hr
+    default-schema: hr
+
+# Port spécifique pour ce service
+server:
+  port: 8084

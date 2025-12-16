@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: document-service
+
+  # Activer Flyway pour ce service
+  flyway:
+    enabled: true
+    schemas: document
+    default-schema: document
+
+# Port spécifique pour ce service
+server:
+  port: 8085

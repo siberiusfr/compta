@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: accounting-service
+
+  # Activer Flyway pour ce service
+  flyway:
+    enabled: true
+    schemas: accounting
+    default-schema: accounting
+
+# Port spécifique pour ce service
+server:
+  port: 8082

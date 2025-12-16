@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: auth-service
+
+  # Activer Flyway pour ce service
+  flyway:
+    enabled: true
+    schemas: auth
+    default-schema: auth
+
+# Port spécifique pour ce service
+server:
+  port: 8083
