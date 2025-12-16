@@ -107,7 +107,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         exchange.getResponse().setStatusCode(httpStatus);
         exchange.getResponse().getHeaders().add(HttpHeaders.CONTENT_TYPE, "application/json");
 
-        String errorResponse = String.format("{\"error\":\"%s\",\"status\":%d}", message, httpStatus.value());
+        String errorResponse = "{\"error\":\"%s\",\"status\":%d}".formatted(message, httpStatus.value());
 
         return exchange.getResponse().writeWith(
                 Mono.just(exchange.getResponse().bufferFactory().wrap(errorResponse.getBytes()))

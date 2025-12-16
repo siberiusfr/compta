@@ -30,8 +30,7 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message = "An unexpected error occurred";
 
-        if (ex instanceof ResponseStatusException) {
-            ResponseStatusException responseStatusException = (ResponseStatusException) ex;
+        if (ex instanceof ResponseStatusException responseStatusException) {
             status = (HttpStatus) responseStatusException.getStatusCode();
             message = responseStatusException.getReason() != null ?
                     responseStatusException.getReason() : message;

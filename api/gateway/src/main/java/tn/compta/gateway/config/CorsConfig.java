@@ -13,7 +13,7 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Value("${spring.cloud.gateway.globalcors.cors-configurations.[/**].allowedOrigins:http://localhost:3000,http://localhost:5173}")
+    @Value("${spring.cloud.gateway.server.webflux.globalcors.cors-configurations.[/**].allowedOrigins:http://localhost:3000,http://localhost:5173}")
     private String allowedOrigins;
 
     @Bean

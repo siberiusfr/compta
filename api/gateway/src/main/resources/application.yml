@@ -3,7 +3,7 @@ spring:
     name: api-gateway
 
   cloud:
-    gateway:
+    gateway.server.webflux:
       routes:
         # Auth Service Routes
         - id: auth-service
@@ -96,10 +96,7 @@ management:
   endpoint:
     health:
       show-details: always
-  metrics:
-    export:
-      prometheus:
-        enabled: true
+  prometheus.metrics.export.enabled: true
 
 # Logging
 logging:
@@ -111,23 +108,3 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
----
-spring:
-  config:
-    activate:
-      on-profile: dev
-
-logging:
-  level:
-    root: DEBUG
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-
-logging:
-  level:
-    root: WARN
-    tn.compta.gateway: INFO
