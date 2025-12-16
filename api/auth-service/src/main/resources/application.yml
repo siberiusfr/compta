@@ -18,3 +18,12 @@ spring:
 # Port spécifique pour ce service
 server:
   port: 8083
+
+# Configuration JWT
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: ${JWT_EXPIRATION:86400000} # 24 heures en millisecondes
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 jours en millisecondes
+  issuer: compta-auth-service
+  header: Authorization
+  prefix: Bearer
