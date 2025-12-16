@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ComptaApplication {
+public class DocumentServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ComptaApplication.class, args);
+		SpringApplication.run(DocumentServiceApplication.class, args);
 	}
 
 }

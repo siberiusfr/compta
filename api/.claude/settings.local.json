@@ -24,7 +24,8 @@
       "Bash(else echo \"No application.properties\")",
       "Bash(done)",
       "Bash(mvn clean:*)",
-      "Bash(mvn compile:*)"
+      "Bash(mvn compile:*)",
+      "Bash(echo:*)"
     ]
   }
 }

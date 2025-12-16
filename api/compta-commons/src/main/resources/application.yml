@@ -4,9 +4,9 @@ spring:
 
   # Configuration PostgreSQL
   datasource:
-    url: jdbc:postgresql://localhost:5432/compta_db
-    username: compta_user
-    password: compta_password
+    url: jdbc:postgresql://localhost:5432/compta
+    username: postgres
+    password: password
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10

@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ComptaApplication {
+public class MigrationServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ComptaApplication.class, args);
+		SpringApplication.run(MigrationServiceApplication.class, args);
 	}
 
 }
