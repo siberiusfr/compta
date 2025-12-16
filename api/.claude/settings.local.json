@@ -10,7 +10,9 @@
       "Bash(mvn dependency:purge-local-repository:*)",
       "Bash(if exist \"%USERPROFILE%\\.m2\\repository\\org\\projectlombok\\lombok\" rmdir /s /q \"%USERPROFILE%\\.m2\\repository\\org\\projectlombok\\lombok\")",
       "Bash(mvn clean compile:*)",
-      "Bash(mvn clean test:*)"
+      "Bash(mvn clean test:*)",
+      "Bash(cmd /c \"dir /b C:\\dev\\compta\\api\\migration-service\\target\\surefire-reports\")",
+      "Bash(mvn test:*)"
     ]
   }
 }

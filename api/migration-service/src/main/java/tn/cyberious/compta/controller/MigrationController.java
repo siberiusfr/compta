@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.api.MigrationState;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,12 +76,17 @@ public class MigrationController {
     public ResponseEntity<Map<String, Object>> getMigrationInfo() {
         MigrationInfoService infoService = flyway.info();
 
+        // Compter les migrations échouées manuellement
+        long failedCount = Arrays.stream(infoService.all())
+                .filter(m -> m.getState() == MigrationState.FAILED || m.getState() == MigrationState.FUTURE_FAILED)
+                .count();
+
         Map<String, Object> info = new HashMap<>();
         info.put("current", infoService.current() != null ? migrationInfoToMap(infoService.current()) : null);
         info.put("totalCount", infoService.all().length);
         info.put("appliedCount", infoService.applied().length);
         info.put("pendingCount", infoService.pending().length);
-        info.put("failedCount", infoService.failed().length);
+        info.put("failedCount", failedCount);
 
         return ResponseEntity.ok(info);
     }
@@ -89,9 +95,10 @@ public class MigrationController {
     @Operation(summary = "Liste les migrations échouées", description = "Retourne les migrations qui ont échoué lors de leur application")
     public ResponseEntity<List<Map<String, Object>>> getFailedMigrations() {
         MigrationInfoService infoService = flyway.info();
-        MigrationInfo[] migrations = infoService.failed();
 
-        List<Map<String, Object>> migrationList = Arrays.stream(migrations)
+        // Filtrer les migrations échouées manuellement
+        List<Map<String, Object>> migrationList = Arrays.stream(infoService.all())
+                .filter(m -> m.getState() == MigrationState.FAILED || m.getState() == MigrationState.FUTURE_FAILED)
                 .map(this::migrationInfoToMap)
                 .collect(Collectors.toList());
 

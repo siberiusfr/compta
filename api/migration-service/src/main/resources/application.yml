@@ -15,6 +15,11 @@ spring:
     baseline-version: 0
     out-of-order: false
 
+# Désactiver l'exécution automatique des migrations (consultation uniquement)
+compta:
+  flyway:
+    auto-migrate: false
+
 # Port spécifique pour ce service
 server:
   port: 8081
