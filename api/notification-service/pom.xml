@@ -15,6 +15,12 @@
 	<name>Notification Service</name>
 	<description>Service de gestion des notifications</description>
 
+	<properties>
+		<!-- Configuration JOOQ pour le schéma notification -->
+		<jooq.generator.db.schema>notification</jooq.generator.db.schema>
+		<jooq.generator.target.package>tn.cyberious.compta.notification.generated</jooq.generator.target.package>
+	</properties>
+
 	<dependencies>
 		<!-- Importe automatiquement toutes les dépendances communes -->
 		<dependency>
@@ -66,6 +72,11 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<!-- Plugin JOOQ Code Generator pour générer les classes du schéma notification -->
+			<plugin>
+				<groupId>org.jooq</groupId>
+				<artifactId>jooq-codegen-maven</artifactId>
 			</plugin>
 		</plugins>
 	</build>

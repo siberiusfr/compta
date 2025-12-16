@@ -44,11 +44,20 @@
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <springdoc-openapi.version>2.8.14</springdoc-openapi.version>
         <testcontainers.version>1.20.4</testcontainers.version>
+        <jooq.version>3.19.28</jooq.version>
+        <postgresql.version>42.7.8</postgresql.version>
 
         <!-- Versions des plugins -->
         <checkstyle.version>12.3.0</checkstyle.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+
+        <!-- Configuration JOOQ - à surcharger dans chaque service -->
+        <jooq.generator.db.url>jdbc:postgresql://localhost:5432/compta</jooq.generator.db.url>
+        <jooq.generator.db.username>postgres</jooq.generator.db.username>
+        <jooq.generator.db.password>password</jooq.generator.db.password>
+        <jooq.generator.db.schema>public</jooq.generator.db.schema>
+        <jooq.generator.target.package>tn.cyberious.compta.generated</jooq.generator.target.package>
     </properties>
 
     <dependencyManagement>
@@ -208,6 +217,60 @@
                             <version>6.20.0</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+
+                <!-- Plugin JOOQ Code Generator -->
+                <plugin>
+                    <groupId>org.jooq</groupId>
+                    <artifactId>jooq-codegen-maven</artifactId>
+                    <version>${jooq.version}</version>
+                    <executions>
+                        <execution>
+                            <id>jooq-codegen</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.postgresql</groupId>
+                            <artifactId>postgresql</artifactId>
+                            <version>${postgresql.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <jdbc>
+                            <driver>org.postgresql.Driver</driver>
+                            <url>${jooq.generator.db.url}</url>
+                            <user>${jooq.generator.db.username}</user>
+                            <password>${jooq.generator.db.password}</password>
+                        </jdbc>
+                        <generator>
+                            <database>
+                                <name>org.jooq.meta.postgres.PostgresDatabase</name>
+                                <inputSchema>${jooq.generator.db.schema}</inputSchema>
+                                <includes>.*</includes>
+                                <excludes>flyway_schema_history</excludes>
+                                <recordVersionFields>version</recordVersionFields>
+                                <recordTimestampFields>created_at|updated_at</recordTimestampFields>
+                            </database>
+                            <target>
+                                <packageName>${jooq.generator.target.package}</packageName>
+                                <directory>${project.basedir}/src/main/java</directory>
+                            </target>
+                            <generate>
+                                <pojos>true</pojos>
+                                <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
+                                <pojosToString>true</pojosToString>
+                                <daos>true</daos>
+                                <validationAnnotations>true</validationAnnotations>
+                                <springAnnotations>true</springAnnotations>
+                                <javaTimeTypes>true</javaTimeTypes>
+                            </generate>
+                        </generator>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
