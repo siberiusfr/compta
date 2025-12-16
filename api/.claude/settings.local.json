@@ -12,7 +12,19 @@
       "Bash(mvn clean compile:*)",
       "Bash(mvn clean test:*)",
       "Bash(cmd /c \"dir /b C:\\dev\\compta\\api\\migration-service\\target\\surefire-reports\")",
-      "Bash(mvn test:*)"
+      "Bash(mvn test:*)",
+      "Bash(for dir in accounting-service auth-service document-service hr-service migration-service notification-service compta-commons)",
+      "Bash(do echo \"=== $dir ===\")",
+      "Bash(if [ -f \"$dir/src/main/resources/application.yml\" ])",
+      "Bash(then echo \"Has application.yml\")",
+      "Bash(else echo \"No application.yml\")",
+      "Bash(fi)",
+      "Bash(if [ -f \"$dir/src/main/resources/application.properties\" ])",
+      "Bash(then echo \"Has application.properties\")",
+      "Bash(else echo \"No application.properties\")",
+      "Bash(done)",
+      "Bash(mvn clean:*)",
+      "Bash(mvn compile:*)"
     ]
   }
 }
