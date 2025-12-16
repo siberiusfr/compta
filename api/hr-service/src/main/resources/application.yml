@@ -2,6 +2,13 @@ spring:
   application:
     name: hr-service
 
+  # Configuration PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/compta
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
   # Activer Flyway pour ce service
   flyway:
     enabled: true

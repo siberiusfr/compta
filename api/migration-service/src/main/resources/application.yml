@@ -2,6 +2,13 @@ spring:
   application:
     name: migration-service
 
+  # Configuration PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/compta
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
   # Configuration Flyway pour la consultation uniquement (pas d'exécution automatique)
   flyway:
     enabled: true
