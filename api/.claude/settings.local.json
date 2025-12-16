@@ -3,7 +3,13 @@
     "allow": [
       "Bash(mvn clean install:*)",
       "WebSearch",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(mvnw.cmd clean compile:*)",
+      "Bash(cmd /c \"mvnw.cmd clean compile -e -rf :compta-commons\")",
+      "Bash(if exist target rmdir /s /q target)",
+      "Bash(mvn dependency:purge-local-repository:*)",
+      "Bash(if exist \"%USERPROFILE%\\.m2\\repository\\org\\projectlombok\\lombok\" rmdir /s /q \"%USERPROFILE%\\.m2\\repository\\org\\projectlombok\\lombok\")",
+      "Bash(mvn clean compile:*)"
     ]
   }
 }
