@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tn.cyberious.compta.enums.Role;
 
 import java.util.List;
 
@@ -29,5 +30,5 @@ public class CreateUserRequest {
     private String lastName;
     private String phone;
 
-    private List<String> roles;
+    private List<Role> roles;
 }

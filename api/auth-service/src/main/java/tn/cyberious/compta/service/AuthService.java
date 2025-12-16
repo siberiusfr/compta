@@ -13,10 +13,12 @@ import tn.cyberious.compta.auth.generated.tables.records.AuthLogsRecord;
 import tn.cyberious.compta.auth.generated.tables.records.RefreshTokensRecord;
 import tn.cyberious.compta.dto.AuthResponse;
 import tn.cyberious.compta.dto.LoginRequest;
+import tn.cyberious.compta.enums.Role;
 import tn.cyberious.compta.security.CustomUserDetails;
 import tn.cyberious.compta.util.JwtTokenUtil;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 import static tn.cyberious.compta.auth.generated.Tables.*;
 
@@ -70,7 +72,7 @@ public class AuthService {
                     .userId(userDetails.getId())
                     .username(userDetails.getUsername())
                     .email(userDetails.getEmail())
-                    .roles(userDetails.getRoles())
+                    .roles(userDetails.getRoleNames())
                     .build();
 
         } catch (Exception e) {
@@ -139,7 +141,10 @@ public class AuthService {
                     .from(USER_ROLES)
                     .join(ROLES).on(USER_ROLES.ROLE_ID.eq(ROLES.ID))
                     .where(USER_ROLES.USER_ID.eq(userRecord.getId()))
-                    .fetch(ROLES.NAME);
+                    .fetch(ROLES.NAME)
+                    .stream()
+                    .map(Role::fromName)
+                    .collect(Collectors.toList());
 
             CustomUserDetails userDetails = new CustomUserDetails(
                     userRecord.getId(),
@@ -160,7 +165,7 @@ public class AuthService {
                     .userId(userDetails.getId())
                     .username(userDetails.getUsername())
                     .email(userDetails.getEmail())
-                    .roles(userDetails.getRoles())
+                    .roles(userDetails.getRoleNames())
                     .build();
 
         } catch (Exception e) {

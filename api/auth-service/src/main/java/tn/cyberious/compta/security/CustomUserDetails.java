@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import tn.cyberious.compta.enums.Role;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,12 +21,21 @@ public class CustomUserDetails implements UserDetails {
     private final String password;
     private final boolean isActive;
     private final boolean isLocked;
-    private final List<String> roles;
+    private final List<Role> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .map(role -> new SimpleGrantedAuthority(role.getAuthority()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Récupère les noms des rôles en tant que String
+     */
+    public List<String> getRoleNames() {
+        return roles.stream()
+                .map(Role::getName)
                 .collect(Collectors.toList());
     }
 

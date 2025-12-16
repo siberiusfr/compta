@@ -7,8 +7,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import tn.cyberious.compta.enums.Role;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static tn.cyberious.compta.auth.generated.Tables.*;
 
@@ -34,11 +36,14 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         // Charger les rôles de l'utilisateur
-        List<String> roles = dsl.select(ROLES.NAME)
+        List<Role> roles = dsl.select(ROLES.NAME)
                 .from(USER_ROLES)
                 .join(ROLES).on(USER_ROLES.ROLE_ID.eq(ROLES.ID))
                 .where(USER_ROLES.USER_ID.eq(userRecord.getId()))
-                .fetch(ROLES.NAME);
+                .fetch(ROLES.NAME)
+                .stream()
+                .map(Role::fromName)
+                .collect(Collectors.toList());
 
         log.debug("User {} has roles: {}", username, roles);
 
@@ -64,11 +69,14 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found with ID: " + userId);
         }
 
-        List<String> roles = dsl.select(ROLES.NAME)
+        List<Role> roles = dsl.select(ROLES.NAME)
                 .from(USER_ROLES)
                 .join(ROLES).on(USER_ROLES.ROLE_ID.eq(ROLES.ID))
                 .where(USER_ROLES.USER_ID.eq(userRecord.getId()))
-                .fetch(ROLES.NAME);
+                .fetch(ROLES.NAME)
+                .stream()
+                .map(Role::fromName)
+                .collect(Collectors.toList());
 
         return new CustomUserDetails(
                 userRecord.getId(),

@@ -15,6 +15,7 @@ import tn.cyberious.compta.auth.generated.tables.records.UsersRecord;
 import tn.cyberious.compta.dto.CreateEmployeeRequest;
 import tn.cyberious.compta.dto.CreateSocieteRequest;
 import tn.cyberious.compta.dto.CreateUserRequest;
+import tn.cyberious.compta.enums.Role;
 import tn.cyberious.compta.security.CustomUserDetails;
 
 import java.time.LocalDateTime;
@@ -52,7 +53,7 @@ public class UserManagementService {
         userRecord.store();
 
         // Assigner le rôle COMPTABLE
-        assignRole(userRecord.getId(), "COMPTABLE");
+        assignRole(userRecord.getId(), Role.COMPTABLE);
 
         log.info("Comptable user created successfully: {}", request.getUsername());
         return userRecord.into(Users.class);
@@ -81,7 +82,7 @@ public class UserManagementService {
         userRecord.store();
 
         // Assigner le rôle SOCIETE
-        assignRole(userRecord.getId(), "SOCIETE");
+        assignRole(userRecord.getId(), Role.SOCIETE);
 
         log.info("Societe user created successfully: {}", request.getUsername());
         return userRecord.into(Users.class);
@@ -110,7 +111,7 @@ public class UserManagementService {
         userRecord.store();
 
         // Assigner le rôle EMPLOYEE
-        assignRole(userRecord.getId(), "EMPLOYEE");
+        assignRole(userRecord.getId(), Role.EMPLOYEE);
 
         log.info("Employee user created successfully: {}", request.getUsername());
         return userRecord.into(Users.class);
@@ -201,13 +202,13 @@ public class UserManagementService {
         );
     }
 
-    private void assignRole(Long userId, String roleName) {
+    private void assignRole(Long userId, Role role) {
         var roleRecord = dsl.selectFrom(ROLES)
-                .where(ROLES.NAME.eq(roleName))
+                .where(ROLES.NAME.eq(role.getName()))
                 .fetchOne();
 
         if (roleRecord == null) {
-            throw new RuntimeException("Role not found: " + roleName);
+            throw new RuntimeException("Role not found: " + role.getName());
         }
 
         UserRolesRecord userRoleRecord = dsl.newRecord(USER_ROLES);
