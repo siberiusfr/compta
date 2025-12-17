@@ -17,6 +17,7 @@ import tn.cyberious.compta.dto.CreateEmployeeRequest;
 import tn.cyberious.compta.dto.CreateSocieteRequest;
 import tn.cyberious.compta.dto.CreateUserRequest;
 import tn.cyberious.compta.security.CustomUserDetails;
+import tn.cyberious.compta.service.SocieteService;
 import tn.cyberious.compta.service.UserManagementService;
 
 @Slf4j
@@ -28,6 +29,7 @@ import tn.cyberious.compta.service.UserManagementService;
 public class UserManagementController {
 
     private final UserManagementService userManagementService;
+    private final SocieteService societeService;
 
     @PostMapping("/users/comptable")
     @PreAuthorize("hasRole('ADMIN')")
@@ -73,7 +75,7 @@ public class UserManagementController {
             @AuthenticationPrincipal CustomUserDetails currentUser) {
 
         log.info("Request to create societe by user: {}", currentUser.getUsername());
-        Societes societe = userManagementService.createSociete(request, currentUser);
+        Societes societe = societeService.createSociete(request, currentUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(societe);
     }
 

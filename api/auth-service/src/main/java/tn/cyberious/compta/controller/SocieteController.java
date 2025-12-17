@@ -17,7 +17,7 @@ import tn.cyberious.compta.dto.UpdateSocieteRequest;
 import tn.cyberious.compta.dto.UserResponse;
 import tn.cyberious.compta.dto.UserSocieteRequest;
 import tn.cyberious.compta.security.CustomUserDetails;
-import tn.cyberious.compta.service.UserManagementService;
+import tn.cyberious.compta.service.SocieteService;
 
 import java.util.List;
 
@@ -29,14 +29,14 @@ import java.util.List;
 @SecurityRequirement(name = "bearer-jwt")
 public class SocieteController {
 
-    private final UserManagementService userManagementService;
+    private final SocieteService societeService;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'COMPTABLE')")
     @Operation(summary = "Get all societes", description = "Get list of all companies (ADMIN or COMPTABLE)")
     public ResponseEntity<List<Societes>> getAllSocietes(@AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to get all societes by {}", currentUser.getUsername());
-        List<Societes> societes = userManagementService.getAllSocietes(currentUser);
+        List<Societes> societes = societeService.getAllSocietes(currentUser);
         return ResponseEntity.ok(societes);
     }
 
@@ -46,7 +46,7 @@ public class SocieteController {
     public ResponseEntity<Societes> getSocieteById(@PathVariable Long id,
                                                     @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to get societe: {} by {}", id, currentUser.getUsername());
-        Societes societe = userManagementService.getSocieteById(id, currentUser);
+        Societes societe = societeService.getSocieteById(id, currentUser);
         return ResponseEntity.ok(societe);
     }
 
@@ -57,7 +57,7 @@ public class SocieteController {
                                                    @Valid @RequestBody UpdateSocieteRequest request,
                                                    @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to update societe {} by {}", id, currentUser.getUsername());
-        Societes societe = userManagementService.updateSociete(id, request, currentUser);
+        Societes societe = societeService.updateSociete(id, request, currentUser);
         return ResponseEntity.ok(societe);
     }
 
@@ -67,7 +67,7 @@ public class SocieteController {
     public ResponseEntity<Void> deleteSociete(@PathVariable Long id,
                                                @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to delete societe {} by {}", id, currentUser.getUsername());
-        userManagementService.deleteSociete(id, currentUser);
+        societeService.deleteSociete(id, currentUser);
         return ResponseEntity.noContent().build();
     }
 
@@ -77,7 +77,7 @@ public class SocieteController {
     public ResponseEntity<List<UserResponse>> getSocieteUsers(@PathVariable Long id,
                                                                @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to get users for societe: {} by {}", id, currentUser.getUsername());
-        List<UserResponse> users = userManagementService.getSocieteUsers(id, currentUser);
+        List<UserResponse> users = societeService.getSocieteUsers(id, currentUser);
         return ResponseEntity.ok(users);
     }
 
@@ -87,7 +87,7 @@ public class SocieteController {
     public ResponseEntity<List<Employees>> getSocieteEmployees(@PathVariable Long id,
                                                                 @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to get employees for societe: {} by {}", id, currentUser.getUsername());
-        List<Employees> employees = userManagementService.getSocieteEmployees(id, currentUser);
+        List<Employees> employees = societeService.getSocieteEmployees(id, currentUser);
         return ResponseEntity.ok(employees);
     }
 
@@ -98,7 +98,7 @@ public class SocieteController {
                                                  @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to assign comptable {} to societe {} by {}",
                 request.getUserId(), request.getSocieteId(), currentUser.getUsername());
-        userManagementService.assignComptableToSociete(request, currentUser);
+        societeService.assignComptableToSociete(request, currentUser);
         return ResponseEntity.noContent().build();
     }
 
@@ -110,7 +110,7 @@ public class SocieteController {
                                                  @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to remove comptable {} from societe {} by {}",
                 userId, societeId, currentUser.getUsername());
-        userManagementService.removeComptableFromSociete(userId, societeId);
+        societeService.removeComptableFromSociete(userId, societeId);
         return ResponseEntity.noContent().build();
     }
 
@@ -121,7 +121,7 @@ public class SocieteController {
                                                      @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to assign user {} to societe {} by {}",
                 request.getUserId(), request.getSocieteId(), currentUser.getUsername());
-        userManagementService.assignUserToSociete(request, currentUser);
+        societeService.assignUserToSociete(request, currentUser);
         return ResponseEntity.noContent().build();
     }
 
@@ -133,7 +133,7 @@ public class SocieteController {
                                                        @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to remove user {} from societe {} by {}",
                 userId, societeId, currentUser.getUsername());
-        userManagementService.removeUserFromSociete(userId, societeId, currentUser);
+        societeService.removeUserFromSociete(userId, societeId, currentUser);
         return ResponseEntity.noContent().build();
     }
 
@@ -143,7 +143,7 @@ public class SocieteController {
     public ResponseEntity<List<Societes>> getUserSocietes(@PathVariable Long userId,
                                                            @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to get societes for user: {} by {}", userId, currentUser.getUsername());
-        List<Societes> societes = userManagementService.getUserSocietes(userId, currentUser);
+        List<Societes> societes = societeService.getUserSocietes(userId, currentUser);
         return ResponseEntity.ok(societes);
     }
 }
