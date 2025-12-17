@@ -31,18 +31,19 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'COMPTABLE')")
     @Operation(summary = "Get all users", description = "Get list of all users (ADMIN or COMPTABLE)")
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        log.info("Request to get all users");
-        List<UserResponse> users = userManagementService.getAllUsers();
+    public ResponseEntity<List<UserResponse>> getAllUsers(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        log.info("Request to get all users by {}", currentUser.getUsername());
+        List<UserResponse> users = userManagementService.getAllUsers(currentUser);
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'COMPTABLE')")
     @Operation(summary = "Get user by ID", description = "Get user details by ID (ADMIN or COMPTABLE)")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        log.info("Request to get user: {}", id);
-        UserResponse user = userManagementService.getUserById(id);
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id,
+                                                     @AuthenticationPrincipal CustomUserDetails currentUser) {
+        log.info("Request to get user: {} by {}", id, currentUser.getUsername());
+        UserResponse user = userManagementService.getUserById(id, currentUser);
         return ResponseEntity.ok(user);
     }
 

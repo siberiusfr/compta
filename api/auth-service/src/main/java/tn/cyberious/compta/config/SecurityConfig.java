@@ -87,7 +87,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/societes", "/api/societes/*").hasAnyRole("ADMIN", "COMPTABLE", "SOCIETE")
                         .requestMatchers(HttpMethod.POST, "/api/societes").hasAnyRole("ADMIN", "COMPTABLE")
                         .requestMatchers(HttpMethod.PUT, "/api/societes/*").hasAnyRole("ADMIN", "COMPTABLE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/societes/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/societes/*").hasAnyRole("ADMIN", "COMPTABLE")
 
                         // Societe associations endpoints
                         .requestMatchers(HttpMethod.GET, "/api/societes/*/users", "/api/societes/*/employees").hasAnyRole("ADMIN", "COMPTABLE", "SOCIETE")

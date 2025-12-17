@@ -11,6 +11,7 @@ import tn.cyberious.compta.auth.generated.tables.pojos.Societes;
 import tn.cyberious.compta.auth.generated.tables.pojos.Users;
 import tn.cyberious.compta.dto.*;
 import tn.cyberious.compta.enums.Role;
+import tn.cyberious.compta.exception.ResourceNotFoundException;
 import tn.cyberious.compta.repository.*;
 import tn.cyberious.compta.security.CustomUserDetails;
 
@@ -30,6 +31,7 @@ public class UserManagementService {
     private final ComptableSocieteRepository comptableSocieteRepository;
     private final UserSocieteRepository userSocieteRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SecurityService securityService;
 
     @Transactional
     public Users createComptable(CreateUserRequest request, CustomUserDetails currentUser) {
@@ -196,18 +198,46 @@ public class UserManagementService {
 
     // ==================== User CRUD Operations ====================
 
-    public List<UserResponse> getAllUsers() {
-        log.info("Getting all users");
-        List<Users> users = userRepository.findAll();
-        return users.stream()
-                .map(this::toUserResponse)
-                .collect(Collectors.toList());
+    public List<UserResponse> getAllUsers(CustomUserDetails currentUser) {
+        log.info("Getting all users by user: {}", currentUser.getId());
+
+        // ADMIN voit tous les utilisateurs
+        if (securityService.isAdmin(currentUser)) {
+            List<Users> users = userRepository.findAll();
+            return users.stream()
+                    .map(this::toUserResponse)
+                    .collect(Collectors.toList());
+        }
+
+        // COMPTABLE voit uniquement les utilisateurs des sociétés qu'il gère
+        if (securityService.isComptable(currentUser)) {
+            List<Long> societeIds = securityService.getAccessibleSocieteIds(currentUser);
+
+            // Récupérer tous les utilisateurs liés à ces sociétés
+            List<Users> users = societeIds.stream()
+                    .flatMap(societeId -> userSocieteRepository.findUsersBySocieteId(societeId).stream())
+                    .distinct()
+                    .toList();
+
+            return users.stream()
+                    .map(this::toUserResponse)
+                    .collect(Collectors.toList());
+        }
+
+        // Autres rôles : accès refusé
+        return List.of();
     }
 
-    public UserResponse getUserById(Long id) {
-        log.info("Getting user by id: {}", id);
+    public UserResponse getUserById(Long id, CustomUserDetails currentUser) {
+        log.info("Getting user {} by user: {}", id, currentUser.getId());
+
+        // Vérifier les permissions
+        if (!securityService.isAdmin(currentUser)) {
+            securityService.checkUserAccess(currentUser, id);
+        }
+
         Users user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
         return toUserResponse(user);
     }
 
@@ -304,23 +334,40 @@ public class UserManagementService {
 
     // ==================== Societe CRUD Operations ====================
 
-    public List<Societes> getAllSocietes() {
-        log.info("Getting all societes");
-        return societeRepository.findAll();
+    public List<Societes> getAllSocietes(CustomUserDetails currentUser) {
+        log.info("Getting all societes by user: {}", currentUser.getId());
+
+        // ADMIN voit toutes les sociétés
+        List<Long> accessibleSocieteIds = securityService.getAccessibleSocieteIds(currentUser);
+        if (accessibleSocieteIds == null) {
+            return societeRepository.findAll();
+        }
+
+        // Filtrer par les sociétés accessibles
+        return societeRepository.findAll().stream()
+                .filter(s -> accessibleSocieteIds.contains(s.getId()))
+                .collect(Collectors.toList());
     }
 
-    public Societes getSocieteById(Long id) {
-        log.info("Getting societe by id: {}", id);
+    public Societes getSocieteById(Long id, CustomUserDetails currentUser) {
+        log.info("Getting societe {} by user: {}", id, currentUser.getId());
+
+        // Vérifier les permissions
+        securityService.checkSocieteAccess(currentUser, id);
+
         return societeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Societe not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Société non trouvée"));
     }
 
     @Transactional
     public Societes updateSociete(Long id, UpdateSocieteRequest request, CustomUserDetails currentUser) {
         log.info("Updating societe {} by {}", id, currentUser.getUsername());
 
+        // Vérifier les permissions d'écriture
+        securityService.checkSocieteWriteAccess(currentUser, id);
+
         Societes societe = societeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Societe not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Société non trouvée"));
 
         if (request.getRaisonSociale() != null) societe.setRaisonSociale(request.getRaisonSociale());
         if (request.getCodeTva() != null) societe.setCodeTva(request.getCodeTva());
@@ -346,29 +393,48 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void deleteSociete(Long id) {
-        log.info("Deleting societe: {}", id);
+    public void deleteSociete(Long id, CustomUserDetails currentUser) {
+        log.info("Deleting societe {} by {}", id, currentUser.getId());
+
+        // Vérifier les permissions d'écriture
+        securityService.checkSocieteWriteAccess(currentUser, id);
+
         if (!societeRepository.exists(id)) {
-            throw new RuntimeException("Societe not found");
+            throw new ResourceNotFoundException("Société non trouvée");
         }
         societeRepository.delete(id);
     }
 
-    public List<UserResponse> getSocieteUsers(Long societeId) {
-        log.info("Getting users for societe: {}", societeId);
+    public List<UserResponse> getSocieteUsers(Long societeId, CustomUserDetails currentUser) {
+        log.info("Getting users for societe {} by user: {}", societeId, currentUser.getId());
+
+        // Vérifier les permissions
+        securityService.checkSocieteAccess(currentUser, societeId);
+
         List<Users> users = userSocieteRepository.findUsersBySocieteId(societeId);
         return users.stream()
                 .map(this::toUserResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<Employees> getSocieteEmployees(Long societeId) {
-        log.info("Getting employees for societe: {}", societeId);
+    public List<Employees> getSocieteEmployees(Long societeId, CustomUserDetails currentUser) {
+        log.info("Getting employees for societe {} by user: {}", societeId, currentUser.getId());
+
+        // Vérifier les permissions
+        securityService.checkSocieteAccess(currentUser, societeId);
+
         return employeeRepository.findBySocieteId(societeId);
     }
 
-    public List<Societes> getUserSocietes(Long userId) {
-        log.info("Getting societes for user: {}", userId);
+    public List<Societes> getUserSocietes(Long userId, CustomUserDetails currentUser) {
+        log.info("Getting societes for user {} by user: {}", userId, currentUser.getId());
+
+        // ADMIN peut voir toutes les sociétés de n'importe quel utilisateur
+        if (!securityService.isAdmin(currentUser)) {
+            // Les autres doivent avoir accès à l'utilisateur
+            securityService.checkUserAccess(currentUser, userId);
+        }
+
         return userSocieteRepository.findSocietesByUserId(userId);
     }
 
@@ -408,13 +474,16 @@ public class UserManagementService {
         log.info("Assigning user {} to societe {} by {}",
                 request.getUserId(), request.getSocieteId(), currentUser.getUsername());
 
+        // Vérifier les permissions sur la société
+        securityService.checkSocieteWriteAccess(currentUser, request.getSocieteId());
+
         // Verify user exists
         Users user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
 
         // Verify societe exists
         Societes societe = societeRepository.findById(request.getSocieteId())
-                .orElseThrow(() -> new RuntimeException("Societe not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Société non trouvée"));
 
         userSocieteRepository.assignUserToSociete(
                 request.getUserId(),
@@ -426,8 +495,12 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void removeUserFromSociete(Long userId, Long societeId) {
-        log.info("Removing user {} from societe {}", userId, societeId);
+    public void removeUserFromSociete(Long userId, Long societeId, CustomUserDetails currentUser) {
+        log.info("Removing user {} from societe {} by {}", userId, societeId, currentUser.getId());
+
+        // Vérifier les permissions sur la société
+        securityService.checkSocieteWriteAccess(currentUser, societeId);
+
         userSocieteRepository.removeUserFromSociete(userId, societeId);
     }
 

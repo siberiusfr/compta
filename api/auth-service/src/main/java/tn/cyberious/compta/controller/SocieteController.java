@@ -34,9 +34,9 @@ public class SocieteController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'COMPTABLE')")
     @Operation(summary = "Get all societes", description = "Get list of all companies (ADMIN or COMPTABLE)")
-    public ResponseEntity<List<Societes>> getAllSocietes() {
-        log.info("Request to get all societes");
-        List<Societes> societes = userManagementService.getAllSocietes();
+    public ResponseEntity<List<Societes>> getAllSocietes(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        log.info("Request to get all societes by {}", currentUser.getUsername());
+        List<Societes> societes = userManagementService.getAllSocietes(currentUser);
         return ResponseEntity.ok(societes);
     }
 
@@ -45,8 +45,8 @@ public class SocieteController {
     @Operation(summary = "Get societe by ID", description = "Get company details by ID")
     public ResponseEntity<Societes> getSocieteById(@PathVariable Long id,
                                                     @AuthenticationPrincipal CustomUserDetails currentUser) {
-        log.info("Request to get societe: {}", id);
-        Societes societe = userManagementService.getSocieteById(id);
+        log.info("Request to get societe: {} by {}", id, currentUser.getUsername());
+        Societes societe = userManagementService.getSocieteById(id, currentUser);
         return ResponseEntity.ok(societe);
     }
 
@@ -62,30 +62,32 @@ public class SocieteController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete societe", description = "Delete company (ADMIN only)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COMPTABLE')")
+    @Operation(summary = "Delete societe", description = "Delete company (ADMIN or COMPTABLE if assigned)")
     public ResponseEntity<Void> deleteSociete(@PathVariable Long id,
                                                @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to delete societe {} by {}", id, currentUser.getUsername());
-        userManagementService.deleteSociete(id);
+        userManagementService.deleteSociete(id, currentUser);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/users")
     @PreAuthorize("hasAnyRole('ADMIN', 'COMPTABLE', 'SOCIETE')")
     @Operation(summary = "Get societe users", description = "Get all users associated with a company")
-    public ResponseEntity<List<UserResponse>> getSocieteUsers(@PathVariable Long id) {
-        log.info("Request to get users for societe: {}", id);
-        List<UserResponse> users = userManagementService.getSocieteUsers(id);
+    public ResponseEntity<List<UserResponse>> getSocieteUsers(@PathVariable Long id,
+                                                               @AuthenticationPrincipal CustomUserDetails currentUser) {
+        log.info("Request to get users for societe: {} by {}", id, currentUser.getUsername());
+        List<UserResponse> users = userManagementService.getSocieteUsers(id, currentUser);
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}/employees")
     @PreAuthorize("hasAnyRole('ADMIN', 'COMPTABLE', 'SOCIETE')")
     @Operation(summary = "Get societe employees", description = "Get all employees of a company")
-    public ResponseEntity<List<Employees>> getSocieteEmployees(@PathVariable Long id) {
-        log.info("Request to get employees for societe: {}", id);
-        List<Employees> employees = userManagementService.getSocieteEmployees(id);
+    public ResponseEntity<List<Employees>> getSocieteEmployees(@PathVariable Long id,
+                                                                @AuthenticationPrincipal CustomUserDetails currentUser) {
+        log.info("Request to get employees for societe: {} by {}", id, currentUser.getUsername());
+        List<Employees> employees = userManagementService.getSocieteEmployees(id, currentUser);
         return ResponseEntity.ok(employees);
     }
 
@@ -131,16 +133,17 @@ public class SocieteController {
                                                        @AuthenticationPrincipal CustomUserDetails currentUser) {
         log.info("Request to remove user {} from societe {} by {}",
                 userId, societeId, currentUser.getUsername());
-        userManagementService.removeUserFromSociete(userId, societeId);
+        userManagementService.removeUserFromSociete(userId, societeId, currentUser);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'COMPTABLE', 'SOCIETE')")
     @Operation(summary = "Get user societes", description = "Get all companies for a user")
-    public ResponseEntity<List<Societes>> getUserSocietes(@PathVariable Long userId) {
-        log.info("Request to get societes for user: {}", userId);
-        List<Societes> societes = userManagementService.getUserSocietes(userId);
+    public ResponseEntity<List<Societes>> getUserSocietes(@PathVariable Long userId,
+                                                           @AuthenticationPrincipal CustomUserDetails currentUser) {
+        log.info("Request to get societes for user: {} by {}", userId, currentUser.getUsername());
+        List<Societes> societes = userManagementService.getUserSocietes(userId, currentUser);
         return ResponseEntity.ok(societes);
     }
 }
