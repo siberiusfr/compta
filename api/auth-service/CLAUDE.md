@@ -156,17 +156,23 @@ src/main/java/tn/cyberious/compta/
 │   ├── SecurityConfig.java            # Spring Security configuration
 │   └── JwtProperties.java             # JWT settings (@ConfigurationProperties)
 ├── controller/
-│   ├── AuthController.java            # Login/refresh endpoints
-│   └── UserManagementController.java  # User/company creation
+│   ├── AuthController.java            # Auth: login, refresh, logout, profile, password
+│   ├── UserController.java            # User CRUD and role management
+│   ├── SocieteController.java         # Societe CRUD and associations
+│   ├── UserManagementController.java  # User/company creation
+│   └── AuthLogController.java         # Authentication audit logs
 ├── service/
-│   ├── AuthService.java               # Login, token refresh, audit logging
-│   └── UserManagementService.java     # Create users, assign roles
+│   ├── AuthService.java               # Login, logout, token refresh, profile, password
+│   ├── UserManagementService.java     # User/societe CRUD, roles, associations
+│   └── AuthLogService.java            # Auth logs querying
 ├── repository/                         # jOOQ-based data access
 │   ├── UserRepository.java
 │   ├── RoleRepository.java
 │   ├── UserRoleRepository.java
 │   ├── SocieteRepository.java
 │   ├── EmployeeRepository.java
+│   ├── ComptableSocieteRepository.java
+│   ├── UserSocieteRepository.java
 │   ├── RefreshTokenRepository.java
 │   └── AuthLogRepository.java
 ├── security/
@@ -180,8 +186,16 @@ src/main/java/tn/cyberious/compta/
 │   ├── LoginRequest.java
 │   ├── AuthResponse.java
 │   ├── CreateUserRequest.java
+│   ├── UpdateUserRequest.java
+│   ├── ChangePasswordRequest.java
+│   ├── UserResponse.java
 │   ├── CreateSocieteRequest.java
-│   └── CreateEmployeeRequest.java
+│   ├── UpdateSocieteRequest.java
+│   ├── CreateEmployeeRequest.java
+│   ├── AssignRoleRequest.java
+│   ├── ComptableSocieteRequest.java
+│   ├── UserSocieteRequest.java
+│   └── AuthLogResponse.java
 └── enums/
     └── Role.java                      # Role enum with string mapping
 ```
@@ -209,7 +223,58 @@ public class UserRepository {
 - Repositories return POJOs (from `tables.pojos` package), not Records
 - Follow existing patterns for consistency
 
-### Security Configuration
+### API Endpoints
+
+The service exposes comprehensive REST APIs organized by domain:
+
+#### Authentication (`AuthController`)
+- `POST /api/auth/login` - Login (public)
+- `POST /api/auth/refresh` - Refresh token (public)
+- `POST /api/auth/logout` - Logout (authenticated)
+- `GET /api/auth/me` - Get current user profile (authenticated)
+- `PUT /api/auth/me` - Update current user profile (authenticated)
+- `PUT /api/auth/password` - Change password (authenticated)
+
+#### User Management (`UserController`)
+- `GET /api/users` - List all users (ADMIN, COMPTABLE)
+- `GET /api/users/{id}` - Get user by ID (ADMIN, COMPTABLE)
+- `PUT /api/users/{id}` - Update user (ADMIN)
+- `DELETE /api/users/{id}` - Delete user (ADMIN)
+- `PUT /api/users/{id}/activate` - Activate user (ADMIN)
+- `PUT /api/users/{id}/deactivate` - Deactivate user (ADMIN)
+- `PUT /api/users/{id}/unlock` - Unlock user account (ADMIN)
+
+#### Role Management (`UserController`)
+- `GET /api/users/{id}/roles` - Get user roles (ADMIN, COMPTABLE)
+- `POST /api/users/{id}/roles` - Assign role to user (ADMIN)
+- `DELETE /api/users/{id}/roles/{roleId}` - Remove role from user (ADMIN)
+
+#### User Creation (`UserManagementController`)
+- `POST /api/users/comptable` - Create comptable (ADMIN)
+- `POST /api/users/societe` - Create societe user (ADMIN, COMPTABLE)
+- `POST /api/users/employee` - Create employee user (ADMIN, COMPTABLE, SOCIETE)
+
+#### Company Management (`SocieteController`)
+- `GET /api/societes` - List all companies (ADMIN, COMPTABLE)
+- `GET /api/societes/{id}` - Get company by ID (ADMIN, COMPTABLE, SOCIETE)
+- `POST /api/societes` - Create company (ADMIN, COMPTABLE)
+- `PUT /api/societes/{id}` - Update company (ADMIN, COMPTABLE)
+- `DELETE /api/societes/{id}` - Delete company (ADMIN)
+- `GET /api/societes/{id}/users` - Get company users (ADMIN, COMPTABLE, SOCIETE)
+- `GET /api/societes/{id}/employees` - Get company employees (ADMIN, COMPTABLE, SOCIETE)
+- `GET /api/societes/user/{userId}` - Get user's companies (ADMIN, COMPTABLE, SOCIETE)
+
+#### Associations (`SocieteController`)
+- `POST /api/societes/comptable-assignment` - Assign comptable to company (ADMIN)
+- `DELETE /api/societes/comptable-assignment/{userId}/{societeId}` - Remove comptable (ADMIN)
+- `POST /api/societes/user-assignment` - Assign user to company (ADMIN, COMPTABLE)
+- `DELETE /api/societes/user-assignment/{userId}/{societeId}` - Remove user (ADMIN, COMPTABLE)
+- `POST /api/employees` - Create employee association (ADMIN, COMPTABLE, SOCIETE)
+
+#### Audit Logs (`AuthLogController`)
+- `GET /api/auth/logs` - Get all auth logs (ADMIN)
+- `GET /api/auth/logs/user/{userId}` - Get user auth logs (ADMIN, COMPTABLE)
+- `GET /api/auth/logs/action/{action}` - Get logs by action (ADMIN)
 
 **Public endpoints (no auth required):**
 - `POST /api/auth/login`
@@ -217,17 +282,13 @@ public class UserRepository {
 - `/actuator/**`
 - `/v3/api-docs/**`, `/swagger-ui/**`
 
-**Protected endpoints (role-based):**
-- `POST /api/users/comptable` - ADMIN only
-- `POST /api/users/societe` - ADMIN or COMPTABLE
-- `POST /api/users/employee` - ADMIN, COMPTABLE, or SOCIETE
-- `POST /api/societes` - ADMIN or COMPTABLE
-
 **JWT Configuration:**
 - Access token expiry: 24 hours (configurable via `JWT_EXPIRATION`)
 - Refresh token expiry: 7 days (configurable via `JWT_REFRESH_EXPIRATION`)
 - Secret key: Set via `JWT_SECRET` environment variable (default provided for dev)
 - Header format: `Authorization: Bearer <token>`
+
+**Swagger UI:** Available at `http://localhost:8083/swagger-ui.html` when service is running
 
 ### Authentication Flow
 
@@ -244,11 +305,22 @@ public class UserRepository {
    - Generates new access token (refresh token remains same)
    - Returns updated AuthResponse
 
-3. **Protected Requests**:
+3. **Logout** (`POST /api/auth/logout`):
+   - Deletes refresh token from database
+   - Logs logout event to `auth_logs`
+   - Client should discard access token
+
+4. **Protected Requests**:
    - JwtAuthenticationFilter extracts JWT from Authorization header
    - Validates token signature and expiration
    - Loads user details and sets SecurityContext
    - Spring Security enforces role-based access per SecurityConfig
+
+5. **Password Change** (`PUT /api/auth/password`):
+   - Verifies current password
+   - Updates password with new hashed value
+   - Deletes all refresh tokens (forces re-login on all devices)
+   - Logs password change event
 
 ### Parent POM Configuration
 
@@ -320,9 +392,55 @@ Inherits base configuration from `compta-commons/src/main/resources/application.
 2. **Regenerate jOOQ**: `mvn clean generate-sources`
 3. **Add/modify repositories**: Use jOOQ DSLContext for queries
 4. **Add/modify services**: Business logic layer
-5. **Add/modify controllers**: REST endpoints
-6. **Update SecurityConfig**: If new endpoints need authorization rules
-7. **Test**: Write integration tests extending `AbstractIntegrationTest` from compta-commons
+5. **Add DTOs**: Create request/response DTOs in `dto/` package
+6. **Add/modify controllers**: REST endpoints with `@PreAuthorize` annotations
+7. **Update SecurityConfig**: Add endpoint patterns to `.requestMatchers()` with appropriate roles
+8. **Test**: Write integration tests extending `AbstractIntegrationTest` from compta-commons
+
+### Service Layer Patterns
+
+**UserManagementService** handles all user and company CRUD operations:
+- User creation with role assignment
+- User CRUD operations (list, get, update, delete, activate/deactivate, unlock)
+- Role management (assign, remove)
+- Company CRUD operations
+- Association management (comptable-societe, user-societe, employee)
+
+**AuthService** handles authentication and profile management:
+- Login with JWT generation
+- Token refresh
+- Logout with token invalidation
+- Current user profile (get, update)
+- Password change with token revocation
+
+**AuthLogService** provides audit log querying:
+- Query all logs (with limit)
+- Query by user ID
+- Query by action type
+
+### Repository Patterns
+
+All repositories follow the same pattern with jOOQ:
+```java
+// Basic CRUD
+insert(Entity) -> Entity
+update(Entity) -> Entity
+delete(Long id) -> boolean
+findById(Long id) -> Optional<Entity>
+findAll() -> List<Entity>
+exists(Long id) -> boolean
+
+// Custom queries
+findBySomeField(value) -> Optional<Entity> or List<Entity>
+```
+
+**Association repositories** (ComptableSocieteRepository, UserSocieteRepository):
+```java
+assignX(userId, societeId, ...) -> void
+removeX(userId, societeId) -> void
+findUsersBySocieteId(Long societeId) -> List<Users>
+findSocietesByUserId(Long userId) -> List<Societes>
+```
 
 ### Working with jOOQ
 
