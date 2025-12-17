@@ -101,4 +101,11 @@ public class UserRoleRepository {
                 .set(USER_ROLES.CREATED_AT, LocalDateTime.now())
                 .execute();
     }
+
+    public void removeRole(Long userId, Long roleId) {
+        log.debug("Removing role {} from user {}", roleId, userId);
+        dsl.deleteFrom(USER_ROLES)
+                .where(USER_ROLES.USER_ID.eq(userId).and(USER_ROLES.ROLE_ID.eq(roleId)))
+                .execute();
+    }
 }

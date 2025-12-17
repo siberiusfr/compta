@@ -9,12 +9,13 @@ import tn.cyberious.compta.auth.generated.tables.pojos.Employees;
 import tn.cyberious.compta.auth.generated.tables.pojos.Roles;
 import tn.cyberious.compta.auth.generated.tables.pojos.Societes;
 import tn.cyberious.compta.auth.generated.tables.pojos.Users;
-import tn.cyberious.compta.dto.CreateEmployeeRequest;
-import tn.cyberious.compta.dto.CreateSocieteRequest;
-import tn.cyberious.compta.dto.CreateUserRequest;
+import tn.cyberious.compta.dto.*;
 import tn.cyberious.compta.enums.Role;
 import tn.cyberious.compta.repository.*;
 import tn.cyberious.compta.security.CustomUserDetails;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +27,8 @@ public class UserManagementService {
     private final UserRoleRepository userRoleRepository;
     private final SocieteRepository societeRepository;
     private final EmployeeRepository employeeRepository;
+    private final ComptableSocieteRepository comptableSocieteRepository;
+    private final UserSocieteRepository userSocieteRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -189,5 +192,264 @@ public class UserManagementService {
                 .orElseThrow(() -> new RuntimeException("Role not found: " + role.getName()));
 
         userRoleRepository.assignRole(userId, roleEntity.getId());
+    }
+
+    // ==================== User CRUD Operations ====================
+
+    public List<UserResponse> getAllUsers() {
+        log.info("Getting all users");
+        List<Users> users = userRepository.findAll();
+        return users.stream()
+                .map(this::toUserResponse)
+                .collect(Collectors.toList());
+    }
+
+    public UserResponse getUserById(Long id) {
+        log.info("Getting user by id: {}", id);
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return toUserResponse(user);
+    }
+
+    @Transactional
+    public UserResponse updateUser(Long id, UpdateUserRequest request, CustomUserDetails currentUser) {
+        log.info("Updating user {} by {}", id, currentUser.getUsername());
+
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                var existingUser = userRepository.findByEmail(request.getEmail());
+                if (existingUser.isPresent() && !existingUser.get().getId().equals(id)) {
+                    throw new RuntimeException("Email already in use");
+                }
+            }
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) user.setLastName(request.getLastName());
+        if (request.getPhone() != null) user.setPhone(request.getPhone());
+
+        user.setUpdatedBy(currentUser.getId());
+
+        Users updatedUser = userRepository.update(user);
+        return toUserResponse(updatedUser);
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        log.info("Deleting user: {}", id);
+        if (!userRepository.exists(id)) {
+            throw new RuntimeException("User not found");
+        }
+        userRepository.delete(id);
+    }
+
+    @Transactional
+    public void activateUser(Long id) {
+        log.info("Activating user: {}", id);
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(true);
+        userRepository.update(user);
+    }
+
+    @Transactional
+    public void deactivateUser(Long id) {
+        log.info("Deactivating user: {}", id);
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(false);
+        userRepository.update(user);
+    }
+
+    @Transactional
+    public void unlockUser(Long id) {
+        log.info("Unlocking user: {}", id);
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsLocked(false);
+        user.setFailedLoginAttempts(0);
+        userRepository.update(user);
+    }
+
+    // ==================== Role Management ====================
+
+    public List<String> getUserRoles(Long userId) {
+        log.info("Getting roles for user: {}", userId);
+        List<Role> roles = userRepository.findRolesByUserId(userId);
+        return roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void assignRole(Long userId, String roleName, CustomUserDetails currentUser) {
+        log.info("Assigning role {} to user {} by {}", roleName, userId, currentUser.getUsername());
+
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Role role = Role.fromName(roleName);
+        assignRole(userId, role);
+    }
+
+    @Transactional
+    public void removeRole(Long userId, Long roleId) {
+        log.info("Removing role {} from user {}", roleId, userId);
+        userRoleRepository.removeRole(userId, roleId);
+    }
+
+    // ==================== Societe CRUD Operations ====================
+
+    public List<Societes> getAllSocietes() {
+        log.info("Getting all societes");
+        return societeRepository.findAll();
+    }
+
+    public Societes getSocieteById(Long id) {
+        log.info("Getting societe by id: {}", id);
+        return societeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Societe not found"));
+    }
+
+    @Transactional
+    public Societes updateSociete(Long id, UpdateSocieteRequest request, CustomUserDetails currentUser) {
+        log.info("Updating societe {} by {}", id, currentUser.getUsername());
+
+        Societes societe = societeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Societe not found"));
+
+        if (request.getRaisonSociale() != null) societe.setRaisonSociale(request.getRaisonSociale());
+        if (request.getCodeTva() != null) societe.setCodeTva(request.getCodeTva());
+        if (request.getCodeDouane() != null) societe.setCodeDouane(request.getCodeDouane());
+        if (request.getRegistreCommerce() != null) societe.setRegistreCommerce(request.getRegistreCommerce());
+        if (request.getFormeJuridique() != null) societe.setFormeJuridique(request.getFormeJuridique());
+        if (request.getCapitalSocial() != null) societe.setCapitalSocial(request.getCapitalSocial());
+        if (request.getDateCreation() != null) societe.setDateCreation(request.getDateCreation());
+        if (request.getAdresse() != null) societe.setAdresse(request.getAdresse());
+        if (request.getVille() != null) societe.setVille(request.getVille());
+        if (request.getCodePostal() != null) societe.setCodePostal(request.getCodePostal());
+        if (request.getTelephone() != null) societe.setTelephone(request.getTelephone());
+        if (request.getFax() != null) societe.setFax(request.getFax());
+        if (request.getEmail() != null) societe.setEmail(request.getEmail());
+        if (request.getSiteWeb() != null) societe.setSiteWeb(request.getSiteWeb());
+        if (request.getActivite() != null) societe.setActivite(request.getActivite());
+        if (request.getSecteur() != null) societe.setSecteur(request.getSecteur());
+        if (request.getIsActive() != null) societe.setIsActive(request.getIsActive());
+
+        societe.setUpdatedBy(currentUser.getId());
+
+        return societeRepository.update(societe);
+    }
+
+    @Transactional
+    public void deleteSociete(Long id) {
+        log.info("Deleting societe: {}", id);
+        if (!societeRepository.exists(id)) {
+            throw new RuntimeException("Societe not found");
+        }
+        societeRepository.delete(id);
+    }
+
+    public List<UserResponse> getSocieteUsers(Long societeId) {
+        log.info("Getting users for societe: {}", societeId);
+        List<Users> users = userSocieteRepository.findUsersBySocieteId(societeId);
+        return users.stream()
+                .map(this::toUserResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<Employees> getSocieteEmployees(Long societeId) {
+        log.info("Getting employees for societe: {}", societeId);
+        return employeeRepository.findBySocieteId(societeId);
+    }
+
+    public List<Societes> getUserSocietes(Long userId) {
+        log.info("Getting societes for user: {}", userId);
+        return userSocieteRepository.findSocietesByUserId(userId);
+    }
+
+    // ==================== Comptable-Societe Associations ====================
+
+    @Transactional
+    public void assignComptableToSociete(ComptableSocieteRequest request, CustomUserDetails currentUser) {
+        log.info("Assigning comptable {} to societe {} by {}",
+                request.getUserId(), request.getSocieteId(), currentUser.getUsername());
+
+        // Verify user exists and has COMPTABLE role
+        Users user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Verify societe exists
+        Societes societe = societeRepository.findById(request.getSocieteId())
+                .orElseThrow(() -> new RuntimeException("Societe not found"));
+
+        comptableSocieteRepository.assignComptableToSociete(
+                request.getUserId(),
+                request.getSocieteId(),
+                request.getDateDebut(),
+                request.getDateFin()
+        );
+    }
+
+    @Transactional
+    public void removeComptableFromSociete(Long userId, Long societeId) {
+        log.info("Removing comptable {} from societe {}", userId, societeId);
+        comptableSocieteRepository.removeComptableFromSociete(userId, societeId);
+    }
+
+    // ==================== User-Societe Associations ====================
+
+    @Transactional
+    public void assignUserToSociete(UserSocieteRequest request, CustomUserDetails currentUser) {
+        log.info("Assigning user {} to societe {} by {}",
+                request.getUserId(), request.getSocieteId(), currentUser.getUsername());
+
+        // Verify user exists
+        Users user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Verify societe exists
+        Societes societe = societeRepository.findById(request.getSocieteId())
+                .orElseThrow(() -> new RuntimeException("Societe not found"));
+
+        userSocieteRepository.assignUserToSociete(
+                request.getUserId(),
+                request.getSocieteId(),
+                request.getIsOwner(),
+                request.getDateDebut(),
+                request.getDateFin()
+        );
+    }
+
+    @Transactional
+    public void removeUserFromSociete(Long userId, Long societeId) {
+        log.info("Removing user {} from societe {}", userId, societeId);
+        userSocieteRepository.removeUserFromSociete(userId, societeId);
+    }
+
+    // ==================== Helper Methods ====================
+
+    private UserResponse toUserResponse(Users user) {
+        List<String> roles = getUserRoles(user.getId());
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phone(user.getPhone())
+                .isActive(user.getIsActive())
+                .isLocked(user.getIsLocked())
+                .failedLoginAttempts(user.getFailedLoginAttempts())
+                .lastLoginAt(user.getLastLoginAt())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .roles(roles)
+                .build();
     }
 }

@@ -1,15 +1,21 @@
 package tn.cyberious.compta.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import tn.cyberious.compta.auth.generated.tables.pojos.Users;
 import tn.cyberious.compta.dto.AuthResponse;
+import tn.cyberious.compta.dto.ChangePasswordRequest;
 import tn.cyberious.compta.dto.LoginRequest;
+import tn.cyberious.compta.dto.UpdateUserRequest;
+import tn.cyberious.compta.security.CustomUserDetails;
 import tn.cyberious.compta.service.AuthService;
 
 @Slf4j
@@ -37,6 +43,51 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refreshToken(@RequestParam String refreshToken) {
         AuthResponse response = authService.refreshToken(refreshToken);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    @SecurityRequirement(name = "bearer-jwt")
+    @Operation(summary = "Logout", description = "Logout user and invalidate refresh token")
+    public ResponseEntity<Void> logout(@AuthenticationPrincipal CustomUserDetails currentUser,
+                                       @RequestParam(required = false) String refreshToken) {
+        authService.logout(currentUser.getId(), refreshToken);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    @SecurityRequirement(name = "bearer-jwt")
+    @Operation(summary = "Get current user", description = "Get current authenticated user information")
+    public ResponseEntity<Users> getCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        Users user = authService.getCurrentUser(currentUser.getId());
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/me")
+    @SecurityRequirement(name = "bearer-jwt")
+    @Operation(summary = "Update current user", description = "Update current user profile")
+    public ResponseEntity<Users> updateCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser,
+                                                    @Valid @RequestBody UpdateUserRequest request) {
+        Users user = authService.updateCurrentUser(
+                currentUser.getId(),
+                request.getEmail(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getPhone()
+        );
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/password")
+    @SecurityRequirement(name = "bearer-jwt")
+    @Operation(summary = "Change password", description = "Change current user password")
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal CustomUserDetails currentUser,
+                                                @Valid @RequestBody ChangePasswordRequest request) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new RuntimeException("Passwords do not match");
+        }
+
+        authService.changePassword(currentUser.getId(), request.getCurrentPassword(), request.getNewPassword());
+        return ResponseEntity.noContent().build();
     }
 
     private String getClientIp(HttpServletRequest request) {

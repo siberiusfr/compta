@@ -67,6 +67,13 @@ public class RefreshTokenRepository {
                 .execute();
     }
 
+    public int deleteByToken(String token) {
+        log.debug("Deleting refresh token by token");
+        return dsl.deleteFrom(REFRESH_TOKENS)
+                .where(REFRESH_TOKENS.TOKEN.eq(token))
+                .execute();
+    }
+
     public int deleteExpiredTokens() {
         log.debug("Deleting expired refresh tokens");
         return dsl.deleteFrom(REFRESH_TOKENS)

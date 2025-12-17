@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.cyberious.compta.auth.generated.tables.pojos.RefreshTokens;
@@ -32,6 +33,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthLogRepository authLogRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public AuthResponse login(LoginRequest loginRequest, String ipAddress, String userAgent) {
@@ -170,6 +172,80 @@ public class AuthService {
         refreshToken.setIpAddress(ipAddress);
         refreshToken.setUserAgent(userAgent);
         refreshTokenRepository.insert(refreshToken);
+    }
+
+    @Transactional
+    public void logout(Long userId, String refreshToken) {
+        log.info("Logout request for user: {}", userId);
+
+        // Delete refresh token from database
+        if (refreshToken != null && !refreshToken.isEmpty()) {
+            refreshTokenRepository.deleteByToken(refreshToken);
+        } else {
+            // Delete all refresh tokens for this user
+            refreshTokenRepository.deleteByUserId(userId);
+        }
+
+        // Log logout event
+        logAuthEvent(userId, null, "LOGOUT", null, null, null);
+    }
+
+    public Users getCurrentUser(Long userId) {
+        log.debug("Getting current user: {}", userId);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    @Transactional
+    public Users updateCurrentUser(Long userId, String email, String firstName, String lastName, String phone) {
+        log.info("Updating user: {}", userId);
+
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (email != null && !email.isEmpty()) {
+            // Check if email already exists for another user
+            if (userRepository.existsByEmail(email)) {
+                var existingUser = userRepository.findByEmail(email);
+                if (existingUser.isPresent() && !existingUser.get().getId().equals(userId)) {
+                    throw new RuntimeException("Email already in use");
+                }
+            }
+            user.setEmail(email);
+        }
+
+        if (firstName != null) user.setFirstName(firstName);
+        if (lastName != null) user.setLastName(lastName);
+        if (phone != null) user.setPhone(phone);
+
+        user.setUpdatedBy(userId);
+
+        return userRepository.update(user);
+    }
+
+    @Transactional
+    public void changePassword(Long userId, String currentPassword, String newPassword) {
+        log.info("Password change request for user: {}", userId);
+
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Verify current password
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+
+        // Update password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordChangedAt(LocalDateTime.now());
+        user.setUpdatedBy(userId);
+
+        userRepository.update(user);
+
+        // Delete all refresh tokens to force re-login
+        refreshTokenRepository.deleteByUserId(userId);
+
+        log.info("Password changed successfully for user: {}", userId);
     }
 
     private void logAuthEvent(Long userId, String username, String action, String ipAddress, String userAgent, String details) {

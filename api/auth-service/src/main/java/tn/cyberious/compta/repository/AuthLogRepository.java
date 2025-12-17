@@ -79,6 +79,16 @@ public class AuthLogRepository {
                 .into(AuthLogs.class);
     }
 
+    public List<AuthLogs> findByUserId(Long userId, Integer limit) {
+        log.debug("Finding auth logs by userId: {} with limit: {}", userId, limit);
+        return dsl.selectFrom(AUTH_LOGS)
+                .where(AUTH_LOGS.USER_ID.eq(userId))
+                .orderBy(AUTH_LOGS.CREATED_AT.desc())
+                .limit(limit)
+                .fetch()
+                .into(AuthLogs.class);
+    }
+
     public List<AuthLogs> findByUsername(String username) {
         log.debug("Finding auth logs by username: {}", username);
         return dsl.selectFrom(AUTH_LOGS)
@@ -97,10 +107,29 @@ public class AuthLogRepository {
                 .into(AuthLogs.class);
     }
 
+    public List<AuthLogs> findByAction(String action, Integer limit) {
+        log.debug("Finding auth logs by action: {} with limit: {}", action, limit);
+        return dsl.selectFrom(AUTH_LOGS)
+                .where(AUTH_LOGS.ACTION.eq(action))
+                .orderBy(AUTH_LOGS.CREATED_AT.desc())
+                .limit(limit)
+                .fetch()
+                .into(AuthLogs.class);
+    }
+
     public List<AuthLogs> findAll() {
         log.debug("Finding all auth logs");
         return dsl.selectFrom(AUTH_LOGS)
                 .orderBy(AUTH_LOGS.CREATED_AT.desc())
+                .fetch()
+                .into(AuthLogs.class);
+    }
+
+    public List<AuthLogs> findAll(Integer limit) {
+        log.debug("Finding all auth logs with limit: {}", limit);
+        return dsl.selectFrom(AUTH_LOGS)
+                .orderBy(AUTH_LOGS.CREATED_AT.desc())
+                .limit(limit)
                 .fetch()
                 .into(AuthLogs.class);
     }
