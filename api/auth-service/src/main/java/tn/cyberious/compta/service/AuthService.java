@@ -2,25 +2,25 @@ package tn.cyberious.compta.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.DSLContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tn.cyberious.compta.auth.generated.tables.records.AuthLogsRecord;
-import tn.cyberious.compta.auth.generated.tables.records.RefreshTokensRecord;
+import tn.cyberious.compta.auth.generated.tables.pojos.RefreshTokens;
+import tn.cyberious.compta.auth.generated.tables.pojos.Users;
 import tn.cyberious.compta.dto.AuthResponse;
 import tn.cyberious.compta.dto.LoginRequest;
 import tn.cyberious.compta.enums.Role;
+import tn.cyberious.compta.repository.AuthLogRepository;
+import tn.cyberious.compta.repository.RefreshTokenRepository;
+import tn.cyberious.compta.repository.UserRepository;
 import tn.cyberious.compta.security.CustomUserDetails;
 import tn.cyberious.compta.util.JwtTokenUtil;
 
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
-
-import static tn.cyberious.compta.auth.generated.Tables.*;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -29,7 +29,9 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtil jwtTokenUtil;
-    private final DSLContext dsl;
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final AuthLogRepository authLogRepository;
 
     @Transactional
     public AuthResponse login(LoginRequest loginRequest, String ipAddress, String userAgent) {
@@ -55,11 +57,11 @@ public class AuthService {
             saveRefreshToken(userDetails.getId(), refreshToken, ipAddress, userAgent);
 
             // Update last login
-            dsl.update(USERS)
-                    .set(USERS.LAST_LOGIN_AT, LocalDateTime.now())
-                    .set(USERS.FAILED_LOGIN_ATTEMPTS, 0)
-                    .where(USERS.ID.eq(userDetails.getId()))
-                    .execute();
+            Users user = userRepository.findById(userDetails.getId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            user.setLastLoginAt(LocalDateTime.now());
+            user.setFailedLoginAttempts(0);
+            userRepository.update(user);
 
             // Log successful login
             logAuthEvent(userDetails.getId(), loginRequest.getUsername(), "LOGIN_SUCCESS", ipAddress, userAgent, null);
@@ -79,29 +81,24 @@ public class AuthService {
             log.error("Login failed for user: {}", loginRequest.getUsername(), e);
 
             // Increment failed login attempts
-            var userRecord = dsl.selectFrom(USERS)
-                    .where(USERS.USERNAME.eq(loginRequest.getUsername()))
-                    .fetchOne();
+            var userOpt = userRepository.findByUsername(loginRequest.getUsername());
 
-            if (userRecord != null) {
-                int attempts = userRecord.getFailedLoginAttempts() != null ? userRecord.getFailedLoginAttempts() : 0;
+            if (userOpt.isPresent()) {
+                Users user = userOpt.get();
+                int attempts = user.getFailedLoginAttempts() != null ? user.getFailedLoginAttempts() : 0;
                 attempts++;
 
-                dsl.update(USERS)
-                        .set(USERS.FAILED_LOGIN_ATTEMPTS, attempts)
-                        .where(USERS.ID.eq(userRecord.getId()))
-                        .execute();
+                user.setFailedLoginAttempts(attempts);
 
                 // Lock account after 5 failed attempts
                 if (attempts >= 5) {
-                    dsl.update(USERS)
-                            .set(USERS.IS_LOCKED, true)
-                            .where(USERS.ID.eq(userRecord.getId()))
-                            .execute();
+                    user.setIsLocked(true);
                     log.warn("Account locked for user: {} after {} failed attempts", loginRequest.getUsername(), attempts);
                 }
 
-                logAuthEvent(userRecord.getId(), loginRequest.getUsername(), "LOGIN_FAILED", ipAddress, userAgent, e.getMessage());
+                userRepository.update(user);
+
+                logAuthEvent(user.getId(), loginRequest.getUsername(), "LOGIN_FAILED", ipAddress, userAgent, e.getMessage());
             } else {
                 logAuthEvent(null, loginRequest.getUsername(), "LOGIN_FAILED", ipAddress, userAgent, "User not found");
             }
@@ -118,41 +115,28 @@ public class AuthService {
             String username = jwtTokenUtil.getUsernameFromToken(refreshToken);
 
             // Verify refresh token exists in database
-            var tokenRecord = dsl.selectFrom(REFRESH_TOKENS)
-                    .where(REFRESH_TOKENS.TOKEN.eq(refreshToken))
-                    .fetchOne();
+            RefreshTokens token = refreshTokenRepository.findByToken(refreshToken)
+                    .orElseThrow(() -> new RuntimeException("Invalid or expired refresh token"));
 
-            if (tokenRecord == null || tokenRecord.getExpiresAt().isBefore(LocalDateTime.now())) {
-                log.error("Refresh token invalid or expired");
+            if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
+                log.error("Refresh token expired");
                 throw new RuntimeException("Invalid or expired refresh token");
             }
 
             // Load user
-            var userRecord = dsl.selectFrom(USERS)
-                    .where(USERS.ID.eq(tokenRecord.getUserId()))
-                    .fetchOne();
-
-            if (userRecord == null) {
-                throw new RuntimeException("User not found");
-            }
+            Users user = userRepository.findById(token.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
             // Get user roles
-            var roles = dsl.select(ROLES.NAME)
-                    .from(USER_ROLES)
-                    .join(ROLES).on(USER_ROLES.ROLE_ID.eq(ROLES.ID))
-                    .where(USER_ROLES.USER_ID.eq(userRecord.getId()))
-                    .fetch(ROLES.NAME)
-                    .stream()
-                    .map(Role::fromName)
-                    .collect(Collectors.toList());
+            List<Role> roles = userRepository.findRolesByUserId(user.getId());
 
             CustomUserDetails userDetails = new CustomUserDetails(
-                    userRecord.getId(),
-                    userRecord.getUsername(),
-                    userRecord.getEmail(),
-                    userRecord.getPassword(),
-                    userRecord.getIsActive(),
-                    userRecord.getIsLocked(),
+                    user.getId(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getPassword(),
+                    user.getIsActive(),
+                    user.getIsLocked(),
                     roles
             );
 
@@ -176,28 +160,19 @@ public class AuthService {
 
     private void saveRefreshToken(Long userId, String token, String ipAddress, String userAgent) {
         // Delete old refresh tokens for this user
-        dsl.deleteFrom(REFRESH_TOKENS)
-                .where(REFRESH_TOKENS.USER_ID.eq(userId))
-                .execute();
+        refreshTokenRepository.deleteByUserId(userId);
 
         // Save new refresh token
-        RefreshTokensRecord record = dsl.newRecord(REFRESH_TOKENS);
-        record.setUserId(userId);
-        record.setToken(token);
-        record.setExpiresAt(LocalDateTime.now().plusDays(7));
-        record.setIpAddress(ipAddress);
-        record.setUserAgent(userAgent);
-        record.store();
+        RefreshTokens refreshToken = new RefreshTokens();
+        refreshToken.setUserId(userId);
+        refreshToken.setToken(token);
+        refreshToken.setExpiresAt(LocalDateTime.now().plusDays(7));
+        refreshToken.setIpAddress(ipAddress);
+        refreshToken.setUserAgent(userAgent);
+        refreshTokenRepository.insert(refreshToken);
     }
 
     private void logAuthEvent(Long userId, String username, String action, String ipAddress, String userAgent, String details) {
-        AuthLogsRecord log = dsl.newRecord(AUTH_LOGS);
-        log.setUserId(userId);
-        log.setUsername(username);
-        log.setAction(action);
-        log.setIpAddress(ipAddress);
-        log.setUserAgent(userAgent);
-        log.setDetails(details);
-        log.store();
+        authLogRepository.log(userId, username, action, ipAddress, userAgent, details);
     }
 }
