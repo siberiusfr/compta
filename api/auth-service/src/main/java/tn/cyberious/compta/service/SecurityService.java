@@ -19,6 +19,7 @@ import java.util.List;
 public class SecurityService {
 
     private final UserRepository userRepository;
+    private final SocieteRepository societeRepository;
     private final ComptableSocieteRepository comptableSocieteRepository;
     private final UserSocieteRepository userSocieteRepository;
     private final EmployeeRepository employeeRepository;
@@ -34,14 +35,11 @@ public class SecurityService {
             return;
         }
 
-        // COMPTABLE : vérifier l'attribution
+        // COMPTABLE : vérifier l'attribution (requête directe)
         if (roles.contains(Role.COMPTABLE)) {
-            boolean hasAccess = comptableSocieteRepository.findByUserId(currentUser.getId())
-                    .stream()
-                    .anyMatch(cs -> cs.getSocieteId().equals(societeId) &&
-                                   (cs.getIsActive() == null || cs.getIsActive()));
+            List<Long> accessibleSocietes = societeRepository.findSocieteIdsByComptableId(currentUser.getId());
 
-            if (!hasAccess) {
+            if (!accessibleSocietes.contains(societeId)) {
                 log.warn("Comptable {} attempted to access societe {} without permission",
                         currentUser.getId(), societeId);
                 throw new ForbiddenException("Vous n'avez pas accès à cette société");
@@ -49,14 +47,11 @@ public class SecurityService {
             return;
         }
 
-        // SOCIETE : vérifier si c'est sa société
+        // SOCIETE : vérifier si c'est sa société (requête directe)
         if (roles.contains(Role.SOCIETE)) {
-            boolean hasAccess = userSocieteRepository.findByUserId(currentUser.getId())
-                    .stream()
-                    .anyMatch(us -> us.getSocieteId().equals(societeId) &&
-                                   (us.getIsActive() == null || us.getIsActive()));
+            List<Long> accessibleSocietes = societeRepository.findSocieteIdsByUserSocieteId(currentUser.getId());
 
-            if (!hasAccess) {
+            if (!accessibleSocietes.contains(societeId)) {
                 log.warn("User societe {} attempted to access societe {} without permission",
                         currentUser.getId(), societeId);
                 throw new ForbiddenException("Vous n'avez pas accès à cette société");
@@ -64,14 +59,11 @@ public class SecurityService {
             return;
         }
 
-        // EMPLOYEE : vérifier si c'est la société de son emploi
+        // EMPLOYEE : vérifier si c'est la société de son emploi (requête directe)
         if (roles.contains(Role.EMPLOYEE)) {
-            boolean hasAccess = employeeRepository.findByUserId(currentUser.getId())
-                    .map(emp -> emp.getSocieteId().equals(societeId) &&
-                               (emp.getIsActive() == null || emp.getIsActive()))
-                    .orElse(false);
+            List<Long> accessibleSocietes = societeRepository.findSocieteIdsByEmployeeId(currentUser.getId());
 
-            if (!hasAccess) {
+            if (!accessibleSocietes.contains(societeId)) {
                 log.warn("Employee {} attempted to access societe {} without permission",
                         currentUser.getId(), societeId);
                 throw new ForbiddenException("Vous n'avez pas accès à cette société");
@@ -94,14 +86,11 @@ public class SecurityService {
             return;
         }
 
-        // COMPTABLE : vérifier l'attribution
+        // COMPTABLE : vérifier l'attribution (requête directe)
         if (roles.contains(Role.COMPTABLE)) {
-            boolean hasAccess = comptableSocieteRepository.findByUserId(currentUser.getId())
-                    .stream()
-                    .anyMatch(cs -> cs.getSocieteId().equals(societeId) &&
-                                   (cs.getIsActive() == null || cs.getIsActive()));
+            List<Long> accessibleSocietes = societeRepository.findSocieteIdsByComptableId(currentUser.getId());
 
-            if (!hasAccess) {
+            if (!accessibleSocietes.contains(societeId)) {
                 log.warn("Comptable {} attempted to modify societe {} without permission",
                         currentUser.getId(), societeId);
                 throw new ForbiddenException("Vous n'avez pas le droit de modifier cette société");
@@ -124,30 +113,19 @@ public class SecurityService {
             return null; // null signifie "toutes les sociétés"
         }
 
-        // COMPTABLE : sociétés attribuées
+        // COMPTABLE : sociétés attribuées (requête directe)
         if (roles.contains(Role.COMPTABLE)) {
-            return comptableSocieteRepository.findByUserId(currentUser.getId())
-                    .stream()
-                    .filter(cs -> cs.getIsActive() == null || cs.getIsActive())
-                    .map(cs -> cs.getSocieteId())
-                    .toList();
+            return societeRepository.findSocieteIdsByComptableId(currentUser.getId());
         }
 
-        // SOCIETE : ses sociétés
+        // SOCIETE : ses sociétés (requête directe)
         if (roles.contains(Role.SOCIETE)) {
-            return userSocieteRepository.findByUserId(currentUser.getId())
-                    .stream()
-                    .filter(us -> us.getIsActive() == null || us.getIsActive())
-                    .map(us -> us.getSocieteId())
-                    .toList();
+            return societeRepository.findSocieteIdsByUserSocieteId(currentUser.getId());
         }
 
-        // EMPLOYEE : sa société
+        // EMPLOYEE : sa société (requête directe)
         if (roles.contains(Role.EMPLOYEE)) {
-            return employeeRepository.findByUserId(currentUser.getId())
-                    .filter(emp -> emp.getIsActive() == null || emp.getIsActive())
-                    .map(emp -> List.of(emp.getSocieteId()))
-                    .orElse(List.of());
+            return societeRepository.findSocieteIdsByEmployeeId(currentUser.getId());
         }
 
         return List.of(); // Aucun accès par défaut
@@ -167,26 +145,21 @@ public class SecurityService {
 
         // COMPTABLE : peut voir les utilisateurs des sociétés qu'il gère
         if (roles.contains(Role.COMPTABLE)) {
-            List<Long> comptableSocietes = comptableSocieteRepository.findByUserId(currentUser.getId())
-                    .stream()
-                    .filter(cs -> cs.getIsActive() == null || cs.getIsActive())
-                    .map(cs -> cs.getSocieteId())
-                    .toList();
+            // Récupérer les IDs des sociétés du comptable (requête directe)
+            List<Long> comptableSocietes = societeRepository.findSocieteIdsByComptableId(currentUser.getId());
 
-            // Vérifier si l'utilisateur cible est lié à une de ces sociétés
-            List<Long> targetUserSocietes = userSocieteRepository.findByUserId(targetUserId)
-                    .stream()
-                    .map(us -> us.getSocieteId())
-                    .toList();
+            // Récupérer les IDs des sociétés de l'utilisateur cible (requête directe)
+            List<Long> targetUserSocietes = societeRepository.findSocieteIdsByUserSocieteId(targetUserId);
 
             boolean hasCommonSociete = comptableSocietes.stream()
                     .anyMatch(targetUserSocietes::contains);
 
             if (!hasCommonSociete) {
-                // Vérifier aussi si c'est un employé d'une des sociétés du comptable
-                boolean isEmployeeInComptableSocietes = employeeRepository.findByUserId(targetUserId)
-                        .map(emp -> comptableSocietes.contains(emp.getSocieteId()))
-                        .orElse(false);
+                // Vérifier aussi si c'est un employé d'une des sociétés du comptable (requête directe)
+                List<Long> targetEmployeeSocietes = societeRepository.findSocieteIdsByEmployeeId(targetUserId);
+
+                boolean isEmployeeInComptableSocietes = comptableSocietes.stream()
+                        .anyMatch(targetEmployeeSocietes::contains);
 
                 if (!isEmployeeInComptableSocietes) {
                     log.warn("Comptable {} attempted to access user {} without common societe",

@@ -136,4 +136,89 @@ public class SocieteRepository {
                         .where(SOCIETES.MATRICULE_FISCALE.eq(matriculeFiscale))
         );
     }
+
+    /**
+     * Récupère les sociétés accessibles par un COMPTABLE (via comptable_societes)
+     */
+    public List<Societes> findByComptableId(Long comptableId) {
+        log.debug("Finding societes for comptable: {}", comptableId);
+
+        return dsl.select(SOCIETES.fields())
+                .from(SOCIETES)
+                .join(COMPTABLE_SOCIETES).on(COMPTABLE_SOCIETES.SOCIETE_ID.eq(SOCIETES.ID))
+                .where(COMPTABLE_SOCIETES.USER_ID.eq(comptableId)
+                        .and(COMPTABLE_SOCIETES.IS_ACTIVE.isTrue()))
+                .fetch()
+                .into(Societes.class);
+    }
+
+    /**
+     * Récupère les sociétés accessibles par un utilisateur SOCIETE (via user_societes)
+     */
+    public List<Societes> findByUserSocieteId(Long userId) {
+        log.debug("Finding societes for user societe: {}", userId);
+
+        return dsl.select(SOCIETES.fields())
+                .from(SOCIETES)
+                .join(USER_SOCIETES).on(USER_SOCIETES.SOCIETE_ID.eq(SOCIETES.ID))
+                .where(USER_SOCIETES.USER_ID.eq(userId)
+                        .and(USER_SOCIETES.IS_ACTIVE.isTrue()))
+                .fetch()
+                .into(Societes.class);
+    }
+
+    /**
+     * Récupère la société d'un EMPLOYEE (via employees)
+     */
+    public List<Societes> findByEmployeeId(Long employeeId) {
+        log.debug("Finding societe for employee: {}", employeeId);
+
+        return dsl.select(SOCIETES.fields())
+                .from(SOCIETES)
+                .join(EMPLOYEES).on(EMPLOYEES.SOCIETE_ID.eq(SOCIETES.ID))
+                .where(EMPLOYEES.USER_ID.eq(employeeId)
+                        .and(EMPLOYEES.IS_ACTIVE.isTrue()))
+                .fetch()
+                .into(Societes.class);
+    }
+
+    /**
+     * Récupère les IDs des sociétés accessibles par un COMPTABLE
+     */
+    public List<Long> findSocieteIdsByComptableId(Long comptableId) {
+        log.debug("Finding societe IDs for comptable: {}", comptableId);
+
+        return dsl.select(COMPTABLE_SOCIETES.SOCIETE_ID)
+                .from(COMPTABLE_SOCIETES)
+                .where(COMPTABLE_SOCIETES.USER_ID.eq(comptableId)
+                        .and(COMPTABLE_SOCIETES.IS_ACTIVE.isTrue()))
+                .fetch(COMPTABLE_SOCIETES.SOCIETE_ID);
+    }
+
+    /**
+     * Récupère les IDs des sociétés accessibles par un utilisateur SOCIETE
+     */
+    public List<Long> findSocieteIdsByUserSocieteId(Long userId) {
+        log.debug("Finding societe IDs for user societe: {}", userId);
+
+        return dsl.select(USER_SOCIETES.SOCIETE_ID)
+                .from(USER_SOCIETES)
+                .where(USER_SOCIETES.USER_ID.eq(userId)
+                        .and(USER_SOCIETES.IS_ACTIVE.isTrue()))
+                .fetch(USER_SOCIETES.SOCIETE_ID);
+    }
+
+    /**
+     * Récupère l'ID de la société d'un EMPLOYEE
+     */
+    public List<Long> findSocieteIdsByEmployeeId(Long employeeId) {
+        log.debug("Finding societe ID for employee: {}", employeeId);
+
+        return dsl.select(EMPLOYEES.SOCIETE_ID)
+                .from(EMPLOYEES)
+                .where(EMPLOYEES.USER_ID.eq(employeeId)
+                        .and(EMPLOYEES.IS_ACTIVE.isTrue()))
+                .fetch(EMPLOYEES.SOCIETE_ID);
+    }
 }
+

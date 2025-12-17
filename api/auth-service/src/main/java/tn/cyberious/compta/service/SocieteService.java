@@ -32,16 +32,30 @@ public class SocieteService {
     public List<Societes> getAllSocietes(CustomUserDetails currentUser) {
         log.info("Getting all societes by user: {}", currentUser.getId());
 
+        List<tn.cyberious.compta.enums.Role> roles = userRepository.findRolesByUserId(currentUser.getId());
+
         // ADMIN voit toutes les sociétés
-        List<Long> accessibleSocieteIds = securityService.getAccessibleSocieteIds(currentUser);
-        if (accessibleSocieteIds == null) {
+        if (roles.contains(tn.cyberious.compta.enums.Role.ADMIN)) {
             return societeRepository.findAll();
         }
 
-        // Filtrer par les sociétés accessibles
-        return societeRepository.findAll().stream()
-                .filter(s -> accessibleSocieteIds.contains(s.getId()))
-                .collect(Collectors.toList());
+        // COMPTABLE voit les sociétés qui lui sont attribuées
+        if (roles.contains(tn.cyberious.compta.enums.Role.COMPTABLE)) {
+            return societeRepository.findByComptableId(currentUser.getId());
+        }
+
+        // SOCIETE voit ses propres sociétés
+        if (roles.contains(tn.cyberious.compta.enums.Role.SOCIETE)) {
+            return societeRepository.findByUserSocieteId(currentUser.getId());
+        }
+
+        // EMPLOYEE voit la société de son emploi
+        if (roles.contains(tn.cyberious.compta.enums.Role.EMPLOYEE)) {
+            return societeRepository.findByEmployeeId(currentUser.getId());
+        }
+
+        // Aucun rôle approprié
+        return List.of();
     }
 
     public Societes getSocieteById(Long id, CustomUserDetails currentUser) {
