@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { User } from '@types/index'
+import type { User } from '@app-types/index'
 
 interface AuthState {
   user: User | null

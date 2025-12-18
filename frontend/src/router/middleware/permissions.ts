@@ -1,5 +1,5 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
-import { useAuthStore } from '@stores'
+import { useAuthStore } from '@stores/index'
 
 /**
  * Middleware to check user permissions/roles

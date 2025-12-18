@@ -1,5 +1,5 @@
 import apiClient from './client'
-import type { ApiResponse, PaginatedResponse } from '@types/index'
+import type { ApiResponse, PaginatedResponse } from '@app-types/index'
 
 export interface Invoice {
   id: string

@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import type { FormInst, FormRules } from 'naive-ui'
-import { useAuthStore } from '@stores'
+import { useAuthStore } from '@stores/index'
 
 const router = useRouter()
 const message = useMessage()

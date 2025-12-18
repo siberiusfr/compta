@@ -1,5 +1,5 @@
 import apiClient from './client'
-import type { User, ApiResponse } from '@types/index'
+import type { User, ApiResponse } from '@app-types/index'
 
 export interface LoginRequest {
   email: string

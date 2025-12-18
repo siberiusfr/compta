@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import type { DataTableColumns } from 'naive-ui'
-import { useAccountingStore } from '@stores'
+import { useAccountingStore } from '@stores/index'
 
 const router = useRouter()
 const message = useMessage()

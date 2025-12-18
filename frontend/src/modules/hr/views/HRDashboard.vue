@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { useHRStore } from '@stores'
+import { useHRStore } from '@stores/index'
 
 const router = useRouter()
 const hrStore = useHRStore()

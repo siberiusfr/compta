@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAccountingStore } from '@stores'
+import { useAccountingStore } from '@stores/index'
 
 const router = useRouter()
 const accountingStore = useAccountingStore()
