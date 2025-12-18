@@ -24,7 +24,9 @@
     "clean": "rm -rf node_modules dist coverage .vite",
     "clean:install": "pnpm clean && pnpm install",
     "prepare": "echo 'Setup complete'",
-    "check": "pnpm type-check && pnpm lint:check && pnpm format:check && pnpm test:run"
+    "check": "pnpm type-check && pnpm lint:check && pnpm format:check && pnpm test:run",
+    "generate:api:auth": "openapi-generator-cli generate -c openapi-config/auth.yaml",
+    "generate:api:comptabilite": "openapi-generator-cli generate -c openapi-config/comptabilite.yaml"
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.92.1",
@@ -41,6 +43,7 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.25.2",
     "@tanstack/eslint-plugin-query": "^5.91.2",
     "@types/node": "^24.10.1",
     "@vitejs/plugin-vue": "^6.0.1",

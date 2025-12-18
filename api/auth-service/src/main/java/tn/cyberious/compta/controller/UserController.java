@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@Tag(name = "User Management", description = "User CRUD operations")
+@Tag(name = "User", description = "User CRUD operations")
 @SecurityRequirement(name = "bearer-jwt")
 public class UserController {
 
