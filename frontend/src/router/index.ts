@@ -15,6 +15,22 @@ const routes: RouteRecordRaw[] = [
   ...hrRoutes,
   ...documentsRoutes,
   {
+    path: '/403',
+    name: 'forbidden',
+    component: () => import('@/views/Forbidden.vue'),
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/500',
+    name: 'server-error',
+    component: () => import('@/views/ServerError.vue'),
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/NotFound.vue'),

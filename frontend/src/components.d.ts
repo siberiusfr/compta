@@ -11,7 +11,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    HelloWorld: typeof import('./components/HelloWorld.vue')['default']
+    ConfirmDialog: typeof import('./components/base/ConfirmDialog.vue')['default']
+    EmptyState: typeof import('./components/base/EmptyState.vue')['default']
+    ErrorBoundary: typeof import('./components/ErrorBoundary.vue')['default']
+    ErrorDisplay: typeof import('./components/base/ErrorDisplay.vue')['default']
+    LoadingSpinner: typeof import('./components/base/LoadingSpinner.vue')['default']
     NAlert: typeof import('naive-ui')['NAlert']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
@@ -41,6 +45,7 @@ declare module 'vue' {
     NText: typeof import('naive-ui')['NText']
     NThing: typeof import('naive-ui')['NThing']
     NUpload: typeof import('naive-ui')['NUpload']
+    PageHeader: typeof import('./components/base/PageHeader.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
