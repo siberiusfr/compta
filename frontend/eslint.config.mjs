@@ -1,6 +1,7 @@
 import pluginVue from 'eslint-plugin-vue'
 import tseslint from 'typescript-eslint'
 import skipPrettier from 'eslint-config-prettier'
+import pluginQuery from '@tanstack/eslint-plugin-query'
 
 export default tseslint.config(
   // Désactive les fichiers inutiles
@@ -9,6 +10,7 @@ export default tseslint.config(
   // Base TypeScript & Vue
   ...tseslint.configs.recommended,
   ...pluginVue.configs['flat/essential'], // ou 'flat/recommended' pour plus de rigueur
+  ...pluginQuery.configs['flat/recommended'],
 
   {
     files: ['**/*.{ts,vue}'],
