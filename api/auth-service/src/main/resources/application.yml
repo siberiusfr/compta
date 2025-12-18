@@ -27,3 +27,14 @@ jwt:
   issuer: compta-auth-service
   header: Authorization
   prefix: Bearer
+
+# Configuration Sentry
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SENTRY_ENVIRONMENT:${spring.profiles.active:development}}
+  traces-sample-rate: 0.1
+  debug: false
+  send-default-pii: false
+  tags:
+    service: auth-service
+    module: authentication

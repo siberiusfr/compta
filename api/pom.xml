@@ -47,6 +47,7 @@
         <jooq.version>3.19.28</jooq.version>
         <postgresql.version>42.7.8</postgresql.version>
         <jjwt.version>0.12.6</jjwt.version>
+        <sentry.version>8.29.0</sentry.version>
 
         <!-- Versions des plugins -->
         <checkstyle.version>12.3.0</checkstyle.version>
@@ -125,6 +126,13 @@
                 <artifactId>jjwt-jackson</artifactId>
                 <version>${jjwt.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+
+            <!-- Sentry -->
+            <dependency>
+                <groupId>io.sentry</groupId>
+                <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
+                <version>${sentry.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tn.cyberious.compta.enums.Role;
 import tn.cyberious.compta.exception.ForbiddenException;
-import tn.cyberious.compta.repository.ComptableSocieteRepository;
-import tn.cyberious.compta.repository.EmployeeRepository;
-import tn.cyberious.compta.repository.UserRepository;
-import tn.cyberious.compta.repository.UserSocieteRepository;
+import tn.cyberious.compta.repository.*;
 import tn.cyberious.compta.security.CustomUserDetails;
 
 import java.util.List;

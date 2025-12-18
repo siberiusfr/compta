@@ -35,3 +35,14 @@ server:
 logging:
   level:
     org.flywaydb: INFO
+
+# Configuration Sentry
+sentry:
+  dsn: ${SENTRY_DSN:} # À configurer via variable d'environnement
+  environment: ${SENTRY_ENVIRONMENT:development}
+  traces-sample-rate: 1.0 # 100% en dev, réduire à 0.1 (10%) en production
+  send-default-pii: false
+  enable-tracing: true
+  tags:
+    service: migration-service
+    module: migration
