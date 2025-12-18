@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { NConfigProvider, NMessageProvider, NDialogProvider, NLoadingBarProvider } from 'naive-ui'
+import { themeOverrides } from '@/config/theme'
 import DefaultLayout from '@layouts/DefaultLayout.vue'
 import AuthLayout from '@layouts/AuthLayout.vue'
 
@@ -12,7 +13,7 @@ const layoutComponent = computed(() => {
 </script>
 
 <template>
-  <n-config-provider>
+  <n-config-provider :theme-overrides="themeOverrides">
     <n-loading-bar-provider>
       <n-dialog-provider>
         <n-message-provider>

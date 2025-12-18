@@ -3,6 +3,14 @@ import { authRoutes } from '@modules/auth/routes'
 import { accountingRoutes } from '@modules/accounting/routes'
 import { hrRoutes } from '@modules/hr/routes'
 import { documentsRoutes } from '@modules/documents/routes'
+import {
+  loggingMiddleware,
+  analyticsMiddleware,
+  permissionsMiddleware,
+  progressMiddleware,
+  finishProgress,
+  errorProgress,
+} from './middleware'
 import type { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
@@ -42,6 +50,10 @@ const router = createRouter({
   routes,
 })
 
+// Apply middlewares in order
+router.beforeEach(loggingMiddleware)
+router.beforeEach(progressMiddleware)
+
 // Navigation guard for authentication
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.meta.requiresAuth ?? true
@@ -54,6 +66,22 @@ router.beforeEach((to, from, next) => {
   } else {
     next()
   }
+})
+
+// Permission/role check
+router.beforeEach(permissionsMiddleware)
+
+// Analytics tracking
+router.beforeEach(analyticsMiddleware)
+
+// After navigation
+router.afterEach(() => {
+  finishProgress()
+})
+
+// Navigation error handler
+router.onError(() => {
+  errorProgress()
 })
 
 export default router
