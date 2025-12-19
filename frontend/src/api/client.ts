@@ -1,13 +1,17 @@
 import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios'
-import type { ApiError } from '@app-types/index'
+import type { ApiError } from '../types' // Utilise un chemin relatif ici pour Orval
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
-const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000')
+const getBaseUrl = () => {
+  try {
+    return import.meta.env.VITE_API_BASE_URL || '/api'
+  } catch {
+    return 'http://localhost:8080/api'
+  }
+}
 
-// Create axios instance
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: API_TIMEOUT,
+  baseURL: getBaseUrl(),
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },

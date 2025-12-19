@@ -37,6 +37,29 @@ export default defineConfig({
       '@app-types': fileURLToPath(new URL('./src/types', import.meta.url)),
     },
   },
+  build: {
+    target: 'es2020',
+    minify: 'esbuild',
+    cssCodeSplit: true,
+    sourcemap: false,
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        // Organisation propre des fichiers dans dist/
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+
+        // Optimisation du cache : on sépare les grosses dépendances
+        manualChunks: {
+          'naive-ui': ['naive-ui'],
+          'icons': ['@vicons/ionicons5'],
+          'vendor': ['vue', 'vue-router', 'pinia', '@tanstack/vue-query', 'axios'],
+          'utils-vendor': ['dayjs', 'lodash-es', 'zod']
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     host: true,

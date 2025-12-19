@@ -9,9 +9,10 @@ export default defineConfig({
       client: 'vue-query',
       mode: 'single',
       target: './src/modules/auth/api/generated/auth-api.ts',
+      tsconfig: './tsconfig.app.json',
       override: {
         mutator: {
-          path: './src/api/axios-instance.ts',
+          path: './src/api/axios-mutator.ts',
           name: 'customAxios'
         }
       }
@@ -27,9 +28,10 @@ export default defineConfig({
       client: 'axios',
       mode: 'single',
       clean: true,
+      tsconfig: './tsconfig.app.json',
       override: {
         mutator: {
-          path: './src/api/axios-instance.ts',
+          path: './src/api/axios-mutator.ts',
           name: 'customAxios'
         }
       }
@@ -45,9 +47,10 @@ export default defineConfig({
       client: 'axios',
       mode: 'single',
       clean: true,
+      tsconfig: './tsconfig.app.json',
       override: {
         mutator: {
-          path: './src/api/axios-instance.ts',
+          path: './src/api/axios-mutator.ts',
           name: 'customAxios'
         }
       }

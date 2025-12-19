@@ -29,7 +29,7 @@ import type {
   MaybeRef
 } from 'vue';
 
-import { customAxios } from '../../../../api/axios-instance';
+import { customAxios } from '../../../../api/axios-mutator';
 export interface UpdateUserRequest {
   email?: string;
   /**
