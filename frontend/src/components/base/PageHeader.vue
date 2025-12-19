@@ -42,8 +42,3 @@ function handleBack() {
 }
 </script>
 
-<style scoped>
-.page-header {
-  margin-bottom: 24px;
-}
-</style>

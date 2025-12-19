@@ -30,12 +30,3 @@ function handleReset() {
 }
 </script>
 
-<style scoped>
-.error-boundary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  padding: 24px;
-}
-</style>

@@ -78,26 +78,3 @@ function handleLogout() {
 }
 </script>
 
-<style scoped>
-.full-height-layout {
-  height: 100vh;
-}
-
-.header {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
-}
-
-.header-content {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.header-content h2 {
-  margin: 0;
-}
-</style>

@@ -48,8 +48,3 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.dashboard {
-  width: 100%;
-}
-</style>
