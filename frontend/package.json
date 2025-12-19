@@ -25,8 +25,8 @@
     "clean:install": "pnpm clean && pnpm install",
     "prepare": "echo 'Setup complete'",
     "check": "pnpm type-check && pnpm lint:check && pnpm format:check && pnpm test:run",
-    "generate:api:auth": "openapi-generator-cli generate -c openapi-config/auth.yaml",
-    "generate:api:comptabilite": "openapi-generator-cli generate -c openapi-config/comptabilite.yaml"
+    "generate:api:auth": "orval --config orval.config.ts --project auth",
+    "generate:api:all": "orval"
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.92.1",
@@ -45,6 +45,7 @@
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.25.2",
     "@tanstack/eslint-plugin-query": "^5.91.2",
+    "@tanstack/vue-query-devtools": "^6.1.2",
     "@types/node": "^24.10.1",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitest/coverage-v8": "^4.0.16",
@@ -54,6 +55,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.6.2",
     "happy-dom": "^20.0.11",
+    "orval": "^7.17.0",
     "prettier": "^3.7.4",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.50.0",

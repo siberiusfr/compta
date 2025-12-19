@@ -19,9 +19,9 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("API Comptabilité")
+                        .title("API Compta")
                         .version("1.0.0")
-                        .description("API REST pour la gestion de comptabilité")
+                        .description("API REST pour la gestion de compta")
                         .contact(new Contact()
                                 .name("Cyberious")
                                 .email("contact@cyberious.tn")
