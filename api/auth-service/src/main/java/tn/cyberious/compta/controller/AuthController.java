@@ -10,11 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import tn.cyberious.compta.auth.generated.tables.pojos.Users;
 import tn.cyberious.compta.dto.AuthResponse;
 import tn.cyberious.compta.dto.ChangePasswordRequest;
 import tn.cyberious.compta.dto.LoginRequest;
 import tn.cyberious.compta.dto.UpdateUserRequest;
+import tn.cyberious.compta.dto.UserResponse;
 import tn.cyberious.compta.security.CustomUserDetails;
 import tn.cyberious.compta.service.AuthService;
 
@@ -57,17 +57,17 @@ public class AuthController {
     @GetMapping("/me")
     @SecurityRequirement(name = "bearer-jwt")
     @Operation(summary = "Get current user", description = "Get current authenticated user information")
-    public ResponseEntity<Users> getCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser) {
-        Users user = authService.getCurrentUser(currentUser.getId());
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        UserResponse user = authService.getCurrentUser(currentUser.getId());
         return ResponseEntity.ok(user);
     }
 
     @PutMapping("/me")
     @SecurityRequirement(name = "bearer-jwt")
     @Operation(summary = "Update current user", description = "Update current user profile")
-    public ResponseEntity<Users> updateCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser,
-                                                    @Valid @RequestBody UpdateUserRequest request) {
-        Users user = authService.updateCurrentUser(
+    public ResponseEntity<UserResponse> updateCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser,
+                                                           @Valid @RequestBody UpdateUserRequest request) {
+        UserResponse user = authService.updateCurrentUser(
                 currentUser.getId(),
                 request.getEmail(),
                 request.getFirstName(),

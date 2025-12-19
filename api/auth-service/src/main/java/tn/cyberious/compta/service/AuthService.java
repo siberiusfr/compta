@@ -13,6 +13,7 @@ import tn.cyberious.compta.auth.generated.tables.pojos.RefreshTokens;
 import tn.cyberious.compta.auth.generated.tables.pojos.Users;
 import tn.cyberious.compta.dto.AuthResponse;
 import tn.cyberious.compta.dto.LoginRequest;
+import tn.cyberious.compta.dto.UserResponse;
 import tn.cyberious.compta.enums.Role;
 import tn.cyberious.compta.repository.AuthLogRepository;
 import tn.cyberious.compta.repository.RefreshTokenRepository;
@@ -190,14 +191,15 @@ public class AuthService {
         logAuthEvent(userId, null, "LOGOUT", null, null, null);
     }
 
-    public Users getCurrentUser(Long userId) {
+    public UserResponse getCurrentUser(Long userId) {
         log.debug("Getting current user: {}", userId);
-        return userRepository.findById(userId)
+        Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        return toUserResponse(user);
     }
 
     @Transactional
-    public Users updateCurrentUser(Long userId, String email, String firstName, String lastName, String phone) {
+    public UserResponse updateCurrentUser(Long userId, String email, String firstName, String lastName, String phone) {
         log.info("Updating user: {}", userId);
 
         Users user = userRepository.findById(userId)
@@ -220,7 +222,8 @@ public class AuthService {
 
         user.setUpdatedBy(userId);
 
-        return userRepository.update(user);
+        Users updatedUser = userRepository.update(user);
+        return toUserResponse(updatedUser);
     }
 
     @Transactional
@@ -250,5 +253,28 @@ public class AuthService {
 
     private void logAuthEvent(Long userId, String username, String action, String ipAddress, String userAgent, String details) {
         authLogRepository.log(userId, username, action, ipAddress, userAgent, details);
+    }
+
+    private UserResponse toUserResponse(Users user) {
+        List<String> roles = userRepository.findRolesByUserId(user.getId())
+                .stream()
+                .map(Role::name)
+                .toList();
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phone(user.getPhone())
+                .isActive(user.getIsActive())
+                .isLocked(user.getIsLocked())
+                .failedLoginAttempts(user.getFailedLoginAttempts())
+                .lastLoginAt(user.getLastLoginAt())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .roles(roles)
+                .build();
     }
 }

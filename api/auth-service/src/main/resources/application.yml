@@ -26,7 +26,7 @@ jwt:
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 jours en millisecondes
   issuer: compta-auth-service
   header: Authorization
-  prefix: Bearer
+  prefix: "Bearer "
 
 # Configuration Sentry
 sentry:
