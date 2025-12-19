@@ -1,43 +1,45 @@
 <template>
-  <div class="register-container">
-    <n-card class="register-card">
-      <n-h1>Créer un compte</n-h1>
-      <n-form ref="formRef" :model="model" :rules="rules" @submit.prevent="handleRegister">
-        <n-form-item path="username" label="Nom d'utilisateur">
-          <n-input v-model:value="model.username" placeholder="Entrez votre nom d'utilisateur" />
-        </n-form-item>
-        <n-form-item path="firstName" label="Prénom">
-          <n-input v-model:value="model.firstName" placeholder="Entrez votre prénom" />
-        </n-form-item>
-        <n-form-item path="lastName" label="Nom de famille">
-          <n-input v-model:value="model.lastName" placeholder="Entrez votre nom de famille" />
-        </n-form-item>
-        <n-form-item path="email" label="Email">
-          <n-input v-model:value="model.email" placeholder="Entrez votre adresse email" />
-        </n-form-item>
-        <n-form-item path="password" label="Mot de passe">
-          <n-input
-            v-model:value="model.password"
-            type="password"
-            show-password-on="mousedown"
-            placeholder="Entrez votre mot de passe"
-          />
-        </n-form-item>
-        <n-form-item path="reenteredPassword" label="Confirmer le mot de passe">
-          <n-input
-            v-model:value="model.reenteredPassword"
-            type="password"
-            show-password-on="mousedown"
-            placeholder="Confirmez votre mot de passe"
-            :disabled="!model.password"
-          />
-        </n-form-item>
-        <n-button type="primary" attr-type="submit" block :loading="loading">
-          S'inscrire
-        </n-button>
-      </n-form>
-    </n-card>
-  </div>
+  <n-layout style="height: 100vh">
+    <n-flex justify="center" align="center" style="height: 100%">
+      <n-card class="register-card" style="max-width: 450px;">
+        <n-h1>Créer un compte</n-h1>
+        <n-form ref="formRef" :model="model" :rules="rules" @submit.prevent="handleRegister">
+          <n-form-item path="username" label="Nom d'utilisateur">
+            <n-input v-model:value="model.username" placeholder="Entrez votre nom d'utilisateur" />
+          </n-form-item>
+          <n-form-item path="firstName" label="Prénom">
+            <n-input v-model:value="model.firstName" placeholder="Entrez votre prénom" />
+          </n-form-item>
+          <n-form-item path="lastName" label="Nom de famille">
+            <n-input v-model:value="model.lastName" placeholder="Entrez votre nom de famille" />
+          </n-form-item>
+          <n-form-item path="email" label="Email">
+            <n-input v-model:value="model.email" placeholder="Entrez votre adresse email" />
+          </n-form-item>
+          <n-form-item path="password" label="Mot de passe">
+            <n-input
+              v-model:value="model.password"
+              type="password"
+              show-password-on="mousedown"
+              placeholder="Entrez votre mot de passe"
+            />
+          </n-form-item>
+          <n-form-item path="reenteredPassword" label="Confirmer le mot de passe">
+            <n-input
+              v-model:value="model.reenteredPassword"
+              type="password"
+              show-password-on="mousedown"
+              placeholder="Confirmez votre mot de passe"
+              :disabled="!model.password"
+            />
+          </n-form-item>
+          <n-button type="primary" attr-type="submit" block :loading="loading">
+            S'inscrire
+          </n-button>
+        </n-form>
+      </n-card>
+    </n-flex>
+  </n-layout>
 </template>
 
 <script setup lang="ts">
@@ -102,16 +104,3 @@ const handleRegister = async () => {
   })
 }
 </script>
-
-<style scoped>
-.register-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-.register-card {
-  max-width: 400px;
-  width: 100%;
-}
-</style>
