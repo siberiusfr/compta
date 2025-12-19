@@ -42,7 +42,18 @@
 </template>
 
 <script setup lang="ts">
-import { useAccountingStore } from '@stores/index'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import {
+  NPageHeader,
+  NSpace,
+  NGrid,
+  NGi,
+  NCard,
+  NStatistic,
+  NButton,
+} from 'naive-ui'
+import { useAccountingStore } from '@/modules/accounting/stores/accountingStore'
 
 const router = useRouter()
 const accountingStore = useAccountingStore()

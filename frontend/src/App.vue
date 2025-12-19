@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute, RouterView } from 'vue-router'
 import { NConfigProvider, NMessageProvider, NDialogProvider, NLoadingBarProvider } from 'naive-ui'
 import { themeOverrides } from '@/config/theme'
 import DefaultLayout from '@layouts/DefaultLayout.vue'

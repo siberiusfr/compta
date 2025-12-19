@@ -45,8 +45,20 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import {
+  useMessage,
+  type FormInst,
+  type FormRules,
+  NLayout,
+  NFlex,
+  NCard,
+  NH1,
+  NForm,
+  NFormItem,
+  NInput,
+  NButton,
+} from 'naive-ui'
 import { useAuthStore } from '@/modules/auth/stores/authStore'
-import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 
 const formRef = ref<FormInst | null>(null)
 const model = ref({

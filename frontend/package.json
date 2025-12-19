@@ -23,7 +23,7 @@
     "test:watch": "vitest --watch",
     "clean": "rm -rf node_modules dist coverage .vite",
     "clean:install": "pnpm clean && pnpm install",
-    "prepare": "echo 'Setup complete'",
+    "prepare": "husky",
     "check": "pnpm type-check && pnpm lint:check && pnpm format:check && pnpm test:run",
     "generate:api:auth": "orval --config orval.config.ts --project auth",
     "generate:api:all": "orval"
@@ -55,15 +55,21 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.6.2",
     "happy-dom": "^20.0.11",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "orval": "^7.17.0",
     "prettier": "^3.7.4",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.50.0",
-    "unplugin-auto-import": "^20.3.0",
-    "unplugin-vue-components": "^30.0.0",
     "vfonts": "^0.0.3",
     "vite": "^7.2.4",
     "vitest": "^4.0.16",
     "vue-tsc": "^3.1.4"
+  },
+  "lint-staged": {
+    "*.{js,ts,vue,json,md}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }

@@ -41,8 +41,25 @@
 </template>
 
 <script setup lang="ts">
-import type { DataTableColumns } from 'naive-ui'
-import { useAccountingStore } from '@stores/index'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import {
+  useMessage,
+  type DataTableColumns,
+  type FormRules,
+  NPageHeader,
+  NButton,
+  NCard,
+  NDataTable,
+  NModal,
+  NForm,
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NDatePicker,
+  NSpace,
+} from 'naive-ui'
+import { useAccountingStore } from '@/modules/accounting/stores/accountingStore'
 
 const router = useRouter()
 const message = useMessage()
@@ -58,10 +75,24 @@ const formValue = ref({
   date: Date.now(),
 })
 
-const rules = {
+const rules: FormRules = {
   number: { required: true, message: 'Numéro requis', trigger: 'blur' },
   client: { required: true, message: 'Client requis', trigger: 'blur' },
-  amount: { required: true, type: 'number', message: 'Montant requis', trigger: 'blur' },
+  amount: [
+    {
+      required: true,
+      validator: (rule, value) => {
+        if (value === null || value === undefined) {
+          return new Error('Veuillez entrer un montant')
+        }
+        if (value <= 0) {
+          return new Error('Le montant doit être supérieur à zéro')
+        }
+        return true
+      },
+      trigger: ['input', 'blur'],
+    },
+  ],
 }
 
 const columns: DataTableColumns = [
