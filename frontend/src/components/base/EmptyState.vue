@@ -30,9 +30,3 @@ defineEmits<{
 }>()
 </script>
 
-<style scoped>
-.empty-state {
-  padding: 48px 24px;
-  text-align: center;
-}
-</style>
