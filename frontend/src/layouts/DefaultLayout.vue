@@ -1,5 +1,5 @@
 <template>
-  <n-layout has-sider>
+  <n-layout has-sider class="full-height-layout">
     <n-layout-sider
       bordered
       collapse-mode="width"
@@ -79,6 +79,10 @@ function handleLogout() {
 </script>
 
 <style scoped>
+.full-height-layout {
+  height: 100vh;
+}
+
 .header {
   height: 64px;
   display: flex;

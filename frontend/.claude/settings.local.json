@@ -7,7 +7,9 @@
       "Bash(pnpm test:*)",
       "Bash(pnpm build:*)",
       "Bash(pnpm test:run:*)",
-      "Bash(pnpm run generate:api:auth:*)"
+      "Bash(pnpm run generate:api:auth:*)",
+      "Bash(find:*)",
+      "Bash(findstr:*)"
     ]
   }
 }

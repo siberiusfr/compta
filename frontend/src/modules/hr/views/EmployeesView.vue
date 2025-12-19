@@ -15,7 +15,7 @@
       />
     </n-card>
 
-    <n-modal v-model:show="showModal" preset="dialog" title="Nouvel employé" style="width: 600px">
+    <n-modal v-model:show="showModal" preset="dialog" title="Nouvel employé" style="width: 90%; max-width: 800px">
       <n-form ref="formRef" :model="formValue" :rules="rules">
         <n-grid :cols="2" :x-gap="16">
           <n-gi>
