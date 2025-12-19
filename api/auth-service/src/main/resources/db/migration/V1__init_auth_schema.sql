@@ -157,3 +157,28 @@ INSERT INTO auth.roles (name, description) VALUES
                                                ('COMPTABLE', 'Comptable pouvant gérer plusieurs sociétés'),
                                                ('SOCIETE', 'Utilisateur de type société pouvant avoir plusieurs sociétés'),
                                                ('EMPLOYEE', 'Employé appartenant à une société');
+
+-- Insertion d'un utilisateur admin par défaut
+-- Mot de passe: Admin@123 (hashé avec BCrypt)
+INSERT INTO auth.users (
+    username,
+    email,
+    password,
+    first_name,
+    last_name,
+    is_active,
+    password_changed_at
+) VALUES (
+             'admin',
+             'admin@compta.tn',
+             '$2a$10$GrrAeBf6ksJ0t6pcY9la/.1W5G0ot.Q/0lmKEsmSI.kkFiSsTKTg2', -- Admin@123
+             'Administrateur',
+             'Système',
+             true,
+             CURRENT_TIMESTAMP
+         );
+INSERT INTO auth.user_roles (user_id, role_id)
+SELECT u.id, r.id
+FROM auth.users u
+    CROSS JOIN auth.roles r
+WHERE u.username = 'admin' AND r.name = 'ADMIN';

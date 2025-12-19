@@ -1,8 +1,15 @@
 import { defineStore } from 'pinia'
-import type { User } from '@app-types/index'
+import {
+  login as apiLogin,
+  logout as apiLogout,
+  createSocieteUser as apiRegister,
+  getCurrentUser,
+} from '@/modules/auth/api/generated/auth-api'
+import type { LoginRequest, CreateUserRequest, Users } from '@/modules/auth/api/generated/auth-api'
+import { apiClient } from '@/api/client'
 
 interface AuthState {
-  user: User | null
+  user: Users | null
   token: string | null
   isAuthenticated: boolean
 }
@@ -11,7 +18,7 @@ export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     user: null,
     token: localStorage.getItem('auth_token'),
-    isAuthenticated: !!localStorage.getItem('auth_token'),
+    isAuthenticated: false, // Initialiser à false jusqu'à vérification
   }),
 
   getters: {
@@ -20,58 +27,75 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    async login(email: string, password: string) {
+    async login(credentials: LoginRequest) {
       try {
-        // TODO: Replace with actual API call
-        const mockToken = 'mock-jwt-token'
-        const mockUser: User = {
-          id: '1',
-          email,
-          name: 'John Doe',
-          role: 'admin',
+        const response = await apiLogin(credentials)
+        const token = response.token
+
+        if (!token) {
+          throw new Error("Token non fourni par l'API")
         }
 
-        this.token = mockToken
-        this.user = mockUser
-        this.isAuthenticated = true
+        this.token = token
+        localStorage.setItem('auth_token', token)
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
-        localStorage.setItem('auth_token', mockToken)
-        localStorage.setItem('user', JSON.stringify(mockUser))
+        await this.fetchUser()
 
         return { success: true }
       } catch (error) {
-        console.error('Login error:', error)
+        console.error('Erreur de connexion :', error)
+        await this.logout()
         return { success: false, error }
       }
     },
 
     async logout() {
-      this.token = null
-      this.user = null
-      this.isAuthenticated = false
-
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('user')
+      try {
+        await apiLogout()
+      } catch (error) {
+        console.error("Erreur lors de la déconnexion de l'API, nettoyage local forcé.", error)
+      } finally {
+        this.token = null
+        this.user = null
+        this.isAuthenticated = false
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('user')
+        delete apiClient.defaults.headers.common['Authorization']
+      }
     },
 
-    async register(email: string, password: string, name: string) {
+    async register(data: CreateUserRequest) {
       try {
-        // TODO: Replace with actual API call
+        await apiRegister(data)
         return { success: true }
       } catch (error) {
-        console.error('Register error:', error)
+        console.error("Erreur d'inscription :", error)
         return { success: false, error }
+      }
+    },
+
+    async fetchUser() {
+      if (!this.token) return
+
+      try {
+        const response = await getCurrentUser()
+        this.user = response as Users
+        this.isAuthenticated = true
+      } catch (error) {
+        console.error("Impossible de récupérer l'utilisateur, déconnexion.", error)
+        await this.logout()
       }
     },
 
     async checkAuth() {
       const token = localStorage.getItem('auth_token')
-      const userStr = localStorage.getItem('user')
-
-      if (token && userStr) {
+      if (token) {
         this.token = token
-        this.user = JSON.parse(userStr)
-        this.isAuthenticated = true
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        await this.fetchUser()
+      } else {
+        this.isAuthenticated = false
       }
     },
   },

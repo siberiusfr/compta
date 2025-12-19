@@ -1,5 +1,1 @@
 export { default as apiClient } from './client'
-export * from './auth'
-export * from './accounting'
-export * from './hr'
-export * from './documents'

@@ -2,11 +2,10 @@ import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestCo
 import type { ApiError } from '../types' // Utilise un chemin relatif ici pour Orval
 
 const getBaseUrl = () => {
-  try {
-    return import.meta.env.VITE_API_BASE_URL || '/api'
-  } catch {
-    return 'http://localhost:8080/api'
-  }
+  // Le proxy Vite s'attend à des chemins relatifs commençant par /api.
+  // Orval génère déjà des URLs avec ce préfixe.
+  // Laisser baseURL vide permet à Axios d'utiliser ces chemins correctement.
+  return ''
 }
 
 export const apiClient: AxiosInstance = axios.create({

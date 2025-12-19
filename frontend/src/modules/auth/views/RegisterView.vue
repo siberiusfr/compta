@@ -1,103 +1,117 @@
 <template>
-  <n-form ref="formRef" :model="formValue" :rules="rules" size="large">
-    <n-form-item path="name" label="Nom complet">
-      <n-input v-model:value="formValue.name" placeholder="Entrez votre nom" />
-    </n-form-item>
-    <n-form-item path="email" label="Email">
-      <n-input v-model:value="formValue.email" placeholder="Entrez votre email" />
-    </n-form-item>
-    <n-form-item path="password" label="Mot de passe">
-      <n-input v-model:value="formValue.password" type="password" placeholder="Mot de passe" />
-    </n-form-item>
-    <n-form-item path="confirmPassword" label="Confirmer le mot de passe">
-      <n-input
-        v-model:value="formValue.confirmPassword"
-        type="password"
-        placeholder="Confirmez le mot de passe"
-        @keyup.enter="handleRegister"
-      />
-    </n-form-item>
-    <n-form-item>
-      <n-button type="primary" block :loading="loading" @click="handleRegister">
-        S'inscrire
-      </n-button>
-    </n-form-item>
-    <n-form-item>
-      <n-text depth="3">
-        Déjà un compte ?
-        <n-button text type="primary" @click="router.push({ name: 'login' })">
-          Se connecter
+  <div class="register-container">
+    <n-card class="register-card">
+      <n-h1>Créer un compte</n-h1>
+      <n-form ref="formRef" :model="model" :rules="rules" @submit.prevent="handleRegister">
+        <n-form-item path="username" label="Nom d'utilisateur">
+          <n-input v-model:value="model.username" placeholder="Entrez votre nom d'utilisateur" />
+        </n-form-item>
+        <n-form-item path="firstName" label="Prénom">
+          <n-input v-model:value="model.firstName" placeholder="Entrez votre prénom" />
+        </n-form-item>
+        <n-form-item path="lastName" label="Nom de famille">
+          <n-input v-model:value="model.lastName" placeholder="Entrez votre nom de famille" />
+        </n-form-item>
+        <n-form-item path="email" label="Email">
+          <n-input v-model:value="model.email" placeholder="Entrez votre adresse email" />
+        </n-form-item>
+        <n-form-item path="password" label="Mot de passe">
+          <n-input
+            v-model:value="model.password"
+            type="password"
+            show-password-on="mousedown"
+            placeholder="Entrez votre mot de passe"
+          />
+        </n-form-item>
+        <n-form-item path="reenteredPassword" label="Confirmer le mot de passe">
+          <n-input
+            v-model:value="model.reenteredPassword"
+            type="password"
+            show-password-on="mousedown"
+            placeholder="Confirmez votre mot de passe"
+            :disabled="!model.password"
+          />
+        </n-form-item>
+        <n-button type="primary" attr-type="submit" block :loading="loading">
+          S'inscrire
         </n-button>
-      </n-text>
-    </n-form-item>
-  </n-form>
+      </n-form>
+    </n-card>
+  </div>
 </template>
 
 <script setup lang="ts">
-import type { FormInst, FormRules, FormItemRule } from 'naive-ui'
-import { useAuthStore } from '@stores/index'
-
-const router = useRouter()
-const message = useMessage()
-const authStore = useAuthStore()
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/modules/auth/stores/authStore'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 
 const formRef = ref<FormInst | null>(null)
-const loading = ref(false)
-
-const formValue = ref({
-  name: '',
+const model = ref({
+  username: '',
+  firstName: '',
+  lastName: '',
   email: '',
   password: '',
-  confirmPassword: '',
+  reenteredPassword: '',
 })
+const loading = ref(false)
 
-const validatePasswordSame = (rule: FormItemRule, value: string): boolean => {
-  return value === formValue.value.password
+const authStore = useAuthStore()
+const router = useRouter()
+const message = useMessage()
+
+// Fonction de validation pour la confirmation du mot de passe
+function validatePasswordSame(rule: any, value: string): boolean {
+  return value === model.value.password
 }
 
 const rules: FormRules = {
-  name: [{ required: true, message: 'Nom requis', trigger: 'blur' }],
-  email: [
-    { required: true, message: 'Email requis', trigger: 'blur' },
-    { type: 'email', message: 'Email invalide', trigger: 'blur' },
+  username: [
+    { required: true, message: "Le nom d'utilisateur est requis", trigger: 'blur' },
+    { min: 3, message: "Le nom d'utilisateur doit contenir au moins 3 caractères", trigger: 'blur' },
   ],
+  firstName: [{ required: true, message: 'Le prénom est requis', trigger: 'blur' }],
+  lastName: [{ required: true, message: 'Le nom de famille est requis', trigger: 'blur' }],
+  email: [{ required: true, message: "L'email est requis", trigger: 'blur' }],
   password: [
-    { required: true, message: 'Mot de passe requis', trigger: 'blur' },
-    { min: 6, message: 'Le mot de passe doit contenir au moins 6 caractères', trigger: 'blur' },
+    { required: true, message: 'Le mot de passe est requis', trigger: 'blur' },
+    { min: 8, message: 'Le mot de passe doit contenir au moins 8 caractères', trigger: 'blur' },
   ],
-  confirmPassword: [
-    { required: true, message: 'Confirmation requise', trigger: 'blur' },
-    {
-      validator: validatePasswordSame,
-      message: 'Les mots de passe ne correspondent pas',
-      trigger: 'blur',
-    },
+  reenteredPassword: [
+    { required: true, message: 'Veuillez confirmer votre mot de passe', trigger: 'blur' },
+    { validator: validatePasswordSame, message: 'Les mots de passe ne correspondent pas', trigger: 'blur' }
   ],
 }
 
-async function handleRegister() {
-  if (!formRef.value) return
+const handleRegister = async () => {
+  formRef.value?.validate(async (errors) => {
+    if (!errors) {
+      loading.value = true
+      const { reenteredPassword, ...registrationData } = model.value
+      const { success } = await authStore.register(registrationData)
+      loading.value = false
 
-  try {
-    await formRef.value.validate()
-    loading.value = true
-
-    const result = await authStore.register(
-      formValue.value.email,
-      formValue.value.password,
-      formValue.value.name
-    )
-
-    if (result.success) {
-      message.success('Inscription réussie')
-      router.push({ name: 'login' })
-    } else {
-      message.error("Erreur lors de l'inscription")
+      if (success) {
+        message.success('Inscription réussie ! Vous pouvez maintenant vous connecter.')
+        router.push({ name: 'login' })
+      } else {
+        message.error("Une erreur est survenue lors de l'inscription.")
+      }
     }
-  } catch (error) {
-    console.error('Validation failed:', error)
-  } finally {
-    loading.value = false
-  }
+  })
 }
 </script>
+
+<style scoped>
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.register-card {
+  max-width: 400px;
+  width: 100%;
+}
+</style>
