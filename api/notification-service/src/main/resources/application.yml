@@ -1,6 +1,6 @@
 spring:
   application:
-    name: notification-service
+    name: @project.name@
 
   # Configuration PostgreSQL
   datasource:
