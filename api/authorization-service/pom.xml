@@ -10,15 +10,14 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>auth-service</artifactId>
-
-	<name>Auth Service</name>
-	<description>Service d'authentification et d'autorisation</description>
+	<artifactId>authorization-service</artifactId>
+	<name>Authorization Service</name>
+	<description>Service d'autorisation</description>
 
 	<properties>
 		<!-- Configuration JOOQ pour le schéma auth -->
-		<jooq.generator.db.schema>auth</jooq.generator.db.schema>
-		<jooq.generator.target.package>tn.cyberious.compta.auth.generated</jooq.generator.target.package>
+		<jooq.generator.db.schema>authorization</jooq.generator.db.schema>
+		<jooq.generator.target.package>tn.cyberious.compta.authorization.generated</jooq.generator.target.package>
 	</properties>
 
 	<dependencies>
@@ -34,26 +33,6 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
-		</dependency>
-
-		<!-- Spring Security -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-
-		<!-- JWT -->
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
 		</dependency>
 
 		<!-- Tests -->

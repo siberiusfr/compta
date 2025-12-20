@@ -48,6 +48,10 @@ accounting-service/
 auth-service/
 └── src/main/resources/db/migration/
     └── V1__init_auth_schema.sql          # Crée le schéma auth + tables
+    
+authorization-service/
+└── src/main/resources/db/migration/
+    └── V1__init_authorization_schema.sql.sql          # Crée le schéma auth + tables
 
 hr-service/
 └── src/main/resources/db/migration/

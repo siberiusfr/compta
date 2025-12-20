@@ -20,9 +20,10 @@
 
     <modules>
         <module>compta-commons</module>
-        <module>accounting-service</module>
         <module>auth-service</module>
+        <module>authorization-service</module>
         <module>document-service</module>
+        <module>accounting-service</module>
         <module>hr-service</module>
         <module>migration-service</module>
         <module>notification-service</module>
