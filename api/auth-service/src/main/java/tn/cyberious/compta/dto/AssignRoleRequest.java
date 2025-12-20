@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 public class AssignRoleRequest {
 
-    @NotBlank(message = "Le nom du rôle est requis")
-    private String roleName;
+  @NotBlank(message = "Le nom du rôle est requis")
+  private String roleName;
 }

@@ -3,7 +3,6 @@
  */
 package tn.cyberious.compta.auth.generated;
 
-
 import tn.cyberious.compta.auth.generated.tables.AuthLogs;
 import tn.cyberious.compta.auth.generated.tables.ComptableSocietes;
 import tn.cyberious.compta.auth.generated.tables.Employees;
@@ -14,55 +13,34 @@ import tn.cyberious.compta.auth.generated.tables.UserRoles;
 import tn.cyberious.compta.auth.generated.tables.UserSocietes;
 import tn.cyberious.compta.auth.generated.tables.Users;
 
-
-/**
- * Convenience access to all tables in auth.
- */
-@SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
+/** Convenience access to all tables in auth. */
+@SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Tables {
 
-    /**
-     * The table <code>auth.auth_logs</code>.
-     */
-    public static final AuthLogs AUTH_LOGS = AuthLogs.AUTH_LOGS;
+  /** The table <code>auth.auth_logs</code>. */
+  public static final AuthLogs AUTH_LOGS = AuthLogs.AUTH_LOGS;
 
-    /**
-     * The table <code>auth.comptable_societes</code>.
-     */
-    public static final ComptableSocietes COMPTABLE_SOCIETES = ComptableSocietes.COMPTABLE_SOCIETES;
+  /** The table <code>auth.comptable_societes</code>. */
+  public static final ComptableSocietes COMPTABLE_SOCIETES = ComptableSocietes.COMPTABLE_SOCIETES;
 
-    /**
-     * The table <code>auth.employees</code>.
-     */
-    public static final Employees EMPLOYEES = Employees.EMPLOYEES;
+  /** The table <code>auth.employees</code>. */
+  public static final Employees EMPLOYEES = Employees.EMPLOYEES;
 
-    /**
-     * The table <code>auth.refresh_tokens</code>.
-     */
-    public static final RefreshTokens REFRESH_TOKENS = RefreshTokens.REFRESH_TOKENS;
+  /** The table <code>auth.refresh_tokens</code>. */
+  public static final RefreshTokens REFRESH_TOKENS = RefreshTokens.REFRESH_TOKENS;
 
-    /**
-     * The table <code>auth.roles</code>.
-     */
-    public static final Roles ROLES = Roles.ROLES;
+  /** The table <code>auth.roles</code>. */
+  public static final Roles ROLES = Roles.ROLES;
 
-    /**
-     * The table <code>auth.societes</code>.
-     */
-    public static final Societes SOCIETES = Societes.SOCIETES;
+  /** The table <code>auth.societes</code>. */
+  public static final Societes SOCIETES = Societes.SOCIETES;
 
-    /**
-     * The table <code>auth.user_roles</code>.
-     */
-    public static final UserRoles USER_ROLES = UserRoles.USER_ROLES;
+  /** The table <code>auth.user_roles</code>. */
+  public static final UserRoles USER_ROLES = UserRoles.USER_ROLES;
 
-    /**
-     * The table <code>auth.user_societes</code>.
-     */
-    public static final UserSocietes USER_SOCIETES = UserSocietes.USER_SOCIETES;
+  /** The table <code>auth.user_societes</code>. */
+  public static final UserSocietes USER_SOCIETES = UserSocietes.USER_SOCIETES;
 
-    /**
-     * The table <code>auth.users</code>.
-     */
-    public static final Users USERS = Users.USERS;
+  /** The table <code>auth.users</code>. */
+  public static final Users USERS = Users.USERS;
 }

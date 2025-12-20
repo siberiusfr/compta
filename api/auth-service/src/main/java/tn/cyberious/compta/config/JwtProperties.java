@@ -8,10 +8,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
-    private String secret;
-    private Long expiration;
-    private Long refreshExpiration;
-    private String issuer;
-    private String header = "Authorization";
-    private String prefix = "Bearer ";
+  private String secret;
+  private Long expiration;
+  private Long refreshExpiration;
+  private String issuer;
+  private String header = "Authorization";
+  private String prefix = "Bearer ";
 }
