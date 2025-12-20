@@ -43,7 +43,6 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.25.2",
     "@tanstack/eslint-plugin-query": "^5.91.2",
     "@tanstack/vue-query-devtools": "^6.1.2",
     "@types/node": "^24.10.1",
