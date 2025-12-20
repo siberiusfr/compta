@@ -7,7 +7,7 @@
   "trailingComma": "none",
   "bracketSpacing": true,
   "endOfLine": "lf",
-  "plugins": ["prettier-plugin-java", "prettier-plugin-xml", "prettier-plugin-sql"],
+  "plugins": ["prettier-plugin-java", "@prettier/plugin-xml", "prettier-plugin-sql"],
   "overrides": [
     {
       "files": "*.java",
@@ -19,8 +19,7 @@
       "files": ["*.xml", "pom.xml"],
       "options": {
         "parser": "xml",
-        "printWidth": 120,
-        "xmlWhitespaceSensitivity": "ignore"
+        "printWidth": 120
       }
     },
     {
