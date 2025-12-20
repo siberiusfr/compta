@@ -1,84 +1,71 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-
-	<parent>
-		<groupId>tn.cyberious.compta</groupId>
-		<artifactId>api</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-
-	<artifactId>document-service</artifactId>
-
-	<name>Document Service</name>
-	<description>Service de gestion des documents</description>
-
-	<properties>
-		<!-- Configuration JOOQ pour le schéma document -->
-		<jooq.generator.db.schema>document</jooq.generator.db.schema>
-		<jooq.generator.target.package>tn.cyberious.compta.document.generated</jooq.generator.target.package>
-	</properties>
-
-	<dependencies>
-		<!-- Importe automatiquement toutes les dépendances communes -->
-		<dependency>
-			<groupId>tn.cyberious.compta</groupId>
-			<artifactId>compta-commons</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<!-- Tests -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- Classes de test de compta-commons (AbstractIntegrationTest, etc.) -->
-		<dependency>
-			<groupId>tn.cyberious.compta</groupId>
-			<artifactId>compta-commons</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- Testcontainers pour les tests d'intégration -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-testcontainers</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<!-- Plugin JOOQ Code Generator pour générer les classes du schéma document -->
-			<plugin>
-				<groupId>org.jooq</groupId>
-				<artifactId>jooq-codegen-maven</artifactId>
-			</plugin>
-		</plugins>
-	</build>
-
+<?xml version="1.0" encoding="UTF-8" ?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>tn.cyberious.compta</groupId>
+    <artifactId>api</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>document-service</artifactId>
+  <name>Document Service</name>
+  <description>Service de gestion des documents</description>
+  <properties>
+    <jooq.generator.db.schema>document</jooq.generator.db.schema>
+    <jooq.generator.target.package>tn.cyberious.compta.document.generated</jooq.generator.target.package>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>tn.cyberious.compta</groupId>
+      <artifactId>compta-commons</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>tn.cyberious.compta</groupId>
+      <artifactId>compta-commons</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq-codegen-maven</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>

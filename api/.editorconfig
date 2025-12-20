@@ -1,0 +1,53 @@
+# .editorconfig
+root = true
+
+# Defaults pour tous les fichiers
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Java (aligné avec Google Java Format)
+[*.java]
+indent_style = space
+indent_size = 2              # Google Style = 2 spaces
+max_line_length = 100        # Google Style = 100
+continuation_indent_size = 4
+
+# XML, POM
+[*.{xml,fxml}]
+indent_style = space
+indent_size = 2
+max_line_length = 120
+
+# YAML (application.yml, etc.)
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# SQL
+[*.sql]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# JSON
+[*.json]
+indent_style = space
+indent_size = 2
+
+# Properties
+[*.properties]
+indent_style = space
+indent_size = 4
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Makefile
+[Makefile]
+indent_style = tab

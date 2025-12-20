@@ -1,0 +1,49 @@
+{
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "none",
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "plugins": ["prettier-plugin-java", "prettier-plugin-xml", "prettier-plugin-sql"],
+  "overrides": [
+    {
+      "files": "*.java",
+      "options": {
+        "parser": "java"
+      }
+    },
+    {
+      "files": ["*.xml", "pom.xml"],
+      "options": {
+        "parser": "xml",
+        "printWidth": 120,
+        "xmlWhitespaceSensitivity": "ignore"
+      }
+    },
+    {
+      "files": "*.sql",
+      "options": {
+        "parser": "sql",
+        "language": "postgresql",
+        "keywordCase": "upper"
+      }
+    },
+    {
+      "files": ["*.yml", "*.yaml"],
+      "options": {
+        "parser": "yaml",
+        "singleQuote": true,
+        "bracketSpacing": false
+      }
+    },
+    {
+      "files": "*.json",
+      "options": {
+        "parser": "json"
+      }
+    }
+  ]
+}
