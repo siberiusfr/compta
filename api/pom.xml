@@ -21,7 +21,7 @@
     <modules>
         <module>compta-commons</module>
         <module>auth-service</module>
-        <module>authorization-service</module>
+        <module>authz-service</module>
         <module>document-service</module>
         <module>accounting-service</module>
         <module>hr-service</module>

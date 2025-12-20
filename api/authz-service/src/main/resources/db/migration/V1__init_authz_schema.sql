@@ -1,10 +1,9 @@
 -- Création du schema
-CREATE SCHEMA IF NOT EXISTS authorization;
+CREATE SCHEMA IF NOT EXISTS authz;
 
-SET search_path TO authorization, public;
 
 -- Table des sociétés
-CREATE TABLE authorization.societes (
+CREATE TABLE authz.societes (
                                         id BIGSERIAL PRIMARY KEY,
                                         raison_sociale VARCHAR(255) NOT NULL,
                                         matricule_fiscale VARCHAR(13) UNIQUE NOT NULL,
@@ -31,10 +30,10 @@ CREATE TABLE authorization.societes (
 );
 
 -- Relation comptable-sociétés
-CREATE TABLE authorization.comptable_societes (
+CREATE TABLE authz.comptable_societes (
                                                   id BIGSERIAL PRIMARY KEY,
                                                   user_id BIGINT NOT NULL,  -- Référence auth.users.id
-                                                  societe_id BIGINT NOT NULL REFERENCES authorization.societes(id) ON DELETE CASCADE,
+                                                  societe_id BIGINT NOT NULL REFERENCES authz.societes(id) ON DELETE CASCADE,
                                                   date_debut DATE NOT NULL,
                                                   date_fin DATE,
                                                   is_active BOOLEAN DEFAULT true,
@@ -43,10 +42,10 @@ CREATE TABLE authorization.comptable_societes (
 );
 
 -- Relation user société-sociétés
-CREATE TABLE authorization.user_societes (
+CREATE TABLE authz.user_societes (
                                              id BIGSERIAL PRIMARY KEY,
                                              user_id BIGINT NOT NULL,  -- Référence auth.users.id
-                                             societe_id BIGINT NOT NULL REFERENCES authorization.societes(id) ON DELETE CASCADE,
+                                             societe_id BIGINT NOT NULL REFERENCES authz.societes(id) ON DELETE CASCADE,
                                              is_owner BOOLEAN DEFAULT false,
                                              date_debut DATE NOT NULL,
                                              date_fin DATE,
@@ -56,10 +55,10 @@ CREATE TABLE authorization.user_societes (
 );
 
 -- Relation employee-societe
-CREATE TABLE authorization.employees (
+CREATE TABLE authz.employees (
                                          id BIGSERIAL PRIMARY KEY,
                                          user_id BIGINT UNIQUE NOT NULL,  -- Référence auth.users.id
-                                         societe_id BIGINT NOT NULL REFERENCES authorization.societes(id) ON DELETE CASCADE,
+                                         societe_id BIGINT NOT NULL REFERENCES authz.societes(id) ON DELETE CASCADE,
                                          matricule_employee VARCHAR(50),
                                          poste VARCHAR(100),
                                          departement VARCHAR(100),
@@ -72,11 +71,11 @@ CREATE TABLE authorization.employees (
 );
 
 -- Index
-CREATE INDEX idx_societes_matricule ON authorization.societes(matricule_fiscale);
-CREATE INDEX idx_societes_is_active ON authorization.societes(is_active);
-CREATE INDEX idx_comptable_societes_user_id ON authorization.comptable_societes(user_id);
-CREATE INDEX idx_comptable_societes_societe_id ON authorization.comptable_societes(societe_id);
-CREATE INDEX idx_user_societes_user_id ON authorization.user_societes(user_id);
-CREATE INDEX idx_user_societes_societe_id ON authorization.user_societes(societe_id);
-CREATE INDEX idx_employees_user_id ON authorization.employees(user_id);
-CREATE INDEX idx_employees_societe_id ON authorization.employees(societe_id);
+CREATE INDEX idx_societes_matricule ON authz.societes(matricule_fiscale);
+CREATE INDEX idx_societes_is_active ON authz.societes(is_active);
+CREATE INDEX idx_comptable_societes_user_id ON authz.comptable_societes(user_id);
+CREATE INDEX idx_comptable_societes_societe_id ON authz.comptable_societes(societe_id);
+CREATE INDEX idx_user_societes_user_id ON authz.user_societes(user_id);
+CREATE INDEX idx_user_societes_societe_id ON authz.user_societes(societe_id);
+CREATE INDEX idx_employees_user_id ON authz.employees(user_id);
+CREATE INDEX idx_employees_societe_id ON authz.employees(societe_id);

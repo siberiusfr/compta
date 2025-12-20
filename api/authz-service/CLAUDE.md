@@ -338,7 +338,7 @@ The parent `pom.xml` (at `../pom.xml`) defines:
 **Migration files location:** `src/main/resources/db/migration/`
 
 **Naming convention:** `V{version}__{description}.sql`
-- Example: `V1__init_authorization_schema.sql.sql` (initial schema)
+- Example: `V1__init_authz_schema.sql` (initial schema)
 - Example: `V2__add_password_expiry.sql` (new feature)
 
 **Key principles:**

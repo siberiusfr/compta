@@ -10,14 +10,14 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>authorization-service</artifactId>
+	<artifactId>authz-service</artifactId>
 	<name>Authorization Service</name>
 	<description>Service d'autorisation</description>
 
 	<properties>
 		<!-- Configuration JOOQ pour le schéma auth -->
-		<jooq.generator.db.schema>authorization</jooq.generator.db.schema>
-		<jooq.generator.target.package>tn.cyberious.compta.authorization.generated</jooq.generator.target.package>
+		<jooq.generator.db.schema>authz</jooq.generator.db.schema>
+		<jooq.generator.target.package>tn.cyberious.compta.authz.generated</jooq.generator.target.package>
 	</properties>
 
 	<dependencies>

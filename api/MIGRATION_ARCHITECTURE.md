@@ -49,9 +49,9 @@ auth-service/
 └── src/main/resources/db/migration/
     └── V1__init_auth_schema.sql          # Crée le schéma auth + tables
     
-authorization-service/
+authz-service/
 └── src/main/resources/db/migration/
-    └── V1__init_authorization_schema.sql.sql          # Crée le schéma auth + tables
+    └── V1__init_authz_schema.sql          # Crée le schéma auth + tables
 
 hr-service/
 └── src/main/resources/db/migration/

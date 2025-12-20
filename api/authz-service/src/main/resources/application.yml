@@ -12,8 +12,8 @@ spring:
   # Activer Flyway pour ce service
   flyway:
     enabled: true
-    schemas: authorization
-    default-schema: authorization
+    schemas: authz
+    default-schema: authz
 
 # Port spécifique pour ce service
 server:
@@ -27,8 +27,8 @@ sentry:
   debug: false
   send-default-pii: false
   tags:
-    service: authorization-service
-    module: authorization
+    service: authz-service
+    module: authz
 
 project:
   version: @project.version@
