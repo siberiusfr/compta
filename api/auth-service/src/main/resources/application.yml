@@ -40,4 +40,4 @@ sentry:
     module: authentication
 
 project:
-  version: '@project.version@'
+  version: @project.version@

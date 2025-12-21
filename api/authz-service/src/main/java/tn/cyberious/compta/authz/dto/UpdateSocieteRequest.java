@@ -1,10 +1,11 @@
-package tn.cyberious.compta.dto;
+package tn.cyberious.compta.authz.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import lombok.Data;
 
 @Data
 public class UpdateSocieteRequest {

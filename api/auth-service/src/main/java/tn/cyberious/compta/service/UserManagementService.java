@@ -25,9 +25,6 @@ public class UserManagementService {
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
   private final UserRoleRepository userRoleRepository;
-  private final SocieteRepository societeRepository;
-  private final EmployeeRepository employeeRepository;
-  private final UserSocieteRepository userSocieteRepository;
   private final PasswordEncoder passwordEncoder;
   private final SecurityService securityService;
 
@@ -123,41 +120,6 @@ public class UserManagementService {
     return createdUser;
   }
 
-  @Transactional
-  public void createEmployee(CreateEmployeeRequest request, CustomUserDetails currentUser) {
-    log.info(
-        "Creating employee link for user: {} to societe: {}",
-        request.getUserId(),
-        request.getSocieteId());
-
-    // Vérifier que l'utilisateur existe et a le rôle EMPLOYEE
-    Users user =
-        userRepository
-            .findById(request.getUserId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-    // Vérifier que la société existe
-    Societes societe =
-        societeRepository
-            .findById(request.getSocieteId())
-            .orElseThrow(() -> new RuntimeException("Societe not found"));
-
-    // Créer l'association employee
-    Employees employee = new Employees();
-    employee.setUserId(request.getUserId());
-    employee.setSocieteId(request.getSocieteId());
-    employee.setMatriculeEmployee(request.getMatriculeEmployee());
-    employee.setPoste(request.getPoste());
-    employee.setDepartement(request.getDepartement());
-    employee.setDateEmbauche(request.getDateEmbauche());
-    employee.setDateFinContrat(request.getDateFinContrat());
-    employee.setTypeContrat(request.getTypeContrat());
-    employee.setIsActive(true);
-    employeeRepository.insert(employee);
-
-    log.info("Employee link created successfully");
-  }
-
   private boolean userExists(String username, String email) {
     return userRepository.findByUsername(username).isPresent()
         || userRepository.findByEmail(email).isPresent();
@@ -180,23 +142,8 @@ public class UserManagementService {
     // ADMIN voit tous les utilisateurs
     if (securityService.isAdmin(currentUser)) {
       List<Users> users = userRepository.findAll();
-      return users.stream().map(this::toUserResponse).collect(Collectors.toList());
+      return users.stream().map(this::toUserResponse).toList();
     }
-
-    // COMPTABLE voit uniquement les utilisateurs des sociétés qu'il gère
-    if (securityService.isComptable(currentUser)) {
-      List<Long> societeIds = securityService.getAccessibleSocieteIds(currentUser);
-
-      // Récupérer tous les utilisateurs liés à ces sociétés
-      List<Users> users =
-          societeIds.stream()
-              .flatMap(societeId -> userSocieteRepository.findUsersBySocieteId(societeId).stream())
-              .distinct()
-              .toList();
-
-      return users.stream().map(this::toUserResponse).collect(Collectors.toList());
-    }
-
     // Autres rôles : accès refusé
     return List.of();
   }
@@ -206,7 +153,7 @@ public class UserManagementService {
 
     // Vérifier les permissions
     if (!securityService.isAdmin(currentUser)) {
-      securityService.checkUserAccess(currentUser, id);
+      return null;
     }
 
     Users user =

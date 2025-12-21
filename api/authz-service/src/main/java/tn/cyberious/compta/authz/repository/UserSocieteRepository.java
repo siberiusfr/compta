@@ -1,6 +1,6 @@
-package tn.cyberious.compta.repository;
+package tn.cyberious.compta.authz.repository;
 
-import static tn.cyberious.compta.auth.generated.Tables.*;
+import static tn.cyberious.compta.authz.generated.Tables.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,10 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
-import tn.cyberious.compta.auth.generated.tables.pojos.Societes;
-import tn.cyberious.compta.auth.generated.tables.pojos.UserSocietes;
-import tn.cyberious.compta.auth.generated.tables.pojos.Users;
-import tn.cyberious.compta.auth.generated.tables.records.UserSocietesRecord;
+import tn.cyberious.compta.authz.generated.tables.pojos.Societes;
+import tn.cyberious.compta.authz.generated.tables.pojos.UserSocietes;
+import tn.cyberious.compta.authz.generated.tables.records.UserSocietesRecord;
 
 @Slf4j
 @Repository
@@ -114,17 +113,6 @@ public class UserSocieteRepository {
         .where(USER_SOCIETES.USER_ID.eq(userId))
         .fetch()
         .into(Societes.class);
-  }
-
-  public List<Users> findUsersBySocieteId(Long societeId) {
-    log.debug("Finding users for societe: {}", societeId);
-    return dsl.select(USERS.fields())
-        .from(USER_SOCIETES)
-        .join(USERS)
-        .on(USER_SOCIETES.USER_ID.eq(USERS.ID))
-        .where(USER_SOCIETES.SOCIETE_ID.eq(societeId))
-        .fetch()
-        .into(Users.class);
   }
 
   public void assignUserToSociete(
