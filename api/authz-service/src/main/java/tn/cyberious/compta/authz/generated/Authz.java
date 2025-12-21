@@ -3,6 +3,7 @@
  */
 package tn.cyberious.compta.authz.generated;
 
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.List;
 import org.jooq.Catalog;
@@ -17,6 +18,7 @@ import tn.cyberious.compta.authz.generated.tables.UserSocietes;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Authz extends SchemaImpl {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>authz</code> */

@@ -3,6 +3,7 @@
  */
 package tn.cyberious.compta.authz.generated.tables;
 
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -40,6 +41,7 @@ import tn.cyberious.compta.authz.generated.tables.records.UserSocietesRecord;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class UserSocietes extends TableImpl<UserSocietesRecord> {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>authz.user_societes</code> */
@@ -130,6 +132,7 @@ public class UserSocietes extends TableImpl<UserSocietesRecord> {
   /** A subtype implementing {@link Path} for simplified path-based joins. */
   public static class UserSocietesPath extends UserSocietes implements Path<UserSocietesRecord> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public <O extends Record> UserSocietesPath(

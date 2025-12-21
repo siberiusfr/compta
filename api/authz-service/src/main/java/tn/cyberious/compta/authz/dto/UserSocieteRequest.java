@@ -1,9 +1,8 @@
 package tn.cyberious.compta.authz.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-
 import java.time.LocalDate;
+import lombok.Data;
 
 @Data
 public class UserSocieteRequest {
