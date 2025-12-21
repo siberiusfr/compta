@@ -1,0 +1,47 @@
+{
+  "groups": [
+    {
+      "name": "compta.security",
+      "type": "tn.compta.commons.security.config.SecurityCommonsAutoConfiguration",
+      "sourceType": "tn.compta.commons.security.config.SecurityCommonsAutoConfiguration",
+      "description": "Configuration for Compta Security Commons module."
+    }
+  ],
+  "properties": [
+    {
+      "name": "compta.security.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable or disable the Compta Security Commons auto-configuration. When enabled, the module will automatically register authentication filters, interceptors, and security aspects.",
+      "defaultValue": true
+    },
+    {
+      "name": "compta.security.public-paths",
+      "type": "java.lang.String",
+      "description": "Comma-separated list of URL patterns that do not require authentication. Supports wildcard patterns (e.g., /actuator/**, /public/**). These paths will bypass the GatewayAuthenticationFilter.",
+      "defaultValue": "/actuator/**,/v3/api-docs/**,/swagger-ui/**"
+    }
+  ],
+  "hints": [
+    {
+      "name": "compta.security.enabled",
+      "values": [
+        {
+          "value": true,
+          "description": "Enable security auto-configuration (recommended for production)"
+        },
+        {
+          "value": false,
+          "description": "Disable security auto-configuration (only for development/testing)"
+        }
+      ]
+    },
+    {
+      "name": "compta.security.public-paths",
+      "providers": [
+        {
+          "name": "any"
+        }
+      ]
+    }
+  ]
+}

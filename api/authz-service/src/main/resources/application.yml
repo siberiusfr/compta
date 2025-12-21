@@ -32,3 +32,9 @@ sentry:
 
 project:
   version: '@project.version@'
+
+# Configuration du module de sécurité partagé
+compta:
+  security:
+    enabled: true
+    public-paths: /actuator/**,/v3/api-docs/**,/swagger-ui/**

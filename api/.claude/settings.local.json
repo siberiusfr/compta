@@ -25,7 +25,8 @@
       "Bash(done)",
       "Bash(mvn clean:*)",
       "Bash(mvn compile:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(cat:*)"
     ]
   }
 }

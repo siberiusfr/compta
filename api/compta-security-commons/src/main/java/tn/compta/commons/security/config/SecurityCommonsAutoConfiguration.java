@@ -2,11 +2,12 @@ package tn.compta.commons.security.config;
 
 import java.util.Arrays;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -37,14 +38,15 @@ import tn.compta.commons.security.resolver.SecurityContextArgumentResolver;
 @Slf4j
 @AutoConfiguration
 @EnableAspectJAutoProxy
+@EnableConfigurationProperties(SecurityProperties.class)
+@RequiredArgsConstructor
 @ConditionalOnProperty(
     name = "compta.security.enabled",
     havingValue = "true",
     matchIfMissing = true)
 public class SecurityCommonsAutoConfiguration implements WebMvcConfigurer {
 
-  @Value("${compta.security.public-paths:/actuator/**,/v3/api-docs/**,/swagger-ui/**}")
-  private String publicPathsString;
+  private final SecurityProperties securityProperties;
 
   /**
    * Create security aspect bean.
@@ -117,7 +119,7 @@ public class SecurityCommonsAutoConfiguration implements WebMvcConfigurer {
 
     log.info("Registering GatewayAuthenticationFilter");
 
-    List<String> publicPaths = parsePublicPaths(publicPathsString);
+    List<String> publicPaths = parsePublicPaths(securityProperties.getPublicPaths());
     log.info("Public paths: {}", publicPaths);
 
     GatewayAuthenticationFilter filter = new GatewayAuthenticationFilter(publicPaths);
