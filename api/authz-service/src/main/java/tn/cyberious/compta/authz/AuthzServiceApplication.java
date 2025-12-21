@@ -1,4 +1,4 @@
-package tn.cyberious.compta;
+package tn.cyberious.compta.authz;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
