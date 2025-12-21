@@ -12,10 +12,6 @@ spring:
             - Path=/api/auth/**
           filters:
             - RewritePath=/api/auth/(?<segment>.*), /${segment}
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
 
         # Accounting Service Routes
         - id: accounting-service
@@ -71,12 +67,6 @@ spring:
               - '*'
             allowCredentials: true
             maxAge: 3600
-
-  data:
-    redis:
-      host: ${REDIS_HOST:redis}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
 
 server:
   port: 8080
