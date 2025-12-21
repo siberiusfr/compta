@@ -9,8 +9,26 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
+// Prisma
+import { PrismaModule } from './database/prisma.module';
+
+// Services
+import { NotificationsService } from './services/notifications.service';
+import { NotificationTemplatesService } from './services/notification-templates.service';
+import { NotificationStatsService } from './services/notification-stats.service';
+import { UsersService } from './services/users.service';
+
+// Controllers
+import { NotificationsController } from './controllers/notifications.controller';
+import { StatsController } from './controllers/stats.controller';
+import { TemplatesController } from './controllers/templates.controller';
+import { UsersController } from './controllers/users.controller';
+
 @Module({
   imports: [
+    // Prisma Database
+    PrismaModule,
+
     // Connexion globale à Redis
     BullModule.forRoot({
       connection: {
@@ -45,7 +63,21 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
       },
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService, NotificationService, MailProcessor],
+  controllers: [
+    AppController,
+    NotificationsController,
+    StatsController,
+    TemplatesController,
+    UsersController,
+  ],
+  providers: [
+    AppService,
+    NotificationService,
+    MailProcessor,
+    NotificationsService,
+    NotificationTemplatesService,
+    NotificationStatsService,
+    UsersService,
+  ],
 })
 export class AppModule {}
