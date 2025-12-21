@@ -1,9 +1,9 @@
-package tn.cyberious.compta;
+package tn.cyberious.compta.authz;
 
 import org.junit.jupiter.api.Test;
 import tn.cyberious.compta.test.AbstractIntegrationTest;
 
-class AuthServiceApplicationTests extends AbstractIntegrationTest {
+class AuthzServiceApplicationTests extends AbstractIntegrationTest {
 
   @Test
   void contextLoads() {
