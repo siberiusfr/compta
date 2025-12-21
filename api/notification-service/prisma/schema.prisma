@@ -12,3 +12,46 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// État de la notification
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+}
+
+// Les différents types (pour tes templates MJML)
+enum NotificationType {
+  WELCOME_EMAIL
+  PASSWORD_RESET
+  ORDER_CONFIRMATION
+  PROMO_ALERT
+}
+
+model User {
+  id                String             @id @default(uuid())
+  email             String             @unique
+  // Préférences : permet de désactiver certains types d'envois
+  emailNotifications Boolean           @default(true)
+  pushNotifications  Boolean           @default(true)
+  notifications      Notification[]
+}
+
+model Notification {
+  id            String             @id @default(uuid())
+  userId        String
+  user          User               @relation(fields: [userId], references: [id])
+  type          NotificationType
+  status        NotificationStatus @default(PENDING)
+
+  // Contenu utile
+  subject       String?
+  payload       Json               // Les variables (ex: { name: "John", price: 10 })
+
+  // Tracking
+  errorLog      String?            // Stocke l'erreur SMTP si FAILED
+  sentAt        DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
