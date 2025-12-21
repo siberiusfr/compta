@@ -20,8 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AuthenticatedUserDetails implements Serializable {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** User's unique identifier */
   private Long userId;

@@ -20,8 +20,7 @@ import tn.compta.commons.security.model.AuthenticatedUserDetails;
 @AllArgsConstructor
 public class SecurityContext implements Serializable {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** The authenticated user details */
   private AuthenticatedUserDetails user;

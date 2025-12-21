@@ -57,7 +57,7 @@ class RoleCheckInterceptorTest {
   @Test
   void preHandle_whenUserHasRequiredRole_allowsAccess() throws Exception {
     RequireRole requireRole = mock(RequireRole.class);
-    when(requireRole.value()).thenReturn(new String[]{"ADMIN"});
+    when(requireRole.value()).thenReturn(new String[] {"ADMIN"});
     when(requireRole.requireAll()).thenReturn(false);
 
     when(handlerMethod.getMethodAnnotation(RequireRole.class)).thenReturn(requireRole);
@@ -80,7 +80,7 @@ class RoleCheckInterceptorTest {
   @Test
   void preHandle_whenUserLacksRequiredRole_throwsForbiddenException() {
     RequireRole requireRole = mock(RequireRole.class);
-    when(requireRole.value()).thenReturn(new String[]{"ADMIN"});
+    when(requireRole.value()).thenReturn(new String[] {"ADMIN"});
     when(requireRole.requireAll()).thenReturn(false);
 
     when(handlerMethod.getMethodAnnotation(RequireRole.class)).thenReturn(requireRole);
@@ -104,7 +104,7 @@ class RoleCheckInterceptorTest {
   @Test
   void preHandle_whenNotAuthenticated_throwsUnauthorizedException() {
     RequireRole requireRole = mock(RequireRole.class);
-    when(requireRole.value()).thenReturn(new String[]{"ADMIN"});
+    when(requireRole.value()).thenReturn(new String[] {"ADMIN"});
 
     when(handlerMethod.getMethodAnnotation(RequireRole.class)).thenReturn(requireRole);
     when(handlerMethod.getMethodAnnotation(Public.class)).thenReturn(null);
