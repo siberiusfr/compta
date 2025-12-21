@@ -269,7 +269,7 @@
               </database>
               <target>
                 <packageName>${jooq.generator.target.package}</packageName>
-                <directory>${project.basedir}/src/main/java</directory>
+                <directory>${project.basedir}/src/generated/jooq</directory>
               </target>
               <generate>
                 <pojos>true</pojos>
@@ -286,6 +286,23 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/generated/jooq</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
