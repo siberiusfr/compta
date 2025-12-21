@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+tn.compta.commons.security.config.SecurityCommonsAutoConfiguration
