@@ -45,6 +45,7 @@ pnpm run test:debug         # Debug tests with Node inspector
 - Redis connection configured in BullModule.forRoot (localhost:6379)
 - `MailProcessor` (src/notification/mail.processor.ts) processes jobs from the queue
 - Jobs are processed asynchronously, decoupled from HTTP requests
+- **BullBoard UI** available at `/queues` for monitoring and managing jobs (configured in app.module.ts)
 
 **Email Service (NotificationService)**
 - Located in src/notification/notification.service.ts
@@ -103,6 +104,29 @@ src/
 │   └── mail.processor.ts        # BullMQ job processor
 └── templates/
     └── welcome.mjml             # MJML email templates
+```
+
+### Queue Monitoring (BullBoard)
+
+**BullBoard Dashboard** provides a web UI to monitor and manage BullMQ queues:
+
+- **Access URL**: `http://localhost:3000/queues` (when app is running)
+- **Features**: View jobs, retry failed jobs, clear queues, see job details
+- **Configuration**: Configured in app.module.ts with ExpressAdapter
+
+**Testing the Queue**:
+```bash
+# Start Redis (required)
+redis-server  # or docker run -p 6379:6379 redis
+
+# Start the application
+pnpm run start:dev
+
+# Add a test job to the queue
+curl -X POST "http://localhost:3000/send-test-email?email=test@example.com&name=John"
+
+# View the job in BullBoard
+# Open browser: http://localhost:3000/queues
 ```
 
 ### Test Configuration
