@@ -1,6 +1,5 @@
 package tn.compta.commons.security.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,17 +16,12 @@ import tn.compta.commons.security.context.SecurityContextHolder;
 import tn.compta.commons.security.exception.UnauthorizedException;
 import tn.compta.commons.security.model.AuthenticatedUserDetails;
 import tn.compta.commons.security.model.UserPermission;
-import tn.compta.commons.security.util.JwtValidator;
 
 /**
- * Filter that extracts authentication information from gateway headers or JWT token.
+ * Filter that extracts authentication information from API Gateway headers.
  *
- * <p>This filter supports two modes:
- *
- * <ul>
- *   <li><b>Gateway mode:</b> Extract user info from X-User-* headers set by API Gateway
- *   <li><b>Direct mode:</b> Extract user info from Authorization: Bearer token
- * </ul>
+ * <p>This filter extracts user information from X-User-* headers set by the API Gateway after JWT
+ * validation.
  *
  * <p>The extracted user details are stored in SecurityContextHolder for the request lifecycle.
  */
@@ -43,18 +37,11 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
   private static final String HEADER_PRIMARY_SOCIETE_ID = "X-User-Primary-Societe-Id";
   private static final String HEADER_PERMISSIONS = "X-User-Permissions";
   private static final String HEADER_REQUEST_ID = "X-Request-Id";
-  private static final String AUTHORIZATION_HEADER = "Authorization";
-  private static final String BEARER_PREFIX = "Bearer ";
 
-  private final JwtValidator jwtValidator;
-  private final ObjectMapper objectMapper;
   private final List<String> publicPaths;
 
-  public GatewayAuthenticationFilter(JwtValidator jwtValidator, ObjectMapper objectMapper) {
-    this(
-        jwtValidator,
-        objectMapper,
-        Arrays.asList("/actuator/**", "/v3/api-docs/**", "/swagger-ui/**"));
+  public GatewayAuthenticationFilter() {
+    this(Arrays.asList("/actuator/**", "/v3/api-docs/**", "/swagger-ui/**"));
   }
 
   @Override
@@ -65,30 +52,19 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
     try {
       String requestId = extractRequestId(request);
       AuthenticatedUserDetails user = null;
-      String token = null;
       boolean authenticated = false;
 
-      // Try to extract from gateway headers first
+      // Extract from gateway headers
       if (hasGatewayHeaders(request)) {
         user = extractFromGatewayHeaders(request);
         authenticated = true;
         log.debug("Authenticated user from gateway headers: {}", user.getUsername());
-      }
-      // Otherwise, try to extract from JWT token
-      else if (hasAuthorizationHeader(request)) {
-        token = extractToken(request);
-        if (token != null) {
-          user = jwtValidator.validateAndExtract(token);
-          authenticated = true;
-          log.debug("Authenticated user from JWT: {}", user.getUsername());
-        }
       }
 
       // Build security context
       SecurityContext context =
           SecurityContext.builder()
               .user(user)
-              .token(token)
               .requestId(requestId)
               .authenticated(authenticated)
               .build();
@@ -164,31 +140,6 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
    */
   private boolean hasGatewayHeaders(HttpServletRequest request) {
     return request.getHeader(HEADER_USER_ID) != null || request.getHeader(HEADER_USERNAME) != null;
-  }
-
-  /**
-   * Check if the request has Authorization header.
-   *
-   * @param request the HTTP request
-   * @return true if Authorization header is present
-   */
-  private boolean hasAuthorizationHeader(HttpServletRequest request) {
-    String authHeader = request.getHeader(AUTHORIZATION_HEADER);
-    return authHeader != null && authHeader.startsWith(BEARER_PREFIX);
-  }
-
-  /**
-   * Extract JWT token from Authorization header.
-   *
-   * @param request the HTTP request
-   * @return the JWT token
-   */
-  private String extractToken(HttpServletRequest request) {
-    String authHeader = request.getHeader(AUTHORIZATION_HEADER);
-    if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
-      return authHeader.substring(BEARER_PREFIX.length());
-    }
-    return null;
   }
 
   /**

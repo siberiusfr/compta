@@ -1,6 +1,5 @@
 package tn.compta.commons.security.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -20,18 +19,18 @@ import tn.compta.commons.security.interceptor.PermissionCheckInterceptor;
 import tn.compta.commons.security.interceptor.RoleCheckInterceptor;
 import tn.compta.commons.security.resolver.AuthenticatedUserArgumentResolver;
 import tn.compta.commons.security.resolver.SecurityContextArgumentResolver;
-import tn.compta.commons.security.util.JwtValidator;
 
 /**
  * Auto-configuration for Compta Security Commons.
  *
  * <p>This configuration is automatically loaded by Spring Boot via spring.factories.
  *
- * <p>To enable this auto-configuration, add the following properties:
+ * <p>This module extracts authentication information from API Gateway headers (X-User-*).
+ *
+ * <p>To configure, add the following properties:
  *
  * <pre>
  * compta.security.enabled=true
- * compta.security.jwt.secret=your-secret-key
  * compta.security.public-paths=/actuator/**,/v3/api-docs/**,/swagger-ui/**
  * </pre>
  */
@@ -44,23 +43,8 @@ import tn.compta.commons.security.util.JwtValidator;
     matchIfMissing = true)
 public class SecurityCommonsAutoConfiguration implements WebMvcConfigurer {
 
-  @Value("${compta.security.jwt.secret:default-secret-key-change-in-production}")
-  private String jwtSecret;
-
   @Value("${compta.security.public-paths:/actuator/**,/v3/api-docs/**,/swagger-ui/**}")
   private String publicPathsString;
-
-  /**
-   * Create JWT validator bean.
-   *
-   * @return the JWT validator
-   */
-  @Bean
-  @ConditionalOnMissingBean
-  public JwtValidator jwtValidator() {
-    log.info("Creating JwtValidator bean");
-    return new JwtValidator(jwtSecret);
-  }
 
   /**
    * Create security aspect bean.
@@ -125,22 +109,18 @@ public class SecurityCommonsAutoConfiguration implements WebMvcConfigurer {
   /**
    * Register gateway authentication filter.
    *
-   * @param jwtValidator the JWT validator
-   * @param objectMapper the object mapper
    * @return the filter registration bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public FilterRegistrationBean<GatewayAuthenticationFilter> gatewayAuthenticationFilter(
-      JwtValidator jwtValidator, ObjectMapper objectMapper) {
+  public FilterRegistrationBean<GatewayAuthenticationFilter> gatewayAuthenticationFilter() {
 
     log.info("Registering GatewayAuthenticationFilter");
 
     List<String> publicPaths = parsePublicPaths(publicPathsString);
     log.info("Public paths: {}", publicPaths);
 
-    GatewayAuthenticationFilter filter =
-        new GatewayAuthenticationFilter(jwtValidator, objectMapper, publicPaths);
+    GatewayAuthenticationFilter filter = new GatewayAuthenticationFilter(publicPaths);
 
     FilterRegistrationBean<GatewayAuthenticationFilter> registration =
         new FilterRegistrationBean<>(filter);

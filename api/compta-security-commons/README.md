@@ -1,11 +1,10 @@
 # Compta Security Commons
 
-A shared security library for Compta microservices that provides authentication, authorization, and security utilities.
+A shared security library for Compta microservices that provides authentication, authorization, and security utilities based on API Gateway headers.
 
 ## Features
 
-- **JWT Token Validation**: Validate and extract user details from JWT tokens
-- **Gateway Authentication**: Extract authentication info from API Gateway headers
+- **Gateway Header Authentication**: Extract authentication info from API Gateway headers
 - **Role-Based Access Control**: Check user roles with annotations
 - **Permission-Based Access Control**: Check user permissions with annotations
 - **Security Context**: Thread-local storage for authenticated user details
@@ -32,10 +31,16 @@ Add the following properties to your `application.yml`:
 compta:
   security:
     enabled: true
-    jwt:
-      secret: ${JWT_SECRET:your-secret-key-change-in-production}
     public-paths: /actuator/**,/v3/api-docs/**,/swagger-ui/**,/auth/login,/auth/refresh
 ```
+
+## Architecture Overview
+
+This library is designed for a microservices architecture where:
+
+1. **API Gateway** validates JWT tokens
+2. **API Gateway** extracts user information and passes it via HTTP headers to downstream services
+3. **Downstream services** use this library to read the headers and populate the security context
 
 ## Usage
 
@@ -170,13 +175,9 @@ public class AdminService {
 }
 ```
 
-## Authentication Modes
+## Gateway Headers
 
-The library supports two authentication modes:
-
-### Gateway Mode (Recommended for Production)
-
-The API Gateway validates JWT tokens and passes user info via headers:
+The API Gateway must pass the following headers to downstream services:
 
 ```
 X-User-Id: 1
@@ -185,16 +186,22 @@ X-User-Email: john@example.com
 X-User-Roles: ADMIN,USER
 X-User-Societe-Ids: 1,2,3
 X-User-Primary-Societe-Id: 1
-X-User-Permissions: user:create,user:read
+X-User-Permissions: user:create,user:read,societe:manage
+X-Request-Id: unique-request-id
 ```
 
-### Direct JWT Mode (Development/Testing)
+### Header Descriptions
 
-Services can validate JWT tokens directly:
-
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+| Header | Type | Description |
+|--------|------|-------------|
+| X-User-Id | Long | User's unique identifier |
+| X-User-Username | String | User's username |
+| X-User-Email | String | User's email address |
+| X-User-Roles | String (CSV) | Comma-separated list of roles (ADMIN, COMPTABLE, SOCIETE, EMPLOYEE) |
+| X-User-Societe-Ids | String (CSV) | Comma-separated list of company IDs the user has access to |
+| X-User-Primary-Societe-Id | Long | Primary company ID (for employees) |
+| X-User-Permissions | String (CSV) | Comma-separated list of permissions (e.g., user:create, societe:read) |
+| X-Request-Id | String | Unique request ID for tracing (auto-generated if not provided) |
 
 ## Security Context Structure
 
@@ -242,7 +249,6 @@ The library throws specific exceptions:
 
 - `UnauthorizedException` (401) - User not authenticated
 - `ForbiddenException` (403) - User lacks required role/permission
-- `InvalidTokenException` (401) - JWT token is invalid or expired
 
 These should be handled by your global exception handler:
 
@@ -276,16 +282,15 @@ mvn test
 
 ```
 compta-security-commons/
-├── annotation/           # Security annotations
+├── annotation/           # Security annotations (@Public, @RequireRole, @RequirePermission, @AuthenticatedUser)
 ├── aspect/              # AOP security aspects
 ├── config/              # Auto-configuration
 ├── context/             # Security context (ThreadLocal)
 ├── exception/           # Security exceptions
-├── filter/              # Servlet filters
-├── interceptor/         # MVC interceptors
-├── model/               # Data models
-├── resolver/            # Argument resolvers
-└── util/                # Utilities (JWT validator)
+├── filter/              # Servlet filters (GatewayAuthenticationFilter)
+├── interceptor/         # MVC interceptors (role/permission checks)
+├── model/               # Data models (AuthenticatedUserDetails, UserPermission)
+└── resolver/            # Argument resolvers (@AuthenticatedUser injection)
 ```
 
 ## Auto-Configuration
@@ -304,6 +309,19 @@ compta:
   security:
     enabled: false
 ```
+
+## Key Differences from JWT-Based Security
+
+This library **does not**:
+- Validate JWT tokens (done by API Gateway)
+- Parse JWT tokens
+- Include JWT dependencies
+
+Instead, it:
+- Reads pre-validated user information from HTTP headers
+- Is lightweight and fast
+- Has no cryptographic dependencies
+- Trusts the API Gateway to validate authentication
 
 ## Contributing
 

@@ -24,9 +24,6 @@ public class SecurityContext implements Serializable {
   /** The authenticated user details */
   private AuthenticatedUserDetails user;
 
-  /** The original JWT token (if available) */
-  private String token;
-
   /** Request ID for tracing */
   private String requestId;
 
