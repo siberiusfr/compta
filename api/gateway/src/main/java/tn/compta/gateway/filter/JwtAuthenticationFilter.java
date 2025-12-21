@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 import tn.compta.gateway.util.JwtUtils;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -60,27 +61,46 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
                 // Extract claims from token
                 Claims claims = jwtUtils.extractClaims(token);
 
-                // Extract user information
-                String userId = claims.get("userId", String.class);
+                // Extract user information from JWT claims
+                Object userIdObj = claims.get("userId");
+                String userId = userIdObj != null ? userIdObj.toString() : "";
+                String username = claims.get("username", String.class);
                 String email = claims.get("email", String.class);
-                String companyId = claims.get("companyId", String.class);
 
                 @SuppressWarnings("unchecked")
                 List<String> roles = claims.get("roles", List.class);
 
                 @SuppressWarnings("unchecked")
+                List<Object> societeIdsObj = claims.get("societeIds", List.class);
+                List<String> societeIds = societeIdsObj != null
+                    ? societeIdsObj.stream().map(Object::toString).toList()
+                    : List.of();
+
+                Object primarySocieteIdObj = claims.get("primarySocieteId");
+                String primarySocieteId = primarySocieteIdObj != null ? primarySocieteIdObj.toString() : "";
+
+                @SuppressWarnings("unchecked")
                 List<String> permissions = claims.get("permissions", List.class);
 
-                // Build modified request with injected headers
+                // Generate or extract request ID
+                String requestId = request.getHeaders().getFirst("X-Request-Id");
+                if (requestId == null || requestId.isEmpty()) {
+                    requestId = UUID.randomUUID().toString();
+                }
+
+                // Build modified request with headers matching compta-security-commons
                 ServerHttpRequest modifiedRequest = request.mutate()
-                        .header("X-User-Id", userId != null ? userId : "")
+                        .header("X-User-Id", userId)
+                        .header("X-User-Username", username != null ? username : "")
                         .header("X-User-Email", email != null ? email : "")
-                        .header("X-Company-Id", companyId != null ? companyId : "")
                         .header("X-User-Roles", roles != null ? String.join(",", roles) : "")
+                        .header("X-User-Societe-Ids", String.join(",", societeIds))
+                        .header("X-User-Primary-Societe-Id", primarySocieteId)
                         .header("X-User-Permissions", permissions != null ? String.join(",", permissions) : "")
+                        .header("X-Request-Id", requestId)
                         .build();
 
-                log.debug("JWT validated for user: {} (company: {})", email, companyId);
+                log.debug("JWT validated for user: {} (username: {}, requestId: {})", email, username, requestId);
 
                 // Continue with modified request
                 return chain.filter(exchange.mutate().request(modifiedRequest).build());

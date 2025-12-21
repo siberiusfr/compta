@@ -10,8 +10,6 @@ spring:
           uri: http://auth-service:8081
           predicates:
             - Path=/api/auth/**
-          filters:
-            - RewritePath=/api/auth/(?<segment>.*), /${segment}
 
         # Accounting Service Routes
         - id: accounting-service
@@ -74,7 +72,7 @@ server:
 
 # JWT Configuration
 jwt:
-  secret: ${JWT_SECRET:your-super-secret-jwt-key-change-this-in-production-minimum-256-bits}
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   expiration: ${JWT_EXPIRATION:86400000}
 
 # Management & Actuator

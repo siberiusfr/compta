@@ -30,7 +30,26 @@ public class JwtTokenUtil {
   public String generateToken(UserDetails userDetails, Long userId) {
     Map<String, Object> claims = new HashMap<>();
     claims.put("userId", userId);
-    claims.put("authorities", userDetails.getAuthorities());
+
+    // Extract CustomUserDetails for additional information
+    if (userDetails instanceof tn.cyberious.compta.auth.security.CustomUserDetails) {
+      tn.cyberious.compta.auth.security.CustomUserDetails customUserDetails =
+          (tn.cyberious.compta.auth.security.CustomUserDetails) userDetails;
+
+      claims.put("username", customUserDetails.getUsername());
+      claims.put("email", customUserDetails.getEmail());
+      claims.put("roles", customUserDetails.getRoleNames());
+
+      // TODO: Add societeIds and primarySocieteId when implemented
+      claims.put("societeIds", java.util.List.of());
+      claims.put("primarySocieteId", null);
+
+      // TODO: Add permissions when implemented
+      claims.put("permissions", java.util.List.of());
+    } else {
+      claims.put("authorities", userDetails.getAuthorities());
+    }
+
     return createToken(claims, userDetails.getUsername(), jwtProperties.getExpiration());
   }
 
