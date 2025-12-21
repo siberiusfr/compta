@@ -3,7 +3,6 @@
  */
 package tn.cyberious.compta.authz.generated;
 
-import java.io.Serial;
 import java.util.Arrays;
 import java.util.List;
 import org.jooq.Constants;
@@ -14,7 +13,6 @@ import org.jooq.impl.CatalogImpl;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class DefaultCatalog extends CatalogImpl {
 
-  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>DEFAULT_CATALOG</code> */

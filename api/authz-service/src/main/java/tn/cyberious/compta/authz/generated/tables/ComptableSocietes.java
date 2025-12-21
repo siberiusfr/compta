@@ -3,7 +3,6 @@
  */
 package tn.cyberious.compta.authz.generated.tables;
 
-import java.io.Serial;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -41,7 +40,6 @@ import tn.cyberious.compta.authz.generated.tables.records.ComptableSocietesRecor
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class ComptableSocietes extends TableImpl<ComptableSocietesRecord> {
 
-  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>authz.comptable_societes</code> */
@@ -125,7 +123,6 @@ public class ComptableSocietes extends TableImpl<ComptableSocietesRecord> {
   public static class ComptableSocietesPath extends ComptableSocietes
       implements Path<ComptableSocietesRecord> {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
     public <O extends Record> ComptableSocietesPath(

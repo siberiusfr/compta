@@ -5,8 +5,6 @@ package tn.cyberious.compta.authz.generated.tables.pojos;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,7 +13,6 @@ import java.time.LocalDateTime;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Employees implements Serializable {
 
-  @Serial
   private static final long serialVersionUID = 1L;
 
   private Long id;
