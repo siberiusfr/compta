@@ -3,6 +3,7 @@
  */
 package tn.cyberious.compta.auth.generated.tables;
 
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +40,7 @@ import tn.cyberious.compta.auth.generated.tables.records.RefreshTokensRecord;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class RefreshTokens extends TableImpl<RefreshTokensRecord> {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>auth.refresh_tokens</code> */
@@ -117,6 +119,7 @@ public class RefreshTokens extends TableImpl<RefreshTokensRecord> {
   /** A subtype implementing {@link Path} for simplified path-based joins. */
   public static class RefreshTokensPath extends RefreshTokens implements Path<RefreshTokensRecord> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public <O extends Record> RefreshTokensPath(
@@ -180,8 +183,9 @@ public class RefreshTokens extends TableImpl<RefreshTokensRecord> {
 
   /** Get the implicit join path to the <code>auth.users</code> table. */
   public UsersPath users() {
-    if (_users == null)
+    if (_users == null) {
       _users = new UsersPath(this, Keys.REFRESH_TOKENS__REFRESH_TOKENS_USER_ID_FKEY, null);
+    }
 
     return _users;
   }

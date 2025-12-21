@@ -3,6 +3,7 @@
  */
 package tn.cyberious.compta.auth.generated.tables;
 
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +40,7 @@ import tn.cyberious.compta.auth.generated.tables.records.AuthLogsRecord;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class AuthLogs extends TableImpl<AuthLogsRecord> {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>auth.auth_logs</code> */
@@ -121,6 +123,7 @@ public class AuthLogs extends TableImpl<AuthLogsRecord> {
   /** A subtype implementing {@link Path} for simplified path-based joins. */
   public static class AuthLogsPath extends AuthLogs implements Path<AuthLogsRecord> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public <O extends Record> AuthLogsPath(
@@ -179,7 +182,9 @@ public class AuthLogs extends TableImpl<AuthLogsRecord> {
 
   /** Get the implicit join path to the <code>auth.users</code> table. */
   public UsersPath users() {
-    if (_users == null) _users = new UsersPath(this, Keys.AUTH_LOGS__AUTH_LOGS_USER_ID_FKEY, null);
+    if (_users == null) {
+      _users = new UsersPath(this, Keys.AUTH_LOGS__AUTH_LOGS_USER_ID_FKEY, null);
+    }
 
     return _users;
   }

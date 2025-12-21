@@ -1,5 +1,6 @@
 package tn.compta.commons.security.context;
 
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +20,7 @@ import tn.compta.commons.security.model.AuthenticatedUserDetails;
 @AllArgsConstructor
 public class SecurityContext implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The authenticated user details */

@@ -3,6 +3,7 @@
  */
 package tn.cyberious.compta.auth.generated.tables;
 
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +39,7 @@ import tn.cyberious.compta.auth.generated.tables.records.RolesRecord;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Roles extends TableImpl<RolesRecord> {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>auth.roles</code> */
@@ -103,6 +105,7 @@ public class Roles extends TableImpl<RolesRecord> {
   /** A subtype implementing {@link Path} for simplified path-based joins. */
   public static class RolesPath extends Roles implements Path<RolesRecord> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public <O extends Record> RolesPath(
@@ -156,9 +159,10 @@ public class Roles extends TableImpl<RolesRecord> {
 
   /** Get the implicit to-many join path to the <code>auth.user_roles</code> table */
   public UserRolesPath userRoles() {
-    if (_userRoles == null)
+    if (_userRoles == null) {
       _userRoles =
           new UserRolesPath(this, null, Keys.USER_ROLES__USER_ROLES_ROLE_ID_FKEY.getInverseKey());
+    }
 
     return _userRoles;
   }

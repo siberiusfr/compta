@@ -3,6 +3,7 @@
  */
 package tn.cyberious.compta.auth.generated;
 
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.List;
 import org.jooq.Catalog;
@@ -18,6 +19,7 @@ import tn.cyberious.compta.auth.generated.tables.Users;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Auth extends SchemaImpl {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>auth</code> */

@@ -3,6 +3,7 @@
  */
 package tn.cyberious.compta.authz.generated.tables;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,6 +44,7 @@ import tn.cyberious.compta.authz.generated.tables.records.SocietesRecord;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Societes extends TableImpl<SocietesRecord> {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>authz.societes</code> */
@@ -194,6 +196,7 @@ public class Societes extends TableImpl<SocietesRecord> {
   /** A subtype implementing {@link Path} for simplified path-based joins. */
   public static class SocietesPath extends Societes implements Path<SocietesRecord> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public <O extends Record> SocietesPath(
@@ -252,12 +255,13 @@ public class Societes extends TableImpl<SocietesRecord> {
 
   /** Get the implicit to-many join path to the <code>authz.comptable_societes</code> table */
   public ComptableSocietesPath comptableSocietes() {
-    if (_comptableSocietes == null)
+    if (_comptableSocietes == null) {
       _comptableSocietes =
           new ComptableSocietesPath(
               this,
               null,
               Keys.COMPTABLE_SOCIETES__COMPTABLE_SOCIETES_SOCIETE_ID_FKEY.getInverseKey());
+    }
 
     return _comptableSocietes;
   }
@@ -266,9 +270,10 @@ public class Societes extends TableImpl<SocietesRecord> {
 
   /** Get the implicit to-many join path to the <code>authz.employees</code> table */
   public EmployeesPath employees() {
-    if (_employees == null)
+    if (_employees == null) {
       _employees =
           new EmployeesPath(this, null, Keys.EMPLOYEES__EMPLOYEES_SOCIETE_ID_FKEY.getInverseKey());
+    }
 
     return _employees;
   }
@@ -277,10 +282,11 @@ public class Societes extends TableImpl<SocietesRecord> {
 
   /** Get the implicit to-many join path to the <code>authz.user_societes</code> table */
   public UserSocietesPath userSocietes() {
-    if (_userSocietes == null)
+    if (_userSocietes == null) {
       _userSocietes =
           new UserSocietesPath(
               this, null, Keys.USER_SOCIETES__USER_SOCIETES_SOCIETE_ID_FKEY.getInverseKey());
+    }
 
     return _userSocietes;
   }

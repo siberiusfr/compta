@@ -24,48 +24,51 @@ public class Indexes {
       Internal.createIndex(
           DSL.name("idx_comptable_societes_societe_id"),
           ComptableSocietes.COMPTABLE_SOCIETES,
-          new OrderField[] {ComptableSocietes.COMPTABLE_SOCIETES.SOCIETE_ID},
+          new OrderField[]{ComptableSocietes.COMPTABLE_SOCIETES.SOCIETE_ID},
           false);
   public static final Index IDX_COMPTABLE_SOCIETES_USER_ID =
       Internal.createIndex(
           DSL.name("idx_comptable_societes_user_id"),
           ComptableSocietes.COMPTABLE_SOCIETES,
-          new OrderField[] {ComptableSocietes.COMPTABLE_SOCIETES.USER_ID},
+          new OrderField[]{ComptableSocietes.COMPTABLE_SOCIETES.USER_ID},
           false);
   public static final Index IDX_EMPLOYEES_SOCIETE_ID =
       Internal.createIndex(
           DSL.name("idx_employees_societe_id"),
           Employees.EMPLOYEES,
-          new OrderField[] {Employees.EMPLOYEES.SOCIETE_ID},
+          new OrderField[]{Employees.EMPLOYEES.SOCIETE_ID},
           false);
   public static final Index IDX_EMPLOYEES_USER_ID =
       Internal.createIndex(
           DSL.name("idx_employees_user_id"),
           Employees.EMPLOYEES,
-          new OrderField[] {Employees.EMPLOYEES.USER_ID},
+          new OrderField[]{Employees.EMPLOYEES.USER_ID},
           false);
   public static final Index IDX_SOCIETES_IS_ACTIVE =
       Internal.createIndex(
           DSL.name("idx_societes_is_active"),
           Societes.SOCIETES,
-          new OrderField[] {Societes.SOCIETES.IS_ACTIVE},
+          new OrderField[]{Societes.SOCIETES.IS_ACTIVE},
           false);
   public static final Index IDX_SOCIETES_MATRICULE =
       Internal.createIndex(
           DSL.name("idx_societes_matricule"),
           Societes.SOCIETES,
-          new OrderField[] {Societes.SOCIETES.MATRICULE_FISCALE},
+          new OrderField[]{Societes.SOCIETES.MATRICULE_FISCALE},
           false);
   public static final Index IDX_USER_SOCIETES_SOCIETE_ID =
       Internal.createIndex(
           DSL.name("idx_user_societes_societe_id"),
           UserSocietes.USER_SOCIETES,
-          new OrderField[] {UserSocietes.USER_SOCIETES.SOCIETE_ID},
+          new OrderField[]{UserSocietes.USER_SOCIETES.SOCIETE_ID},
           false);
   public static final Index IDX_USER_SOCIETES_USER_ID =
       Internal.createIndex(
           DSL.name("idx_user_societes_user_id"),
           UserSocietes.USER_SOCIETES,
-          new OrderField[] {UserSocietes.USER_SOCIETES.USER_ID},
+          new OrderField[]{UserSocietes.USER_SOCIETES.USER_ID},
           false);
+
+  private Indexes() {
+  }
 }

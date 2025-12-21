@@ -27,4 +27,7 @@ public class Tables {
 
   /** The table <code>auth.users</code>. */
   public static final Users USERS = Users.USERS;
+
+  private Tables() {
+  }
 }

@@ -216,6 +216,7 @@
             <exportDatatables>true</exportDatatables>
             <activeRecipes>
               <recipe>org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_5</recipe>
+              <recipe>org.openrewrite.staticanalysis.CodeCleanup</recipe>
             </activeRecipes>
           </configuration>
           <dependencies>
@@ -223,6 +224,11 @@
               <groupId>org.openrewrite.recipe</groupId>
               <artifactId>rewrite-spring</artifactId>
               <version>6.21.0</version>
+            </dependency>
+            <dependency>
+              <groupId>org.openrewrite.recipe</groupId>
+              <artifactId>rewrite-static-analysis</artifactId>
+              <version>2.24.0</version>
             </dependency>
           </dependencies>
         </plugin>

@@ -3,6 +3,7 @@
  */
 package tn.cyberious.compta.auth.generated.tables;
 
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +41,7 @@ import tn.cyberious.compta.auth.generated.tables.records.UserRolesRecord;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class UserRoles extends TableImpl<UserRolesRecord> {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>auth.user_roles</code> */
@@ -106,6 +108,7 @@ public class UserRoles extends TableImpl<UserRolesRecord> {
   /** A subtype implementing {@link Path} for simplified path-based joins. */
   public static class UserRolesPath extends UserRoles implements Path<UserRolesRecord> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public <O extends Record> UserRolesPath(
@@ -170,8 +173,9 @@ public class UserRoles extends TableImpl<UserRolesRecord> {
 
   /** Get the implicit join path to the <code>auth.roles</code> table. */
   public RolesPath roles() {
-    if (_roles == null)
+    if (_roles == null) {
       _roles = new RolesPath(this, Keys.USER_ROLES__USER_ROLES_ROLE_ID_FKEY, null);
+    }
 
     return _roles;
   }
@@ -180,8 +184,9 @@ public class UserRoles extends TableImpl<UserRolesRecord> {
 
   /** Get the implicit join path to the <code>auth.users</code> table. */
   public UsersPath users() {
-    if (_users == null)
+    if (_users == null) {
       _users = new UsersPath(this, Keys.USER_ROLES__USER_ROLES_USER_ID_FKEY, null);
+    }
 
     return _users;
   }

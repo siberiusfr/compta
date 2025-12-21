@@ -1,7 +1,8 @@
 package tn.compta.commons.security.interceptor;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,7 +57,7 @@ class RoleCheckInterceptorTest {
   @Test
   void preHandle_whenUserHasRequiredRole_allowsAccess() throws Exception {
     RequireRole requireRole = mock(RequireRole.class);
-    when(requireRole.value()).thenReturn(new String[] {"ADMIN"});
+    when(requireRole.value()).thenReturn(new String[]{"ADMIN"});
     when(requireRole.requireAll()).thenReturn(false);
 
     when(handlerMethod.getMethodAnnotation(RequireRole.class)).thenReturn(requireRole);
@@ -79,7 +80,7 @@ class RoleCheckInterceptorTest {
   @Test
   void preHandle_whenUserLacksRequiredRole_throwsForbiddenException() {
     RequireRole requireRole = mock(RequireRole.class);
-    when(requireRole.value()).thenReturn(new String[] {"ADMIN"});
+    when(requireRole.value()).thenReturn(new String[]{"ADMIN"});
     when(requireRole.requireAll()).thenReturn(false);
 
     when(handlerMethod.getMethodAnnotation(RequireRole.class)).thenReturn(requireRole);
@@ -103,7 +104,7 @@ class RoleCheckInterceptorTest {
   @Test
   void preHandle_whenNotAuthenticated_throwsUnauthorizedException() {
     RequireRole requireRole = mock(RequireRole.class);
-    when(requireRole.value()).thenReturn(new String[] {"ADMIN"});
+    when(requireRole.value()).thenReturn(new String[]{"ADMIN"});
 
     when(handlerMethod.getMethodAnnotation(RequireRole.class)).thenReturn(requireRole);
     when(handlerMethod.getMethodAnnotation(Public.class)).thenReturn(null);

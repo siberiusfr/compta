@@ -29,13 +29,13 @@ public class Keys {
       Internal.createUniqueKey(
           ComptableSocietes.COMPTABLE_SOCIETES,
           DSL.name("comptable_societes_pkey"),
-          new TableField[] {ComptableSocietes.COMPTABLE_SOCIETES.ID},
+          new TableField[]{ComptableSocietes.COMPTABLE_SOCIETES.ID},
           true);
   public static final UniqueKey<ComptableSocietesRecord> COMPTABLE_SOCIETES_USER_ID_SOCIETE_ID_KEY =
       Internal.createUniqueKey(
           ComptableSocietes.COMPTABLE_SOCIETES,
           DSL.name("comptable_societes_user_id_societe_id_key"),
-          new TableField[] {
+          new TableField[]{
             ComptableSocietes.COMPTABLE_SOCIETES.USER_ID,
             ComptableSocietes.COMPTABLE_SOCIETES.SOCIETE_ID
           },
@@ -44,37 +44,37 @@ public class Keys {
       Internal.createUniqueKey(
           Employees.EMPLOYEES,
           DSL.name("employees_pkey"),
-          new TableField[] {Employees.EMPLOYEES.ID},
+          new TableField[]{Employees.EMPLOYEES.ID},
           true);
   public static final UniqueKey<EmployeesRecord> EMPLOYEES_USER_ID_KEY =
       Internal.createUniqueKey(
           Employees.EMPLOYEES,
           DSL.name("employees_user_id_key"),
-          new TableField[] {Employees.EMPLOYEES.USER_ID},
+          new TableField[]{Employees.EMPLOYEES.USER_ID},
           true);
   public static final UniqueKey<SocietesRecord> SOCIETES_MATRICULE_FISCALE_KEY =
       Internal.createUniqueKey(
           Societes.SOCIETES,
           DSL.name("societes_matricule_fiscale_key"),
-          new TableField[] {Societes.SOCIETES.MATRICULE_FISCALE},
+          new TableField[]{Societes.SOCIETES.MATRICULE_FISCALE},
           true);
   public static final UniqueKey<SocietesRecord> SOCIETES_PKEY =
       Internal.createUniqueKey(
           Societes.SOCIETES,
           DSL.name("societes_pkey"),
-          new TableField[] {Societes.SOCIETES.ID},
+          new TableField[]{Societes.SOCIETES.ID},
           true);
   public static final UniqueKey<UserSocietesRecord> USER_SOCIETES_PKEY =
       Internal.createUniqueKey(
           UserSocietes.USER_SOCIETES,
           DSL.name("user_societes_pkey"),
-          new TableField[] {UserSocietes.USER_SOCIETES.ID},
+          new TableField[]{UserSocietes.USER_SOCIETES.ID},
           true);
   public static final UniqueKey<UserSocietesRecord> USER_SOCIETES_USER_ID_SOCIETE_ID_KEY =
       Internal.createUniqueKey(
           UserSocietes.USER_SOCIETES,
           DSL.name("user_societes_user_id_societe_id_key"),
-          new TableField[] {
+          new TableField[]{
             UserSocietes.USER_SOCIETES.USER_ID, UserSocietes.USER_SOCIETES.SOCIETE_ID
           },
           true);
@@ -88,26 +88,29 @@ public class Keys {
           Internal.createForeignKey(
               ComptableSocietes.COMPTABLE_SOCIETES,
               DSL.name("comptable_societes_societe_id_fkey"),
-              new TableField[] {ComptableSocietes.COMPTABLE_SOCIETES.SOCIETE_ID},
+              new TableField[]{ComptableSocietes.COMPTABLE_SOCIETES.SOCIETE_ID},
               Keys.SOCIETES_PKEY,
-              new TableField[] {Societes.SOCIETES.ID},
+              new TableField[]{Societes.SOCIETES.ID},
               true);
   public static final ForeignKey<EmployeesRecord, SocietesRecord>
       EMPLOYEES__EMPLOYEES_SOCIETE_ID_FKEY =
           Internal.createForeignKey(
               Employees.EMPLOYEES,
               DSL.name("employees_societe_id_fkey"),
-              new TableField[] {Employees.EMPLOYEES.SOCIETE_ID},
+              new TableField[]{Employees.EMPLOYEES.SOCIETE_ID},
               Keys.SOCIETES_PKEY,
-              new TableField[] {Societes.SOCIETES.ID},
+              new TableField[]{Societes.SOCIETES.ID},
               true);
   public static final ForeignKey<UserSocietesRecord, SocietesRecord>
       USER_SOCIETES__USER_SOCIETES_SOCIETE_ID_FKEY =
           Internal.createForeignKey(
               UserSocietes.USER_SOCIETES,
               DSL.name("user_societes_societe_id_fkey"),
-              new TableField[] {UserSocietes.USER_SOCIETES.SOCIETE_ID},
+              new TableField[]{UserSocietes.USER_SOCIETES.SOCIETE_ID},
               Keys.SOCIETES_PKEY,
-              new TableField[] {Societes.SOCIETES.ID},
+              new TableField[]{Societes.SOCIETES.ID},
               true);
+
+  private Keys() {
+  }
 }

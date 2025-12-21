@@ -31,49 +31,49 @@ public class Keys {
       Internal.createUniqueKey(
           AuthLogs.AUTH_LOGS,
           DSL.name("auth_logs_pkey"),
-          new TableField[] {AuthLogs.AUTH_LOGS.ID},
+          new TableField[]{AuthLogs.AUTH_LOGS.ID},
           true);
   public static final UniqueKey<RefreshTokensRecord> REFRESH_TOKENS_PKEY =
       Internal.createUniqueKey(
           RefreshTokens.REFRESH_TOKENS,
           DSL.name("refresh_tokens_pkey"),
-          new TableField[] {RefreshTokens.REFRESH_TOKENS.ID},
+          new TableField[]{RefreshTokens.REFRESH_TOKENS.ID},
           true);
   public static final UniqueKey<RefreshTokensRecord> REFRESH_TOKENS_TOKEN_KEY =
       Internal.createUniqueKey(
           RefreshTokens.REFRESH_TOKENS,
           DSL.name("refresh_tokens_token_key"),
-          new TableField[] {RefreshTokens.REFRESH_TOKENS.TOKEN},
+          new TableField[]{RefreshTokens.REFRESH_TOKENS.TOKEN},
           true);
   public static final UniqueKey<RolesRecord> ROLES_NAME_KEY =
       Internal.createUniqueKey(
-          Roles.ROLES, DSL.name("roles_name_key"), new TableField[] {Roles.ROLES.NAME}, true);
+          Roles.ROLES, DSL.name("roles_name_key"), new TableField[]{Roles.ROLES.NAME}, true);
   public static final UniqueKey<RolesRecord> ROLES_PKEY =
       Internal.createUniqueKey(
-          Roles.ROLES, DSL.name("roles_pkey"), new TableField[] {Roles.ROLES.ID}, true);
+          Roles.ROLES, DSL.name("roles_pkey"), new TableField[]{Roles.ROLES.ID}, true);
   public static final UniqueKey<UserRolesRecord> USER_ROLES_PKEY =
       Internal.createUniqueKey(
           UserRoles.USER_ROLES,
           DSL.name("user_roles_pkey"),
-          new TableField[] {UserRoles.USER_ROLES.ID},
+          new TableField[]{UserRoles.USER_ROLES.ID},
           true);
   public static final UniqueKey<UserRolesRecord> USER_ROLES_USER_ID_ROLE_ID_KEY =
       Internal.createUniqueKey(
           UserRoles.USER_ROLES,
           DSL.name("user_roles_user_id_role_id_key"),
-          new TableField[] {UserRoles.USER_ROLES.USER_ID, UserRoles.USER_ROLES.ROLE_ID},
+          new TableField[]{UserRoles.USER_ROLES.USER_ID, UserRoles.USER_ROLES.ROLE_ID},
           true);
   public static final UniqueKey<UsersRecord> USERS_EMAIL_KEY =
       Internal.createUniqueKey(
-          Users.USERS, DSL.name("users_email_key"), new TableField[] {Users.USERS.EMAIL}, true);
+          Users.USERS, DSL.name("users_email_key"), new TableField[]{Users.USERS.EMAIL}, true);
   public static final UniqueKey<UsersRecord> USERS_PKEY =
       Internal.createUniqueKey(
-          Users.USERS, DSL.name("users_pkey"), new TableField[] {Users.USERS.ID}, true);
+          Users.USERS, DSL.name("users_pkey"), new TableField[]{Users.USERS.ID}, true);
   public static final UniqueKey<UsersRecord> USERS_USERNAME_KEY =
       Internal.createUniqueKey(
           Users.USERS,
           DSL.name("users_username_key"),
-          new TableField[] {Users.USERS.USERNAME},
+          new TableField[]{Users.USERS.USERNAME},
           true);
 
   // -------------------------------------------------------------------------
@@ -84,33 +84,36 @@ public class Keys {
       Internal.createForeignKey(
           AuthLogs.AUTH_LOGS,
           DSL.name("auth_logs_user_id_fkey"),
-          new TableField[] {AuthLogs.AUTH_LOGS.USER_ID},
+          new TableField[]{AuthLogs.AUTH_LOGS.USER_ID},
           Keys.USERS_PKEY,
-          new TableField[] {Users.USERS.ID},
+          new TableField[]{Users.USERS.ID},
           true);
   public static final ForeignKey<RefreshTokensRecord, UsersRecord>
       REFRESH_TOKENS__REFRESH_TOKENS_USER_ID_FKEY =
           Internal.createForeignKey(
               RefreshTokens.REFRESH_TOKENS,
               DSL.name("refresh_tokens_user_id_fkey"),
-              new TableField[] {RefreshTokens.REFRESH_TOKENS.USER_ID},
+              new TableField[]{RefreshTokens.REFRESH_TOKENS.USER_ID},
               Keys.USERS_PKEY,
-              new TableField[] {Users.USERS.ID},
+              new TableField[]{Users.USERS.ID},
               true);
   public static final ForeignKey<UserRolesRecord, RolesRecord> USER_ROLES__USER_ROLES_ROLE_ID_FKEY =
       Internal.createForeignKey(
           UserRoles.USER_ROLES,
           DSL.name("user_roles_role_id_fkey"),
-          new TableField[] {UserRoles.USER_ROLES.ROLE_ID},
+          new TableField[]{UserRoles.USER_ROLES.ROLE_ID},
           Keys.ROLES_PKEY,
-          new TableField[] {Roles.ROLES.ID},
+          new TableField[]{Roles.ROLES.ID},
           true);
   public static final ForeignKey<UserRolesRecord, UsersRecord> USER_ROLES__USER_ROLES_USER_ID_FKEY =
       Internal.createForeignKey(
           UserRoles.USER_ROLES,
           DSL.name("user_roles_user_id_fkey"),
-          new TableField[] {UserRoles.USER_ROLES.USER_ID},
+          new TableField[]{UserRoles.USER_ROLES.USER_ID},
           Keys.USERS_PKEY,
-          new TableField[] {Users.USERS.ID},
+          new TableField[]{Users.USERS.ID},
           true);
+
+  private Keys() {
+  }
 }

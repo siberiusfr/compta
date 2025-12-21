@@ -79,7 +79,7 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
       response.setContentType("application/json");
       response
           .getWriter()
-          .write(String.format("{\"error\":\"Unauthorized\",\"message\":\"%s\"}", e.getMessage()));
+          .write("{\"error\":\"Unauthorized\",\"message\":\"%s\"}".formatted(e.getMessage()));
     } catch (Exception e) {
       log.error("Error in authentication filter", e);
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

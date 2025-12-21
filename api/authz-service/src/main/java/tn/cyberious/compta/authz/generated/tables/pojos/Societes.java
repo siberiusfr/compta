@@ -5,6 +5,7 @@ package tn.cyberious.compta.authz.generated.tables.pojos;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Societes implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private Long id;
@@ -366,79 +368,177 @@ public class Societes implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     final Societes other = (Societes) obj;
     if (this.id == null) {
-      if (other.id != null) return false;
-    } else if (!this.id.equals(other.id)) return false;
+      if (other.id != null) {
+        return false;
+      }
+    } else if (!this.id.equals(other.id)) {
+      return false;
+    }
     if (this.raisonSociale == null) {
-      if (other.raisonSociale != null) return false;
-    } else if (!this.raisonSociale.equals(other.raisonSociale)) return false;
+      if (other.raisonSociale != null) {
+        return false;
+      }
+    } else if (!this.raisonSociale.equals(other.raisonSociale)) {
+      return false;
+    }
     if (this.matriculeFiscale == null) {
-      if (other.matriculeFiscale != null) return false;
-    } else if (!this.matriculeFiscale.equals(other.matriculeFiscale)) return false;
+      if (other.matriculeFiscale != null) {
+        return false;
+      }
+    } else if (!this.matriculeFiscale.equals(other.matriculeFiscale)) {
+      return false;
+    }
     if (this.codeTva == null) {
-      if (other.codeTva != null) return false;
-    } else if (!this.codeTva.equals(other.codeTva)) return false;
+      if (other.codeTva != null) {
+        return false;
+      }
+    } else if (!this.codeTva.equals(other.codeTva)) {
+      return false;
+    }
     if (this.codeDouane == null) {
-      if (other.codeDouane != null) return false;
-    } else if (!this.codeDouane.equals(other.codeDouane)) return false;
+      if (other.codeDouane != null) {
+        return false;
+      }
+    } else if (!this.codeDouane.equals(other.codeDouane)) {
+      return false;
+    }
     if (this.registreCommerce == null) {
-      if (other.registreCommerce != null) return false;
-    } else if (!this.registreCommerce.equals(other.registreCommerce)) return false;
+      if (other.registreCommerce != null) {
+        return false;
+      }
+    } else if (!this.registreCommerce.equals(other.registreCommerce)) {
+      return false;
+    }
     if (this.formeJuridique == null) {
-      if (other.formeJuridique != null) return false;
-    } else if (!this.formeJuridique.equals(other.formeJuridique)) return false;
+      if (other.formeJuridique != null) {
+        return false;
+      }
+    } else if (!this.formeJuridique.equals(other.formeJuridique)) {
+      return false;
+    }
     if (this.capitalSocial == null) {
-      if (other.capitalSocial != null) return false;
-    } else if (!this.capitalSocial.equals(other.capitalSocial)) return false;
+      if (other.capitalSocial != null) {
+        return false;
+      }
+    } else if (!this.capitalSocial.equals(other.capitalSocial)) {
+      return false;
+    }
     if (this.dateCreation == null) {
-      if (other.dateCreation != null) return false;
-    } else if (!this.dateCreation.equals(other.dateCreation)) return false;
+      if (other.dateCreation != null) {
+        return false;
+      }
+    } else if (!this.dateCreation.equals(other.dateCreation)) {
+      return false;
+    }
     if (this.adresse == null) {
-      if (other.adresse != null) return false;
-    } else if (!this.adresse.equals(other.adresse)) return false;
+      if (other.adresse != null) {
+        return false;
+      }
+    } else if (!this.adresse.equals(other.adresse)) {
+      return false;
+    }
     if (this.ville == null) {
-      if (other.ville != null) return false;
-    } else if (!this.ville.equals(other.ville)) return false;
+      if (other.ville != null) {
+        return false;
+      }
+    } else if (!this.ville.equals(other.ville)) {
+      return false;
+    }
     if (this.codePostal == null) {
-      if (other.codePostal != null) return false;
-    } else if (!this.codePostal.equals(other.codePostal)) return false;
+      if (other.codePostal != null) {
+        return false;
+      }
+    } else if (!this.codePostal.equals(other.codePostal)) {
+      return false;
+    }
     if (this.telephone == null) {
-      if (other.telephone != null) return false;
-    } else if (!this.telephone.equals(other.telephone)) return false;
+      if (other.telephone != null) {
+        return false;
+      }
+    } else if (!this.telephone.equals(other.telephone)) {
+      return false;
+    }
     if (this.fax == null) {
-      if (other.fax != null) return false;
-    } else if (!this.fax.equals(other.fax)) return false;
+      if (other.fax != null) {
+        return false;
+      }
+    } else if (!this.fax.equals(other.fax)) {
+      return false;
+    }
     if (this.email == null) {
-      if (other.email != null) return false;
-    } else if (!this.email.equals(other.email)) return false;
+      if (other.email != null) {
+        return false;
+      }
+    } else if (!this.email.equals(other.email)) {
+      return false;
+    }
     if (this.siteWeb == null) {
-      if (other.siteWeb != null) return false;
-    } else if (!this.siteWeb.equals(other.siteWeb)) return false;
+      if (other.siteWeb != null) {
+        return false;
+      }
+    } else if (!this.siteWeb.equals(other.siteWeb)) {
+      return false;
+    }
     if (this.activite == null) {
-      if (other.activite != null) return false;
-    } else if (!this.activite.equals(other.activite)) return false;
+      if (other.activite != null) {
+        return false;
+      }
+    } else if (!this.activite.equals(other.activite)) {
+      return false;
+    }
     if (this.secteur == null) {
-      if (other.secteur != null) return false;
-    } else if (!this.secteur.equals(other.secteur)) return false;
+      if (other.secteur != null) {
+        return false;
+      }
+    } else if (!this.secteur.equals(other.secteur)) {
+      return false;
+    }
     if (this.isActive == null) {
-      if (other.isActive != null) return false;
-    } else if (!this.isActive.equals(other.isActive)) return false;
+      if (other.isActive != null) {
+        return false;
+      }
+    } else if (!this.isActive.equals(other.isActive)) {
+      return false;
+    }
     if (this.createdAt == null) {
-      if (other.createdAt != null) return false;
-    } else if (!this.createdAt.equals(other.createdAt)) return false;
+      if (other.createdAt != null) {
+        return false;
+      }
+    } else if (!this.createdAt.equals(other.createdAt)) {
+      return false;
+    }
     if (this.updatedAt == null) {
-      if (other.updatedAt != null) return false;
-    } else if (!this.updatedAt.equals(other.updatedAt)) return false;
+      if (other.updatedAt != null) {
+        return false;
+      }
+    } else if (!this.updatedAt.equals(other.updatedAt)) {
+      return false;
+    }
     if (this.createdBy == null) {
-      if (other.createdBy != null) return false;
-    } else if (!this.createdBy.equals(other.createdBy)) return false;
+      if (other.createdBy != null) {
+        return false;
+      }
+    } else if (!this.createdBy.equals(other.createdBy)) {
+      return false;
+    }
     if (this.updatedBy == null) {
-      if (other.updatedBy != null) return false;
-    } else if (!this.updatedBy.equals(other.updatedBy)) return false;
+      if (other.updatedBy != null) {
+        return false;
+      }
+    } else if (!this.updatedBy.equals(other.updatedBy)) {
+      return false;
+    }
     return true;
   }
 
@@ -446,31 +546,31 @@ public class Societes implements Serializable {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-    result = prime * result + ((this.raisonSociale == null) ? 0 : this.raisonSociale.hashCode());
+    result = prime * result + (this.id == null ? 0 : this.id.hashCode());
+    result = prime * result + (this.raisonSociale == null ? 0 : this.raisonSociale.hashCode());
     result =
-        prime * result + ((this.matriculeFiscale == null) ? 0 : this.matriculeFiscale.hashCode());
-    result = prime * result + ((this.codeTva == null) ? 0 : this.codeTva.hashCode());
-    result = prime * result + ((this.codeDouane == null) ? 0 : this.codeDouane.hashCode());
+        prime * result + (this.matriculeFiscale == null ? 0 : this.matriculeFiscale.hashCode());
+    result = prime * result + (this.codeTva == null ? 0 : this.codeTva.hashCode());
+    result = prime * result + (this.codeDouane == null ? 0 : this.codeDouane.hashCode());
     result =
-        prime * result + ((this.registreCommerce == null) ? 0 : this.registreCommerce.hashCode());
-    result = prime * result + ((this.formeJuridique == null) ? 0 : this.formeJuridique.hashCode());
-    result = prime * result + ((this.capitalSocial == null) ? 0 : this.capitalSocial.hashCode());
-    result = prime * result + ((this.dateCreation == null) ? 0 : this.dateCreation.hashCode());
-    result = prime * result + ((this.adresse == null) ? 0 : this.adresse.hashCode());
-    result = prime * result + ((this.ville == null) ? 0 : this.ville.hashCode());
-    result = prime * result + ((this.codePostal == null) ? 0 : this.codePostal.hashCode());
-    result = prime * result + ((this.telephone == null) ? 0 : this.telephone.hashCode());
-    result = prime * result + ((this.fax == null) ? 0 : this.fax.hashCode());
-    result = prime * result + ((this.email == null) ? 0 : this.email.hashCode());
-    result = prime * result + ((this.siteWeb == null) ? 0 : this.siteWeb.hashCode());
-    result = prime * result + ((this.activite == null) ? 0 : this.activite.hashCode());
-    result = prime * result + ((this.secteur == null) ? 0 : this.secteur.hashCode());
-    result = prime * result + ((this.isActive == null) ? 0 : this.isActive.hashCode());
-    result = prime * result + ((this.createdAt == null) ? 0 : this.createdAt.hashCode());
-    result = prime * result + ((this.updatedAt == null) ? 0 : this.updatedAt.hashCode());
-    result = prime * result + ((this.createdBy == null) ? 0 : this.createdBy.hashCode());
-    result = prime * result + ((this.updatedBy == null) ? 0 : this.updatedBy.hashCode());
+        prime * result + (this.registreCommerce == null ? 0 : this.registreCommerce.hashCode());
+    result = prime * result + (this.formeJuridique == null ? 0 : this.formeJuridique.hashCode());
+    result = prime * result + (this.capitalSocial == null ? 0 : this.capitalSocial.hashCode());
+    result = prime * result + (this.dateCreation == null ? 0 : this.dateCreation.hashCode());
+    result = prime * result + (this.adresse == null ? 0 : this.adresse.hashCode());
+    result = prime * result + (this.ville == null ? 0 : this.ville.hashCode());
+    result = prime * result + (this.codePostal == null ? 0 : this.codePostal.hashCode());
+    result = prime * result + (this.telephone == null ? 0 : this.telephone.hashCode());
+    result = prime * result + (this.fax == null ? 0 : this.fax.hashCode());
+    result = prime * result + (this.email == null ? 0 : this.email.hashCode());
+    result = prime * result + (this.siteWeb == null ? 0 : this.siteWeb.hashCode());
+    result = prime * result + (this.activite == null ? 0 : this.activite.hashCode());
+    result = prime * result + (this.secteur == null ? 0 : this.secteur.hashCode());
+    result = prime * result + (this.isActive == null ? 0 : this.isActive.hashCode());
+    result = prime * result + (this.createdAt == null ? 0 : this.createdAt.hashCode());
+    result = prime * result + (this.updatedAt == null ? 0 : this.updatedAt.hashCode());
+    result = prime * result + (this.createdBy == null ? 0 : this.createdBy.hashCode());
+    result = prime * result + (this.updatedBy == null ? 0 : this.updatedBy.hashCode());
     return result;
   }
 

@@ -179,9 +179,15 @@ public class UserManagementService {
       user.setEmail(request.getEmail());
     }
 
-    if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
-    if (request.getLastName() != null) user.setLastName(request.getLastName());
-    if (request.getPhone() != null) user.setPhone(request.getPhone());
+    if (request.getFirstName() != null) {
+      user.setFirstName(request.getFirstName());
+    }
+    if (request.getLastName() != null) {
+      user.setLastName(request.getLastName());
+    }
+    if (request.getPhone() != null) {
+      user.setPhone(request.getPhone());
+    }
 
     user.setUpdatedBy(currentUser.getId());
 

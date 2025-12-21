@@ -1,7 +1,8 @@
 package tn.compta.commons.security.interceptor;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -57,7 +58,7 @@ class PermissionCheckInterceptorTest {
   @Test
   void preHandle_whenUserHasRequiredPermission_allowsAccess() throws Exception {
     RequirePermission requirePermission = mock(RequirePermission.class);
-    when(requirePermission.value()).thenReturn(new String[] {"user:create"});
+    when(requirePermission.value()).thenReturn(new String[]{"user:create"});
     when(requirePermission.requireAll()).thenReturn(false);
 
     when(handlerMethod.getMethodAnnotation(RequirePermission.class)).thenReturn(requirePermission);
@@ -80,7 +81,7 @@ class PermissionCheckInterceptorTest {
   @Test
   void preHandle_whenUserLacksRequiredPermission_throwsForbiddenException() {
     RequirePermission requirePermission = mock(RequirePermission.class);
-    when(requirePermission.value()).thenReturn(new String[] {"user:delete"});
+    when(requirePermission.value()).thenReturn(new String[]{"user:delete"});
     when(requirePermission.requireAll()).thenReturn(false);
 
     when(handlerMethod.getMethodAnnotation(RequirePermission.class)).thenReturn(requirePermission);
@@ -104,7 +105,7 @@ class PermissionCheckInterceptorTest {
   @Test
   void preHandle_whenNotAuthenticated_throwsUnauthorizedException() {
     RequirePermission requirePermission = mock(RequirePermission.class);
-    when(requirePermission.value()).thenReturn(new String[] {"user:create"});
+    when(requirePermission.value()).thenReturn(new String[]{"user:create"});
 
     when(handlerMethod.getMethodAnnotation(RequirePermission.class)).thenReturn(requirePermission);
     when(handlerMethod.getMethodAnnotation(Public.class)).thenReturn(null);

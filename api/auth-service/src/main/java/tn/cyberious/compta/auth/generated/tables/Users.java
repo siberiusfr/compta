@@ -3,6 +3,7 @@
  */
 package tn.cyberious.compta.auth.generated.tables;
 
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +43,7 @@ import tn.cyberious.compta.auth.generated.tables.records.UsersRecord;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Users extends TableImpl<UsersRecord> {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The reference instance of <code>auth.users</code> */
@@ -172,6 +174,7 @@ public class Users extends TableImpl<UsersRecord> {
   /** A subtype implementing {@link Path} for simplified path-based joins. */
   public static class UsersPath extends Users implements Path<UsersRecord> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public <O extends Record> UsersPath(
@@ -231,9 +234,10 @@ public class Users extends TableImpl<UsersRecord> {
 
   /** Get the implicit to-many join path to the <code>auth.auth_logs</code> table */
   public AuthLogsPath authLogs() {
-    if (_authLogs == null)
+    if (_authLogs == null) {
       _authLogs =
           new AuthLogsPath(this, null, Keys.AUTH_LOGS__AUTH_LOGS_USER_ID_FKEY.getInverseKey());
+    }
 
     return _authLogs;
   }
@@ -242,10 +246,11 @@ public class Users extends TableImpl<UsersRecord> {
 
   /** Get the implicit to-many join path to the <code>auth.refresh_tokens</code> table */
   public RefreshTokensPath refreshTokens() {
-    if (_refreshTokens == null)
+    if (_refreshTokens == null) {
       _refreshTokens =
           new RefreshTokensPath(
               this, null, Keys.REFRESH_TOKENS__REFRESH_TOKENS_USER_ID_FKEY.getInverseKey());
+    }
 
     return _refreshTokens;
   }
@@ -254,9 +259,10 @@ public class Users extends TableImpl<UsersRecord> {
 
   /** Get the implicit to-many join path to the <code>auth.user_roles</code> table */
   public UserRolesPath userRoles() {
-    if (_userRoles == null)
+    if (_userRoles == null) {
       _userRoles =
           new UserRolesPath(this, null, Keys.USER_ROLES__USER_ROLES_USER_ID_FKEY.getInverseKey());
+    }
 
     return _userRoles;
   }

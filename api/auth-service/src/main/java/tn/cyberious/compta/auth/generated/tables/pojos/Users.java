@@ -5,6 +5,7 @@ package tn.cyberious.compta.auth.generated.tables.pojos;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Users implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private Long id;
@@ -258,58 +260,128 @@ public class Users implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     final Users other = (Users) obj;
     if (this.id == null) {
-      if (other.id != null) return false;
-    } else if (!this.id.equals(other.id)) return false;
+      if (other.id != null) {
+        return false;
+      }
+    } else if (!this.id.equals(other.id)) {
+      return false;
+    }
     if (this.username == null) {
-      if (other.username != null) return false;
-    } else if (!this.username.equals(other.username)) return false;
+      if (other.username != null) {
+        return false;
+      }
+    } else if (!this.username.equals(other.username)) {
+      return false;
+    }
     if (this.email == null) {
-      if (other.email != null) return false;
-    } else if (!this.email.equals(other.email)) return false;
+      if (other.email != null) {
+        return false;
+      }
+    } else if (!this.email.equals(other.email)) {
+      return false;
+    }
     if (this.password == null) {
-      if (other.password != null) return false;
-    } else if (!this.password.equals(other.password)) return false;
+      if (other.password != null) {
+        return false;
+      }
+    } else if (!this.password.equals(other.password)) {
+      return false;
+    }
     if (this.firstName == null) {
-      if (other.firstName != null) return false;
-    } else if (!this.firstName.equals(other.firstName)) return false;
+      if (other.firstName != null) {
+        return false;
+      }
+    } else if (!this.firstName.equals(other.firstName)) {
+      return false;
+    }
     if (this.lastName == null) {
-      if (other.lastName != null) return false;
-    } else if (!this.lastName.equals(other.lastName)) return false;
+      if (other.lastName != null) {
+        return false;
+      }
+    } else if (!this.lastName.equals(other.lastName)) {
+      return false;
+    }
     if (this.phone == null) {
-      if (other.phone != null) return false;
-    } else if (!this.phone.equals(other.phone)) return false;
+      if (other.phone != null) {
+        return false;
+      }
+    } else if (!this.phone.equals(other.phone)) {
+      return false;
+    }
     if (this.isActive == null) {
-      if (other.isActive != null) return false;
-    } else if (!this.isActive.equals(other.isActive)) return false;
+      if (other.isActive != null) {
+        return false;
+      }
+    } else if (!this.isActive.equals(other.isActive)) {
+      return false;
+    }
     if (this.isLocked == null) {
-      if (other.isLocked != null) return false;
-    } else if (!this.isLocked.equals(other.isLocked)) return false;
+      if (other.isLocked != null) {
+        return false;
+      }
+    } else if (!this.isLocked.equals(other.isLocked)) {
+      return false;
+    }
     if (this.failedLoginAttempts == null) {
-      if (other.failedLoginAttempts != null) return false;
-    } else if (!this.failedLoginAttempts.equals(other.failedLoginAttempts)) return false;
+      if (other.failedLoginAttempts != null) {
+        return false;
+      }
+    } else if (!this.failedLoginAttempts.equals(other.failedLoginAttempts)) {
+      return false;
+    }
     if (this.lastLoginAt == null) {
-      if (other.lastLoginAt != null) return false;
-    } else if (!this.lastLoginAt.equals(other.lastLoginAt)) return false;
+      if (other.lastLoginAt != null) {
+        return false;
+      }
+    } else if (!this.lastLoginAt.equals(other.lastLoginAt)) {
+      return false;
+    }
     if (this.passwordChangedAt == null) {
-      if (other.passwordChangedAt != null) return false;
-    } else if (!this.passwordChangedAt.equals(other.passwordChangedAt)) return false;
+      if (other.passwordChangedAt != null) {
+        return false;
+      }
+    } else if (!this.passwordChangedAt.equals(other.passwordChangedAt)) {
+      return false;
+    }
     if (this.createdAt == null) {
-      if (other.createdAt != null) return false;
-    } else if (!this.createdAt.equals(other.createdAt)) return false;
+      if (other.createdAt != null) {
+        return false;
+      }
+    } else if (!this.createdAt.equals(other.createdAt)) {
+      return false;
+    }
     if (this.updatedAt == null) {
-      if (other.updatedAt != null) return false;
-    } else if (!this.updatedAt.equals(other.updatedAt)) return false;
+      if (other.updatedAt != null) {
+        return false;
+      }
+    } else if (!this.updatedAt.equals(other.updatedAt)) {
+      return false;
+    }
     if (this.createdBy == null) {
-      if (other.createdBy != null) return false;
-    } else if (!this.createdBy.equals(other.createdBy)) return false;
+      if (other.createdBy != null) {
+        return false;
+      }
+    } else if (!this.createdBy.equals(other.createdBy)) {
+      return false;
+    }
     if (this.updatedBy == null) {
-      if (other.updatedBy != null) return false;
-    } else if (!this.updatedBy.equals(other.updatedBy)) return false;
+      if (other.updatedBy != null) {
+        return false;
+      }
+    } else if (!this.updatedBy.equals(other.updatedBy)) {
+      return false;
+    }
     return true;
   }
 
@@ -317,25 +389,25 @@ public class Users implements Serializable {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-    result = prime * result + ((this.username == null) ? 0 : this.username.hashCode());
-    result = prime * result + ((this.email == null) ? 0 : this.email.hashCode());
-    result = prime * result + ((this.password == null) ? 0 : this.password.hashCode());
-    result = prime * result + ((this.firstName == null) ? 0 : this.firstName.hashCode());
-    result = prime * result + ((this.lastName == null) ? 0 : this.lastName.hashCode());
-    result = prime * result + ((this.phone == null) ? 0 : this.phone.hashCode());
-    result = prime * result + ((this.isActive == null) ? 0 : this.isActive.hashCode());
-    result = prime * result + ((this.isLocked == null) ? 0 : this.isLocked.hashCode());
+    result = prime * result + (this.id == null ? 0 : this.id.hashCode());
+    result = prime * result + (this.username == null ? 0 : this.username.hashCode());
+    result = prime * result + (this.email == null ? 0 : this.email.hashCode());
+    result = prime * result + (this.password == null ? 0 : this.password.hashCode());
+    result = prime * result + (this.firstName == null ? 0 : this.firstName.hashCode());
+    result = prime * result + (this.lastName == null ? 0 : this.lastName.hashCode());
+    result = prime * result + (this.phone == null ? 0 : this.phone.hashCode());
+    result = prime * result + (this.isActive == null ? 0 : this.isActive.hashCode());
+    result = prime * result + (this.isLocked == null ? 0 : this.isLocked.hashCode());
     result =
         prime * result
-            + ((this.failedLoginAttempts == null) ? 0 : this.failedLoginAttempts.hashCode());
-    result = prime * result + ((this.lastLoginAt == null) ? 0 : this.lastLoginAt.hashCode());
+            + (this.failedLoginAttempts == null ? 0 : this.failedLoginAttempts.hashCode());
+    result = prime * result + (this.lastLoginAt == null ? 0 : this.lastLoginAt.hashCode());
     result =
-        prime * result + ((this.passwordChangedAt == null) ? 0 : this.passwordChangedAt.hashCode());
-    result = prime * result + ((this.createdAt == null) ? 0 : this.createdAt.hashCode());
-    result = prime * result + ((this.updatedAt == null) ? 0 : this.updatedAt.hashCode());
-    result = prime * result + ((this.createdBy == null) ? 0 : this.createdBy.hashCode());
-    result = prime * result + ((this.updatedBy == null) ? 0 : this.updatedBy.hashCode());
+        prime * result + (this.passwordChangedAt == null ? 0 : this.passwordChangedAt.hashCode());
+    result = prime * result + (this.createdAt == null ? 0 : this.createdAt.hashCode());
+    result = prime * result + (this.updatedAt == null ? 0 : this.updatedAt.hashCode());
+    result = prime * result + (this.createdBy == null ? 0 : this.createdBy.hashCode());
+    result = prime * result + (this.updatedBy == null ? 0 : this.updatedBy.hashCode());
     return result;
   }
 

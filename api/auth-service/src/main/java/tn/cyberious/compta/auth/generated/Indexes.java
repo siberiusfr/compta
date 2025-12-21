@@ -24,51 +24,54 @@ public class Indexes {
       Internal.createIndex(
           DSL.name("idx_auth_logs_created_at"),
           AuthLogs.AUTH_LOGS,
-          new OrderField[] {AuthLogs.AUTH_LOGS.CREATED_AT},
+          new OrderField[]{AuthLogs.AUTH_LOGS.CREATED_AT},
           false);
   public static final Index IDX_AUTH_LOGS_USER_ID =
       Internal.createIndex(
           DSL.name("idx_auth_logs_user_id"),
           AuthLogs.AUTH_LOGS,
-          new OrderField[] {AuthLogs.AUTH_LOGS.USER_ID},
+          new OrderField[]{AuthLogs.AUTH_LOGS.USER_ID},
           false);
   public static final Index IDX_REFRESH_TOKENS_TOKEN =
       Internal.createIndex(
           DSL.name("idx_refresh_tokens_token"),
           RefreshTokens.REFRESH_TOKENS,
-          new OrderField[] {RefreshTokens.REFRESH_TOKENS.TOKEN},
+          new OrderField[]{RefreshTokens.REFRESH_TOKENS.TOKEN},
           false);
   public static final Index IDX_REFRESH_TOKENS_USER_ID =
       Internal.createIndex(
           DSL.name("idx_refresh_tokens_user_id"),
           RefreshTokens.REFRESH_TOKENS,
-          new OrderField[] {RefreshTokens.REFRESH_TOKENS.USER_ID},
+          new OrderField[]{RefreshTokens.REFRESH_TOKENS.USER_ID},
           false);
   public static final Index IDX_USER_ROLES_ROLE_ID =
       Internal.createIndex(
           DSL.name("idx_user_roles_role_id"),
           UserRoles.USER_ROLES,
-          new OrderField[] {UserRoles.USER_ROLES.ROLE_ID},
+          new OrderField[]{UserRoles.USER_ROLES.ROLE_ID},
           false);
   public static final Index IDX_USER_ROLES_USER_ID =
       Internal.createIndex(
           DSL.name("idx_user_roles_user_id"),
           UserRoles.USER_ROLES,
-          new OrderField[] {UserRoles.USER_ROLES.USER_ID},
+          new OrderField[]{UserRoles.USER_ROLES.USER_ID},
           false);
   public static final Index IDX_USERS_EMAIL =
       Internal.createIndex(
-          DSL.name("idx_users_email"), Users.USERS, new OrderField[] {Users.USERS.EMAIL}, false);
+          DSL.name("idx_users_email"), Users.USERS, new OrderField[]{Users.USERS.EMAIL}, false);
   public static final Index IDX_USERS_IS_ACTIVE =
       Internal.createIndex(
           DSL.name("idx_users_is_active"),
           Users.USERS,
-          new OrderField[] {Users.USERS.IS_ACTIVE},
+          new OrderField[]{Users.USERS.IS_ACTIVE},
           false);
   public static final Index IDX_USERS_USERNAME =
       Internal.createIndex(
           DSL.name("idx_users_username"),
           Users.USERS,
-          new OrderField[] {Users.USERS.USERNAME},
+          new OrderField[]{Users.USERS.USERNAME},
           false);
+
+  private Indexes() {
+  }
 }

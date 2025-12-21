@@ -5,6 +5,7 @@ package tn.cyberious.compta.auth.generated.tables.records;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serial;
 import java.time.LocalDateTime;
 import org.jooq.Record1;
 import org.jooq.impl.UpdatableRecordImpl;
@@ -14,6 +15,7 @@ import tn.cyberious.compta.auth.generated.tables.Users;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class UsersRecord extends UpdatableRecordImpl<UsersRecord> {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** Setter for <code>auth.users.id</code>. */

@@ -1,5 +1,7 @@
 package tn.compta.commons.security.exception;
 
+import java.io.Serial;
+
 /**
  * Exception thrown when an authenticated user does not have sufficient permissions.
  *
@@ -15,6 +17,7 @@ package tn.compta.commons.security.exception;
  */
 public class ForbiddenException extends RuntimeException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public ForbiddenException(String message) {

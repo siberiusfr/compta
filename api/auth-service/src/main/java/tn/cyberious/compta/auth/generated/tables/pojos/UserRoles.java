@@ -4,6 +4,7 @@
 package tn.cyberious.compta.auth.generated.tables.pojos;
 
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class UserRoles implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private Long id;
@@ -78,22 +80,44 @@ public class UserRoles implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     final UserRoles other = (UserRoles) obj;
     if (this.id == null) {
-      if (other.id != null) return false;
-    } else if (!this.id.equals(other.id)) return false;
+      if (other.id != null) {
+        return false;
+      }
+    } else if (!this.id.equals(other.id)) {
+      return false;
+    }
     if (this.userId == null) {
-      if (other.userId != null) return false;
-    } else if (!this.userId.equals(other.userId)) return false;
+      if (other.userId != null) {
+        return false;
+      }
+    } else if (!this.userId.equals(other.userId)) {
+      return false;
+    }
     if (this.roleId == null) {
-      if (other.roleId != null) return false;
-    } else if (!this.roleId.equals(other.roleId)) return false;
+      if (other.roleId != null) {
+        return false;
+      }
+    } else if (!this.roleId.equals(other.roleId)) {
+      return false;
+    }
     if (this.createdAt == null) {
-      if (other.createdAt != null) return false;
-    } else if (!this.createdAt.equals(other.createdAt)) return false;
+      if (other.createdAt != null) {
+        return false;
+      }
+    } else if (!this.createdAt.equals(other.createdAt)) {
+      return false;
+    }
     return true;
   }
 
@@ -101,10 +125,10 @@ public class UserRoles implements Serializable {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-    result = prime * result + ((this.userId == null) ? 0 : this.userId.hashCode());
-    result = prime * result + ((this.roleId == null) ? 0 : this.roleId.hashCode());
-    result = prime * result + ((this.createdAt == null) ? 0 : this.createdAt.hashCode());
+    result = prime * result + (this.id == null ? 0 : this.id.hashCode());
+    result = prime * result + (this.userId == null ? 0 : this.userId.hashCode());
+    result = prime * result + (this.roleId == null ? 0 : this.roleId.hashCode());
+    result = prime * result + (this.createdAt == null ? 0 : this.createdAt.hashCode());
     return result;
   }
 

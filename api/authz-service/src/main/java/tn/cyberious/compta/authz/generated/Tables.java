@@ -23,4 +23,7 @@ public class Tables {
 
   /** The table <code>authz.user_societes</code>. */
   public static final UserSocietes USER_SOCIETES = UserSocietes.USER_SOCIETES;
+
+  private Tables() {
+  }
 }

@@ -1,5 +1,6 @@
 package tn.compta.commons.security.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AuthenticatedUserDetails implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** User's unique identifier */

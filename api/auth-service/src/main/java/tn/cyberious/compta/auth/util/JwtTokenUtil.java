@@ -83,7 +83,7 @@ public class JwtTokenUtil {
   public Boolean validateToken(String token, UserDetails userDetails) {
     try {
       final String username = getUsernameFromToken(token);
-      return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+      return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     } catch (Exception e) {
       log.error("Token validation error", e);
       return false;

@@ -4,6 +4,7 @@
 package tn.cyberious.compta.authz.generated.tables.records;
 
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.jooq.Record1;
@@ -14,6 +15,7 @@ import tn.cyberious.compta.authz.generated.tables.UserSocietes;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class UserSocietesRecord extends UpdatableRecordImpl<UserSocietesRecord> {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** Setter for <code>authz.user_societes.id</code>. */

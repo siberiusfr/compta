@@ -4,6 +4,7 @@
 package tn.cyberious.compta.auth.generated.tables.records;
 
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.time.LocalDateTime;
 import org.jooq.Record1;
 import org.jooq.impl.UpdatableRecordImpl;
@@ -13,6 +14,7 @@ import tn.cyberious.compta.auth.generated.tables.UserRoles;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class UserRolesRecord extends UpdatableRecordImpl<UserRolesRecord> {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** Setter for <code>auth.user_roles.id</code>. */

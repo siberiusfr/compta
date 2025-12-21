@@ -4,6 +4,7 @@
 package tn.cyberious.compta.authz.generated.tables.pojos;
 
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class UserSocietes implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private Long id;
@@ -140,34 +142,72 @@ public class UserSocietes implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     final UserSocietes other = (UserSocietes) obj;
     if (this.id == null) {
-      if (other.id != null) return false;
-    } else if (!this.id.equals(other.id)) return false;
+      if (other.id != null) {
+        return false;
+      }
+    } else if (!this.id.equals(other.id)) {
+      return false;
+    }
     if (this.userId == null) {
-      if (other.userId != null) return false;
-    } else if (!this.userId.equals(other.userId)) return false;
+      if (other.userId != null) {
+        return false;
+      }
+    } else if (!this.userId.equals(other.userId)) {
+      return false;
+    }
     if (this.societeId == null) {
-      if (other.societeId != null) return false;
-    } else if (!this.societeId.equals(other.societeId)) return false;
+      if (other.societeId != null) {
+        return false;
+      }
+    } else if (!this.societeId.equals(other.societeId)) {
+      return false;
+    }
     if (this.isOwner == null) {
-      if (other.isOwner != null) return false;
-    } else if (!this.isOwner.equals(other.isOwner)) return false;
+      if (other.isOwner != null) {
+        return false;
+      }
+    } else if (!this.isOwner.equals(other.isOwner)) {
+      return false;
+    }
     if (this.dateDebut == null) {
-      if (other.dateDebut != null) return false;
-    } else if (!this.dateDebut.equals(other.dateDebut)) return false;
+      if (other.dateDebut != null) {
+        return false;
+      }
+    } else if (!this.dateDebut.equals(other.dateDebut)) {
+      return false;
+    }
     if (this.dateFin == null) {
-      if (other.dateFin != null) return false;
-    } else if (!this.dateFin.equals(other.dateFin)) return false;
+      if (other.dateFin != null) {
+        return false;
+      }
+    } else if (!this.dateFin.equals(other.dateFin)) {
+      return false;
+    }
     if (this.isActive == null) {
-      if (other.isActive != null) return false;
-    } else if (!this.isActive.equals(other.isActive)) return false;
+      if (other.isActive != null) {
+        return false;
+      }
+    } else if (!this.isActive.equals(other.isActive)) {
+      return false;
+    }
     if (this.createdAt == null) {
-      if (other.createdAt != null) return false;
-    } else if (!this.createdAt.equals(other.createdAt)) return false;
+      if (other.createdAt != null) {
+        return false;
+      }
+    } else if (!this.createdAt.equals(other.createdAt)) {
+      return false;
+    }
     return true;
   }
 
@@ -175,14 +215,14 @@ public class UserSocietes implements Serializable {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-    result = prime * result + ((this.userId == null) ? 0 : this.userId.hashCode());
-    result = prime * result + ((this.societeId == null) ? 0 : this.societeId.hashCode());
-    result = prime * result + ((this.isOwner == null) ? 0 : this.isOwner.hashCode());
-    result = prime * result + ((this.dateDebut == null) ? 0 : this.dateDebut.hashCode());
-    result = prime * result + ((this.dateFin == null) ? 0 : this.dateFin.hashCode());
-    result = prime * result + ((this.isActive == null) ? 0 : this.isActive.hashCode());
-    result = prime * result + ((this.createdAt == null) ? 0 : this.createdAt.hashCode());
+    result = prime * result + (this.id == null ? 0 : this.id.hashCode());
+    result = prime * result + (this.userId == null ? 0 : this.userId.hashCode());
+    result = prime * result + (this.societeId == null ? 0 : this.societeId.hashCode());
+    result = prime * result + (this.isOwner == null ? 0 : this.isOwner.hashCode());
+    result = prime * result + (this.dateDebut == null ? 0 : this.dateDebut.hashCode());
+    result = prime * result + (this.dateFin == null ? 0 : this.dateFin.hashCode());
+    result = prime * result + (this.isActive == null ? 0 : this.isActive.hashCode());
+    result = prime * result + (this.createdAt == null ? 0 : this.createdAt.hashCode());
     return result;
   }
 

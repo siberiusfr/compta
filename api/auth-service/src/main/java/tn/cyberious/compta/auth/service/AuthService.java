@@ -241,9 +241,15 @@ public class AuthService {
       user.setEmail(email);
     }
 
-    if (firstName != null) user.setFirstName(firstName);
-    if (lastName != null) user.setLastName(lastName);
-    if (phone != null) user.setPhone(phone);
+    if (firstName != null) {
+      user.setFirstName(firstName);
+    }
+    if (lastName != null) {
+      user.setLastName(lastName);
+    }
+    if (phone != null) {
+      user.setPhone(phone);
+    }
 
     user.setUpdatedBy(userId);
 

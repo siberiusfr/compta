@@ -1,5 +1,7 @@
 package tn.compta.commons.security.exception;
 
+import java.io.Serial;
+
 /**
  * Exception thrown when a user is not authenticated.
  *
@@ -15,6 +17,7 @@ package tn.compta.commons.security.exception;
  */
 public class UnauthorizedException extends RuntimeException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public UnauthorizedException(String message) {

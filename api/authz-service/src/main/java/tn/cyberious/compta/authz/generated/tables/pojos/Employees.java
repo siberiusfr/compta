@@ -5,6 +5,7 @@ package tn.cyberious.compta.authz.generated.tables.pojos;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Employees implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private Long id;
@@ -200,46 +202,100 @@ public class Employees implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     final Employees other = (Employees) obj;
     if (this.id == null) {
-      if (other.id != null) return false;
-    } else if (!this.id.equals(other.id)) return false;
+      if (other.id != null) {
+        return false;
+      }
+    } else if (!this.id.equals(other.id)) {
+      return false;
+    }
     if (this.userId == null) {
-      if (other.userId != null) return false;
-    } else if (!this.userId.equals(other.userId)) return false;
+      if (other.userId != null) {
+        return false;
+      }
+    } else if (!this.userId.equals(other.userId)) {
+      return false;
+    }
     if (this.societeId == null) {
-      if (other.societeId != null) return false;
-    } else if (!this.societeId.equals(other.societeId)) return false;
+      if (other.societeId != null) {
+        return false;
+      }
+    } else if (!this.societeId.equals(other.societeId)) {
+      return false;
+    }
     if (this.matriculeEmployee == null) {
-      if (other.matriculeEmployee != null) return false;
-    } else if (!this.matriculeEmployee.equals(other.matriculeEmployee)) return false;
+      if (other.matriculeEmployee != null) {
+        return false;
+      }
+    } else if (!this.matriculeEmployee.equals(other.matriculeEmployee)) {
+      return false;
+    }
     if (this.poste == null) {
-      if (other.poste != null) return false;
-    } else if (!this.poste.equals(other.poste)) return false;
+      if (other.poste != null) {
+        return false;
+      }
+    } else if (!this.poste.equals(other.poste)) {
+      return false;
+    }
     if (this.departement == null) {
-      if (other.departement != null) return false;
-    } else if (!this.departement.equals(other.departement)) return false;
+      if (other.departement != null) {
+        return false;
+      }
+    } else if (!this.departement.equals(other.departement)) {
+      return false;
+    }
     if (this.dateEmbauche == null) {
-      if (other.dateEmbauche != null) return false;
-    } else if (!this.dateEmbauche.equals(other.dateEmbauche)) return false;
+      if (other.dateEmbauche != null) {
+        return false;
+      }
+    } else if (!this.dateEmbauche.equals(other.dateEmbauche)) {
+      return false;
+    }
     if (this.dateFinContrat == null) {
-      if (other.dateFinContrat != null) return false;
-    } else if (!this.dateFinContrat.equals(other.dateFinContrat)) return false;
+      if (other.dateFinContrat != null) {
+        return false;
+      }
+    } else if (!this.dateFinContrat.equals(other.dateFinContrat)) {
+      return false;
+    }
     if (this.typeContrat == null) {
-      if (other.typeContrat != null) return false;
-    } else if (!this.typeContrat.equals(other.typeContrat)) return false;
+      if (other.typeContrat != null) {
+        return false;
+      }
+    } else if (!this.typeContrat.equals(other.typeContrat)) {
+      return false;
+    }
     if (this.isActive == null) {
-      if (other.isActive != null) return false;
-    } else if (!this.isActive.equals(other.isActive)) return false;
+      if (other.isActive != null) {
+        return false;
+      }
+    } else if (!this.isActive.equals(other.isActive)) {
+      return false;
+    }
     if (this.createdAt == null) {
-      if (other.createdAt != null) return false;
-    } else if (!this.createdAt.equals(other.createdAt)) return false;
+      if (other.createdAt != null) {
+        return false;
+      }
+    } else if (!this.createdAt.equals(other.createdAt)) {
+      return false;
+    }
     if (this.updatedAt == null) {
-      if (other.updatedAt != null) return false;
-    } else if (!this.updatedAt.equals(other.updatedAt)) return false;
+      if (other.updatedAt != null) {
+        return false;
+      }
+    } else if (!this.updatedAt.equals(other.updatedAt)) {
+      return false;
+    }
     return true;
   }
 
@@ -247,19 +303,19 @@ public class Employees implements Serializable {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-    result = prime * result + ((this.userId == null) ? 0 : this.userId.hashCode());
-    result = prime * result + ((this.societeId == null) ? 0 : this.societeId.hashCode());
+    result = prime * result + (this.id == null ? 0 : this.id.hashCode());
+    result = prime * result + (this.userId == null ? 0 : this.userId.hashCode());
+    result = prime * result + (this.societeId == null ? 0 : this.societeId.hashCode());
     result =
-        prime * result + ((this.matriculeEmployee == null) ? 0 : this.matriculeEmployee.hashCode());
-    result = prime * result + ((this.poste == null) ? 0 : this.poste.hashCode());
-    result = prime * result + ((this.departement == null) ? 0 : this.departement.hashCode());
-    result = prime * result + ((this.dateEmbauche == null) ? 0 : this.dateEmbauche.hashCode());
-    result = prime * result + ((this.dateFinContrat == null) ? 0 : this.dateFinContrat.hashCode());
-    result = prime * result + ((this.typeContrat == null) ? 0 : this.typeContrat.hashCode());
-    result = prime * result + ((this.isActive == null) ? 0 : this.isActive.hashCode());
-    result = prime * result + ((this.createdAt == null) ? 0 : this.createdAt.hashCode());
-    result = prime * result + ((this.updatedAt == null) ? 0 : this.updatedAt.hashCode());
+        prime * result + (this.matriculeEmployee == null ? 0 : this.matriculeEmployee.hashCode());
+    result = prime * result + (this.poste == null ? 0 : this.poste.hashCode());
+    result = prime * result + (this.departement == null ? 0 : this.departement.hashCode());
+    result = prime * result + (this.dateEmbauche == null ? 0 : this.dateEmbauche.hashCode());
+    result = prime * result + (this.dateFinContrat == null ? 0 : this.dateFinContrat.hashCode());
+    result = prime * result + (this.typeContrat == null ? 0 : this.typeContrat.hashCode());
+    result = prime * result + (this.isActive == null ? 0 : this.isActive.hashCode());
+    result = prime * result + (this.createdAt == null ? 0 : this.createdAt.hashCode());
+    result = prime * result + (this.updatedAt == null ? 0 : this.updatedAt.hashCode());
     return result;
   }
 
