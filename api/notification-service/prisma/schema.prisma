@@ -13,45 +13,190 @@ datasource db {
   provider = "postgresql"
 }
 
-// État de la notification
+// ✅ Ajout de nouveaux status importants
 enum NotificationStatus {
-  PENDING
-  SENT
-  FAILED
-  DELIVERED
+  PENDING       // En attente d'envoi
+  QUEUED        // Dans la queue BullMQ
+  PROCESSING    // En cours de traitement
+  SENT          // Envoyé au provider (SMTP/SMS/Push)
+  DELIVERED     // Confirmé reçu (webhooks)
+  FAILED        // Échec
+  BOUNCED       // Email rebondi
+  CANCELLED     // Annulé
 }
 
-// Les différents types (pour tes templates MJML)
+// ✅ Ajout des canaux
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+}
+
 enum NotificationType {
   WELCOME_EMAIL
   PASSWORD_RESET
   ORDER_CONFIRMATION
+  INVOICE
+  SHIPPING_UPDATE
+  NEWSLETTER
   PROMO_ALERT
+  SYSTEM_ALERT
+}
+
+// ✅ Priorité pour la queue
+enum NotificationPriority {
+  LOW       // Newsletters
+  NORMAL    // Notifications standards
+  HIGH      // Confirmations de commande
+  URGENT    // Alertes sécurité, OTP
 }
 
 model User {
-  id                String             @id @default(uuid())
-  email             String             @unique
-  // Préférences : permet de désactiver certains types d'envois
-  emailNotifications Boolean           @default(true)
-  pushNotifications  Boolean           @default(true)
-  notifications      Notification[]
+  id                  String              @id @default(uuid())
+  email               String              @unique
+  phone               String?             // ✅ Pour SMS
+  pushToken           String?             // ✅ Pour push notifications
+
+  // ✅ Préférences granulaires par canal
+  emailEnabled        Boolean             @default(true)
+  smsEnabled          Boolean             @default(true)
+  pushEnabled         Boolean             @default(true)
+
+  // ✅ Préférences par type de notification
+  marketingEnabled    Boolean             @default(true)
+  transactionalEnabled Boolean            @default(true)
+
+  notifications       Notification[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@index([email])
 }
 
 model Notification {
-  id            String             @id @default(uuid())
-  userId        String
-  user          User               @relation(fields: [userId], references: [id])
-  type          NotificationType
-  status        NotificationStatus @default(PENDING)
+  id              String                @id @default(uuid())
 
-  // Contenu utile
-  subject       String?
-  payload       Json               // Les variables (ex: { name: "John", price: 10 })
+  // Relations
+  userId          String
+  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Tracking
-  errorLog      String?            // Stocke l'erreur SMTP si FAILED
-  sentAt        DateTime?
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  // ✅ Identification
+  type            NotificationType
+  channel         NotificationChannel   // ✅ IMPORTANT : Email, SMS, Push
+  priority        NotificationPriority  @default(NORMAL)
+
+  // ✅ Status et tracking
+  status          NotificationStatus    @default(PENDING)
+
+  // Contenu
+  recipient       String                // Email, phone ou token selon le canal
+  subject         String?
+  templateId      String?               // ✅ Pour retrouver le template MJML
+  payload         Json                  // Variables du template
+  metadata        Json?                 // ✅ Données additionnelles (campaign_id, etc.)
+
+  // ✅ Tracking détaillé
+  jobId           String?               // ✅ ID du job BullMQ
+  externalId      String?               // ✅ Message ID du provider (SMTP, Twilio, etc.)
+
+  // ✅ Retry management
+  attemptCount    Int                   @default(0)
+  maxAttempts     Int                   @default(3)
+  lastAttemptAt   DateTime?
+  nextRetryAt     DateTime?             // ✅ Pour scheduled retry
+
+  // ✅ Error tracking détaillé
+  errorCode       String?               // ✅ Code erreur (SMTP 550, etc.)
+  errorMessage    String?               // ✅ Message d'erreur complet
+  errorStack      String?               // ✅ Stack trace si nécessaire
+
+  // ✅ Timestamps essentiels
+  queuedAt        DateTime?             // ✅ Quand ajouté à BullMQ
+  processingAt    DateTime?             // ✅ Quand commencé le traitement
+  sentAt          DateTime?
+  deliveredAt     DateTime?             // ✅ Webhook de confirmation
+  failedAt        DateTime?
+
+  // ✅ Scheduling
+  scheduledFor    DateTime?             // ✅ Pour envoi différé
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  // ✅ Index pour performance
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@index([type, status])
+  @@index([channel, status])
+  @@index([scheduledFor])
+  @@index([jobId])
+  @@index([externalId])
+  @@map("notifications")
+}
+
+// ✅ NOUVEAU : Table pour les templates (optionnel si tu veux les gérer en DB)
+model NotificationTemplate {
+  id              String                @id @default(uuid())
+  code            String                @unique
+  name            String
+  channel         NotificationChannel
+  type            NotificationType
+
+  // Template content
+  subject         String?
+  bodyTemplate    String                @db.Text // ✅ Path vers ton fichier MJML ou contenu
+
+  // Variables disponibles
+  variables       Json                  // ✅ Schema des variables attendues
+
+  // Versioning
+  version         Int                   @default(1)
+  isActive        Boolean               @default(true)
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@index([code, version])
+  @@map("notification_templates")
+}
+
+// ✅ NOUVEAU : Table pour les statistiques agrégées (performance)
+model NotificationStats {
+  id              String                @id @default(uuid())
+  date            DateTime              @db.Date
+  channel         NotificationChannel
+  type            NotificationType?
+
+  // Métriques
+  totalSent       Int                   @default(0)
+  totalDelivered  Int                   @default(0)
+  totalFailed     Int                   @default(0)
+  totalBounced    Int                   @default(0)
+
+  // Performance
+  avgProcessingTime Int?                // ✅ En millisecondes
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@unique([date, channel, type])
+  @@index([date])
+  @@map("notification_stats")
+}
+
+// ✅ NOUVEAU : Table pour les webhooks (tracking delivery)
+model NotificationWebhook {
+  id              String                @id @default(uuid())
+  notificationId  String
+
+  provider        String                // SMTP, Twilio, FCM, etc.
+  event           String                // delivered, bounced, opened, clicked
+
+  payload         Json                  // ✅ Payload complet du webhook
+  receivedAt      DateTime              @default(now())
+
+  @@index([notificationId])
+  @@index([event])
+  @@map("notification_webhooks")
 }
