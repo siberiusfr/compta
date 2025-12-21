@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BullModule } from '@nestjs/bullmq';
@@ -17,12 +18,17 @@ import { NotificationsService } from './services/notifications.service';
 import { NotificationTemplatesService } from './services/notification-templates.service';
 import { NotificationStatsService } from './services/notification-stats.service';
 import { UsersService } from './services/users.service';
+import { RedisHealthService } from './health/redis-health.service';
 
 // Controllers
 import { NotificationsController } from './controllers/notifications.controller';
 import { StatsController } from './controllers/stats.controller';
 import { TemplatesController } from './controllers/templates.controller';
 import { UsersController } from './controllers/users.controller';
+import { HealthController } from './controllers/health.controller';
+
+// Filters
+import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 
 @Module({
   imports: [
@@ -69,6 +75,7 @@ import { UsersController } from './controllers/users.controller';
     StatsController,
     TemplatesController,
     UsersController,
+    HealthController,
   ],
   providers: [
     AppService,
@@ -78,6 +85,11 @@ import { UsersController } from './controllers/users.controller';
     NotificationTemplatesService,
     NotificationStatsService,
     UsersService,
+    RedisHealthService,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
   ],
 })
 export class AppModule {}
