@@ -7,13 +7,13 @@ spring:
       routes:
         # Auth Service Routes
         - id: auth-service
-          uri: http://auth-service:8081
+          uri: http://localhost:8081
           predicates:
             - Path=/api/auth/**
 
         # Accounting Service Routes
         - id: accounting-service
-          uri: http://accounting-service:8082
+          uri: http://localhost:8082
           predicates:
             - Path=/api/accounting/**
           filters:
@@ -95,3 +95,10 @@ logging:
     org.springframework.security: DEBUG
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
+springdoc:
+  swagger-ui:
+    URLs:
+      - url: /v3/api-docs
+        name: API Gateway Service
+      - url: /auth/v3/api-docs
+        name: Auth Service
