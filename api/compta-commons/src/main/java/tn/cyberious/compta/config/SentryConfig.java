@@ -1,4 +1,4 @@
-package tn.cyberious.compta.auth.config;
+package tn.cyberious.compta.config;
 
 import io.sentry.Sentry;
 import io.sentry.SentryOptions;

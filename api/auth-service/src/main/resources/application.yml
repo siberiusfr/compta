@@ -18,6 +18,7 @@ spring:
 # Port spécifique pour ce service
 server:
   port: 8081
+  forward-headers-strategy: framework
 
 # Configuration JWT
 jwt:

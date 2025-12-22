@@ -1,4 +1,4 @@
-package tn.cyberious.compta.auth.config;
+package tn.cyberious.compta.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

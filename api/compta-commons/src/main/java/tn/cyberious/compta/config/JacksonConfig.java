@@ -1,4 +1,4 @@
-package tn.cyberious.compta.auth.config;
+package tn.cyberious.compta.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

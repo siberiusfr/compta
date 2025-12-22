@@ -1,4 +1,4 @@
-package tn.cyberious.compta.auth.config;
+package tn.cyberious.compta.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;

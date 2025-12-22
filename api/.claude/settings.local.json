@@ -26,7 +26,15 @@
       "Bash(mvn clean:*)",
       "Bash(mvn compile:*)",
       "Bash(echo:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(del \"C:\\\\dev\\\\compta\\\\api\\\\gateway\\\\src\\\\main\\\\java\\\\tn\\\\compta\\\\gateway\\\\config\\\\SwaggerConfig.java\")",
+      "Bash(cmd /c \"del C:\\\\dev\\\\compta\\\\api\\\\gateway\\\\src\\\\main\\\\java\\\\tn\\\\compta\\\\gateway\\\\config\\\\SwaggerConfig.java\")",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c \"taskkill /PID 21096 /F\")",
+      "Bash(ls:*)"
     ]
   }
 }
