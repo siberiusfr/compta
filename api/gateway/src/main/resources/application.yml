@@ -5,35 +5,32 @@ spring:
   cloud:
     gateway.server.webflux:
       routes:
-        # Auth Service Swagger UI
-        - id: auth-service-swagger-ui
-          uri: http://localhost:8081
-          predicates:
-            - Path=/auth/swagger-ui/**
-          filters:
-            - RewritePath=/auth/swagger-ui/(?<segment>.*), /swagger-ui/${segment}
-
-        # Auth Service Swagger Resources (webjars)
-        - id: auth-service-swagger-resources
-          uri: http://localhost:8081
-          predicates:
-            - Path=/auth/webjars/**
-          filters:
-            - RewritePath=/auth/webjars/(?<segment>.*), /webjars/${segment}
-
-        # Auth Service API Docs
-        - id: auth-service-api-docs
-          uri: http://localhost:8081
-          predicates:
-            - Path=/auth/v3/api-docs/**
-          filters:
-            - RewritePath=/auth/v3/api-docs(?<segment>.*), /v3/api-docs${segment}
-
-        # Auth Service Routes
+        # Auth Service Routes (API - pas de réécriture)
         - id: auth-service
           uri: http://localhost:8081
           predicates:
             - Path=/api/auth/**
+
+        # Auth Service Swagger (avec réécriture)
+        - id: auth-service-swagger
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/swagger-ui/**, /auth/webjars/**, /auth/v3/api-docs/**
+          filters:
+            - RewritePath=/auth(?<segment>.*), ${segment}
+
+        - id: authz-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/authz/**
+
+        # Auth Service Swagger (avec réécriture)
+        - id: authz-service-swagger
+          uri: http://localhost:8082
+          predicates:
+            - Path=/authz/swagger-ui/**, /authz/webjars/**, /authz/v3/api-docs/**
+          filters:
+            - RewritePath=/authz(?<segment>.*), ${segment}
 
         # Accounting Service Routes
         - id: accounting-service
@@ -41,7 +38,7 @@ spring:
           predicates:
             - Path=/api/accounting/**
           filters:
-            - RewritePath=/api/accounting/(?<segment>.*), /${segment}
+            - RewritePath=/api/(?<segment>.*), /${segment}
             - JwtAuthenticationFilter
 
         # Document Service Routes
@@ -110,3 +107,5 @@ springdoc:
         name: API Gateway Service
       - url: /auth/v3/api-docs
         name: Auth Service
+      - url: /authz/v3/api-docs
+        name: Authz Service
