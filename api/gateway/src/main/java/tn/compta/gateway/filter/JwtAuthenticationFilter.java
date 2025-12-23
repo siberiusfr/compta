@@ -14,137 +14,114 @@ import reactor.core.publisher.Mono;
 import tn.compta.gateway.util.JwtUtils;
 
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Component
 public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAuthenticationFilter.Config> {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+  @Value("${jwt.secret}")
+  private String jwtSecret;
 
-    private final JwtUtils jwtUtils;
+  private final JwtUtils jwtUtils;
 
-    public JwtAuthenticationFilter(JwtUtils jwtUtils) {
-        super(Config.class);
-        this.jwtUtils = jwtUtils;
-    }
+  public JwtAuthenticationFilter(JwtUtils jwtUtils) {
+    super(Config.class);
+    this.jwtUtils = jwtUtils;
+  }
 
-    @Override
-    public GatewayFilter apply(Config config) {
-        return (exchange, chain) -> {
-            ServerHttpRequest request = exchange.getRequest();
+  @Override
+  public GatewayFilter apply(Config config) {
+    return (exchange, chain) -> {
+      ServerHttpRequest request = exchange.getRequest();
 
-            // Skip authentication for health checks and public endpoints
-            String path = request.getURI().getPath();
-            if (isPublicPath(path)) {
-                return chain.filter(exchange);
-            }
+      // Skip authentication for health checks and public endpoints
+      String path = request.getURI().getPath();
+      if (isPublicPath(path)) {
+        return chain.filter(exchange);
+      }
 
-            // Extract JWT token from Authorization header
-            String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+      // Extract JWT token from Authorization header
+      String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                log.warn("Missing or invalid Authorization header for path: {}", path);
-                return onError(exchange, "Missing or invalid Authorization header", HttpStatus.UNAUTHORIZED);
-            }
+      if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        log.warn("Missing or invalid Authorization header for path: {}", path);
+        return onError(exchange, "Missing or invalid Authorization header", HttpStatus.UNAUTHORIZED);
+      }
 
-            String token = authHeader.substring(7);
+      String token = authHeader.substring(7);
 
-            try {
-                // Validate token
-                if (!jwtUtils.validateToken(token)) {
-                    log.warn("Invalid JWT token for path: {}", path);
-                    return onError(exchange, "Invalid or expired token", HttpStatus.UNAUTHORIZED);
-                }
+      try {
+        // Validate token
+        if (!jwtUtils.validateToken(token)) {
+          log.warn("Invalid JWT token for path: {}", path);
+          return onError(exchange, "Invalid or expired token", HttpStatus.UNAUTHORIZED);
+        }
 
-                // Extract claims from token
-                Claims claims = jwtUtils.extractClaims(token);
+        // Extract claims from token
+        Claims claims = jwtUtils.extractClaims(token);
 
-                // Extract user information from JWT claims
-                Object userIdObj = claims.get("userId");
-                String userId = userIdObj != null ? userIdObj.toString() : "";
-                String username = claims.get("username", String.class);
-                String email = claims.get("email", String.class);
+        // Extract user information from JWT claims
+        Object userIdObj = claims.get("userId");
+        String userId = userIdObj != null ? userIdObj.toString() : "";
+        String username = claims.get("username", String.class);
+        String email = claims.get("email", String.class);
 
-                @SuppressWarnings("unchecked")
-                List<String> roles = claims.get("roles", List.class);
+        @SuppressWarnings("unchecked")
+        List<String> roles = claims.get("roles", List.class);
 
-                @SuppressWarnings("unchecked")
-                List<Object> societeIdsObj = claims.get("societeIds", List.class);
-                List<String> societeIds = societeIdsObj != null
-                    ? societeIdsObj.stream().map(Object::toString).toList()
-                    : List.of();
+        // Build modified request with essential headers only
+        ServerHttpRequest modifiedRequest = request.mutate()
+            .header("X-User-Id", userId)
+            .header("X-User-Username", username != null ? username : "")
+            .header("X-User-Email", email != null ? email : "")
+            .header("X-User-Roles", roles != null ? String.join(",", roles) : "")
+            .build();
 
-                Object primarySocieteIdObj = claims.get("primarySocieteId");
-                String primarySocieteId = primarySocieteIdObj != null ? primarySocieteIdObj.toString() : "";
+        log.debug("JWT validated for user: {} (username: {})", email, username);
 
-                @SuppressWarnings("unchecked")
-                List<String> permissions = claims.get("permissions", List.class);
+        // Continue with modified request
+        return chain.filter(exchange.mutate().request(modifiedRequest).build());
 
-                // Generate or extract request ID
-                String requestId = request.getHeaders().getFirst("X-Request-Id");
-                if (requestId == null || requestId.isEmpty()) {
-                    requestId = UUID.randomUUID().toString();
-                }
+      } catch (Exception e) {
+        log.error("Error processing JWT token: {}", e.getMessage());
+        return onError(exchange, "Error processing token: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
+      }
+    };
+  }
 
-                // Build modified request with headers matching compta-security-commons
-                ServerHttpRequest modifiedRequest = request.mutate()
-                        .header("X-User-Id", userId)
-                        .header("X-User-Username", username != null ? username : "")
-                        .header("X-User-Email", email != null ? email : "")
-                        .header("X-User-Roles", roles != null ? String.join(",", roles) : "")
-                        .header("X-User-Societe-Ids", String.join(",", societeIds))
-                        .header("X-User-Primary-Societe-Id", primarySocieteId)
-                        .header("X-User-Permissions", permissions != null ? String.join(",", permissions) : "")
-                        .header("X-Request-Id", requestId)
-                        .build();
+  private boolean isPublicPath(String path) {
+    return path.equals("/actuator/health") ||
+        path.equals("/actuator/info") ||
+        path.startsWith("/api/auth/login") ||
+        path.startsWith("/api/auth/register") ||
+        path.startsWith("/auth/login") ||
+        path.startsWith("/auth/register") ||
+        path.equals("/login") ||
+        path.equals("/register") ||
+        // Swagger UI endpoints (public for API documentation)
+        path.startsWith("/swagger-ui") ||
+        path.startsWith("/v3/api-docs") ||
+        path.startsWith("/webjars/") ||
+        path.startsWith("/auth/swagger-ui") ||
+        path.startsWith("/auth/v3/api-docs") ||
+        path.startsWith("/auth/webjars") ||
+        path.startsWith("/authz/swagger-ui") ||
+        path.startsWith("/authz/v3/api-docs") ||
+        path.startsWith("/authz/webjars");
+  }
 
-                log.debug("JWT validated for user: {} (username: {}, requestId: {})", email, username, requestId);
+  private Mono<Void> onError(ServerWebExchange exchange, String message, HttpStatus httpStatus) {
+    exchange.getResponse().setStatusCode(httpStatus);
+    exchange.getResponse().getHeaders().add(HttpHeaders.CONTENT_TYPE, "application/json");
 
-                // Continue with modified request
-                return chain.filter(exchange.mutate().request(modifiedRequest).build());
+    String errorResponse = "{\"error\":\"%s\",\"status\":%d}".formatted(message, httpStatus.value());
 
-            } catch (Exception e) {
-                log.error("Error processing JWT token: {}", e.getMessage());
-                return onError(exchange, "Error processing token: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
-            }
-        };
-    }
+    return exchange.getResponse().writeWith(
+        Mono.just(exchange.getResponse().bufferFactory().wrap(errorResponse.getBytes()))
+    );
+  }
 
-    private boolean isPublicPath(String path) {
-        return path.equals("/actuator/health") ||
-               path.equals("/actuator/info") ||
-               path.startsWith("/api/auth/login") ||
-               path.startsWith("/api/auth/register") ||
-               path.startsWith("/auth/login") ||
-               path.startsWith("/auth/register") ||
-               path.equals("/login") ||
-               path.equals("/register") ||
-               // Swagger UI endpoints (public for API documentation)
-               path.startsWith("/swagger-ui") ||
-               path.startsWith("/v3/api-docs") ||
-               path.startsWith("/webjars/") ||
-               path.startsWith("/auth/swagger-ui") ||
-               path.startsWith("/auth/v3/api-docs") ||
-               path.startsWith("/auth/webjars") ||
-               path.startsWith("/authz/swagger-ui") ||
-               path.startsWith("/authz/v3/api-docs") ||
-               path.startsWith("/authz/webjars");
-    }
-
-    private Mono<Void> onError(ServerWebExchange exchange, String message, HttpStatus httpStatus) {
-        exchange.getResponse().setStatusCode(httpStatus);
-        exchange.getResponse().getHeaders().add(HttpHeaders.CONTENT_TYPE, "application/json");
-
-        String errorResponse = "{\"error\":\"%s\",\"status\":%d}".formatted(message, httpStatus.value());
-
-        return exchange.getResponse().writeWith(
-                Mono.just(exchange.getResponse().bufferFactory().wrap(errorResponse.getBytes()))
-        );
-    }
-
-    public static class Config {
-        // Configuration properties if needed
-    }
+  public static class Config {
+    // Configuration properties if needed
+  }
 }
