@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(java:*)",
+      "Bash(curl:*)",
+      "Bash(mvn clean package:*)",
+      "Bash(mvn package:*)"
+    ]
+  }
+}
