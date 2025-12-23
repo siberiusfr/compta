@@ -120,7 +120,17 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
                path.startsWith("/auth/login") ||
                path.startsWith("/auth/register") ||
                path.equals("/login") ||
-               path.equals("/register");
+               path.equals("/register") ||
+               // Swagger UI endpoints (public for API documentation)
+               path.startsWith("/swagger-ui") ||
+               path.startsWith("/v3/api-docs") ||
+               path.startsWith("/webjars/") ||
+               path.startsWith("/auth/swagger-ui") ||
+               path.startsWith("/auth/v3/api-docs") ||
+               path.startsWith("/auth/webjars") ||
+               path.startsWith("/authz/swagger-ui") ||
+               path.startsWith("/authz/v3/api-docs") ||
+               path.startsWith("/authz/webjars");
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, String message, HttpStatus httpStatus) {
