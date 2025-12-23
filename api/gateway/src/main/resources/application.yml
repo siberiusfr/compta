@@ -19,11 +19,13 @@ spring:
           filters:
             - RewritePath=/auth(?<segment>.*), ${segment}
 
-        # Authz Service Routes (API - pas de réécriture, pas de sécurité)
+        # Authz Service Routes (API - avec authentification JWT)
         - id: authz-service
           uri: http://localhost:8082
           predicates:
             - Path=/api/authz/**
+          filters:
+            - JwtAuthenticationFilter
 
         # Authz Service Swagger (avec réécriture)
         - id: authz-service-swagger
@@ -31,7 +33,7 @@ spring:
           predicates:
             - Path=/authz/swagger-ui/**, /authz/webjars/**, /authz/v3/api-docs/**
           filters:
-            - JwtAuthenticationFilter
+            - RewritePath=/authz(?<segment>.*), ${segment}
 
         # Document Service Routes
         - id: document-service
@@ -44,11 +46,11 @@ spring:
 
         # Accounting Service Routes
         - id: accounting-service
-          uri: http://localhost:8084
+          uri: http://localhost:8082
           predicates:
             - Path=/api/accounting/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /${segment}
+            - RewritePath=/api/accounting/(?<segment>.*), /${segment}
             - JwtAuthenticationFilter
 
         # HR Service Routes
