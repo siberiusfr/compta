@@ -1,10 +1,11 @@
 package tn.cyberious.compta.authz.controller;
 
-import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/authz")
@@ -16,6 +17,6 @@ public class TtController {
         (key, value) -> {
           System.out.println(key + ": " + value);
         });
-    return "String";
+    return "You are authenticated.";
   }
 }

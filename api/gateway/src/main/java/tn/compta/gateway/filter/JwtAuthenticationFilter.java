@@ -52,10 +52,11 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
 
       try {
         // Validate token
-        if (!jwtUtils.validateToken(token)) {
-          log.warn("Invalid JWT token for path: {}", path);
-          return onError(exchange, "Invalid or expired token", HttpStatus.UNAUTHORIZED);
-        }
+            if (!jwtUtils.validateToken(token)) {
+              log.warn("Invalid JWT token for path: {}", path);
+              exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+              return exchange.getResponse().setComplete();
+            }
 
         // Extract claims from token
         Claims claims = jwtUtils.extractClaims(token);
