@@ -34,6 +34,7 @@ pnpm run test:watch         # Watch mode for tests
 pnpm run test:cov           # Generate coverage report
 pnpm run test:e2e           # End-to-end tests
 pnpm run test:debug         # Debug tests with Node inspector
+pnpm run test -- --testPathPattern="app.controller"  # Run specific test file
 
 # Prisma
 pnpm prisma generate        # Generate Prisma Client (after schema changes)
@@ -96,6 +97,8 @@ pnpm prisma studio          # Open Prisma Studio (DB GUI)
 **BullBoard Monitoring UI**:
 - URL: `http://localhost:3000/queues`
 - Features: View jobs, retry failed, inspect payloads
+
+**Graceful Degradation**: If Redis is unavailable, the service falls back to synchronous email sending. Notifications are still tracked in the database but bypass the queue.
 
 ### Service Layer
 
@@ -163,6 +166,12 @@ pnpm prisma studio          # Open Prisma Studio (DB GUI)
 - `GET /users/:id/stats` - User notification statistics
 - `DELETE /users/:id` - Delete user (cascade notifications)
 
+**HealthController** (`/health`):
+- `GET /health` - Full system status (API, Redis, queue mode)
+- `GET /health/redis` - Redis connection status
+
+**Swagger Documentation**: Available at `/api`
+
 ### Email Sending (MJML Templates)
 
 **NotificationService** (src/notification/notification.service.ts):
@@ -195,7 +204,12 @@ src/
 │   ├── notifications.controller.ts   # /notifications
 │   ├── stats.controller.ts           # /stats
 │   ├── templates.controller.ts       # /templates
-│   └── users.controller.ts           # /users
+│   ├── users.controller.ts           # /users
+│   └── health.controller.ts          # /health
+├── health/
+│   └── redis-health.service.ts       # Redis connection monitoring
+├── filters/
+│   └── all-exceptions.filter.ts      # Global error handling
 ├── notification/
 │   ├── notification.service.ts       # MJML email sending
 │   └── mail.processor.ts             # BullMQ worker (with DB tracking)
@@ -263,9 +277,25 @@ Critical indexes for performance:
 
 ### Environment Variables
 
-Required in `.env`:
+Required in `.env` (see `.env.example`):
 ```bash
-DATABASE_URL="postgresql://user:pass@host:5432/dbname?sslmode=require"
+# Database
+DATABASE_URL="postgresql://user:pass@localhost:5432/notification_db?schema=public"
+
+# Redis (for BullMQ queue)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# Application
+PORT=3000
+NODE_ENV=development
+
+# SMTP Configuration
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=user@example.com
+SMTP_PASSWORD=password
+SMTP_FROM="No Reply <noreply@example.com>"
 ```
 
 ### Testing the System
