@@ -23,10 +23,19 @@ public class JwtUtils {
      */
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
+            Claims claims = Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
-                    .parseSignedClaims(token);
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            // Check if token is expired
+            Date expiration = claims.getExpiration();
+            if (expiration != null && expiration.before(new Date())) {
+                log.warn("JWT token is expired");
+                return false;
+            }
+
             return true;
         } catch (Exception e) {
             log.error("JWT validation error: {}", e.getMessage());

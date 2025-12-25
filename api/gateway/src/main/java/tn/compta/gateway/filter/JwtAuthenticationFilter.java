@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
 
       if (authHeader == null || !authHeader.startsWith("Bearer ")) {
         log.warn("Missing or invalid Authorization header for path: {}", path);
-        return onError(exchange, "Missing or invalid Authorization header", HttpStatus.UNAUTHORIZED);
+        return onError(exchange, "Missing or invalid Authorization header");
       }
 
       String token = authHeader.substring(7);
@@ -85,7 +85,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
 
       } catch (Exception e) {
         log.error("Error processing JWT token: {}", e.getMessage());
-        return onError(exchange, "Error processing token: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
+        return onError(exchange, "Error processing token: " + e.getMessage());
       }
     };
   }
@@ -111,11 +111,11 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         path.startsWith("/authz/webjars");
   }
 
-  private Mono<Void> onError(ServerWebExchange exchange, String message, HttpStatus httpStatus) {
-    exchange.getResponse().setStatusCode(httpStatus);
+  private Mono<Void> onError(ServerWebExchange exchange, String message) {
+    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
     exchange.getResponse().getHeaders().add(HttpHeaders.CONTENT_TYPE, "application/json");
 
-    String errorResponse = "{\"error\":\"%s\",\"status\":%d}".formatted(message, httpStatus.value());
+    String errorResponse = "{\"error\":\"%s\",\"status\":%d}".formatted(message, HttpStatus.UNAUTHORIZED.value());
 
     return exchange.getResponse().writeWith(
         Mono.just(exchange.getResponse().bufferFactory().wrap(errorResponse.getBytes()))

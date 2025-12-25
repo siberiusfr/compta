@@ -48,6 +48,8 @@ spring:
           predicates:
             - Path=/api/authz/**
           filters:
+            - IpWhitelistFilter
+            - RateLimitFilter
             - JwtAuthenticationFilter
 
         # Authz Service Swagger UI
@@ -85,6 +87,8 @@ spring:
             - Path=/api/documents/**
           filters:
             - RewritePath=/api/documents/(?<segment>.*), /${segment}
+            - IpWhitelistFilter
+            - RateLimitFilter
             - JwtAuthenticationFilter
 
         # Accounting Service Routes
@@ -94,6 +98,8 @@ spring:
             - Path=/api/accounting/**
           filters:
             - RewritePath=/api/accounting/(?<segment>.*), /${segment}
+            - IpWhitelistFilter
+            - RateLimitFilter
             - JwtAuthenticationFilter
 
         # HR Service Routes
@@ -103,6 +109,8 @@ spring:
             - Path=/api/hr/**
           filters:
             - RewritePath=/api/hr/(?<segment>.*), /${segment}
+            - IpWhitelistFilter
+            - RateLimitFilter
             - JwtAuthenticationFilter
 
         # Notification Service Routes
@@ -112,6 +120,8 @@ spring:
             - Path=/api/notifications/**
           filters:
             - RewritePath=/api/notifications/(?<segment>.*), /api/notifications/${segment}
+            - IpWhitelistFilter
+            - RateLimitFilter
             - JwtAuthenticationFilter
 
 server:
@@ -124,6 +134,19 @@ server:
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   expiration: ${JWT_EXPIRATION:86400000}
+
+# Gateway Security Configuration
+gateway:
+  # IP Whitelist Configuration (comma-separated list of IPs or CIDR ranges)
+  # Examples: "192.168.1.0/24,10.0.0.100,172.16.0.*"
+  # Empty or "*" allows all IPs
+  ip:
+    whitelist: ${GATEWAY_IP_WHITELIST:*}
+
+  # Rate Limiting Configuration
+  rate-limit:
+    requests-per-minute: ${GATEWAY_RATE_LIMIT_RPM:60}
+    requests-per-second: ${GATEWAY_RATE_LIMIT_RPS:10}
 
 # Management & Actuator
 management:

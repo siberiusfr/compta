@@ -23,7 +23,7 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Override
+  @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
         log.error("Gateway error: ", ex);
 
