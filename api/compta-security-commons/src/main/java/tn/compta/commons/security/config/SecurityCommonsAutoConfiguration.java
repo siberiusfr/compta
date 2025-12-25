@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -106,6 +107,22 @@ public class SecurityCommonsAutoConfiguration implements WebMvcConfigurer {
   public SecurityContextArgumentResolver securityContextArgumentResolver() {
     log.info("Creating SecurityContextArgumentResolver bean");
     return new SecurityContextArgumentResolver();
+  }
+
+  /**
+   * Create Swagger/OpenAPI parameter customizer bean.
+   *
+   * <p>This customizer hides {@link tn.compta.commons.security.annotation.AuthenticatedUser}
+   * parameters from Swagger documentation since they are automatically injected.
+   *
+   * @return the parameter customizer
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  @ConditionalOnClass(name = "org.springdoc.core.customizers.OperationCustomizer")
+  public AuthenticatedUserParameterCustomizer authenticatedUserParameterCustomizer() {
+    log.info("Creating AuthenticatedUserParameterCustomizer bean");
+    return new AuthenticatedUserParameterCustomizer();
   }
 
   /**

@@ -134,6 +134,8 @@ public class ProfileController {
 }
 ```
 
+**Note:** The `@AuthenticatedUser` parameter is automatically hidden from Swagger/OpenAPI documentation. It is injected by the argument resolver and should not appear as a query parameter in the API documentation.
+
 ### 5. Access Security Context
 
 Access the security context programmatically:
@@ -301,6 +303,7 @@ The library uses Spring Boot auto-configuration. It automatically:
 2. Sets up argument resolvers for `@AuthenticatedUser` injection
 3. Configures interceptors for role/permission checks
 4. Enables AOP aspects for service-layer security
+5. **(Optional)** Registers Swagger/OpenAPI parameter customizer to hide `@AuthenticatedUser` parameters from documentation (when SpringDoc is available)
 
 You can disable auto-configuration:
 
@@ -308,6 +311,29 @@ You can disable auto-configuration:
 compta:
   security:
     enabled: false
+```
+
+## Swagger/OpenAPI Integration
+
+When SpringDoc OpenAPI is available on the classpath, this library automatically:
+
+- Hides `@AuthenticatedUser` parameters from Swagger documentation
+- The authenticated user is still injected at runtime, but doesn't appear as a query parameter in the API docs
+
+This is handled by the `AuthenticatedUserParameterCustomizer` which:
+- Implements SpringDoc's `OperationCustomizer` interface
+- Filters out parameters annotated with `@AuthenticatedUser` from the OpenAPI spec
+- Only activates when SpringDoc is present (conditional bean)
+
+**No additional configuration required** - the customizer is automatically registered when SpringDoc is on the classpath.
+
+**Note:** SpringDoc is typically included via `compta-commons` dependency. If your service doesn't have it, add it:
+
+```xml
+<dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+</dependency>
 ```
 
 ## Key Differences from JWT-Based Security

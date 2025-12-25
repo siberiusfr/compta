@@ -46,6 +46,13 @@
       <optional>true</optional>
     </dependency>
 
+    <!-- SpringDoc OpenAPI for Swagger integration -->
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <optional>true</optional>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

@@ -7,10 +7,9 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 @Configuration
 public class OpenApiConfig {
@@ -21,29 +20,26 @@ public class OpenApiConfig {
   @Bean
   public OpenAPI customOpenAPI() {
     return new OpenAPI()
-        .info(new Info()
-            .title("Auth Service API")
-            .version("1.0.0")
-            .description("Service d'authentification - JWT requis pour les endpoints protégés")
-            .contact(new Contact()
-                .name("COMPTA Team")
-                .email("support@compta.tn")))
+        .info(
+            new Info()
+                .title("Auth Service API")
+                .version("1.0.0")
+                .description("Service d'authentification - JWT requis pour les endpoints protégés")
+                .contact(new Contact().name("COMPTA Team").email("support@compta.tn")))
         // Toutes les requêtes passent par la gateway
-        .servers(List.of(
-            new Server()
-                .url("http://localhost:8080")
-                .description("API Gateway")
-        ))
+        .servers(List.of(new Server().url("http://localhost:8080").description("API Gateway")))
         // Applique la sécurité JWT globalement
         .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
-        .components(new Components()
-            .addSecuritySchemes(SECURITY_SCHEME_NAME,
-                new SecurityScheme()
-                    .name(SECURITY_SCHEME_NAME)
-                    .type(SecurityScheme.Type.HTTP)
-                    .scheme("bearer")
-                    .bearerFormat("JWT")
-                    .in(SecurityScheme.In.HEADER)
-                    .description("Entrez votre token JWT (sans le préfixe 'Bearer ')")));
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    SECURITY_SCHEME_NAME,
+                    new SecurityScheme()
+                        .name(SECURITY_SCHEME_NAME)
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+                        .in(SecurityScheme.In.HEADER)
+                        .description("Entrez votre token JWT (sans le préfixe 'Bearer ')")));
   }
 }
