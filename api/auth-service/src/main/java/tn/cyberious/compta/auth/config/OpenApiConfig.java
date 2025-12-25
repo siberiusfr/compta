@@ -15,7 +15,8 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
-  private static final String SECURITY_SCHEME_NAME = "Bearer Authentication";
+  // IMPORTANT: Utilise un nom simple sans espaces!
+  private static final String SECURITY_SCHEME_NAME = "bearerAuth";
 
   @Bean
   public OpenAPI customOpenAPI() {
@@ -23,16 +24,17 @@ public class OpenApiConfig {
         .info(new Info()
             .title("Auth Service API")
             .version("1.0.0")
-            .description("Service d'authentification - Toutes les requêtes passent via la Gateway")
+            .description("Service d'authentification - JWT requis pour les endpoints protégés")
             .contact(new Contact()
                 .name("COMPTA Team")
                 .email("support@compta.tn")))
-        // IMPORTANT: Définir le serveur comme étant la gateway
+        // Toutes les requêtes passent par la gateway
         .servers(List.of(
             new Server()
                 .url("http://localhost:8080")
                 .description("API Gateway")
         ))
+        // Applique la sécurité JWT globalement
         .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
         .components(new Components()
             .addSecuritySchemes(SECURITY_SCHEME_NAME,
@@ -41,6 +43,7 @@ public class OpenApiConfig {
                     .type(SecurityScheme.Type.HTTP)
                     .scheme("bearer")
                     .bearerFormat("JWT")
-                    .description("JWT Token (sans le préfixe 'Bearer')")));
+                    .in(SecurityScheme.In.HEADER)
+                    .description("Entrez votre token JWT (sans le préfixe 'Bearer ')")));
   }
 }

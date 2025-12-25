@@ -57,9 +57,7 @@ public class AuthController {
 
   @GetMapping("/me")
   @SecurityRequirement(name = "bearer-jwt")
-  @Operation(
-      summary = "Get current user",
-      description = "Get current authenticated user information")
+  @Operation(security = @SecurityRequirement(name = "bearerAuth"))
   public ResponseEntity<UserResponse> getCurrentUser(
       @AuthenticationPrincipal CustomUserDetails currentUser) {
     UserResponse user = authService.getCurrentUser(currentUser.getId());

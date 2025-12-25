@@ -13,8 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    private static final String SECURITY_SCHEME_NAME = "Bearer Authentication";
-
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
@@ -27,15 +25,6 @@ public class OpenApiConfig {
                                 .email("support@compta.tn"))
                         .license(new License()
                                 .name("Proprietary")
-                                .url("https://compta.tn")))
-                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
-                .components(new Components()
-                        .addSecuritySchemes(SECURITY_SCHEME_NAME,
-                                new SecurityScheme()
-                                        .name(SECURITY_SCHEME_NAME)
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .description("Entrez votre token JWT (sans le préfixe 'Bearer')")));
+                                .url("https://compta.tn")));
     }
 }

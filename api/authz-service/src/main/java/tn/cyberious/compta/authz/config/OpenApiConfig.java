@@ -15,7 +15,7 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
-  private static final String SECURITY_SCHEME_NAME = "Bearer Authentication";
+  private static final String SECURITY_SCHEME_NAME = "bearerAuth";
 
   @Bean
   public OpenAPI customOpenAPI() {
@@ -27,7 +27,6 @@ public class OpenApiConfig {
             .contact(new Contact()
                 .name("COMPTA Team")
                 .email("support@compta.tn")))
-        // IMPORTANT: Définir le serveur comme étant la gateway
         .servers(List.of(
             new Server()
                 .url("http://localhost:8080")

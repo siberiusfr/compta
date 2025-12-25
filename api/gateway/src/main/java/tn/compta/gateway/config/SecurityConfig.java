@@ -15,11 +15,16 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
+                        // Actuator endpoints - public
                         .pathMatchers("/actuator/**").permitAll()
+                        // Auth service public endpoints
                         .pathMatchers("/api/auth/login", "/api/auth/register").permitAll()
                         .pathMatchers("/login", "/register").permitAll()
+                        // Swagger UI and API docs - public
                         .pathMatchers("/auth/swagger-ui/**", "/auth/webjars/**", "/auth/v3/api-docs/**").permitAll()
+                        .pathMatchers("/authz/swagger-ui/**", "/authz/webjars/**", "/authz/v3/api-docs/**").permitAll()
                         .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**").permitAll()
+                        // All other requests - JWT authentication is handled by JwtAuthenticationFilter
                         .anyExchange().permitAll()
                 )
                 .build();

@@ -49,8 +49,6 @@ spring:
             - Path=/api/authz/**
           filters:
             - JwtAuthenticationFilter
-            - AddRequestHeader=X-User-Id, ${jwt.userId}
-            - AddRequestHeader=X-User-Email, ${jwt.email}
 
         # Authz Service Swagger UI
         - id: authz-service-swagger-ui
