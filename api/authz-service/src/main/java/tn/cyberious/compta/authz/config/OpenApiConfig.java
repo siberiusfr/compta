@@ -1,4 +1,4 @@
-package tn.cyberious.compta.auth.config;
+package tn.cyberious.compta.authz.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -21,9 +21,9 @@ public class OpenApiConfig {
   public OpenAPI customOpenAPI() {
     return new OpenAPI()
         .info(new Info()
-            .title("Auth Service API")
+            .title("Authorization Service API")
             .version("1.0.0")
-            .description("Service d'authentification - Toutes les requêtes passent via la Gateway")
+            .description("Service d'autorisation - Toutes les requêtes passent via la Gateway")
             .contact(new Contact()
                 .name("COMPTA Team")
                 .email("support@compta.tn")))

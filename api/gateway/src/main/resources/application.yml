@@ -3,41 +3,83 @@ spring:
     name: api-gateway
 
   cloud:
-    gateway.server.webflux:
+    gateway:
       routes:
-        # Auth Service Routes (API - pas de réécriture)
-        - id: auth-service
+        # ============================================
+        # Auth Service Routes
+        # ============================================
+        # Auth Service API Routes (pas de réécriture)
+        - id: auth-service-api
           uri: http://localhost:8081
           predicates:
             - Path=/api/auth/**
 
-        # Auth Service Swagger (avec réécriture)
-        - id: auth-service-swagger
+        # Auth Service Swagger UI
+        - id: auth-service-swagger-ui
           uri: http://localhost:8081
           predicates:
-            - Path=/auth/swagger-ui/**, /auth/webjars/**, /auth/v3/api-docs/**
+            - Path=/auth/swagger-ui.html, /auth/swagger-ui/**
+          filters:
+            - RewritePath=/auth(?<segment>.*), ${segment}
+            - AddResponseHeader=X-Forwarded-Prefix, /auth
+
+        # Auth Service Webjars
+        - id: auth-service-webjars
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/webjars/**
+          filters:
+            - RewritePath=/auth(?<segment>.*), ${segment}
+
+        # Auth Service OpenAPI Docs
+        - id: auth-service-api-docs
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/v3/api-docs, /auth/v3/api-docs/**
           filters:
             - RewritePath=/auth(?<segment>.*), ${segment}
 
         # ============================================
-        # Authz Service - AVEC validation JWT
+        # Authz Service Routes
         # ============================================
+        # Authz Service API Routes - AVEC validation JWT
         - id: authz-service-api
           uri: http://localhost:8082
           predicates:
             - Path=/api/authz/**
           filters:
-            - JwtAuthenticationFilter # ← Valide le token
+            - JwtAuthenticationFilter
             - AddRequestHeader=X-User-Id, ${jwt.userId}
             - AddRequestHeader=X-User-Email, ${jwt.email}
 
-        - id: authz-service-swagger
+        # Authz Service Swagger UI
+        - id: authz-service-swagger-ui
           uri: http://localhost:8082
           predicates:
-            - Path=/authz/swagger-ui/**, /authz/v3/api-docs/**
+            - Path=/authz/swagger-ui.html, /authz/swagger-ui/**
+          filters:
+            - RewritePath=/authz(?<segment>.*), ${segment}
+            - AddResponseHeader=X-Forwarded-Prefix, /authz
+
+        # Authz Service Webjars
+        - id: authz-service-webjars
+          uri: http://localhost:8082
+          predicates:
+            - Path=/authz/webjars/**
           filters:
             - RewritePath=/authz(?<segment>.*), ${segment}
 
+        # Authz Service OpenAPI Docs
+        - id: authz-service-api-docs
+          uri: http://localhost:8082
+          predicates:
+            - Path=/authz/v3/api-docs, /authz/v3/api-docs/**
+          filters:
+            - RewritePath=/authz(?<segment>.*), ${segment}
+
+        # ============================================
+        # Other Services
+        # ============================================
         # Document Service Routes
         - id: document-service
           uri: http://document-service:8083
@@ -74,12 +116,11 @@ spring:
             - RewritePath=/api/notifications/(?<segment>.*), /api/notifications/${segment}
             - JwtAuthenticationFilter
 
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
-
 server:
   port: 8080
   shutdown: graceful
+  # IMPORTANT: Configuration pour les headers forwarded
+  forward-headers-strategy: framework
 
 # JWT Configuration
 jwt:
@@ -106,12 +147,21 @@ logging:
     org.springframework.security: DEBUG
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
+
+# Configuration SpringDoc pour la Gateway
 springdoc:
   swagger-ui:
-    URLs:
+    urls:
       - url: /v3/api-docs
         name: API Gateway Service
       - url: /auth/v3/api-docs
         name: Auth Service
       - url: /authz/v3/api-docs
         name: Authz Service
+    # IMPORTANT: Configurations supplémentaires
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    enabled: true

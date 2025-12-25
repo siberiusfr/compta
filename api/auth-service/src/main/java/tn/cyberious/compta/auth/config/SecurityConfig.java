@@ -3,7 +3,6 @@ package tn.cyberious.compta.auth.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -21,13 +20,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import tn.cyberious.compta.auth.security.CustomUserDetailsService;
 import tn.cyberious.compta.auth.security.JwtAuthenticationEntryPoint;
 import tn.cyberious.compta.auth.security.JwtAuthenticationFilter;
-import tn.cyberious.compta.config.CorsConfig;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-@Import(CorsConfig.class)
 public class SecurityConfig {
 
   private final CustomUserDetailsService userDetailsService;

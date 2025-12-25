@@ -39,3 +39,24 @@ compta:
   security:
     enabled: true
     public-paths: /actuator/**,/v3/api-docs/**,/swagger-ui/**
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    # Désactive le tri des opérations
+    operations-sorter: method
+    # Active la persistance des autorisations
+    persist-authorization: true
+    # Configuration des URLs
+    config-url: /v3/api-docs/swagger-config
+    url: /v3/api-docs
+  # IMPORTANT: Override l'URL du serveur
+  override-with-generic-response: false
+
+# Logging pour debug
+logging:
+  level:
+    org.springdoc: DEBUG
+    org.springframework.web: DEBUG
