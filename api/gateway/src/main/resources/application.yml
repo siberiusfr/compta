@@ -19,97 +19,95 @@ spring:
         pool:
           max-connections: 100
           max-idle-time: 30s
-      server:
-        webflux:
-          routes:
-            # ==========================================
-            # Auth Service
-            # ==========================================
-            - id: auth-service
-              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
-              predicates:
-                - Path=/auth/**
-              filters:
-                # ✅ Circuit breaker with fallback
-                - name: CircuitBreaker
-                  args:
-                    name: authService
-                    fallbackUri: forward:/fallback/auth
-              metadata:
-                response-timeout: 10000 # 10 seconds for login
+      routes:
+        # ==========================================
+        # Auth Service
+        # ==========================================
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/auth/**
+          filters:
+            # ✅ Circuit breaker with fallback
+            - name: CircuitBreaker
+              args:
+                name: authService
+                fallbackUri: forward:/fallback/auth
+          metadata:
+            response-timeout: 10000 # 10 seconds for login
 
-            - id: auth-service-openapi
-              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
-              predicates:
-                - Path=/auth/v3/api-docs
-              filters:
-                - RewritePath=/auth/v3/api-docs, /v3/api-docs
+        - id: auth-service-openapi
+          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/auth/v3/api-docs
+          filters:
+            - RewritePath=/auth/v3/api-docs, /v3/api-docs
 
-            # ==========================================
-            # Authorization Service
-            # ==========================================
-            - id: authz-service
-              uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
-              predicates:
-                - Path=/api/permissions/**
-              filters:
-                - name: CircuitBreaker
-                  args:
-                    name: authzService
-                    fallbackUri: forward:/fallback/authz
-              metadata:
-                response-timeout: 5000
+        # ==========================================
+        # Authorization Service
+        # ==========================================
+        - id: authz-service
+          uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/permissions/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authzService
+                fallbackUri: forward:/fallback/authz
+          metadata:
+            response-timeout: 5000
 
-            - id: authz-service-openapi
-              uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
-              predicates:
-                - Path=/authz/v3/api-docs
-              filters:
-                - RewritePath=/authz/v3/api-docs, /v3/api-docs
+        - id: authz-service-openapi
+          uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/authz/v3/api-docs
+          filters:
+            - RewritePath=/authz/v3/api-docs, /v3/api-docs
 
-            # ==========================================
-            # Invoice Service
-            # ==========================================
-            - id: invoice-service
-              uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
-              predicates:
-                - Path=/api/invoices/**
-              filters:
-                - name: CircuitBreaker
-                  args:
-                    name: invoiceService
-                    fallbackUri: forward:/fallback/invoices
-              metadata:
-                response-timeout: 15000 # Longer timeout for invoice processing
+        # ==========================================
+        # Invoice Service
+        # ==========================================
+        - id: invoice-service
+          uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/invoices/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: invoiceService
+                fallbackUri: forward:/fallback/invoices
+          metadata:
+            response-timeout: 15000 # Longer timeout for invoice processing
 
-            - id: invoice-service-openapi
-              uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
-              predicates:
-                - Path=/invoices/v3/api-docs
-              filters:
-                - RewritePath=/invoices/v3/api-docs, /v3/api-docs
+        - id: invoice-service-openapi
+          uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/invoices/v3/api-docs
+          filters:
+            - RewritePath=/invoices/v3/api-docs, /v3/api-docs
 
-            # ==========================================
-            # Employee Service
-            # ==========================================
-            - id: employee-service
-              uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
-              predicates:
-                - Path=/api/employees/**
-              filters:
-                - name: CircuitBreaker
-                  args:
-                    name: employeeService
-                    fallbackUri: forward:/fallback/employees
-              metadata:
-                response-timeout: 5000
+        # ==========================================
+        # Employee Service
+        # ==========================================
+        - id: employee-service
+          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/employees/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: employeeService
+                fallbackUri: forward:/fallback/employees
+          metadata:
+            response-timeout: 5000
 
-            - id: employee-service-openapi
-              uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
-              predicates:
-                - Path=/employees/v3/api-docs
-              filters:
-                - RewritePath=/employees/v3/api-docs, /v3/api-docs
+        - id: employee-service-openapi
+          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/employees/v3/api-docs
+          filters:
+            - RewritePath=/employees/v3/api-docs, /v3/api-docs
 
 # ✅ CORS Configuration (externalized)
 cors:
@@ -123,6 +121,13 @@ cors:
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   expiration: ${JWT_EXPIRATION:86400000} # 24 hours
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
+
+# ✅ Gateway URLs pour OpenAPI
+gateway:
+  url:
+    dev: http://localhost:8080
+    prod: https://api.compta.tn
 
 # ✅ Resilience4j Circuit Breaker
 resilience4j:
@@ -208,4 +213,4 @@ logging:
     io.github.resilience4j: INFO
     tn.compta.gateway: DEBUG
   pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [%X{requestId}] %msg%n'

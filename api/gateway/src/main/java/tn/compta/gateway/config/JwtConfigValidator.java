@@ -5,14 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Validates JWT configuration at application startup.
- *
- * Security checks:
- * - JWT secret length (minimum 256 bits for HS256)
- * - No default secrets in production
- * - Secret complexity
- */
 @Slf4j
 @Configuration
 public class JwtConfigValidator {
@@ -31,9 +23,8 @@ public class JwtConfigValidator {
 
   @PostConstruct
   public void validateJwtConfiguration() {
-    log.info("🔐 Validating JWT configuration...");
+    log.info("🔍 Validating JWT configuration...");
 
-    // ✅ Check secret length (minimum 256 bits = 32 bytes = 64 hex chars)
     if (jwtSecret == null || jwtSecret.length() < 64) {
       throw new IllegalStateException(
           "JWT secret must be at least 256 bits (64 hex characters) for HS256 algorithm. " +
@@ -41,7 +32,6 @@ public class JwtConfigValidator {
       );
     }
 
-    // ✅ Check for default secret in production
     if (isProduction() && DEFAULT_SECRET.equals(jwtSecret)) {
       throw new IllegalStateException(
           "CRITICAL SECURITY ERROR: Default JWT secret is being used in production! " +
@@ -49,21 +39,18 @@ public class JwtConfigValidator {
       );
     }
 
-    // ✅ Warn about default secret in other environments
     if (!isProduction() && DEFAULT_SECRET.equals(jwtSecret)) {
       log.warn("⚠️ WARNING: Using default JWT secret. This is acceptable for development " +
           "but NEVER use this in production!");
     }
 
-    // ✅ Check expiration
     if (jwtExpiration == null || jwtExpiration <= 0) {
       throw new IllegalStateException(
           "JWT expiration must be a positive value in milliseconds"
       );
     }
 
-    // ✅ Warn about long expiration in production
-    if (isProduction() && jwtExpiration > 7200000) { // > 2 hours
+    if (isProduction() && jwtExpiration > 7200000) {
       log.warn("⚠️ JWT expiration is set to {} hours. Consider using shorter expiration " +
           "times in production for better security.", jwtExpiration / 3600000.0);
     }
@@ -74,9 +61,6 @@ public class JwtConfigValidator {
     log.info("   - Environment: {}", activeProfile);
   }
 
-  /**
-   * Check if running in production environment.
-   */
   private boolean isProduction() {
     return "prod".equalsIgnoreCase(activeProfile) ||
         "production".equalsIgnoreCase(activeProfile);

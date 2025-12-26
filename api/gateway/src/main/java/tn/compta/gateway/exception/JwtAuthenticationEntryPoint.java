@@ -17,15 +17,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Custom authentication entry point for JWT validation errors.
- *
- * Provides clear error messages when JWT authentication fails:
- * - Token expired
- * - Token invalid
- * - Token malformed
- * - Missing authorization header
- */
 @Slf4j
 @Component
 public class JwtAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
@@ -57,37 +48,23 @@ public class JwtAuthenticationEntryPoint implements ServerAuthenticationEntryPoi
     return exchange.getResponse().writeWith(Mono.just(buffer));
   }
 
-  /**
-   * Extract user-friendly error message from exception.
-   */
   private String getErrorMessage(AuthenticationException ex) {
     String message = ex.getMessage();
-
     if (message == null) {
       return "Authentication failed";
     }
-
-    // JWT expired
     if (message.contains("expired") || message.contains("Jwt expired")) {
       return "JWT token has expired. Please login again.";
     }
-
-    // Invalid signature
     if (message.contains("signature") || message.contains("invalid")) {
       return "JWT token signature is invalid.";
     }
-
-    // Malformed JWT
     if (message.contains("malformed") || message.contains("Malformed")) {
       return "JWT token is malformed.";
     }
-
-    // Missing token
     if (message.contains("Bearer token") || message.contains("Authorization header")) {
       return "Missing or invalid Authorization header. Expected: Bearer <token>";
     }
-
-    // Default message
     return "Authentication failed: " + message;
   }
 }

@@ -14,14 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Global logging filter for Gateway requests and responses.
- *
- * Security features:
- * - Masks sensitive headers (Authorization, Cookie, etc.)
- * - Logs request/response details
- * - Performance monitoring
- */
 @Slf4j
 @Component
 public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
@@ -39,23 +31,17 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
     ServerHttpRequest request = exchange.getRequest();
     long startTime = System.currentTimeMillis();
 
-    // Log request
     logRequest(request);
 
     return chain.filter(exchange).doFinally(signal -> {
-      // Log response
       long duration = System.currentTimeMillis() - startTime;
       logResponse(request, exchange, duration);
     });
   }
 
-  /**
-   * Log incoming request with masked sensitive headers.
-   */
   private void logRequest(ServerHttpRequest request) {
     if (log.isDebugEnabled()) {
       String maskedHeaders = maskSensitiveHeaders(request.getHeaders());
-
       log.debug("🔵 Incoming Request: {} {} | Headers: {}",
           request.getMethod(),
           request.getURI(),
@@ -65,9 +51,6 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
     }
   }
 
-  /**
-   * Log response with status and duration.
-   */
   private void logResponse(ServerHttpRequest request, ServerWebExchange exchange, long duration) {
     var statusCode = exchange.getResponse().getStatusCode();
 
@@ -81,7 +64,6 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
           statusCode.value(),
           duration);
 
-      // Warn on slow requests
       if (duration > 5000) {
         log.warn("⚠️ Slow request detected: {} {} took {}ms",
             request.getMethod(),
@@ -91,9 +73,6 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
     }
   }
 
-  /**
-   * Mask sensitive headers for security.
-   */
   private String maskSensitiveHeaders(HttpHeaders headers) {
     return headers.entrySet().stream()
         .collect(Collectors.toMap(
@@ -105,26 +84,20 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
         .toString();
   }
 
-  /**
-   * Check if header is sensitive.
-   */
   private boolean isSensitiveHeader(String headerName) {
     return SENSITIVE_HEADERS.stream()
         .anyMatch(sensitive -> sensitive.equalsIgnoreCase(headerName));
   }
 
-  /**
-   * Get emoji based on HTTP status code.
-   */
   private String getStatusEmoji(int statusCode) {
     if (statusCode >= 200 && statusCode < 300) {
-      return "✅"; // Success
+      return "✅";
     } else if (statusCode >= 300 && statusCode < 400) {
-      return "↩️"; // Redirect
+      return "↩️";
     } else if (statusCode >= 400 && statusCode < 500) {
-      return "⚠️"; // Client error
+      return "⚠️";
     } else {
-      return "❌"; // Server error
+      return "❌";
     }
   }
 

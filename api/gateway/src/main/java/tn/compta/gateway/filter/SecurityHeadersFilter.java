@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
  * - X-Frame-Options: Prevents clickjacking
  * - X-XSS-Protection: XSS filter for older browsers
  * - Strict-Transport-Security: Forces HTTPS (production only)
- * - Content-Security-Policy: Restricts resource loading
+ * - Content-Security-Policy: Restricts resource loading (strict for API)
  * - Referrer-Policy: Controls referrer information
  * - Permissions-Policy: Feature policy
  */
@@ -50,15 +50,24 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
         log.debug("Added HSTS header for production environment");
       }
 
-      // ✅ Content Security Policy
-      headers.add("Content-Security-Policy",
-          "default-src 'self'; " +
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-              "style-src 'self' 'unsafe-inline'; " +
-              "img-src 'self' data: https:; " +
-              "font-src 'self' data:; " +
-              "connect-src 'self'; " +
-              "frame-ancestors 'none';");
+      // ✅ Content Security Policy - Strict pour une API Gateway pure
+      // Si vous servez aussi du contenu web (Swagger UI), utilisez la version commentée ci-dessous
+      String path = exchange.getRequest().getPath().value();
+      
+      if (path.startsWith("/swagger-ui") || path.startsWith("/webjars")) {
+        // CSP permissive pour Swagger UI uniquement
+        headers.add("Content-Security-Policy",
+            "default-src 'self'; " +
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+                "style-src 'self' 'unsafe-inline'; " +
+                "img-src 'self' data: https:; " +
+                "font-src 'self' data:;");
+      } else {
+        // CSP strict pour les endpoints API
+        headers.add("Content-Security-Policy",
+            "default-src 'none'; " +
+                "frame-ancestors 'none';");
+      }
 
       // ✅ Referrer policy
       headers.add("Referrer-Policy", "strict-origin-when-cross-origin");

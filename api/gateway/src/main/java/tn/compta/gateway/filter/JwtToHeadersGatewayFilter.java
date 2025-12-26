@@ -58,7 +58,8 @@ public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
     return path.startsWith("/auth/") ||
         path.startsWith("/actuator/") ||
         path.startsWith("/swagger-ui") ||
-        path.startsWith("/v3/api-docs");
+        path.startsWith("/v3/api-docs") ||
+        path.startsWith("/fallback/");
   }
 
   /**
@@ -103,10 +104,30 @@ public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
       builder.header(HEADER_TENANT_ID, tenantId);
     }
 
+    // ✅ Log avec masquage de l'email pour GDPR
     log.debug("Added user headers: userId={}, username={}, email={}, tenantId={}, roles={}",
-        userId, username, email, tenantId, roles);
+        userId, username, maskEmail(email), tenantId, roles);
 
     return builder.build();
+  }
+
+  /**
+   * Masque partiellement l'email pour la protection des données personnelles (GDPR).
+   * Exemple: john.doe@example.com -> j***@example.com
+   */
+  private String maskEmail(String email) {
+    if (email == null || !email.contains("@")) {
+      return "***";
+    }
+    
+    String[] parts = email.split("@");
+    String localPart = parts[0];
+    
+    if (localPart.length() <= 1) {
+      return "***@" + parts[1];
+    }
+    
+    return localPart.charAt(0) + "***@" + parts[1];
   }
 
   @Override
