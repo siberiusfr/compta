@@ -29,7 +29,6 @@ spring:
         # Add security headers (redondant avec SecurityHeadersFilter mais double sécurité)
         - AddResponseHeader=X-Content-Type-Options, nosniff
         - AddResponseHeader=X-Frame-Options, DENY
-        - AddResponseHeader=X-XSS-Protection, 1; mode=block
         - AddResponseHeader=Strict-Transport-Security, max-age=31536000; includeSubDomains
 
 # ⚠️ JWT secret MUST be provided via environment variable in production

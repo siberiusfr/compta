@@ -11,10 +11,11 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Global filter pour ajouter un Request ID à chaque requête.
- * 
+ *
  * Permet de tracer les requêtes à travers tous les microservices.
  * Le Request ID est :
  * - Ajouté dans les headers de la requête (pour les services downstream)
@@ -28,6 +29,11 @@ public class RequestIdFilter implements GlobalFilter, Ordered {
   private static final String REQUEST_ID_HEADER = "X-Request-Id";
   private static final String MDC_REQUEST_ID_KEY = "requestId";
 
+  // UUID pattern for validation (8-4-4-4-12 hex format)
+  private static final Pattern UUID_PATTERN = Pattern.compile(
+      "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+  );
+
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     // Récupérer le Request ID existant ou en créer un nouveau
@@ -35,7 +41,8 @@ public class RequestIdFilter implements GlobalFilter, Ordered {
         .getHeaders()
         .getFirst(REQUEST_ID_HEADER);
 
-    if (requestId == null || requestId.isEmpty()) {
+    // Validate format: must be a valid UUID or generate a new one
+    if (!isValidRequestId(requestId)) {
       requestId = UUID.randomUUID().toString();
     }
 
@@ -67,5 +74,15 @@ public class RequestIdFilter implements GlobalFilter, Ordered {
   @Override
   public int getOrder() {
     return Ordered.HIGHEST_PRECEDENCE + 1; // Juste après le logging filter
+  }
+
+  /**
+   * Validates the request ID format.
+   * Accepts only valid UUID format to prevent header injection.
+   */
+  private boolean isValidRequestId(String requestId) {
+    return requestId != null
+        && !requestId.isEmpty()
+        && UUID_PATTERN.matcher(requestId).matches();
   }
 }

@@ -61,8 +61,15 @@ public class JwtConfigValidator {
     log.info("   - Environment: {}", activeProfile);
   }
 
+  /**
+   * Check if running in production environment.
+   * Handles multiple profiles (e.g., "prod,monitoring").
+   */
   private boolean isProduction() {
-    return "prod".equalsIgnoreCase(activeProfile)
-        || "production".equalsIgnoreCase(activeProfile);
+    if (activeProfile == null) {
+      return false;
+    }
+    String lowerProfile = activeProfile.toLowerCase();
+    return lowerProfile.contains("prod");
   }
 }

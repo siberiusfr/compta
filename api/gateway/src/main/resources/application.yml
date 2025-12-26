@@ -64,7 +64,7 @@ spring:
               args:
                 retries: 3
                 statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT
-                methods: GET,POST,PUT,DELETE
+                methods: GET,PUT
                 backoff:
                   firstBackoff: 10ms
                   maxBackoff: 50ms
@@ -103,7 +103,7 @@ spring:
               args:
                 retries: 3
                 statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT
-                methods: GET,POST,PUT,DELETE
+                methods: GET,PUT
                 backoff:
                   firstBackoff: 10ms
                   maxBackoff: 50ms
@@ -142,7 +142,7 @@ spring:
               args:
                 retries: 3
                 statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT
-                methods: GET,POST,PUT,DELETE
+                methods: GET,PUT
                 backoff:
                   firstBackoff: 10ms
                   maxBackoff: 50ms
@@ -181,7 +181,7 @@ spring:
               args:
                 retries: 3
                 statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT
-                methods: GET,POST,PUT,DELETE
+                methods: GET,PUT
                 backoff:
                   firstBackoff: 10ms
                   maxBackoff: 50ms
@@ -206,6 +206,8 @@ cors:
   max-age: 3600
 
 # ✅ JWT Configuration
+# ⚠️ In production, JWT_SECRET must be set via environment variable
+# The default value is for development only - JwtConfigValidator blocks it in production
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   expiration: ${JWT_EXPIRATION:86400000} # 24 hours

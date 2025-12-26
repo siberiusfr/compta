@@ -88,9 +88,13 @@ public class OpenApiConfig {
 
   /**
    * Vérifie si on est en environnement de production.
+   * Gère les profils multiples (ex: "prod,monitoring").
    */
   private boolean isProduction() {
-    return "prod".equalsIgnoreCase(activeProfile)
-        || "production".equalsIgnoreCase(activeProfile);
+    if (activeProfile == null) {
+      return false;
+    }
+    String lowerProfile = activeProfile.toLowerCase();
+    return lowerProfile.contains("prod");
   }
 }
