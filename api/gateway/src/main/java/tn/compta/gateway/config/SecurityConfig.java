@@ -34,6 +34,9 @@ public class SecurityConfig {
   @Value("${jwt.secret}")
   private String jwtSecret;
 
+  @Value("${jwt.issuer:compta-auth}")
+  private String jwtIssuer;
+
   @Bean
   public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
     http
@@ -80,7 +83,7 @@ public class SecurityConfig {
         .macAlgorithm(MacAlgorithm.HS256)
         .build();
 
-    decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer("compta-auth"));
+    decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(jwtIssuer));
 
     return decoder;
   }

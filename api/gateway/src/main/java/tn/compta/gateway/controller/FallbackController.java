@@ -35,7 +35,7 @@ public class FallbackController {
             "timestamp", Instant.now().toString(),
             "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
             "error", "Service Unavailable",
-            "message", "Le service d'authentification est temporairement indisponible. Veuillez reessayer dans quelques instants.",
+            "message", "Le service d'authentification est temporairement indisponible. Veuillez réessayer dans quelques instants.",
             "service", "auth-service"
         ));
   }
@@ -53,7 +53,7 @@ public class FallbackController {
             "timestamp", Instant.now().toString(),
             "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
             "error", "Service Unavailable",
-            "message", "Le service d'autorisation est temporairement indisponible. Acces restreint temporairement.",
+            "message", "Le service d'autorisation est temporairement indisponible. Accès restreint temporairement.",
             "service", "authz-service"
         ));
   }
@@ -71,7 +71,7 @@ public class FallbackController {
             "timestamp", Instant.now().toString(),
             "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
             "error", "Service Unavailable",
-            "message", "Le service de facturation est temporairement indisponible. Vos donnees sont securisees.",
+            "message", "Le service de facturation est temporairement indisponible. Vos données sont sécurisées.",
             "service", "invoice-service"
         ));
   }
@@ -89,7 +89,7 @@ public class FallbackController {
             "timestamp", Instant.now().toString(),
             "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
             "error", "Service Unavailable",
-            "message", "Le service RH est temporairement indisponible. Les donnees des employes seront accessibles sous peu.",
+            "message", "Le service RH est temporairement indisponible. Les données des employés seront accessibles sous peu.",
             "service", "employee-service"
         ));
   }
@@ -107,7 +107,7 @@ public class FallbackController {
             "timestamp", Instant.now().toString(),
             "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
             "error", "Service Unavailable",
-            "message", "Le service demande est temporairement indisponible. Veuillez reessayer dans quelques instants."
+            "message", "Le service demandé est temporairement indisponible. Veuillez réessayer dans quelques instants."
         ));
   }
 }

@@ -1,6 +1,7 @@
 package tn.compta.gateway.filter;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -19,6 +20,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
+
+  @Value("${logging.slow-request-threshold-ms:5000}")
+  private long slowRequestThresholdMs;
 
   private static final Set<String> SENSITIVE_HEADERS = Set.of(
       "authorization",
@@ -88,11 +92,12 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
         statusCode.value(),
         duration);
 
-    if (duration > 5000) {
-      log.warn("Slow request detected: {} {} took {}ms",
+    if (duration > slowRequestThresholdMs) {
+      log.warn("Slow request detected: {} {} took {}ms (threshold: {}ms)",
           request.getMethod(),
           safePath,
-          duration);
+          duration,
+          slowRequestThresholdMs);
     }
   }
 

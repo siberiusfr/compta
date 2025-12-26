@@ -94,16 +94,16 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
    */
   private String determineErrorMessage(Throwable error) {
     if (error instanceof TimeoutException) {
-      return "Le service a mis trop de temps a repondre. Veuillez reessayer.";
+      return "Le service a mis trop de temps à répondre. Veuillez réessayer.";
     } else if (error instanceof ConnectException) {
-      return "Le service est temporairement indisponible. Veuillez reessayer plus tard.";
+      return "Le service est temporairement indisponible. Veuillez réessayer plus tard.";
     } else if (error instanceof CallNotPermittedException) {
-      return "Le service est temporairement indisponible (circuit ouvert). Veuillez reessayer plus tard.";
+      return "Le service est temporairement indisponible (circuit ouvert). Veuillez réessayer plus tard.";
     } else if (error instanceof RequestNotPermitted) {
-      return "Trop de requetes. Veuillez patienter avant de reessayer.";
+      return "Trop de requêtes. Veuillez patienter avant de réessayer.";
     } else if (error.getMessage() != null && error.getMessage().contains("404")) {
-      return "Service ou endpoint non trouve.";
+      return "Service ou endpoint non trouvé.";
     }
-    return "Une erreur interne s'est produite. Veuillez contacter le support si le probleme persiste.";
+    return "Une erreur interne s'est produite. Veuillez contacter le support si le problème persiste.";
   }
 }
