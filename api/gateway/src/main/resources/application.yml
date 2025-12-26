@@ -1,188 +1,106 @@
+server:
+  port: 8080
+
 spring:
   application:
-    name: api-gateway
+    name: gateway-service
 
   cloud:
     gateway:
-      routes:
-        # ============================================
-        # Auth Service Routes
-        # ============================================
-        # Auth Service API Routes (pas de réécriture)
-        - id: auth-service-api
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/auth/**
+      server:
+        webflux:
+          routes:
+            # Auth Service
+            - id: auth-service
+              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+              predicates:
+                - Path=/auth/**
 
-        # Auth Service Swagger UI
-        - id: auth-service-swagger-ui
-          uri: http://localhost:8081
-          predicates:
-            - Path=/auth/swagger-ui.html, /auth/swagger-ui/**
-          filters:
-            - RewritePath=/auth(?<segment>.*), ${segment}
-            - AddResponseHeader=X-Forwarded-Prefix, /auth
+            - id: auth-service-openapi
+              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+              predicates:
+                - Path=/auth/v3/api-docs
+              filters:
+                - RewritePath=/auth/v3/api-docs, /v3/api-docs
 
-        # Auth Service Webjars
-        - id: auth-service-webjars
-          uri: http://localhost:8081
-          predicates:
-            - Path=/auth/webjars/**
-          filters:
-            - RewritePath=/auth(?<segment>.*), ${segment}
+            # Authorization Service
+            - id: authz-service
+              uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+              predicates:
+                - Path=/api/permissions/**
 
-        # Auth Service OpenAPI Docs
-        - id: auth-service-api-docs
-          uri: http://localhost:8081
-          predicates:
-            - Path=/auth/v3/api-docs, /auth/v3/api-docs/**
-          filters:
-            - RewritePath=/auth(?<segment>.*), ${segment}
+            - id: authz-service-openapi
+              uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+              predicates:
+                - Path=/authz/v3/api-docs
+              filters:
+                - RewritePath=/authz/v3/api-docs, /v3/api-docs
 
-        # ============================================
-        # Authz Service Routes
-        # ============================================
-        # Authz Service API Routes - AVEC validation JWT
-        - id: authz-service-api
-          uri: http://localhost:8082
-          predicates:
-            - Path=/api/authz/**
-          filters:
-            - IpWhitelistFilter
-            - RateLimitFilter
-            - JwtAuthenticationFilter
+            # Invoice Service
+            - id: invoice-service
+              uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+              predicates:
+                - Path=/api/invoices/**
 
-        # Authz Service Swagger UI
-        - id: authz-service-swagger-ui
-          uri: http://localhost:8082
-          predicates:
-            - Path=/authz/swagger-ui.html, /authz/swagger-ui/**
-          filters:
-            - RewritePath=/authz(?<segment>.*), ${segment}
-            - AddResponseHeader=X-Forwarded-Prefix, /authz
+            - id: invoice-service-openapi
+              uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+              predicates:
+                - Path=/invoices/v3/api-docs
+              filters:
+                - RewritePath=/invoices/v3/api-docs, /v3/api-docs
 
-        # Authz Service Webjars
-        - id: authz-service-webjars
-          uri: http://localhost:8082
-          predicates:
-            - Path=/authz/webjars/**
-          filters:
-            - RewritePath=/authz(?<segment>.*), ${segment}
+            # Employee Service
+            - id: employee-service
+              uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+              predicates:
+                - Path=/api/employees/**
 
-        # Authz Service OpenAPI Docs
-        - id: authz-service-api-docs
-          uri: http://localhost:8082
-          predicates:
-            - Path=/authz/v3/api-docs, /authz/v3/api-docs/**
-          filters:
-            - RewritePath=/authz(?<segment>.*), ${segment}
-
-        # ============================================
-        # Other Services
-        # ============================================
-        # Document Service Routes
-        - id: document-service
-          uri: http://document-service:8083
-          predicates:
-            - Path=/api/documents/**
-          filters:
-            - RewritePath=/api/documents/(?<segment>.*), /${segment}
-            - IpWhitelistFilter
-            - RateLimitFilter
-            - JwtAuthenticationFilter
-
-        # Accounting Service Routes
-        - id: accounting-service
-          uri: http://localhost:8082
-          predicates:
-            - Path=/api/accounting/**
-          filters:
-            - RewritePath=/api/accounting/(?<segment>.*), /${segment}
-            - IpWhitelistFilter
-            - RateLimitFilter
-            - JwtAuthenticationFilter
-
-        # HR Service Routes
-        - id: hr-service
-          uri: http://hr-service:8084
-          predicates:
-            - Path=/api/hr/**
-          filters:
-            - RewritePath=/api/hr/(?<segment>.*), /${segment}
-            - IpWhitelistFilter
-            - RateLimitFilter
-            - JwtAuthenticationFilter
-
-        # Notification Service Routes
-        - id: notification-service
-          uri: http://notification-service:3001
-          predicates:
-            - Path=/api/notifications/**
-          filters:
-            - RewritePath=/api/notifications/(?<segment>.*), /api/notifications/${segment}
-            - IpWhitelistFilter
-            - RateLimitFilter
-            - JwtAuthenticationFilter
-
-server:
-  port: 8080
-  shutdown: graceful
-  # IMPORTANT: Configuration pour les headers forwarded
-  forward-headers-strategy: framework
+            - id: employee-service-openapi
+              uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+              predicates:
+                - Path=/employees/v3/api-docs
+              filters:
+                - RewritePath=/employees/v3/api-docs, /v3/api-docs
 
 # JWT Configuration
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
-  expiration: ${JWT_EXPIRATION:86400000}
 
-# Gateway Security Configuration
-gateway:
-  # IP Whitelist Configuration (comma-separated list of IPs or CIDR ranges)
-  # Examples: "192.168.1.0/24,10.0.0.100,172.16.0.*"
-  # Empty or "*" allows all IPs
-  ip:
-    whitelist: ${GATEWAY_IP_WHITELIST:*}
+# Swagger Configuration
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - name: Auth Service
+        url: /auth/v3/api-docs
+      - name: Authorization Service
+        url: /authz/v3/api-docs
+      - name: Invoice Service
+        url: /invoices/v3/api-docs
+      - name: Employee Service
+        url: /employees/v3/api-docs
+    oauth2:
+      use-pkce-with-authorization-code-grant: false
 
-  # Rate Limiting Configuration
-  rate-limit:
-    requests-per-minute: ${GATEWAY_RATE_LIMIT_RPM:60}
-    requests-per-second: ${GATEWAY_RATE_LIMIT_RPS:10}
-
-# Management & Actuator
+# Actuator Configuration
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
   endpoint:
     health:
       show-details: always
-  prometheus.metrics.export.enabled: true
 
-# Logging
+# Logging Configuration
 logging:
   level:
-    root: INFO
-    tn.compta.gateway: DEBUG
     org.springframework.cloud.gateway: DEBUG
     org.springframework.security: DEBUG
+    tn.compta.gateway: DEBUG
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
-
-# Configuration SpringDoc pour la Gateway
-springdoc:
-  swagger-ui:
-    urls:
-      - url: /v3/api-docs
-        name: API Gateway Service
-      - url: /auth/v3/api-docs
-        name: Auth Service
-      - url: /authz/v3/api-docs
-        name: Authz Service
-    # IMPORTANT: Configurations supplémentaires
-    path: /swagger-ui.html
-    config-url: /v3/api-docs/swagger-config
-    operations-sorter: alpha
-    tags-sorter: alpha
-  api-docs:
-    enabled: true
