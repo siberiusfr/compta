@@ -6,6 +6,8 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -14,14 +16,8 @@ import tn.compta.gateway.config.ProfileHelper;
 /**
  * Global filter to add security headers to all responses.
  *
- * Security headers:
- * - X-Content-Type-Options: Prevents MIME sniffing
- * - X-Frame-Options: Prevents clickjacking
- * - Strict-Transport-Security: Forces HTTPS (production only)
- * - Content-Security-Policy: Restricts resource loading (strict for API)
- * - Cache-Control: Prevents caching of sensitive responses
- * - Referrer-Policy: Controls referrer information
- * - Permissions-Policy: Feature policy
+ * Uses ServerHttpResponseDecorator to ensure headers are added
+ * before the response is committed.
  */
 @Slf4j
 @Component
@@ -32,65 +28,68 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-    return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-      HttpHeaders headers = exchange.getResponse().getHeaders();
+    String path = exchange.getRequest().getPath().value();
 
-      // ✅ Prevent MIME type sniffing
-      headers.add("X-Content-Type-Options", "nosniff");
-
-      // ✅ Prevent clickjacking
-      headers.add("X-Frame-Options", "DENY");
-
-      // ✅ Prevent caching of API responses
-      headers.add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
-      headers.add("Pragma", "no-cache");
-
-      // ✅ HSTS - Only in production
-      if (profileHelper.isProduction()) {
-        headers.add("Strict-Transport-Security",
-            "max-age=31536000; includeSubDomains; preload");
-        log.debug("Added HSTS header for production environment");
+    ServerHttpResponse originalResponse = exchange.getResponse();
+    ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(originalResponse) {
+      @Override
+      public HttpHeaders getHeaders() {
+        HttpHeaders headers = super.getHeaders();
+        addSecurityHeaders(headers, path);
+        return headers;
       }
+    };
 
-      // ✅ Content Security Policy - Strict pour une API Gateway pure
-      // Si vous servez aussi du contenu web (Swagger UI), utilisez la version commentée ci-dessous
-      String path = exchange.getRequest().getPath().value();
-      
-      if (path.startsWith("/swagger-ui") || path.startsWith("/webjars")) {
-        // CSP permissive pour Swagger UI uniquement
-        headers.add("Content-Security-Policy",
-            "default-src 'self'; "
-                + "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-                + "style-src 'self' 'unsafe-inline'; "
-                + "img-src 'self' data: https:; "
-                + "font-src 'self' data:;");
-      } else {
-        // CSP strict pour les endpoints API
-        headers.add("Content-Security-Policy",
-            "default-src 'none'; "
-                + "frame-ancestors 'none';");
-      }
+    return chain.filter(exchange.mutate().response(decoratedResponse).build());
+  }
 
-      // ✅ Referrer policy
-      headers.add("Referrer-Policy", "strict-origin-when-cross-origin");
+  private void addSecurityHeaders(HttpHeaders headers, String path) {
+    // Prevent MIME type sniffing
+    headers.addIfAbsent("X-Content-Type-Options", "nosniff");
 
-      // ✅ Permissions policy (Feature Policy replacement)
-      headers.add("Permissions-Policy",
-          "geolocation=(), "
-              + "microphone=(), "
-              + "camera=(), "
-              + "payment=(), "
-              + "usb=(), "
-              + "magnetometer=()");
+    // Prevent clickjacking
+    headers.addIfAbsent("X-Frame-Options", "DENY");
 
-      // ✅ Remove server information
-      headers.remove("Server");
-      headers.remove("X-Powered-By");
-    }));
+    // Prevent caching of API responses
+    headers.addIfAbsent("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    headers.addIfAbsent("Pragma", "no-cache");
+
+    // HSTS - Only in production
+    if (profileHelper.isProduction()) {
+      headers.addIfAbsent("Strict-Transport-Security",
+          "max-age=31536000; includeSubDomains; preload");
+    }
+
+    // Content Security Policy
+    if (path.startsWith("/swagger-ui") || path.startsWith("/webjars")) {
+      // CSP permissive for Swagger UI only
+      headers.addIfAbsent("Content-Security-Policy",
+          "default-src 'self'; "
+              + "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+              + "style-src 'self' 'unsafe-inline'; "
+              + "img-src 'self' data: https:; "
+              + "font-src 'self' data:;");
+    } else {
+      // Strict CSP for API endpoints
+      headers.addIfAbsent("Content-Security-Policy",
+          "default-src 'none'; frame-ancestors 'none';");
+    }
+
+    // Referrer policy
+    headers.addIfAbsent("Referrer-Policy", "strict-origin-when-cross-origin");
+
+    // Permissions policy
+    headers.addIfAbsent("Permissions-Policy",
+        "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=()");
+
+    // Remove server information
+    headers.remove("Server");
+    headers.remove("X-Powered-By");
   }
 
   @Override
   public int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE;
+    // Run late to ensure headers are set after other filters
+    return Ordered.LOWEST_PRECEDENCE - 1;
   }
 }

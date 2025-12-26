@@ -147,6 +147,7 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
 
   @Override
   public int getOrder() {
-    return Ordered.HIGHEST_PRECEDENCE;
+    // Run after StripUserHeadersFilter (HIGHEST_PRECEDENCE)
+    return Ordered.HIGHEST_PRECEDENCE + 1;
   }
 }

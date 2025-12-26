@@ -3,6 +3,7 @@ package tn.compta.gateway.config;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -18,14 +19,26 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class WebClientConfig {
 
+  @Value("${webclient.connect-timeout-ms:5000}")
+  private int connectTimeoutMs;
+
+  @Value("${webclient.response-timeout-seconds:5}")
+  private int responseTimeoutSeconds;
+
+  @Value("${webclient.read-timeout-seconds:5}")
+  private int readTimeoutSeconds;
+
+  @Value("${webclient.write-timeout-seconds:5}")
+  private int writeTimeoutSeconds;
+
   @Bean
   public WebClient.Builder webClientBuilder() {
     HttpClient httpClient = HttpClient.create()
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
-        .responseTimeout(Duration.ofSeconds(5))
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMs)
+        .responseTimeout(Duration.ofSeconds(responseTimeoutSeconds))
         .doOnConnected(conn -> conn
-            .addHandlerLast(new ReadTimeoutHandler(5, TimeUnit.SECONDS))
-            .addHandlerLast(new WriteTimeoutHandler(5, TimeUnit.SECONDS))
+            .addHandlerLast(new ReadTimeoutHandler(readTimeoutSeconds, TimeUnit.SECONDS))
+            .addHandlerLast(new WriteTimeoutHandler(writeTimeoutSeconds, TimeUnit.SECONDS))
         );
 
     return WebClient.builder()

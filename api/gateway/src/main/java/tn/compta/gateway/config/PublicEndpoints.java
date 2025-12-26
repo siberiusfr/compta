@@ -26,12 +26,20 @@ public final class PublicEndpoints {
   };
 
   /**
-   * Path prefixes for filter checks.
+   * Exact paths that are public (no wildcard matching needed).
+   */
+  public static final List<String> EXACT_PATHS = List.of(
+      "/actuator/health",
+      "/actuator/info",
+      "/swagger-ui.html"
+  );
+
+  /**
+   * Path prefixes for filter checks (startsWith matching).
    */
   public static final List<String> PREFIXES = List.of(
       "/auth/",
-      "/actuator/",
-      "/swagger-ui",
+      "/swagger-ui/",
       "/v3/api-docs",
       "/webjars/",
       "/fallback/"
@@ -39,8 +47,10 @@ public final class PublicEndpoints {
 
   /**
    * Check if a path is a public endpoint.
+   * Uses exact match for specific paths, prefix match for others.
    */
   public static boolean isPublic(String path) {
-    return PREFIXES.stream().anyMatch(path::startsWith);
+    return EXACT_PATHS.contains(path)
+        || PREFIXES.stream().anyMatch(path::startsWith);
   }
 }

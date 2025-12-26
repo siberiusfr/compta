@@ -27,7 +27,7 @@ public class JwtAuthenticationEntryPoint implements ServerAuthenticationEntryPoi
 
   @Override
   public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
-    log.error("Authentication error: {}", ex.getMessage());
+    log.warn("Authentication error: {}", ex.getMessage());
 
     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
     exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);

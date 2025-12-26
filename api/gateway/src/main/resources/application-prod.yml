@@ -15,21 +15,11 @@ spring:
           max-connections: 500
           acquire-timeout: 45000
       default-filters:
-        # Rate limiting (requires Redis)
-        - name: RequestRateLimiter
-          args:
-            redis-rate-limiter.replenishRate: 100 # tokens per second
-            redis-rate-limiter.burstCapacity: 200 # max burst
-            key-resolver: '#{@userKeyResolver}' # Rate limit per user
-
         # Remove hop-by-hop headers
         - RemoveRequestHeader=Cookie
         - RemoveRequestHeader=Set-Cookie
-
-        # Add security headers (redondant avec SecurityHeadersFilter mais double sécurité)
-        - AddResponseHeader=X-Content-Type-Options, nosniff
-        - AddResponseHeader=X-Frame-Options, DENY
-        - AddResponseHeader=Strict-Transport-Security, max-age=31536000; includeSubDomains
+        # Note: Security headers are handled by SecurityHeadersFilter
+        # Note: Rate limiting is configured per-route in application.yml
 
 # ⚠️ JWT secret MUST be provided via environment variable in production
 # DO NOT use default value in production!
