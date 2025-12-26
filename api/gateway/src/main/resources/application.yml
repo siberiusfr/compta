@@ -7,64 +7,63 @@ spring:
 
   cloud:
     gateway:
-      server:
-        webflux:
-          routes:
-            # Auth Service
-            - id: auth-service
-              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
-              predicates:
-                - Path=/auth/**
+      routes:
+        # Auth Service
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/auth/**
 
-            - id: auth-service-openapi
-              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
-              predicates:
-                - Path=/auth/v3/api-docs
-              filters:
-                - RewritePath=/auth/v3/api-docs, /v3/api-docs
+        - id: auth-service-openapi
+          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/auth/v3/api-docs
+          filters:
+            - RewritePath=/auth/v3/api-docs, /v3/api-docs
 
-            # Authorization Service
-            - id: authz-service
-              uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
-              predicates:
-                - Path=/api/permissions/**
+        # Authorization Service
+        - id: authz-service
+          uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/permissions/**
 
-            - id: authz-service-openapi
-              uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
-              predicates:
-                - Path=/authz/v3/api-docs
-              filters:
-                - RewritePath=/authz/v3/api-docs, /v3/api-docs
+        - id: authz-service-openapi
+          uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/authz/v3/api-docs
+          filters:
+            - RewritePath=/authz/v3/api-docs, /v3/api-docs
 
-            # Invoice Service
-            - id: invoice-service
-              uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
-              predicates:
-                - Path=/api/invoices/**
+        # Invoice Service
+        - id: invoice-service
+          uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/invoices/**
 
-            - id: invoice-service-openapi
-              uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
-              predicates:
-                - Path=/invoices/v3/api-docs
-              filters:
-                - RewritePath=/invoices/v3/api-docs, /v3/api-docs
+        - id: invoice-service-openapi
+          uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/invoices/v3/api-docs
+          filters:
+            - RewritePath=/invoices/v3/api-docs, /v3/api-docs
 
-            # Employee Service
-            - id: employee-service
-              uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
-              predicates:
-                - Path=/api/employees/**
+        # Employee Service
+        - id: employee-service
+          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/employees/**
 
-            - id: employee-service-openapi
-              uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
-              predicates:
-                - Path=/employees/v3/api-docs
-              filters:
-                - RewritePath=/employees/v3/api-docs, /v3/api-docs
+        - id: employee-service-openapi
+          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/employees/v3/api-docs
+          filters:
+            - RewritePath=/employees/v3/api-docs, /v3/api-docs
 
 # JWT Configuration
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 # Swagger Configuration
 springdoc:

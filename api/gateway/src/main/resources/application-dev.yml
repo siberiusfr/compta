@@ -1,1 +1,34 @@
-logging.level.root: DEBUG
+# Development profile configuration
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+# Development service URLs (localhost)
+AUTH_SERVICE_URL: http://localhost:8081
+AUTHZ_SERVICE_URL: http://localhost:8084
+INVOICE_SERVICE_URL: http://localhost:8082
+EMPLOYEE_SERVICE_URL: http://localhost:8083
+
+# Enable Swagger in dev
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
+
+# Verbose logging for debugging
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    tn.compta.gateway: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+
+# Show detailed actuator info
+management:
+  endpoint:
+    health:
+      show-details: always
