@@ -2,70 +2,163 @@ server:
   port: 8080
 
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
   application:
     name: gateway-service
 
   cloud:
     gateway:
-      routes:
-        # Auth Service
-        - id: auth-service
-          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
-          predicates:
-            - Path=/auth/**
+      # ✅ Global Gateway settings
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 30s
+        pool:
+          max-connections: 100
+          max-idle-time: 30s
+      server:
+        webflux:
+          routes:
+            # ==========================================
+            # Auth Service
+            # ==========================================
+            - id: auth-service
+              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+              predicates:
+                - Path=/auth/**
+              filters:
+                # ✅ Circuit breaker with fallback
+                - name: CircuitBreaker
+                  args:
+                    name: authService
+                    fallbackUri: forward:/fallback/auth
+              metadata:
+                response-timeout: 10000 # 10 seconds for login
 
-        - id: auth-service-openapi
-          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
-          predicates:
-            - Path=/auth/v3/api-docs
-          filters:
-            - RewritePath=/auth/v3/api-docs, /v3/api-docs
+            - id: auth-service-openapi
+              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+              predicates:
+                - Path=/auth/v3/api-docs
+              filters:
+                - RewritePath=/auth/v3/api-docs, /v3/api-docs
 
-        # Authorization Service
-        - id: authz-service
-          uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
-          predicates:
-            - Path=/api/permissions/**
+            # ==========================================
+            # Authorization Service
+            # ==========================================
+            - id: authz-service
+              uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+              predicates:
+                - Path=/api/permissions/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: authzService
+                    fallbackUri: forward:/fallback/authz
+              metadata:
+                response-timeout: 5000
 
-        - id: authz-service-openapi
-          uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
-          predicates:
-            - Path=/authz/v3/api-docs
-          filters:
-            - RewritePath=/authz/v3/api-docs, /v3/api-docs
+            - id: authz-service-openapi
+              uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+              predicates:
+                - Path=/authz/v3/api-docs
+              filters:
+                - RewritePath=/authz/v3/api-docs, /v3/api-docs
 
-        # Invoice Service
-        - id: invoice-service
-          uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
-          predicates:
-            - Path=/api/invoices/**
+            # ==========================================
+            # Invoice Service
+            # ==========================================
+            - id: invoice-service
+              uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+              predicates:
+                - Path=/api/invoices/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: invoiceService
+                    fallbackUri: forward:/fallback/invoices
+              metadata:
+                response-timeout: 15000 # Longer timeout for invoice processing
 
-        - id: invoice-service-openapi
-          uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
-          predicates:
-            - Path=/invoices/v3/api-docs
-          filters:
-            - RewritePath=/invoices/v3/api-docs, /v3/api-docs
+            - id: invoice-service-openapi
+              uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+              predicates:
+                - Path=/invoices/v3/api-docs
+              filters:
+                - RewritePath=/invoices/v3/api-docs, /v3/api-docs
 
-        # Employee Service
-        - id: employee-service
-          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
-          predicates:
-            - Path=/api/employees/**
+            # ==========================================
+            # Employee Service
+            # ==========================================
+            - id: employee-service
+              uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+              predicates:
+                - Path=/api/employees/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: employeeService
+                    fallbackUri: forward:/fallback/employees
+              metadata:
+                response-timeout: 5000
 
-        - id: employee-service-openapi
-          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
-          predicates:
-            - Path=/employees/v3/api-docs
-          filters:
-            - RewritePath=/employees/v3/api-docs, /v3/api-docs
+            - id: employee-service-openapi
+              uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+              predicates:
+                - Path=/employees/v3/api-docs
+              filters:
+                - RewritePath=/employees/v3/api-docs, /v3/api-docs
 
-# JWT Configuration
+# ✅ CORS Configuration (externalized)
+cors:
+  allowed-origins:
+    - http://localhost:3000
+    - http://localhost:4200
+    - http://localhost:8081
+  max-age: 3600
+
+# ✅ JWT Configuration
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
-  expiration: ${JWT_EXPIRATION:86400000}
+  expiration: ${JWT_EXPIRATION:86400000} # 24 hours
 
-# Swagger Configuration
+# ✅ Resilience4j Circuit Breaker
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        slowCallDurationThreshold: 10s
+        slowCallRateThreshold: 50
+    instances:
+      authService:
+        baseConfig: default
+        failureRateThreshold: 30
+        waitDurationInOpenState: 60s
+      invoiceService:
+        baseConfig: default
+        failureRateThreshold: 60
+        slowCallDurationThreshold: 20s
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 30s
+    instances:
+      authService:
+        timeoutDuration: 10s
+      invoiceService:
+        timeoutDuration: 60s
+
+# ✅ Swagger Configuration
 springdoc:
   api-docs:
     enabled: true
@@ -74,6 +167,8 @@ springdoc:
     enabled: true
     path: /swagger-ui.html
     urls:
+      - name: Gateway
+        url: /v3/api-docs
       - name: Auth Service
         url: /auth/v3/api-docs
       - name: Authorization Service
@@ -85,21 +180,32 @@ springdoc:
     oauth2:
       use-pkce-with-authorization-code-grant: false
 
-# Actuator Configuration
+# ✅ Actuator Configuration
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus,circuitbreakers,circuitbreakerevents
   endpoint:
     health:
-      show-details: always
+      show-details: when-authorized
+      show-components: when-authorized
+  health:
+    circuitbreakers:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
 
-# Logging Configuration
+# ✅ Logging Configuration
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.security: DEBUG
+    org.springframework.cloud.gateway: INFO
+    org.springframework.security: INFO
+    io.github.resilience4j: INFO
     tn.compta.gateway: DEBUG
   pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'

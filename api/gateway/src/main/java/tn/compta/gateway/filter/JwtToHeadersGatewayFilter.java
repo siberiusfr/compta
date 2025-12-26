@@ -16,91 +16,101 @@ import java.util.List;
 
 /**
  * Gateway filter that extracts JWT claims and adds them as HTTP headers.
- *
- * This filter runs AFTER Spring Security OAuth2 Resource Server has validated the JWT.
- * It extracts user information from authentication context and adds headers
- * that downstream services can use via compta-security-commons.
- *
- * Headers added:
- * - X-User-Id: User's unique identifier
- * - X-User-Email: User's email address
- * - X-User-Roles: Comma-separated list of roles
- * - X-Tenant-Id: Tenant/Company ID (multi-tenancy support)
  */
 @Slf4j
 @Component
 public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
 
-    private static final String HEADER_USER_ID = "X-User-Id";
-    private static final String HEADER_USERNAME = "X-User-Username";
-    private static final String HEADER_EMAIL = "X-User-Email";
-    private static final String HEADER_ROLES = "X-User-Roles";
-    private static final String HEADER_TENANT_ID = "X-Tenant-Id";
+  private static final String HEADER_USER_ID = "X-User-Id";
+  private static final String HEADER_USERNAME = "X-User-Username";
+  private static final String HEADER_EMAIL = "X-User-Email";
+  private static final String HEADER_ROLES = "X-User-Roles";
+  private static final String HEADER_TENANT_ID = "X-Tenant-Id";
 
-    @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String path = exchange.getRequest().getPath().toString();
+  @Override
+  public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    String path = exchange.getRequest().getPath().toString();
 
-        // Don't add headers for public endpoints (auth service)
-        if (path.startsWith("/auth/")) {
-            return chain.filter(exchange);
-        }
-
-        // Get authentication from security context (set by OAuth2 Resource Server)
-        return ReactiveSecurityContextHolder.getContext()
-            .map(securityContext -> {
-                Authentication authentication = securityContext.getAuthentication();
-
-                if (authentication != null && authentication.isAuthenticated()) {
-                    return extractHeadersFromAuthentication(authentication, exchange.getRequest());
-                }
-
-                return exchange.getRequest(); // No authentication, return original request
-            })
-            .defaultIfEmpty(exchange.getRequest()) // No security context
-            .map(modifiedRequest -> exchange.mutate().request(modifiedRequest).build())
-            .flatMap(chain::filter);
+    // Don't add headers for public endpoints
+    if (isPublicEndpoint(path)) {
+      return chain.filter(exchange);
     }
 
-    /**
-     * Extract user information from authentication and add headers.
-     *
-     * @param authentication Spring Security authentication object
-     * @param request original HTTP request
-     * @return modified request with user headers
-     */
-    private ServerHttpRequest extractHeadersFromAuthentication(Authentication authentication, ServerHttpRequest request) {
-        // Extract JWT from authentication principal
-        Object principal = authentication.getPrincipal();
+    return ReactiveSecurityContextHolder.getContext()
+        .map(securityContext -> {
+          Authentication authentication = securityContext.getAuthentication();
 
-        if (principal instanceof Jwt jwt) {
-            String userId = jwt.getSubject(); // Standard JWT "sub" claim
-            String username = jwt.getClaimAsString("username");
-            String email = jwt.getClaimAsString("email");
-            List<String> roles = jwt.getClaimAsStringList("roles");
-            String tenantId = jwt.getClaimAsString("tenantId");
+          if (authentication != null && authentication.isAuthenticated()) {
+            return extractHeadersFromAuthentication(authentication, exchange.getRequest());
+          }
 
-            // Log for debugging
-            log.debug("Adding user headers: userId={}, username={}, email={}, tenantId={}",
-                userId, username, email, tenantId);
+          return exchange.getRequest();
+        })
+        .defaultIfEmpty(exchange.getRequest())
+        .map(modifiedRequest -> exchange.mutate().request(modifiedRequest).build())
+        .flatMap(chain::filter);
+  }
 
-            // Build modified request with headers
-            return request.mutate()
-                .header(HEADER_USER_ID, userId != null ? userId : "")
-                .header(HEADER_USERNAME, username != null ? username : "")
-                .header(HEADER_EMAIL, email != null ? email : "")
-                .header(HEADER_ROLES, roles != null ? String.join(",", roles) : "")
-                .header(HEADER_TENANT_ID, tenantId != null ? tenantId : "")
-                .build();
-        }
+  /**
+   * Check if endpoint is public (doesn't need user headers).
+   */
+  private boolean isPublicEndpoint(String path) {
+    return path.startsWith("/auth/") ||
+        path.startsWith("/actuator/") ||
+        path.startsWith("/swagger-ui") ||
+        path.startsWith("/v3/api-docs");
+  }
 
-        // No JWT claims found, return original request
-        log.warn("Authentication found but no JWT principal available");
-        return request;
+  /**
+   * Extract user information from JWT and add headers.
+   * ✅ Only add headers if values are present (no empty strings).
+   */
+  private ServerHttpRequest extractHeadersFromAuthentication(Authentication authentication, ServerHttpRequest request) {
+    Object principal = authentication.getPrincipal();
+
+    if (!(principal instanceof Jwt jwt)) {
+      log.warn("Authentication found but no JWT principal available");
+      return request;
     }
 
-    @Override
-    public int getOrder() {
-        return -1; // Execute after Spring Security filter
+    // Extract claims
+    String userId = jwt.getSubject();
+    String username = jwt.getClaimAsString("username");
+    String email = jwt.getClaimAsString("email");
+    List<String> roles = jwt.getClaimAsStringList("roles");
+    String tenantId = jwt.getClaimAsString("tenantId");
+
+    // Build request with headers (only if values exist)
+    ServerHttpRequest.Builder builder = request.mutate();
+
+    if (userId != null && !userId.isEmpty()) {
+      builder.header(HEADER_USER_ID, userId);
     }
+
+    if (username != null && !username.isEmpty()) {
+      builder.header(HEADER_USERNAME, username);
+    }
+
+    if (email != null && !email.isEmpty()) {
+      builder.header(HEADER_EMAIL, email);
+    }
+
+    if (roles != null && !roles.isEmpty()) {
+      builder.header(HEADER_ROLES, String.join(",", roles));
+    }
+
+    if (tenantId != null && !tenantId.isEmpty()) {
+      builder.header(HEADER_TENANT_ID, tenantId);
+    }
+
+    log.debug("Added user headers: userId={}, username={}, email={}, tenantId={}, roles={}",
+        userId, username, email, tenantId, roles);
+
+    return builder.build();
+  }
+
+  @Override
+  public int getOrder() {
+    return 0; // After security context is established
+  }
 }

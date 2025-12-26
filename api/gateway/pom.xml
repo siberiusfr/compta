@@ -2,9 +2,11 @@
 <project
   xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0          https://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd"
 >
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
@@ -17,7 +19,7 @@
   <version>1.0.0</version>
   <packaging>jar</packaging>
   <name>API Gateway</name>
-  <description>API Gateway for COMPTA ERP</description>
+  <description>API Gateway for COMPTA ERP with Circuit Breaker and Resilience</description>
 
   <properties>
     <java.version>21</java.version>
@@ -29,13 +31,17 @@
   </properties>
 
   <dependencies>
+    <!-- ========================================== -->
     <!-- Spring Cloud Gateway -->
+    <!-- ========================================== -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
     </dependency>
 
-    <!-- Spring Security OAuth2 Resource Server -->
+    <!-- ========================================== -->
+    <!-- Security & JWT -->
+    <!-- ========================================== -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
@@ -44,34 +50,77 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
     </dependency>
-
-    <!-- JWT Support -->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-oauth2-jose</artifactId>
     </dependency>
 
-    <!-- SpringDoc OpenAPI -->
+    <!-- ========================================== -->
+    <!-- Circuit Breaker & Resilience -->
+    <!-- ========================================== -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
+    </dependency>
+
+    <!-- Resilience4j dependencies -->
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-circuitbreaker</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-timelimiter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-reactor</artifactId>
+    </dependency>
+
+    <!-- ========================================== -->
+    <!-- Rate Limiting (Optional - requires Redis) -->
+    <!-- ========================================== -->
+    <!--
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+    </dependency>
+    -->
+
+    <!-- ========================================== -->
+    <!-- SpringDoc OpenAPI (Swagger) -->
+    <!-- ========================================== -->
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
       <version>${springdoc-openapi-starter-webflux-ui.version}</version>
     </dependency>
 
-    <!-- Actuator -->
+    <!-- ========================================== -->
+    <!-- Actuator & Monitoring -->
+    <!-- ========================================== -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+      <scope>runtime</scope>
+    </dependency>
 
-    <!-- Lombok -->
+    <!-- ========================================== -->
+    <!-- Utilities -->
+    <!-- ========================================== -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <optional>true</optional>
     </dependency>
 
-    <!-- Test -->
+    <!-- ========================================== -->
+    <!-- Testing -->
+    <!-- ========================================== -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -103,6 +152,7 @@
 
   <build>
     <plugins>
+      <!-- Maven Compiler Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -116,6 +166,8 @@
           </annotationProcessorPaths>
         </configuration>
       </plugin>
+
+      <!-- Spring Boot Maven Plugin -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -135,6 +187,8 @@
           </excludes>
         </configuration>
       </plugin>
+
+      <!-- OpenRewrite Plugin -->
       <plugin>
         <groupId>org.openrewrite.maven</groupId>
         <artifactId>rewrite-maven-plugin</artifactId>

@@ -1,5 +1,6 @@
 package tn.compta.gateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -7,34 +8,32 @@ import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * CORS configuration for API Gateway.
  *
  * Allows frontend applications to call the API from different origins.
- * Configure allowed origins based on environment (dev/prod).
+ * Origins are configured via application.yml based on environment.
  */
 @Configuration
 public class CorsConfig {
 
+  @Value("${cors.allowed-origins:http://localhost:3000}")
+  private List<String> allowedOrigins;
+
+  @Value("${cors.max-age:3600}")
+  private Long maxAge;
+
   /**
    * Configure CORS for reactive WebFlux.
-   *
-   * Development: Allows localhost:3000 (React/Vue dev server)
-   * Production: Configure actual frontend domain
    */
   @Bean
   public CorsWebFilter corsWebFilter() {
     CorsConfiguration corsConfig = new CorsConfiguration();
 
-    // Allowed origins - CONFIGURE BASED ON ENVIRONMENT
-    corsConfig.setAllowedOrigins(Arrays.asList(
-        "http://localhost:3000",      // React/Vue dev server
-        "http://localhost:4200",      // Angular dev server
-        "http://localhost:8081",      // Another local frontend
-        "https://compta.tn",          // Production frontend
-        "https://app.compta.tn"       // Production app
-    ));
+    // ✅ Allowed origins from configuration
+    corsConfig.setAllowedOrigins(allowedOrigins);
 
     // Allowed HTTP methods
     corsConfig.setAllowedMethods(Arrays.asList(
@@ -52,20 +51,22 @@ public class CorsConfig {
         "Content-Type",
         "Accept",
         "X-Requested-With",
-        "X-Tenant-Id"  // Custom header if needed
+        "X-Tenant-Id"
     ));
 
     // Expose headers to frontend
     corsConfig.setExposedHeaders(Arrays.asList(
         "Authorization",
-        "X-Total-Count"  // For pagination
+        "X-Total-Count",
+        "X-Page-Number",
+        "X-Page-Size"
     ));
 
     // Allow credentials (cookies, authorization headers)
     corsConfig.setAllowCredentials(true);
 
-    // How long the browser should cache preflight requests (in seconds)
-    corsConfig.setMaxAge(3600L);
+    // Cache preflight requests
+    corsConfig.setMaxAge(maxAge);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", corsConfig);

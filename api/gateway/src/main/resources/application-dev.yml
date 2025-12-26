@@ -10,6 +10,16 @@ AUTHZ_SERVICE_URL: http://localhost:8084
 INVOICE_SERVICE_URL: http://localhost:8082
 EMPLOYEE_SERVICE_URL: http://localhost:8083
 
+# ✅ CORS - Allow all local development ports
+cors:
+  allowed-origins:
+    - http://localhost:3000 # React/Vue
+    - http://localhost:4200 # Angular
+    - http://localhost:5173 # Vite
+    - http://localhost:8080 # Gateway itself
+    - http://localhost:8081 # Auth service
+  max-age: 3600
+
 # Enable Swagger in dev
 springdoc:
   swagger-ui:
@@ -23,6 +33,7 @@ logging:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
+    reactor.netty.http.client: DEBUG
     tn.compta.gateway: DEBUG
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
@@ -32,3 +43,7 @@ management:
   endpoint:
     health:
       show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*' # Expose all endpoints in dev
