@@ -2,6 +2,7 @@ package tn.compta.gateway.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
@@ -13,15 +14,16 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper;
 
   @Override
   public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
@@ -31,7 +33,7 @@ public class JwtAuthenticationEntryPoint implements ServerAuthenticationEntryPoi
     exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
     Map<String, Object> errorResponse = new HashMap<>();
-    errorResponse.put("timestamp", LocalDateTime.now().toString());
+    errorResponse.put("timestamp", Instant.now().toString());
     errorResponse.put("status", HttpStatus.UNAUTHORIZED.value());
     errorResponse.put("error", "Unauthorized");
     errorResponse.put("message", getErrorMessage(ex));

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,16 +17,16 @@ import java.util.List;
 
 /**
  * OpenAPI/Swagger configuration for API Gateway.
- * 
- * Configuration adaptée selon l'environnement :
- * - Dev : Expose uniquement les URLs locales
- * - Prod : Expose uniquement les URLs de production
+ *
+ * Environment-specific configuration:
+ * - Dev: Exposes local URLs only
+ * - Prod: Exposes production URLs only
  */
 @Configuration
+@RequiredArgsConstructor
 public class OpenApiConfig {
 
-  @Value("${spring.profiles.active:dev}")
-  private String activeProfile;
+  private final ProfileHelper profileHelper;
 
   @Value("${gateway.url.dev:http://localhost:8080}")
   private String devGatewayUrl;
@@ -65,36 +66,22 @@ public class OpenApiConfig {
   }
 
   /**
-   * Retourne les URLs des serveurs selon l'environnement.
-   * En production, seul le serveur de production est exposé.
+   * Returns server URLs based on environment.
+   * In production, only the production URL is exposed.
    */
   private List<Server> getServerUrls() {
     List<Server> servers = new ArrayList<>();
 
-    if (isProduction()) {
-      // Production : uniquement l'URL de prod
+    if (profileHelper.isProduction()) {
       servers.add(new Server()
           .url(prodGatewayUrl)
           .description("Production Gateway"));
     } else {
-      // Development : URLs locales
       servers.add(new Server()
           .url(devGatewayUrl)
           .description("Development Gateway"));
     }
 
     return servers;
-  }
-
-  /**
-   * Vérifie si on est en environnement de production.
-   * Gère les profils multiples (ex: "prod,monitoring").
-   */
-  private boolean isProduction() {
-    if (activeProfile == null) {
-      return false;
-    }
-    String lowerProfile = activeProfile.toLowerCase();
-    return lowerProfile.contains("prod");
   }
 }

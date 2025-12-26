@@ -14,15 +14,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Health indicator qui vérifie l'état de tous les services downstream.
- * 
- * Permet de savoir si la gateway peut router correctement vers les services.
+ * Health indicator that checks the status of all downstream services.
+ *
+ * Allows monitoring if the gateway can correctly route to services.
  */
 @Slf4j
 @Component
 public class DownstreamServicesHealthIndicator implements ReactiveHealthIndicator {
 
   private final WebClient webClient;
+  private final int healthCheckTimeoutSeconds;
 
   @Value("${AUTH_SERVICE_URL:http://localhost:8081}")
   private String authServiceUrl;
@@ -36,9 +37,11 @@ public class DownstreamServicesHealthIndicator implements ReactiveHealthIndicato
   @Value("${EMPLOYEE_SERVICE_URL:http://localhost:8083}")
   private String employeeServiceUrl;
 
-  public DownstreamServicesHealthIndicator(WebClient.Builder webClientBuilder) {
-    this.webClient = webClientBuilder
-        .build();
+  public DownstreamServicesHealthIndicator(
+      WebClient.Builder webClientBuilder,
+      @Value("${health.check.timeout-seconds:5}") int healthCheckTimeoutSeconds) {
+    this.webClient = webClientBuilder.build();
+    this.healthCheckTimeoutSeconds = healthCheckTimeoutSeconds;
   }
 
   @Override
@@ -80,7 +83,7 @@ public class DownstreamServicesHealthIndicator implements ReactiveHealthIndicato
   }
 
   /**
-   * Vérifie l'état d'un service via son endpoint /actuator/health.
+   * Checks a service status via its /actuator/health endpoint.
    */
   private Mono<Map<String, Object>> checkService(String serviceName, String serviceUrl) {
     String healthUrl = serviceUrl + "/actuator/health";
@@ -92,27 +95,25 @@ public class DownstreamServicesHealthIndicator implements ReactiveHealthIndicato
         .map(response -> {
           Map<String, Object> status = new HashMap<>();
           status.put("name", serviceName);
-          status.put("url", serviceUrl);
-          
+
           if (response.getStatusCode().is2xxSuccessful()) {
             status.put("status", "UP");
           } else {
             status.put("status", "DOWN");
             status.put("code", response.getStatusCode().value());
           }
-          
+
           return status;
         })
-        .timeout(Duration.ofSeconds(5))
+        .timeout(Duration.ofSeconds(healthCheckTimeoutSeconds))
         .onErrorResume(error -> {
           log.warn("Service {} is DOWN: {}", serviceName, error.getMessage());
-          
+
           Map<String, Object> status = new HashMap<>();
           status.put("name", serviceName);
-          status.put("url", serviceUrl);
           status.put("status", "DOWN");
-          status.put("error", error.getMessage());
-          
+          status.put("reason", "Connection failed or timeout");
+
           return Mono.just(status);
         });
   }

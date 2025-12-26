@@ -1,19 +1,20 @@
 package tn.compta.gateway.config;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class JwtConfigValidator {
+
+  private final ProfileHelper profileHelper;
 
   @Value("${jwt.secret}")
   private String jwtSecret;
-
-  @Value("${spring.profiles.active:dev}")
-  private String activeProfile;
 
   @Value("${jwt.expiration:86400000}")
   private Long jwtExpiration;
@@ -23,7 +24,7 @@ public class JwtConfigValidator {
 
   @PostConstruct
   public void validateJwtConfiguration() {
-    log.info("🔍 Validating JWT configuration...");
+    log.info("Validating JWT configuration...");
 
     if (jwtSecret == null || jwtSecret.length() < 64) {
       throw new IllegalStateException(
@@ -32,15 +33,15 @@ public class JwtConfigValidator {
       );
     }
 
-    if (isProduction() && DEFAULT_SECRET.equals(jwtSecret)) {
+    if (profileHelper.isProduction() && DEFAULT_SECRET.equals(jwtSecret)) {
       throw new IllegalStateException(
           "CRITICAL SECURITY ERROR: Default JWT secret is being used in production! "
               + "Please set a unique JWT_SECRET environment variable."
       );
     }
 
-    if (!isProduction() && DEFAULT_SECRET.equals(jwtSecret)) {
-      log.warn("⚠️ WARNING: Using default JWT secret. This is acceptable for development "
+    if (!profileHelper.isProduction() && DEFAULT_SECRET.equals(jwtSecret)) {
+      log.warn("WARNING: Using default JWT secret. This is acceptable for development "
           + "but NEVER use this in production!");
     }
 
@@ -50,26 +51,14 @@ public class JwtConfigValidator {
       );
     }
 
-    if (isProduction() && jwtExpiration > 7200000) {
-      log.warn("⚠️ JWT expiration is set to {} hours. Consider using shorter expiration "
+    if (profileHelper.isProduction() && jwtExpiration > 7200000) {
+      log.warn("JWT expiration is set to {} hours. Consider using shorter expiration "
           + "times in production for better security.", jwtExpiration / 3600000.0);
     }
 
-    log.info("✅ JWT configuration validated successfully");
-    log.info("   - Secret length: {} characters", jwtSecret.length());
-    log.info("   - Expiration: {} hours", jwtExpiration / 3600000.0);
-    log.info("   - Environment: {}", activeProfile);
-  }
-
-  /**
-   * Check if running in production environment.
-   * Handles multiple profiles (e.g., "prod,monitoring").
-   */
-  private boolean isProduction() {
-    if (activeProfile == null) {
-      return false;
-    }
-    String lowerProfile = activeProfile.toLowerCase();
-    return lowerProfile.contains("prod");
+    log.info("JWT configuration validated successfully");
+    log.info("  - Secret length: {} characters", jwtSecret.length());
+    log.info("  - Expiration: {} hours", jwtExpiration / 3600000.0);
+    log.info("  - Environment: {}", profileHelper.getActiveProfile());
   }
 }

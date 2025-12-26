@@ -239,10 +239,18 @@ resilience4j:
         baseConfig: default
         failureRateThreshold: 30
         waitDurationInOpenState: 60s
+      authzService:
+        baseConfig: default
+        failureRateThreshold: 40
+        waitDurationInOpenState: 30s
       invoiceService:
         baseConfig: default
         failureRateThreshold: 60
         slowCallDurationThreshold: 20s
+      employeeService:
+        baseConfig: default
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
   timelimiter:
     configs:
       default:
@@ -250,8 +258,17 @@ resilience4j:
     instances:
       authService:
         timeoutDuration: 10s
+      authzService:
+        timeoutDuration: 5s
       invoiceService:
         timeoutDuration: 60s
+      employeeService:
+        timeoutDuration: 10s
+
+# Health check configuration
+health:
+  check:
+    timeout-seconds: 5
 
 # ✅ Swagger Configuration
 springdoc:

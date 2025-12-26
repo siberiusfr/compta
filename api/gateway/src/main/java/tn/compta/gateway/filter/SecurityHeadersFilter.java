@@ -1,7 +1,7 @@
 package tn.compta.gateway.filter;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.Ordered;
@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import tn.compta.gateway.config.ProfileHelper;
 
 /**
  * Global filter to add security headers to all responses.
@@ -24,10 +25,10 @@ import reactor.core.publisher.Mono;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SecurityHeadersFilter implements GlobalFilter, Ordered {
 
-  @Value("${spring.profiles.active:dev}")
-  private String activeProfile;
+  private final ProfileHelper profileHelper;
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -45,7 +46,7 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
       headers.add("Pragma", "no-cache");
 
       // ✅ HSTS - Only in production
-      if (isProduction()) {
+      if (profileHelper.isProduction()) {
         headers.add("Strict-Transport-Security",
             "max-age=31536000; includeSubDomains; preload");
         log.debug("Added HSTS header for production environment");
@@ -86,18 +87,6 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
       headers.remove("Server");
       headers.remove("X-Powered-By");
     }));
-  }
-
-  /**
-   * Check if running in production environment.
-   * Handles multiple profiles (e.g., "prod,monitoring").
-   */
-  private boolean isProduction() {
-    if (activeProfile == null) {
-      return false;
-    }
-    String lowerProfile = activeProfile.toLowerCase();
-    return lowerProfile.contains("prod");
   }
 
   @Override
