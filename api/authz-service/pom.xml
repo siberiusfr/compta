@@ -24,11 +24,13 @@
       <artifactId>compta-commons</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!--
     <dependency>
       <groupId>tn.cyberious.compta</groupId>
       <artifactId>compta-security-commons</artifactId>
       <version>${project.version}</version>
     </dependency>
+    -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>

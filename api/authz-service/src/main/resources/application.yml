@@ -40,22 +40,22 @@ project:
 compta:
   security:
     enabled: true
-    public-paths: /actuator/**,/v3/api-docs/**,/swagger-ui/**
+    public-paths: /actuator/**,/v3/api-docs/**,/swagger-ui/**,/authz/v3/api-docs/**,/authz/swagger-ui/**
 
 springdoc:
   api-docs:
+    enabled: true
     path: /v3/api-docs
   swagger-ui:
+    enabled: true
     path: /swagger-ui.html
-    # Désactive le tri des opérations
     operations-sorter: method
-    # Active la persistance des autorisations
-    persist-authorization: true
-    # Configuration des URLs
-    config-url: /v3/api-docs/swagger-config
-    url: /v3/api-docs
-  # IMPORTANT: Override l'URL du serveur
-  override-with-generic-response: false
+    tags-sorter: alpha
+  # Info générale de l'API
+  info:
+    title: Auth Service API
+    version: 1.0.0
+    description: Service d'authentification et de gestion des utilisateurs
 
 # Logging pour debug
 logging:

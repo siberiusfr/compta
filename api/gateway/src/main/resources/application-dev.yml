@@ -16,9 +16,9 @@ spring:
 
 # Development service URLs (localhost)
 AUTH_SERVICE_URL: http://localhost:8081
-AUTHZ_SERVICE_URL: http://localhost:8084
-INVOICE_SERVICE_URL: http://localhost:8082
-EMPLOYEE_SERVICE_URL: http://localhost:8083
+AUTHZ_SERVICE_URL: http://localhost:8082
+INVOICE_SERVICE_URL: http://localhost:8083
+EMPLOYEE_SERVICE_URL: http://localhost:8084
 
 # ✅ CORS - Allow all local development ports
 cors:

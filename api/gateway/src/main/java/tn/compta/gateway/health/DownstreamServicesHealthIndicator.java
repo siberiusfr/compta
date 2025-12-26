@@ -28,13 +28,13 @@ public class DownstreamServicesHealthIndicator implements ReactiveHealthIndicato
   @Value("${AUTH_SERVICE_URL:http://localhost:8081}")
   private String authServiceUrl;
 
-  @Value("${AUTHZ_SERVICE_URL:http://localhost:8084}")
+  @Value("${AUTHZ_SERVICE_URL:http://localhost:8082}")
   private String authzServiceUrl;
 
-  @Value("${INVOICE_SERVICE_URL:http://localhost:8082}")
+  @Value("${INVOICE_SERVICE_URL:http://localhost:8083}")
   private String invoiceServiceUrl;
 
-  @Value("${EMPLOYEE_SERVICE_URL:http://localhost:8083}")
+  @Value("${EMPLOYEE_SERVICE_URL:http://localhost:8084}")
   private String employeeServiceUrl;
 
   public DownstreamServicesHealthIndicator(
@@ -60,9 +60,9 @@ public class DownstreamServicesHealthIndicator implements ReactiveHealthIndicato
           for (Map<String, Object> serviceStatus : serviceStatuses) {
             String serviceName = (String) serviceStatus.get("name");
             String status = (String) serviceStatus.get("status");
-            
+
             details.put(serviceName, serviceStatus);
-            
+
             if (!"UP".equals(status)) {
               allUp = false;
             }

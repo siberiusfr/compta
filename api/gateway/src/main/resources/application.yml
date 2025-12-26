@@ -108,7 +108,7 @@ spring:
         # Invoice Service
         # ==========================================
         - id: invoice-service
-          uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+          uri: ${INVOICE_SERVICE_URL:http://localhost:8083}
           predicates:
             - Path=/invoices/**
           filters:
@@ -140,7 +140,7 @@ spring:
         # Employee Service
         # ==========================================
         - id: employee-service
-          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8084}
           predicates:
             - Path=/employees/**
           filters:
@@ -173,7 +173,7 @@ cors:
   allowed-origins:
     - http://localhost:3000
     - http://localhost:4200
-    - http://localhost:8081
+    - http://localhost:8080
   max-age: 3600
 
 # ✅ JWT Configuration
