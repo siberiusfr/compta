@@ -58,7 +58,7 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
+                key-resolver: '#{@userKeyResolver}'
             # ✅ Retry strategy for transient errors
             - name: Retry
               args:
@@ -72,21 +72,13 @@ spring:
                   basedOnPreviousValue: false
           metadata:
             response-timeout: 10000 # 10 seconds for login
-
-        - id: auth-service-openapi
-          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
-          predicates:
-            - Path=/auth/v3/api-docs
-          filters:
-            - RewritePath=/auth/v3/api-docs, /v3/api-docs
-
         # ==========================================
         # Authorization Service
         # ==========================================
         - id: authz-service
-          uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+          uri: ${AUTHZ_SERVICE_URL:http://localhost:8082}
           predicates:
-            - Path=/api/permissions/**
+            - Path=/authz/**
           filters:
             - name: CircuitBreaker
               args:
@@ -97,7 +89,7 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 20
                 redis-rate-limiter.burstCapacity: 40
-                key-resolver: "#{@userKeyResolver}"
+                key-resolver: '#{@userKeyResolver}'
             # ✅ Retry strategy for transient errors
             - name: Retry
               args:
@@ -111,13 +103,6 @@ spring:
                   basedOnPreviousValue: false
           metadata:
             response-timeout: 5000
-
-        - id: authz-service-openapi
-          uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
-          predicates:
-            - Path=/authz/v3/api-docs
-          filters:
-            - RewritePath=/authz/v3/api-docs, /v3/api-docs
 
         # ==========================================
         # Invoice Service
@@ -136,7 +121,7 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 15
                 redis-rate-limiter.burstCapacity: 30
-                key-resolver: "#{@userKeyResolver}"
+                key-resolver: '#{@userKeyResolver}'
             # ✅ Retry strategy for transient errors
             - name: Retry
               args:
@@ -175,7 +160,7 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 20
                 redis-rate-limiter.burstCapacity: 40
-                key-resolver: "#{@userKeyResolver}"
+                key-resolver: '#{@userKeyResolver}'
             # ✅ Retry strategy for transient errors
             - name: Retry
               args:
@@ -283,7 +268,7 @@ springdoc:
         url: /v3/api-docs
       - name: Auth Service
         url: /auth/v3/api-docs
-      - name: Authorization Service
+      - name: Authz Service
         url: /authz/v3/api-docs
       - name: Invoice Service
         url: /invoices/v3/api-docs
