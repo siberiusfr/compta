@@ -54,12 +54,12 @@ public class CorsConfig {
         "X-Tenant-Id"
     ));
 
-    // Expose headers to frontend
+    // ✅ Expose headers to frontend (SANS Authorization pour la sécurité)
     corsConfig.setExposedHeaders(Arrays.asList(
-        "Authorization",
         "X-Total-Count",
         "X-Page-Number",
-        "X-Page-Size"
+        "X-Page-Size",
+        "traceresponse" // W3C Trace Context response header
     ));
 
     // Allow credentials (cookies, authorization headers)

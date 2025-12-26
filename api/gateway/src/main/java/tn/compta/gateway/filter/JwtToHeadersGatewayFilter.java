@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import tn.compta.gateway.config.PublicEndpoints;
 
 import java.util.List;
 
@@ -26,6 +27,9 @@ public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
   private static final String HEADER_EMAIL = "X-User-Email";
   private static final String HEADER_ROLES = "X-User-Roles";
   private static final String HEADER_TENANT_ID = "X-Tenant-Id";
+
+  private static final int MAX_ROLES_COUNT = 50;
+  private static final int MAX_HEADER_VALUE_LENGTH = 1024;
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -55,10 +59,7 @@ public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
    * Check if endpoint is public (doesn't need user headers).
    */
   private boolean isPublicEndpoint(String path) {
-    return path.startsWith("/auth/") ||
-        path.startsWith("/actuator/") ||
-        path.startsWith("/swagger-ui") ||
-        path.startsWith("/v3/api-docs");
+    return PublicEndpoints.isPublic(path);
   }
 
   /**
@@ -73,40 +74,95 @@ public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
       return request;
     }
 
-    // Extract claims
-    String userId = jwt.getSubject();
-    String username = jwt.getClaimAsString("username");
-    String email = jwt.getClaimAsString("email");
-    List<String> roles = jwt.getClaimAsStringList("roles");
-    String tenantId = jwt.getClaimAsString("tenantId");
+    // Extract and validate claims
+    String userId = truncateIfNeeded(jwt.getSubject());
+    String username = truncateIfNeeded(jwt.getClaimAsString("username"));
+    String email = truncateIfNeeded(jwt.getClaimAsString("email"));
+    List<String> roles = validateRoles(jwt.getClaimAsStringList("roles"));
+    String tenantId = truncateIfNeeded(jwt.getClaimAsString("tenantId"));
 
     // Build request with headers (only if values exist)
     ServerHttpRequest.Builder builder = request.mutate();
 
-    if (userId != null && !userId.isEmpty()) {
+    if (isValidHeaderValue(userId)) {
       builder.header(HEADER_USER_ID, userId);
     }
 
-    if (username != null && !username.isEmpty()) {
+    if (isValidHeaderValue(username)) {
       builder.header(HEADER_USERNAME, username);
     }
 
-    if (email != null && !email.isEmpty()) {
+    if (isValidHeaderValue(email)) {
       builder.header(HEADER_EMAIL, email);
     }
 
     if (roles != null && !roles.isEmpty()) {
-      builder.header(HEADER_ROLES, String.join(",", roles));
+      String rolesValue = String.join(",", roles);
+      if (rolesValue.length() <= MAX_HEADER_VALUE_LENGTH) {
+        builder.header(HEADER_ROLES, rolesValue);
+      } else {
+        log.warn("Roles header value too long, truncating");
+        builder.header(HEADER_ROLES, rolesValue.substring(0, MAX_HEADER_VALUE_LENGTH));
+      }
     }
 
-    if (tenantId != null && !tenantId.isEmpty()) {
+    if (isValidHeaderValue(tenantId)) {
       builder.header(HEADER_TENANT_ID, tenantId);
     }
 
+    // ✅ Log avec masquage de l'email pour GDPR
     log.debug("Added user headers: userId={}, username={}, email={}, tenantId={}, roles={}",
-        userId, username, email, tenantId, roles);
+        userId, username, maskEmail(email), tenantId, roles);
 
     return builder.build();
+  }
+
+  /**
+   * Masque partiellement l'email pour la protection des données personnelles (GDPR).
+   * Exemple: john.doe@example.com -> j***@example.com
+   */
+  private String maskEmail(String email) {
+    if (email == null || !email.contains("@")) {
+      return "***";
+    }
+
+    String[] parts = email.split("@", 2);
+    if (parts.length != 2 || parts[1].isEmpty()) {
+      return "***";
+    }
+
+    String localPart = parts[0];
+    if (localPart.isEmpty()) {
+      return "***@" + parts[1];
+    }
+
+    return localPart.charAt(0) + "***@" + parts[1];
+  }
+
+  private String truncateIfNeeded(String value) {
+    if (value == null) {
+      return null;
+    }
+    if (value.length() > MAX_HEADER_VALUE_LENGTH) {
+      log.warn("Claim value too long, truncating from {} to {} chars", value.length(), MAX_HEADER_VALUE_LENGTH);
+      return value.substring(0, MAX_HEADER_VALUE_LENGTH);
+    }
+    return value;
+  }
+
+  private boolean isValidHeaderValue(String value) {
+    return value != null && !value.isEmpty();
+  }
+
+  private List<String> validateRoles(List<String> roles) {
+    if (roles == null) {
+      return null;
+    }
+    if (roles.size() > MAX_ROLES_COUNT) {
+      log.warn("Too many roles ({}), limiting to {}", roles.size(), MAX_ROLES_COUNT);
+      return roles.subList(0, MAX_ROLES_COUNT);
+    }
+    return roles;
   }
 
   @Override

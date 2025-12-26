@@ -1,6 +1,7 @@
 package tn.compta.gateway.filter;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -10,28 +11,38 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Global logging filter for Gateway requests and responses.
- *
- * Security features:
- * - Masks sensitive headers (Authorization, Cookie, etc.)
- * - Logs request/response details
- * - Performance monitoring
- */
 @Slf4j
 @Component
 public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
 
-  private static final List<String> SENSITIVE_HEADERS = List.of(
+  @Value("${logging.slow-request-threshold-ms:5000}")
+  private long slowRequestThresholdMs;
+
+  private static final Set<String> SENSITIVE_HEADERS = Set.of(
       "authorization",
       "cookie",
       "set-cookie",
       "x-csrf-token",
-      "x-api-key"
+      "x-api-key",
+      "x-auth-token",
+      "proxy-authorization"
+  );
+
+  private static final Set<String> SENSITIVE_QUERY_PARAMS = Set.of(
+      "token",
+      "access_token",
+      "refresh_token",
+      "api_key",
+      "apikey",
+      "password",
+      "secret",
+      "key"
   );
 
   @Override
@@ -39,61 +50,84 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
     ServerHttpRequest request = exchange.getRequest();
     long startTime = System.currentTimeMillis();
 
-    // Log request
     logRequest(request);
 
     return chain.filter(exchange).doFinally(signal -> {
-      // Log response
       long duration = System.currentTimeMillis() - startTime;
       logResponse(request, exchange, duration);
     });
   }
 
-  /**
-   * Log incoming request with masked sensitive headers.
-   */
   private void logRequest(ServerHttpRequest request) {
+    String safePath = maskQueryParams(request.getURI());
     if (log.isDebugEnabled()) {
       String maskedHeaders = maskSensitiveHeaders(request.getHeaders());
-
-      log.debug("🔵 Incoming Request: {} {} | Headers: {}",
+      log.debug("Incoming request: {} {} | Headers: {}",
           request.getMethod(),
-          request.getURI(),
+          safePath,
           maskedHeaders);
     } else {
-      log.info("🔵 Request: {} {}", request.getMethod(), request.getURI());
+      log.info("Request: {} {}", request.getMethod(), safePath);
     }
   }
 
-  /**
-   * Log response with status and duration.
-   */
   private void logResponse(ServerHttpRequest request, ServerWebExchange exchange, long duration) {
     var statusCode = exchange.getResponse().getStatusCode();
+    String safePath = maskQueryParams(request.getURI());
 
-    if (statusCode != null) {
-      String statusEmoji = getStatusEmoji(statusCode.value());
-
-      log.info("{} Response: {} {} | Status: {} | Duration: {}ms",
-          statusEmoji,
+    if (statusCode == null) {
+      log.warn("Response completed without status code: {} {} | Duration: {}ms",
           request.getMethod(),
-          request.getURI(),
-          statusCode.value(),
+          safePath,
           duration);
+      return;
+    }
 
-      // Warn on slow requests
-      if (duration > 5000) {
-        log.warn("⚠️ Slow request detected: {} {} took {}ms",
-            request.getMethod(),
-            request.getURI(),
-            duration);
-      }
+    String statusLabel = getStatusLabel(statusCode.value());
+
+    log.info("{} response: {} {} | Status: {} | Duration: {}ms",
+        statusLabel,
+        request.getMethod(),
+        safePath,
+        statusCode.value(),
+        duration);
+
+    if (duration > slowRequestThresholdMs) {
+      log.warn("Slow request detected: {} {} took {}ms (threshold: {}ms)",
+          request.getMethod(),
+          safePath,
+          duration,
+          slowRequestThresholdMs);
     }
   }
 
   /**
-   * Mask sensitive headers for security.
+   * Masks sensitive query parameters in the URI.
    */
+  private String maskQueryParams(URI uri) {
+    String query = uri.getQuery();
+    if (query == null || query.isEmpty()) {
+      return uri.getPath();
+    }
+
+    String maskedQuery = java.util.Arrays.stream(query.split("&"))
+        .map(param -> {
+          String[] parts = param.split("=", 2);
+          if (parts.length == 2 && isSensitiveParam(parts[0])) {
+            return parts[0] + "=***";
+          }
+          return param;
+        })
+        .collect(Collectors.joining("&"));
+
+    return uri.getPath() + "?" + maskedQuery;
+  }
+
+  private boolean isSensitiveParam(String paramName) {
+    return SENSITIVE_QUERY_PARAMS.stream()
+        .anyMatch(sensitive -> paramName.toLowerCase().contains(sensitive));
+  }
+
   private String maskSensitiveHeaders(HttpHeaders headers) {
     return headers.entrySet().stream()
         .collect(Collectors.toMap(
@@ -105,31 +139,26 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
         .toString();
   }
 
-  /**
-   * Check if header is sensitive.
-   */
   private boolean isSensitiveHeader(String headerName) {
     return SENSITIVE_HEADERS.stream()
         .anyMatch(sensitive -> sensitive.equalsIgnoreCase(headerName));
   }
 
-  /**
-   * Get emoji based on HTTP status code.
-   */
-  private String getStatusEmoji(int statusCode) {
+  private String getStatusLabel(int statusCode) {
     if (statusCode >= 200 && statusCode < 300) {
-      return "✅"; // Success
+      return "OK";
     } else if (statusCode >= 300 && statusCode < 400) {
-      return "↩️"; // Redirect
+      return "REDIRECT";
     } else if (statusCode >= 400 && statusCode < 500) {
-      return "⚠️"; // Client error
+      return "CLIENT_ERROR";
     } else {
-      return "❌"; // Server error
+      return "SERVER_ERROR";
     }
   }
 
   @Override
   public int getOrder() {
-    return Ordered.HIGHEST_PRECEDENCE;
+    // Run after StripUserHeadersFilter (HIGHEST_PRECEDENCE)
+    return Ordered.HIGHEST_PRECEDENCE + 1;
   }
 }

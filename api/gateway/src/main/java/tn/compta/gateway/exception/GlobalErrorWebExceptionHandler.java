@@ -14,8 +14,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.*;
 import reactor.core.publisher.Mono;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+
 import java.net.ConnectException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -50,14 +53,14 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
   }
 
   private Mono<ServerResponse> renderErrorResponse(ServerRequest request) {
-    Map<String, Object> errorAttributes = getErrorAttributes(request, false);
     Throwable error = getError(request);
-
     HttpStatus status = determineHttpStatus(error);
+
+    Map<String, Object> errorAttributes = new HashMap<>();
+    errorAttributes.put("timestamp", Instant.now().toString());
     errorAttributes.put("status", status.value());
     errorAttributes.put("error", status.getReasonPhrase());
     errorAttributes.put("message", determineErrorMessage(error));
-    errorAttributes.put("timestamp", LocalDateTime.now().toString());
     errorAttributes.put("path", request.path());
 
     log.error("Gateway error: {} - {}", status, errorAttributes.get("message"), error);
@@ -68,13 +71,6 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
         .body(BodyInserters.fromValue(errorAttributes));
   }
 
-  private Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
-    Map<String, Object> errorAttributes = new HashMap<>();
-    errorAttributes.put("timestamp", LocalDateTime.now().toString());
-    errorAttributes.put("path", request.path());
-    return errorAttributes;
-  }
-
   /**
    * Determine HTTP status based on exception type.
    */
@@ -83,6 +79,10 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
       return HttpStatus.GATEWAY_TIMEOUT;
     } else if (error instanceof ConnectException) {
       return HttpStatus.SERVICE_UNAVAILABLE;
+    } else if (error instanceof CallNotPermittedException) {
+      return HttpStatus.SERVICE_UNAVAILABLE;
+    } else if (error instanceof RequestNotPermitted) {
+      return HttpStatus.TOO_MANY_REQUESTS;
     } else if (error.getMessage() != null && error.getMessage().contains("404")) {
       return HttpStatus.NOT_FOUND;
     }
@@ -97,6 +97,10 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
       return "Le service a mis trop de temps à répondre. Veuillez réessayer.";
     } else if (error instanceof ConnectException) {
       return "Le service est temporairement indisponible. Veuillez réessayer plus tard.";
+    } else if (error instanceof CallNotPermittedException) {
+      return "Le service est temporairement indisponible (circuit ouvert). Veuillez réessayer plus tard.";
+    } else if (error instanceof RequestNotPermitted) {
+      return "Trop de requêtes. Veuillez patienter avant de réessayer.";
     } else if (error.getMessage() != null && error.getMessage().contains("404")) {
       return "Service ou endpoint non trouvé.";
     }

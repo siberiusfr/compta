@@ -5,7 +5,7 @@ spring:
       on-profile: prod
 
   cloud:
-    gateway:
+    gateway.server.webflux:
       # ✅ Enable global filters
       # ✅ Global timeouts
       httpclient:
@@ -14,37 +14,30 @@ spring:
         pool:
           max-connections: 500
           acquire-timeout: 45000
-      server:
-        webflux:
-          default-filters:
-            # Rate limiting (requires Redis)
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 100 # tokens per second
-                redis-rate-limiter.burstCapacity: 200 # max burst
-                key-resolver: '#{@userKeyResolver}' # Rate limit per user
-
-            # Remove hop-by-hop headers
-            - RemoveRequestHeader=Cookie
-            - RemoveRequestHeader=Set-Cookie
-
-            # Add security headers
-            - AddResponseHeader=X-Content-Type-Options, nosniff
-            - AddResponseHeader=X-Frame-Options, DENY
-            - AddResponseHeader=X-XSS-Protection, 1; mode=block
-            - AddResponseHeader=Strict-Transport-Security, max-age=31536000; includeSubDomains
+      default-filters:
+        # Remove hop-by-hop headers
+        - RemoveRequestHeader=Cookie
+        - RemoveRequestHeader=Set-Cookie
+        # Note: Security headers are handled by SecurityHeadersFilter
+        # Note: Rate limiting is configured per-route in application.yml
 
 # ⚠️ JWT secret MUST be provided via environment variable in production
 # DO NOT use default value in production!
 jwt:
   secret: ${JWT_SECRET} # ✅ No default value - will fail if not set
   expiration: ${JWT_EXPIRATION:3600000} # 1 hour default
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
 
 # Production service URLs (use environment variables)
 AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
 AUTHZ_SERVICE_URL: ${AUTHZ_SERVICE_URL}
 INVOICE_SERVICE_URL: ${INVOICE_SERVICE_URL}
 EMPLOYEE_SERVICE_URL: ${EMPLOYEE_SERVICE_URL}
+
+# ✅ Gateway URLs pour OpenAPI
+gateway:
+  url:
+    prod: ${GATEWAY_URL:https://api.compta.tn}
 
 # Disable Swagger in production
 springdoc:
@@ -61,7 +54,7 @@ logging:
     org.springframework.security: INFO
     org.springframework.cloud.gateway: INFO
   pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n'
+    console: '%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - [traceId=%X{traceId} spanId=%X{spanId}] %msg%n'
 
 # Hide sensitive actuator info
 management:
@@ -71,12 +64,17 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
-  Prometheus:
+        include: health,info,metrics,prometheus
+  prometheus:
     metrics:
       export:
         enabled: true
-# Production CORS - à ajouter dans application-prod.yml
+  # Reduced sampling in production (10%)
+  tracing:
+    sampling:
+      probability: 0.1
+
+# Production CORS - ⚠️ IMPORTANT : À adapter selon vos domaines
 cors:
   allowed-origins:
     - https://app.compta.tn

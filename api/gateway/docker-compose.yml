@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # Redis - Rate Limiting & Caching
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: compta-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - compta-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # ==========================================
+  # Gateway Service
+  # ==========================================
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: compta-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      
+      # Service URLs
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL:-http://host.docker.internal:8081}
+      AUTHZ_SERVICE_URL: ${AUTHZ_SERVICE_URL:-http://host.docker.internal:8084}
+      INVOICE_SERVICE_URL: ${INVOICE_SERVICE_URL:-http://host.docker.internal:8082}
+      EMPLOYEE_SERVICE_URL: ${EMPLOYEE_SERVICE_URL:-http://host.docker.internal:8083}
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - compta-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  compta-network:
+    driver: bridge

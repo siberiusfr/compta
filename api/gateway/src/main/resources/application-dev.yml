@@ -4,6 +4,16 @@ spring:
     activate:
       on-profile: dev
 
+  # ✅ Rate limiting configuration for dev (plus permissif)
+  cloud:
+    gateway.server.webflux:
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 1000 # Plus permissif en dev
+            redis-rate-limiter.burstCapacity: 2000
+            key-resolver: '#{@userKeyResolver}'
+
 # Development service URLs (localhost)
 AUTH_SERVICE_URL: http://localhost:8081
 AUTHZ_SERVICE_URL: http://localhost:8084
@@ -19,6 +29,11 @@ cors:
     - http://localhost:8080 # Gateway itself
     - http://localhost:8081 # Auth service
   max-age: 3600
+
+# ✅ Gateway URLs pour OpenAPI
+gateway:
+  url:
+    dev: http://localhost:8080
 
 # Enable Swagger in dev
 springdoc:
@@ -36,7 +51,7 @@ logging:
     reactor.netty.http.client: DEBUG
     tn.compta.gateway: DEBUG
   pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [traceId=%X{traceId} spanId=%X{spanId}] %msg%n'
 
 # Show detailed actuator info
 management:
@@ -47,3 +62,7 @@ management:
     web:
       exposure:
         include: '*' # Expose all endpoints in dev
+  # Full tracing in dev
+  tracing:
+    sampling:
+      probability: 1.0

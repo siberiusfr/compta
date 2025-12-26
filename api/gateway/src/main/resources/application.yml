@@ -1,17 +1,33 @@
 server:
   port: 8080
+  # ✅ Response compression configuration
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+    min-response-size: 1024
+  # ✅ Graceful shutdown
+  shutdown: graceful
 
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+      # ✅ Redis connection pool for rate limiting
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
   application:
     name: gateway-service
 
   cloud:
-    gateway:
+    gateway.server.webflux:
       # ✅ Global Gateway settings
       httpclient:
         connect-timeout: 5000
@@ -19,97 +35,167 @@ spring:
         pool:
           max-connections: 100
           max-idle-time: 30s
-      server:
-        webflux:
-          routes:
-            # ==========================================
-            # Auth Service
-            # ==========================================
-            - id: auth-service
-              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
-              predicates:
-                - Path=/auth/**
-              filters:
-                # ✅ Circuit breaker with fallback
-                - name: CircuitBreaker
-                  args:
-                    name: authService
-                    fallbackUri: forward:/fallback/auth
-              metadata:
-                response-timeout: 10000 # 10 seconds for login
+        # ✅ Request size limits to prevent DoS attacks
+        max-initial-line-length: 8192
+        max-header-size: 8192
+        max-chunk-size: 8192
+      routes:
+        # ==========================================
+        # Auth Service
+        # ==========================================
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/auth/**
+          filters:
+            # ✅ Circuit breaker with fallback
+            - name: CircuitBreaker
+              args:
+                name: authService
+                fallbackUri: forward:/fallback/auth
+            # ✅ Rate limiting with Redis (10 requests/second, burst of 20)
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@userKeyResolver}"
+            # ✅ Retry strategy for transient errors
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT
+                methods: GET,PUT
+                backoff:
+                  firstBackoff: 10ms
+                  maxBackoff: 50ms
+                  factor: 2
+                  basedOnPreviousValue: false
+          metadata:
+            response-timeout: 10000 # 10 seconds for login
 
-            - id: auth-service-openapi
-              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
-              predicates:
-                - Path=/auth/v3/api-docs
-              filters:
-                - RewritePath=/auth/v3/api-docs, /v3/api-docs
+        - id: auth-service-openapi
+          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/auth/v3/api-docs
+          filters:
+            - RewritePath=/auth/v3/api-docs, /v3/api-docs
 
-            # ==========================================
-            # Authorization Service
-            # ==========================================
-            - id: authz-service
-              uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
-              predicates:
-                - Path=/api/permissions/**
-              filters:
-                - name: CircuitBreaker
-                  args:
-                    name: authzService
-                    fallbackUri: forward:/fallback/authz
-              metadata:
-                response-timeout: 5000
+        # ==========================================
+        # Authorization Service
+        # ==========================================
+        - id: authz-service
+          uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/permissions/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authzService
+                fallbackUri: forward:/fallback/authz
+            # ✅ Rate limiting with Redis (20 requests/second, burst of 40)
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@userKeyResolver}"
+            # ✅ Retry strategy for transient errors
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT
+                methods: GET,PUT
+                backoff:
+                  firstBackoff: 10ms
+                  maxBackoff: 50ms
+                  factor: 2
+                  basedOnPreviousValue: false
+          metadata:
+            response-timeout: 5000
 
-            - id: authz-service-openapi
-              uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
-              predicates:
-                - Path=/authz/v3/api-docs
-              filters:
-                - RewritePath=/authz/v3/api-docs, /v3/api-docs
+        - id: authz-service-openapi
+          uri: ${AUTHZ_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/authz/v3/api-docs
+          filters:
+            - RewritePath=/authz/v3/api-docs, /v3/api-docs
 
-            # ==========================================
-            # Invoice Service
-            # ==========================================
-            - id: invoice-service
-              uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
-              predicates:
-                - Path=/api/invoices/**
-              filters:
-                - name: CircuitBreaker
-                  args:
-                    name: invoiceService
-                    fallbackUri: forward:/fallback/invoices
-              metadata:
-                response-timeout: 15000 # Longer timeout for invoice processing
+        # ==========================================
+        # Invoice Service
+        # ==========================================
+        - id: invoice-service
+          uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/invoices/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: invoiceService
+                fallbackUri: forward:/fallback/invoices
+            # ✅ Rate limiting with Redis (15 requests/second, burst of 30)
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 15
+                redis-rate-limiter.burstCapacity: 30
+                key-resolver: "#{@userKeyResolver}"
+            # ✅ Retry strategy for transient errors
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT
+                methods: GET,PUT
+                backoff:
+                  firstBackoff: 10ms
+                  maxBackoff: 50ms
+                  factor: 2
+                  basedOnPreviousValue: false
+          metadata:
+            response-timeout: 15000 # Longer timeout for invoice processing
 
-            - id: invoice-service-openapi
-              uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
-              predicates:
-                - Path=/invoices/v3/api-docs
-              filters:
-                - RewritePath=/invoices/v3/api-docs, /v3/api-docs
+        - id: invoice-service-openapi
+          uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/invoices/v3/api-docs
+          filters:
+            - RewritePath=/invoices/v3/api-docs, /v3/api-docs
 
-            # ==========================================
-            # Employee Service
-            # ==========================================
-            - id: employee-service
-              uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
-              predicates:
-                - Path=/api/employees/**
-              filters:
-                - name: CircuitBreaker
-                  args:
-                    name: employeeService
-                    fallbackUri: forward:/fallback/employees
-              metadata:
-                response-timeout: 5000
+        # ==========================================
+        # Employee Service
+        # ==========================================
+        - id: employee-service
+          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/employees/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: employeeService
+                fallbackUri: forward:/fallback/employees
+            # ✅ Rate limiting with Redis (20 requests/second, burst of 40)
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@userKeyResolver}"
+            # ✅ Retry strategy for transient errors
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT
+                methods: GET,PUT
+                backoff:
+                  firstBackoff: 10ms
+                  maxBackoff: 50ms
+                  factor: 2
+                  basedOnPreviousValue: false
+          metadata:
+            response-timeout: 5000
 
-            - id: employee-service-openapi
-              uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
-              predicates:
-                - Path=/employees/v3/api-docs
-              filters:
-                - RewritePath=/employees/v3/api-docs, /v3/api-docs
+        - id: employee-service-openapi
+          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/employees/v3/api-docs
+          filters:
+            - RewritePath=/employees/v3/api-docs, /v3/api-docs
 
 # ✅ CORS Configuration (externalized)
 cors:
@@ -120,9 +206,18 @@ cors:
   max-age: 3600
 
 # ✅ JWT Configuration
+# ⚠️ In production, JWT_SECRET must be set via environment variable
+# The default value is for development only - JwtConfigValidator blocks it in production
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   expiration: ${JWT_EXPIRATION:86400000} # 24 hours
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
+
+# ✅ Gateway URLs pour OpenAPI
+gateway:
+  url:
+    dev: http://localhost:8080
+    prod: https://api.compta.tn
 
 # ✅ Resilience4j Circuit Breaker
 resilience4j:
@@ -144,10 +239,18 @@ resilience4j:
         baseConfig: default
         failureRateThreshold: 30
         waitDurationInOpenState: 60s
+      authzService:
+        baseConfig: default
+        failureRateThreshold: 40
+        waitDurationInOpenState: 30s
       invoiceService:
         baseConfig: default
         failureRateThreshold: 60
         slowCallDurationThreshold: 20s
+      employeeService:
+        baseConfig: default
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
   timelimiter:
     configs:
       default:
@@ -155,8 +258,17 @@ resilience4j:
     instances:
       authService:
         timeoutDuration: 10s
+      authzService:
+        timeoutDuration: 5s
       invoiceService:
         timeoutDuration: 60s
+      employeeService:
+        timeoutDuration: 10s
+
+# Health check configuration
+health:
+  check:
+    timeout-seconds: 5
 
 # ✅ Swagger Configuration
 springdoc:
@@ -199,6 +311,13 @@ management:
     distribution:
       percentiles-histogram:
         http.server.requests: true
+  # ✅ Distributed Tracing (Micrometer)
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+    propagation:
+      type: w3c
 
 # ✅ Logging Configuration
 logging:
@@ -208,4 +327,4 @@ logging:
     io.github.resilience4j: INFO
     tn.compta.gateway: DEBUG
   pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [traceId=%X{traceId} spanId=%X{spanId}] %msg%n'

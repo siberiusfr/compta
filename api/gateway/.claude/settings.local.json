@@ -8,7 +8,8 @@
       "Bash(java:*)",
       "Bash(curl:*)",
       "Bash(mvn clean package:*)",
-      "Bash(mvn package:*)"
+      "Bash(mvn package:*)",
+      "Bash(del \"C:\\\\dev\\\\compta\\\\api\\\\gateway\\\\src\\\\main\\\\java\\\\tn\\\\compta\\\\gateway\\\\filter\\\\RequestIdFilter.java\")"
     ]
   }
 }
