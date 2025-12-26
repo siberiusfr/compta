@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import tn.compta.gateway.config.PublicEndpoints;
 
 import java.util.List;
 
@@ -55,11 +56,7 @@ public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
    * Check if endpoint is public (doesn't need user headers).
    */
   private boolean isPublicEndpoint(String path) {
-    return path.startsWith("/auth/") ||
-        path.startsWith("/actuator/") ||
-        path.startsWith("/swagger-ui") ||
-        path.startsWith("/v3/api-docs") ||
-        path.startsWith("/fallback/");
+    return PublicEndpoints.isPublic(path);
   }
 
   /**

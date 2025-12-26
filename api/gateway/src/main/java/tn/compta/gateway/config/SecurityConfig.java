@@ -34,20 +34,6 @@ public class SecurityConfig {
   @Value("${jwt.secret}")
   private String jwtSecret;
 
-  /**
-   * Public endpoints that don't require authentication.
-   */
-  private static final String[] PUBLIC_ENDPOINTS = {
-      "/auth/**",
-      "/actuator/health",
-      "/actuator/info",
-      "/swagger-ui.html",
-      "/swagger-ui/**",
-      "/v3/api-docs/**",
-      "/webjars/**",
-      "/fallback/**"
-  };
-
   @Bean
   public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
     http
@@ -62,7 +48,7 @@ public class SecurityConfig {
 
         // ✅ Authorization rules
         .authorizeExchange(exchanges -> exchanges
-            .pathMatchers(PUBLIC_ENDPOINTS).permitAll()
+            .pathMatchers(PublicEndpoints.PATTERNS).permitAll()
             .anyExchange().authenticated()
         )
 

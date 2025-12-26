@@ -16,9 +16,9 @@ import reactor.core.publisher.Mono;
  * Security headers:
  * - X-Content-Type-Options: Prevents MIME sniffing
  * - X-Frame-Options: Prevents clickjacking
- * - X-XSS-Protection: XSS filter for older browsers
  * - Strict-Transport-Security: Forces HTTPS (production only)
  * - Content-Security-Policy: Restricts resource loading (strict for API)
+ * - Cache-Control: Prevents caching of sensitive responses
  * - Referrer-Policy: Controls referrer information
  * - Permissions-Policy: Feature policy
  */
@@ -40,8 +40,9 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
       // ✅ Prevent clickjacking
       headers.add("X-Frame-Options", "DENY");
 
-      // ✅ XSS protection for older browsers
-      headers.add("X-XSS-Protection", "1; mode=block");
+      // ✅ Prevent caching of API responses
+      headers.add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+      headers.add("Pragma", "no-cache");
 
       // ✅ HSTS - Only in production
       if (isProduction()) {
@@ -89,10 +90,14 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
 
   /**
    * Check if running in production environment.
+   * Handles multiple profiles (e.g., "prod,monitoring").
    */
   private boolean isProduction() {
-    return "prod".equalsIgnoreCase(activeProfile) ||
-        "production".equalsIgnoreCase(activeProfile);
+    if (activeProfile == null) {
+      return false;
+    }
+    String lowerProfile = activeProfile.toLowerCase();
+    return lowerProfile.contains("prod");
   }
 
   @Override
