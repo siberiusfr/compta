@@ -1,12 +1,28 @@
 server:
   port: 8080
+  # ✅ Response compression configuration
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+    min-response-size: 1024
+  # ✅ Graceful shutdown
+  shutdown: graceful
 
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+      # ✅ Redis connection pool for rate limiting
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
   application:
     name: gateway-service
 
@@ -33,6 +49,12 @@ spring:
               args:
                 name: authService
                 fallbackUri: forward:/fallback/auth
+            # ✅ Rate limiting with Redis (10 requests/second, burst of 20)
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@userKeyResolver}"
           metadata:
             response-timeout: 10000 # 10 seconds for login
 
@@ -55,6 +77,12 @@ spring:
               args:
                 name: authzService
                 fallbackUri: forward:/fallback/authz
+            # ✅ Rate limiting with Redis (20 requests/second, burst of 40)
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@userKeyResolver}"
           metadata:
             response-timeout: 5000
 
@@ -77,6 +105,12 @@ spring:
               args:
                 name: invoiceService
                 fallbackUri: forward:/fallback/invoices
+            # ✅ Rate limiting with Redis (15 requests/second, burst of 30)
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 15
+                redis-rate-limiter.burstCapacity: 30
+                key-resolver: "#{@userKeyResolver}"
           metadata:
             response-timeout: 15000 # Longer timeout for invoice processing
 
@@ -99,6 +133,12 @@ spring:
               args:
                 name: employeeService
                 fallbackUri: forward:/fallback/employees
+            # ✅ Rate limiting with Redis (20 requests/second, burst of 40)
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@userKeyResolver}"
           metadata:
             response-timeout: 5000
 
