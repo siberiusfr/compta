@@ -69,24 +69,30 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
 
   private void logResponse(ServerHttpRequest request, ServerWebExchange exchange, long duration) {
     var statusCode = exchange.getResponse().getStatusCode();
+    String safePath = maskQueryParams(request.getURI());
 
-    if (statusCode != null) {
-      String safePath = maskQueryParams(request.getURI());
-      String statusLabel = getStatusLabel(statusCode.value());
-
-      log.info("{} response: {} {} | Status: {} | Duration: {}ms",
-          statusLabel,
+    if (statusCode == null) {
+      log.warn("Response completed without status code: {} {} | Duration: {}ms",
           request.getMethod(),
           safePath,
-          statusCode.value(),
           duration);
+      return;
+    }
 
-      if (duration > 5000) {
-        log.warn("Slow request detected: {} {} took {}ms",
-            request.getMethod(),
-            safePath,
-            duration);
-      }
+    String statusLabel = getStatusLabel(statusCode.value());
+
+    log.info("{} response: {} {} | Status: {} | Duration: {}ms",
+        statusLabel,
+        request.getMethod(),
+        safePath,
+        statusCode.value(),
+        duration);
+
+    if (duration > 5000) {
+      log.warn("Slow request detected: {} {} took {}ms",
+          request.getMethod(),
+          safePath,
+          duration);
     }
   }
 

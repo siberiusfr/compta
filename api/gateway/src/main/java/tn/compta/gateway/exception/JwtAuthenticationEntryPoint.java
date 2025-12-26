@@ -43,6 +43,7 @@ public class JwtAuthenticationEntryPoint implements ServerAuthenticationEntryPoi
     try {
       bytes = objectMapper.writeValueAsBytes(errorResponse);
     } catch (JsonProcessingException e) {
+      log.error("Failed to serialize authentication error response", e);
       bytes = "{\"error\":\"Unauthorized\"}".getBytes(StandardCharsets.UTF_8);
     }
 
