@@ -59,7 +59,7 @@ public class CorsConfig {
         "X-Total-Count",
         "X-Page-Number",
         "X-Page-Size",
-        "X-Request-Id" // Pour le tracing
+        "traceresponse" // W3C Trace Context response header
     ));
 
     // Allow credentials (cookies, authorization headers)

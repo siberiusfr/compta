@@ -311,6 +311,13 @@ management:
     distribution:
       percentiles-histogram:
         http.server.requests: true
+  # ✅ Distributed Tracing (Micrometer)
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+    propagation:
+      type: w3c
 
 # ✅ Logging Configuration
 logging:
@@ -320,4 +327,4 @@ logging:
     io.github.resilience4j: INFO
     tn.compta.gateway: DEBUG
   pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [%X{requestId}] %msg%n'
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [traceId=%X{traceId} spanId=%X{spanId}] %msg%n'

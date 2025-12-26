@@ -64,7 +64,7 @@ logging:
     org.springframework.security: INFO
     org.springframework.cloud.gateway: INFO
   pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - [%X{requestId}] %msg%n'
+    console: '%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - [traceId=%X{traceId} spanId=%X{spanId}] %msg%n'
 
 # Hide sensitive actuator info
 management:
@@ -79,6 +79,10 @@ management:
     metrics:
       export:
         enabled: true
+  # Reduced sampling in production (10%)
+  tracing:
+    sampling:
+      probability: 0.1
 
 # Production CORS - ⚠️ IMPORTANT : À adapter selon vos domaines
 cors:
