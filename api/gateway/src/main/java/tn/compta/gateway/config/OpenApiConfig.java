@@ -39,9 +39,9 @@ public class OpenApiConfig {
         .info(new Info()
             .title("COMPTA API Gateway")
             .version("1.0.0")
-            .description("API Gateway for COMPTA ERP System. " +
-                "This gateway routes requests to downstream microservices " +
-                "and handles authentication via OAuth2 JWT.")
+            .description("API Gateway for COMPTA ERP System. "
+                + "This gateway routes requests to downstream microservices "
+                + "and handles authentication via OAuth2 JWT.")
             .contact(new Contact()
                 .name("COMPTA Team")
                 .email("support@compta.tn")
@@ -90,7 +90,7 @@ public class OpenApiConfig {
    * Vérifie si on est en environnement de production.
    */
   private boolean isProduction() {
-    return "prod".equalsIgnoreCase(activeProfile) ||
-        "production".equalsIgnoreCase(activeProfile);
+    return "prod".equalsIgnoreCase(activeProfile)
+        || "production".equalsIgnoreCase(activeProfile);
   }
 }

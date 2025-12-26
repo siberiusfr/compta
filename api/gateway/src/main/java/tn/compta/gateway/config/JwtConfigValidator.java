@@ -27,21 +27,21 @@ public class JwtConfigValidator {
 
     if (jwtSecret == null || jwtSecret.length() < 64) {
       throw new IllegalStateException(
-          "JWT secret must be at least 256 bits (64 hex characters) for HS256 algorithm. " +
-              "Current length: " + (jwtSecret != null ? jwtSecret.length() : 0)
+          "JWT secret must be at least 256 bits (64 hex characters) for HS256 algorithm. "
+              + "Current length: " + (jwtSecret != null ? jwtSecret.length() : 0)
       );
     }
 
     if (isProduction() && DEFAULT_SECRET.equals(jwtSecret)) {
       throw new IllegalStateException(
-          "CRITICAL SECURITY ERROR: Default JWT secret is being used in production! " +
-              "Please set a unique JWT_SECRET environment variable."
+          "CRITICAL SECURITY ERROR: Default JWT secret is being used in production! "
+              + "Please set a unique JWT_SECRET environment variable."
       );
     }
 
     if (!isProduction() && DEFAULT_SECRET.equals(jwtSecret)) {
-      log.warn("⚠️ WARNING: Using default JWT secret. This is acceptable for development " +
-          "but NEVER use this in production!");
+      log.warn("⚠️ WARNING: Using default JWT secret. This is acceptable for development "
+          + "but NEVER use this in production!");
     }
 
     if (jwtExpiration == null || jwtExpiration <= 0) {
@@ -51,8 +51,8 @@ public class JwtConfigValidator {
     }
 
     if (isProduction() && jwtExpiration > 7200000) {
-      log.warn("⚠️ JWT expiration is set to {} hours. Consider using shorter expiration " +
-          "times in production for better security.", jwtExpiration / 3600000.0);
+      log.warn("⚠️ JWT expiration is set to {} hours. Consider using shorter expiration "
+          + "times in production for better security.", jwtExpiration / 3600000.0);
     }
 
     log.info("✅ JWT configuration validated successfully");
@@ -62,7 +62,7 @@ public class JwtConfigValidator {
   }
 
   private boolean isProduction() {
-    return "prod".equalsIgnoreCase(activeProfile) ||
-        "production".equalsIgnoreCase(activeProfile);
+    return "prod".equalsIgnoreCase(activeProfile)
+        || "production".equalsIgnoreCase(activeProfile);
   }
 }

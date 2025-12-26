@@ -6,7 +6,7 @@ spring:
 
   # ✅ Rate limiting configuration for dev (plus permissif)
   cloud:
-    gateway:
+    gateway.server.webflux:
       default-filters:
         - name: RequestRateLimiter
           args:

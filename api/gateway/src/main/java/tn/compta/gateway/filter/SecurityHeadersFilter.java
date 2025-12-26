@@ -58,16 +58,16 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
       if (path.startsWith("/swagger-ui") || path.startsWith("/webjars")) {
         // CSP permissive pour Swagger UI uniquement
         headers.add("Content-Security-Policy",
-            "default-src 'self'; " +
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-                "style-src 'self' 'unsafe-inline'; " +
-                "img-src 'self' data: https:; " +
-                "font-src 'self' data:;");
+            "default-src 'self'; "
+                + "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+                + "style-src 'self' 'unsafe-inline'; "
+                + "img-src 'self' data: https:; "
+                + "font-src 'self' data:;");
       } else {
         // CSP strict pour les endpoints API
         headers.add("Content-Security-Policy",
-            "default-src 'none'; " +
-                "frame-ancestors 'none';");
+            "default-src 'none'; "
+                + "frame-ancestors 'none';");
       }
 
       // ✅ Referrer policy
@@ -75,12 +75,12 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
 
       // ✅ Permissions policy (Feature Policy replacement)
       headers.add("Permissions-Policy",
-          "geolocation=(), " +
-              "microphone=(), " +
-              "camera=(), " +
-              "payment=(), " +
-              "usb=(), " +
-              "magnetometer=()");
+          "geolocation=(), "
+              + "microphone=(), "
+              + "camera=(), "
+              + "payment=(), "
+              + "usb=(), "
+              + "magnetometer=()");
 
       // ✅ Remove server information
       headers.remove("Server");

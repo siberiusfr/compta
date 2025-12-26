@@ -27,7 +27,7 @@ spring:
     name: gateway-service
 
   cloud:
-    gateway:
+    gateway.server.webflux:
       # ✅ Global Gateway settings
       httpclient:
         connect-timeout: 5000

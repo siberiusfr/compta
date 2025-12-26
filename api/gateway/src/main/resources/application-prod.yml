@@ -5,7 +5,7 @@ spring:
       on-profile: prod
 
   cloud:
-    gateway:
+    gateway.server.webflux:
       # ✅ Enable global filters
       # ✅ Global timeouts
       httpclient:
