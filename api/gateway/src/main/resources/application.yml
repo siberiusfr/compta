@@ -110,7 +110,7 @@ spring:
         - id: invoice-service
           uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
           predicates:
-            - Path=/api/invoices/**
+            - Path=/invoices/**
           filters:
             - name: CircuitBreaker
               args:
@@ -136,20 +136,13 @@ spring:
           metadata:
             response-timeout: 15000 # Longer timeout for invoice processing
 
-        - id: invoice-service-openapi
-          uri: ${INVOICE_SERVICE_URL:http://localhost:8082}
-          predicates:
-            - Path=/invoices/v3/api-docs
-          filters:
-            - RewritePath=/invoices/v3/api-docs, /v3/api-docs
-
         # ==========================================
         # Employee Service
         # ==========================================
         - id: employee-service
           uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
           predicates:
-            - Path=/api/employees/**
+            - Path=/employees/**
           filters:
             - name: CircuitBreaker
               args:
@@ -174,13 +167,6 @@ spring:
                   basedOnPreviousValue: false
           metadata:
             response-timeout: 5000
-
-        - id: employee-service-openapi
-          uri: ${EMPLOYEE_SERVICE_URL:http://localhost:8083}
-          predicates:
-            - Path=/employees/v3/api-docs
-          filters:
-            - RewritePath=/employees/v3/api-docs, /v3/api-docs
 
 # ✅ CORS Configuration (externalized)
 cors:
