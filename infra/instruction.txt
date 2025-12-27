@@ -1,0 +1,843 @@
+# Instructions pour Claude Code - Infrastructure COMPTA
+
+Tu es un ensemble d'agents spécialisés qui vont créer une infrastructure complète pour l'application COMPTA (ERP comptable tunisien).
+
+## Contexte du projet
+
+**Application:** COMPTA - ERP comptable pour le marché tunisien
+**Architecture:** Microservices (Spring Boot) + PostgreSQL + Redis + Vue 3 + Flutter
+**Hébergement:** Hetzner Cloud
+**Environnements:** dev, staging, production
+
+## Structure complète à créer
+```
+compta-infrastructure/
+├── README.md
+├── .gitignore
+├── AGENTS.md
+│
+├── terraform/
+│   ├── modules/
+│   │   ├── server/
+│   │   │   ├── main.tf
+│   │   │   ├── variables.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── README.md
+│   │   ├── network/
+│   │   │   ├── main.tf
+│   │   │   ├── variables.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── README.md
+│   │   ├── firewall/
+│   │   │   ├── main.tf
+│   │   │   ├── variables.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── README.md
+│   │   └── volume/
+│   │       ├── main.tf
+│   │       ├── variables.tf
+│   │       ├── outputs.tf
+│   │       └── README.md
+│   │
+│   ├── environments/
+│   │   ├── production/
+│   │   │   ├── main.tf
+│   │   │   ├── variables.tf
+│   │   │   ├── terraform.tfvars.example
+│   │   │   ├── outputs.tf
+│   │   │   ├── backend.tf
+│   │   │   └── README.md
+│   │   ├── staging/
+│   │   │   └── (même structure)
+│   │   └── dev/
+│   │       └── (même structure)
+│   │
+│   └── files/
+│       ├── cloud-init-base.yml
+│       ├── cloud-init-database.yml
+│       ├── cloud-init-application.yml
+│       └── cloud-init-monitoring.yml
+│
+├── ansible/
+│   ├── ansible.cfg
+│   ├── requirements.yml
+│   │
+│   ├── inventories/
+│   │   ├── production/
+│   │   │   ├── hosts.yml
+│   │   │   └── group_vars/
+│   │   │       ├── all.yml
+│   │   │       ├── all.vault.yml
+│   │   │       ├── database.yml
+│   │   │       ├── application.yml
+│   │   │       └── monitoring.yml
+│   │   ├── staging/
+│   │   │   └── (même structure)
+│   │   └── dev/
+│   │       └── (même structure)
+│   │
+│   ├── playbooks/
+│   │   ├── site.yml
+│   │   ├── setup-base.yml
+│   │   ├── setup-database.yml
+│   │   ├── setup-application.yml
+│   │   ├── setup-monitoring.yml
+│   │   ├── deploy.yml
+│   │   ├── backup.yml
+│   │   ├── restore.yml
+│   │   ├── database-migration.yml
+│   │   └── maintenance.yml
+│   │
+│   ├── roles/
+│   │   ├── common/
+│   │   │   ├── tasks/
+│   │   │   │   ├── main.yml
+│   │   │   │   ├── ssh.yml
+│   │   │   │   ├── firewall.yml
+│   │   │   │   ├── fail2ban.yml
+│   │   │   │   ├── unattended-upgrades.yml
+│   │   │   │   ├── monitoring.yml
+│   │   │   │   ├── logrotate.yml
+│   │   │   │   ├── swap.yml
+│   │   │   │   └── users.yml
+│   │   │   ├── templates/
+│   │   │   │   ├── sshd_hardening.conf.j2
+│   │   │   │   ├── jail.local.j2
+│   │   │   │   ├── sshd.local.j2
+│   │   │   │   ├── 50unattended-upgrades.j2
+│   │   │   │   ├── node_exporter.service.j2
+│   │   │   │   └── docker-logrotate.j2
+│   │   │   ├── handlers/
+│   │   │   │   └── main.yml
+│   │   │   ├── defaults/
+│   │   │   │   └── main.yml
+│   │   │   └── README.md
+│   │   │
+│   │   ├── postgresql/
+│   │   │   ├── tasks/
+│   │   │   │   ├── main.yml
+│   │   │   │   ├── prerequisites.yml
+│   │   │   │   ├── repository.yml
+│   │   │   │   ├── install.yml
+│   │   │   │   ├── data-directory.yml
+│   │   │   │   ├── configure.yml
+│   │   │   │   ├── authentication.yml
+│   │   │   │   ├── databases.yml
+│   │   │   │   ├── extensions.yml
+│   │   │   │   ├── backup.yml
+│   │   │   │   ├── maintenance.yml
+│   │   │   │   ├── monitoring.yml
+│   │   │   │   └── verify.yml
+│   │   │   ├── templates/
+│   │   │   │   ├── postgresql.conf.j2
+│   │   │   │   ├── pg_hba.conf.j2
+│   │   │   │   ├── pg_ident.conf.j2
+│   │   │   │   ├── backup.sh.j2
+│   │   │   │   ├── restore.sh.j2
+│   │   │   │   ├── archive_wal.sh.j2
+│   │   │   │   ├── maintenance.sh.j2
+│   │   │   │   ├── vacuum.sh.j2
+│   │   │   │   ├── postgres_exporter.env.j2
+│   │   │   │   ├── postgres_exporter.service.j2
+│   │   │   │   └── postgres_exporter_queries.yml.j2
+│   │   │   ├── handlers/
+│   │   │   │   └── main.yml
+│   │   │   ├── defaults/
+│   │   │   │   └── main.yml
+│   │   │   └── README.md
+│   │   │
+│   │   ├── pgbouncer/
+│   │   │   ├── tasks/
+│   │   │   │   └── main.yml
+│   │   │   ├── templates/
+│   │   │   │   ├── pgbouncer.ini.j2
+│   │   │   │   └── userlist.txt.j2
+│   │   │   ├── handlers/
+│   │   │   │   └── main.yml
+│   │   │   ├── defaults/
+│   │   │   │   └── main.yml
+│   │   │   └── README.md
+│   │   │
+│   │   ├── docker/
+│   │   │   ├── tasks/
+│   │   │   │   ├── main.yml
+│   │   │   │   ├── prerequisites.yml
+│   │   │   │   ├── repository.yml
+│   │   │   │   ├── install.yml
+│   │   │   │   ├── configure.yml
+│   │   │   │   ├── networking.yml
+│   │   │   │   ├── compose.yml
+│   │   │   │   ├── logging.yml
+│   │   │   │   ├── registry.yml
+│   │   │   │   ├── monitoring.yml
+│   │   │   │   ├── users.yml
+│   │   │   │   └── verify.yml
+│   │   │   ├── templates/
+│   │   │   │   ├── daemon.json.j2
+│   │   │   │   ├── storage-driver.conf.j2
+│   │   │   │   ├── docker-limits.conf.j2
+│   │   │   │   └── docker-logrotate.j2
+│   │   │   ├── handlers/
+│   │   │   │   └── main.yml
+│   │   │   ├── defaults/
+│   │   │   │   └── main.yml
+│   │   │   └── README.md
+│   │   │
+│   │   ├── redis/
+│   │   │   └── (structure similaire)
+│   │   │
+│   │   ├── monitoring/
+│   │   │   └── (structure similaire)
+│   │   │
+│   │   ├── backup/
+│   │   │   └── (structure similaire)
+│   │   │
+│   │   └── signoz/
+│   │       └── (structure similaire)
+│   │
+│   └── playbooks/tasks/
+│       ├── pre-deployment-checks.yml
+│       ├── backup-deployment.yml
+│       ├── pull-images.yml
+│       ├── deploy-configs.yml
+│       ├── deploy-compose.yml
+│       ├── run-migrations.yml
+│       ├── health-checks.yml
+│       ├── update-metadata.yml
+│       └── migration/
+│           ├── pre-checks.yml
+│           ├── backup.yml
+│           ├── execute.yml
+│           ├── post-checks.yml
+│           └── notify.yml
+│
+├── docker/
+│   ├── applications/
+│   │   ├── api-gateway/
+│   │   │   ├── Dockerfile
+│   │   │   └── docker-compose.yml
+│   │   ├── auth-service/
+│   │   │   └── (même structure)
+│   │   ├── accounting-service/
+│   │   │   └── (même structure)
+│   │   └── reporting-service/
+│   │       └── (même structure)
+│   │
+│   ├── compose/
+│   │   ├── production/
+│   │   │   ├── docker-compose.yml.j2
+│   │   │   ├── .env.production.example
+│   │   │   └── README.md
+│   │   ├── staging/
+│   │   │   └── (même structure)
+│   │   └── dev/
+│   │       └── (même structure)
+│   │
+│   └── monitoring/
+│       ├── docker-compose.signoz.yml
+│       ├── docker-compose.otel.yml
+│       └── otel-collector-config.yml
+│
+├── scripts/
+│   ├── deploy/
+│   │   ├── deploy-production.sh
+│   │   ├── deploy-staging.sh
+│   │   └── rollback.sh
+│   ├── backup/
+│   │   ├── backup-db.sh
+│   │   ├── restore-db.sh
+│   │   └── verify-backup.sh
+│   ├── maintenance/
+│   │   ├── rotate-logs.sh
+│   │   └── cleanup.sh
+│   ├── monitoring/
+│   │   └── health-check.sh
+│   └── setup/
+│       └── generate-secrets.sh
+│
+├── docs/
+│   ├── architecture.md
+│   ├── deployment.md
+│   ├── runbook.md
+│   ├── disaster-recovery.md
+│   ├── monitoring.md
+│   └── troubleshooting.md
+│
+└── .github/
+    └── workflows/
+        ├── deploy-production.yml
+        ├── deploy-staging.yml
+        ├── rollback.yml
+        └── database-migration.yml
+```
+
+## Instructions par agent
+
+### Agent 1: Infrastructure Architect (Terraform)
+
+**Tâche:** Créer l'infrastructure Terraform complète
+
+**Spécifications techniques:**
+- Hetzner Cloud provider
+- Modules réutilisables (server, network, firewall, volume)
+- 3 environnements (production, staging, dev)
+- Production: 
+  - 1 serveur DB (cpx41 - 16GB RAM, 8 vCPU)
+  - 2 serveurs App (cpx31 - 8GB RAM, 4 vCPU)
+  - 1 serveur Monitoring (cx22 - 4GB RAM, 2 vCPU)
+  - Load Balancer
+  - Réseau privé 10.0.0.0/16
+- Staging/Dev: configs réduites
+
+**Fichiers à créer:**
+- Tous les fichiers dans `terraform/`
+- Cloud-init pour bootstrap automatique
+- Remote state avec S3
+- Variables typées avec validation
+- Outputs pour Ansible
+
+**Contraintes:**
+- Protection delete pour production
+- Snapshots automatiques
+- Firewall par défaut deny
+- SSH sur port custom (2222)
+- Tags/labels sur toutes ressources
+
+### Agent 2: Configuration Manager (Ansible)
+
+**Tâche:** Créer tous les rôles et playbooks Ansible
+
+**Rôles à créer:**
+
+1. **common:** Configuration de base tous serveurs
+   - SSH hardening (clés uniquement, port 2222)
+   - UFW firewall
+   - fail2ban
+   - Unattended upgrades
+   - Node exporter
+   - Swap configuration
+   - Users management
+
+2. **postgresql:** Installation et configuration PostgreSQL 16
+   - Installation depuis repo PostgreSQL officiel
+   - Data directory sur volume dédié (/mnt/postgres_data)
+   - Configuration optimisée (voir config postgresql.conf fournie)
+   - pg_hba.conf sécurisé (localhost + réseau privé uniquement)
+   - Création databases et users
+   - Extensions (pg_stat_statements, uuid-ossp, pgcrypto)
+   - Backup automatique quotidien
+   - Maintenance scripts (vacuum, reindex)
+   - Monitoring avec postgres_exporter
+
+3. **pgbouncer:** Connection pooling
+   - Installation et configuration
+   - Pool mode: transaction
+   - Max 1000 client connections, 25 pool size
+   - Auth SCRAM-SHA-256
+   - Monitoring avec pgbouncer_exporter
+
+4. **docker:** Installation Docker
+   - Docker CE depuis repo officiel
+   - Docker Compose v2
+   - Configuration daemon.json (logging, storage driver)
+   - Users dans groupe docker
+   - Registry privé authentication
+   - cAdvisor pour monitoring
+
+5. **monitoring:** Stack monitoring
+   - Installation exporters
+   - Configuration OpenTelemetry Collector
+   - SigNoz deployment
+   - Dashboards et alertes
+
+6. **backup:** Gestion backups
+   - Scripts backup/restore
+   - Rclone pour remote storage
+   - Rotation automatique
+   - Vérification intégrité
+
+**Playbooks principaux:**
+
+1. **site.yml:** Playbook principal pour configurer tous serveurs
+2. **deploy.yml:** Déploiement application avec rolling update
+3. **backup.yml:** Backup manuel ou automatique
+4. **restore.yml:** Restore avec confirmations
+5. **database-migration.yml:** Gestion migrations Flyway
+6. **maintenance.yml:** Maintenance régulière
+
+**Inventaires:**
+- Structure par environnement
+- group_vars avec variables par groupe
+- Secrets avec Ansible Vault
+- Variables différentes par env (prod/staging/dev)
+
+**Contraintes:**
+- Idempotence garantie
+- Handlers pour reloads/restarts
+- Error handling robuste
+- Logging de toutes opérations
+- Dry-run support où applicable
+
+### Agent 3: Container Orchestrator (Docker)
+
+**Tâche:** Créer configuration Docker complète
+
+**Dockerfiles pour microservices:**
+```dockerfile
+# Multi-stage build exemple
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn package -DskipTests
+
+FROM eclipse-temurin:21-jre-alpine
+RUN apk add --no-cache curl
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+**Docker Compose par environnement:**
+
+Production:
+- Services: api-gateway, auth-service, accounting-service, reporting-service, redis, caddy
+- Health checks sur tous services
+- Resource limits (CPU, RAM)
+- Logging configuré (json-file, rotation)
+- Networks: backend (privé), frontend (public)
+- Volumes pour persistance
+- Restart policy: unless-stopped
+
+Staging:
+- Même structure mais ressources réduites
+- Ports debug exposés
+- Logging plus verbeux
+
+Dev:
+- Ressources minimales
+- Hot reload si possible
+- Tous ports exposés
+
+**Caddyfile pour reverse proxy:**
+```caddyfile
+compta.tn {
+    reverse_proxy api-gateway:8080
+    encode gzip
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+    }
+    log {
+        output file /var/log/caddy/access.log
+    }
+}
+```
+
+**Contraintes:**
+- Images optimisées (taille minimale)
+- Multi-stage builds
+- Non-root user
+- Security scanning (Trivy)
+- Versioning semantic
+
+### Agent 4: Database Engineer (PostgreSQL)
+
+**Tâche:** Configuration PostgreSQL production-ready
+
+**Configuration PostgreSQL (postgresql.conf):**
+- Mémoire: shared_buffers 4GB, effective_cache_size 12GB
+- Connexions: max 200 (avec PgBouncer)
+- WAL: archiving activé, replication ready
+- Autovacuum: optimisé
+- Logging: queries > 500ms
+- Stats: pg_stat_statements activé
+- Locale: fr_TN.UTF-8
+- Timezone: Africa/Tunis
+
+**PgBouncer:**
+- Transaction pooling mode
+- 1000 max client conn → 25 pool size
+- Auth fichier avec SCRAM-SHA-256
+- Timeouts configurés
+- Stats collectées
+
+**Backup strategy:**
+- Quotidien: pg_dump (custom + SQL gzip)
+- WAL archiving continu
+- Retention 30 jours local
+- Upload vers remote storage (rclone)
+- Vérification intégrité automatique
+- Restore testé régulièrement
+
+**Migrations:**
+- Flyway intégré dans Spring Boot
+- Migrations versionnées (V1__, V2__, etc.)
+- Validation avant apply
+- Backup automatique avant migration
+- Rollback plan
+
+**Monitoring:**
+- postgres_exporter (port 9187)
+- Métriques custom (queries lentes, bloat, etc.)
+- Alertes: connexions, cache hit ratio, replication lag, disk space
+
+**Contraintes:**
+- Data checksums activés
+- SSL connections
+- No superuser remote access
+- Regular VACUUM et ANALYZE
+
+### Agent 5: DevOps Engineer (CI/CD)
+
+**Tâche:** Créer workflows GitHub Actions complets
+
+**Workflows requis:**
+
+1. **deploy-production.yml:**
+   - Trigger: push sur main, tags v*.*.*
+   - Jobs:
+     - build-and-test (matrix: 4 services)
+     - security-scan (Trivy, OWASP)
+     - build-images (Docker multi-arch)
+     - terraform-plan
+     - deploy-infrastructure
+     - configure-servers (Ansible)
+     - deploy-application
+     - post-deployment-tests (smoke, health)
+     - notify (Slack)
+   - Environnement: production (avec approval)
+
+2. **deploy-staging.yml:**
+   - Trigger: push sur develop
+   - Même structure mais:
+     - Pas d'approval requis
+     - E2E tests (Playwright)
+     - Performance tests (k6)
+     - Environnement: staging
+
+3. **rollback.yml:**
+   - Trigger: workflow_dispatch (manuel)
+   - Inputs: environment, version, reason
+   - Confirmation requise
+   - Rollback avec Ansible
+   - Health checks post-rollback
+   - Notification
+
+4. **database-migration.yml:**
+   - Trigger: workflow_dispatch
+   - Actions: migrate, validate, info, repair
+   - Dry-run option
+   - Backup automatique avant migration
+   - Validation post-migration
+
+**Tests:**
+- Unit tests (JUnit, Maven)
+- Integration tests
+- E2E tests (Playwright)
+- Performance tests (k6)
+- Security scans (Trivy, SonarQube)
+
+**Secrets à configurer:**
+```
+ANSIBLE_VAULT_PASSWORD
+HCLOUD_TOKEN
+REGISTRY_USERNAME
+REGISTRY_PASSWORD
+SSH_PRIVATE_KEY
+STAGING_SSH_PRIVATE_KEY
+PROD_SERVER_IP
+STAGING_SERVER_IP
+SLACK_WEBHOOK_URL
+STAGING_TEST_USER
+STAGING_TEST_PASSWORD
+SONAR_TOKEN (optionnel)
+```
+
+**Contraintes:**
+- Build cache optimisé
+- Parallel jobs quand possible
+- Artifact retention configuré
+- Logs détaillés
+- Rate limiting respecté
+
+### Agent 6: Monitoring Specialist
+
+**Tâche:** Implémenter observability complète
+
+**Stack monitoring:**
+1. **OpenTelemetry Collector:**
+   - Collecte traces, metrics, logs
+   - Exporters vers SigNoz
+   - Sampling intelligent
+   - Batch processing
+
+2. **SigNoz:**
+   - Déploiement via Docker Compose
+   - Dashboards pour:
+     - Applications (APM)
+     - PostgreSQL
+     - Docker containers
+     - Infrastructure (nodes)
+   - Alertes configurées
+
+3. **Exporters:**
+   - node_exporter: tous serveurs (port 9100)
+   - postgres_exporter: serveur DB (port 9187)
+   - pgbouncer_exporter: serveur DB (port 9127)
+   - cAdvisor: serveurs app (port 8080)
+
+**Métriques clés:**
+
+PostgreSQL:
+- Connexions actives
+- Cache hit ratio (> 99%)
+- Queries lentes (> 500ms)
+- Table bloat
+- Replication lag
+- Disk usage
+
+Application:
+- Request latency (p50, p95, p99)
+- Error rate
+- Throughput
+- JVM metrics (heap, GC)
+
+Infrastructure:
+- CPU, RAM, Disk usage
+- Network I/O
+- Container health
+
+**Alertes critiques:**
+- PostgreSQL down
+- Connexions > 80%
+- Cache hit ratio < 95%
+- Disk > 85%
+- Service down
+- Error rate spike
+
+**Dashboards:**
+- Overview général
+- PostgreSQL performance
+- Application APM
+- Infrastructure health
+
+**Contraintes:**
+- Retention données configurée
+- Agrégation pour performance
+- Alertes avec rate limiting
+- Notification multi-canal
+
+### Agent 7: Security Engineer
+
+**Tâche:** Sécuriser toute l'infrastructure
+
+**Sécurité serveurs:**
+1. SSH hardening:
+   - Port custom 2222
+   - Clés uniquement (no password)
+   - No root login
+   - fail2ban configuré
+
+2. Firewall:
+   - UFW par défaut deny
+   - Whitelist IPs admin
+   - Ports minimum ouverts
+   - Logs activés
+
+3. Updates:
+   - Unattended security updates
+   - Notifications updates importantes
+
+**Sécurité réseau:**
+1. Réseau privé Hetzner:
+   - DB accessible que via réseau privé
+   - Microservices sur réseau privé
+   - Load balancer seul public
+
+2. Firewall Hetzner:
+   - Rules par serveur type
+   - ICMP limité
+   - Rate limiting
+
+**Sécurité applicative:**
+1. Secrets:
+   - Ansible Vault pour configs
+   - GitHub Secrets pour CI/CD
+   - Jamais de secrets en clair
+   - Rotation régulière
+
+2. SSL/TLS:
+   - Let's Encrypt via Caddy
+   - HSTS activé
+   - TLS 1.2+ uniquement
+
+3. Application:
+   - JWT pour auth
+   - CORS configuré
+   - Rate limiting
+   - Input validation
+
+**Sécurité Docker:**
+1. Images:
+   - Scan Trivy
+   - Base images officielles
+   - Non-root user
+   - Read-only filesystem où possible
+
+2. Runtime:
+   - Resource limits
+   - No privileged
+   - Secrets via Docker secrets
+   - Network isolation
+
+**Audit et compliance:**
+1. Logs centralisés
+2. Audit trails
+3. RGPD compliance (pour clients EU)
+4. Backup chiffré
+
+**Contraintes:**
+- Security scans dans CI/CD
+- Penetration testing régulier
+- Vulnerability management
+- Incident response plan
+
+### Agent 8: Documentation Writer
+
+**Tâche:** Documenter complètement le projet
+
+**Documents à créer:**
+
+1. **README.md principal:**
+   - Vue d'ensemble projet
+   - Architecture diagram
+   - Quick start guide
+   - Structure projet
+   - Prérequis
+   - Installation
+   - Utilisation
+   - Contributing guidelines
+
+2. **docs/architecture.md:**
+   - Architecture complète
+   - Diagrammes (infrastructure, réseau, data flow)
+   - Choix technologiques justifiés
+   - Scalability considerations
+   - Security architecture
+
+3. **docs/deployment.md:**
+   - Guide déploiement pas-à-pas
+   - Environnements
+   - Prérequis
+   - Secrets à configurer
+   - Commandes déploiement
+   - Vérifications post-déploiement
+   - Troubleshooting déploiement
+
+4. **docs/runbook.md:**
+   - Opérations quotidiennes
+   - Procédures standards:
+     - Déploiement
+     - Rollback
+     - Backup/restore
+     - Scaling
+     - Updates
+   - Checks à faire
+   - Contacts
+
+5. **docs/disaster-recovery.md:**
+   - Scénarios de disaster
+   - Recovery procedures
+   - RTO/RPO définis
+   - Backup locations
+   - Restore procedures
+   - Tests DR
+
+6. **docs/monitoring.md:**
+   - Dashboards disponibles
+   - Métriques importantes
+   - Alertes configurées
+   - Procédures d'investigation
+   - Escalation
+
+7. **docs/troubleshooting.md:**
+   - Problèmes communs
+   - Solutions
+   - Logs à checker
+   - Commandes utiles
+   - FAQ
+
+**README pour chaque composant:**
+- Modules Terraform
+- Rôles Ansible
+- Services Docker
+
+**Contraintes:**
+- Markdown formaté
+- Exemples concrets
+- Diagrammes (Mermaid)
+- Liens internes
+- Maintenu à jour
+
+## Ordre d'exécution
+
+Exécute les agents dans cet ordre:
+
+1. **Infrastructure Architect** → Crée base Terraform
+2. **Database Engineer** → Définit configs PostgreSQL
+3. **Configuration Manager** → Crée rôles Ansible
+4. **Container Orchestrator** → Configure Docker
+5. **DevOps Engineer** → Setup CI/CD
+6. **Monitoring Specialist** → Implémente monitoring
+7. **Security Engineer** → Sécurise tout
+8. **Documentation Writer** → Documente tout
+
+## Validation finale
+
+Avant de considérer terminé, vérifie que:
+
+- [ ] `terraform apply` fonctionne pour chaque env
+- [ ] `ansible-playbook site.yml` configure serveurs
+- [ ] `ansible-playbook deploy.yml` déploie app
+- [ ] CI/CD pipeline complet fonctionne
+- [ ] Monitoring affiche métriques
+- [ ] Alertes se déclenchent
+- [ ] Backup/restore fonctionne
+- [ ] Documentation complète et claire
+- [ ] Secrets gérés correctement
+- [ ] Tests passent
+
+## Notes importantes
+
+1. **Cohérence:** Les variables doivent être cohérentes entre Terraform, Ansible et Docker
+2. **Secrets:** JAMAIS de secrets en clair dans le code
+3. **Production-ready:** Tout doit être pensé pour la production dès le début
+4. **Documentation:** Chaque décision importante doit être documentée
+5. **Tests:** Tester sur staging avant production
+6. **Versioning:** Tout doit être versionné (Git)
+7. **Idempotence:** Ansible doit être idempotent
+8. **Monitoring:** Tout doit être monitoré
+9. **Backup:** Tout doit être sauvegardé
+10. **Security:** Security by default
+
+## Livrables attendus
+
+À la fin, tu dois avoir:
+- Infrastructure complète déployable
+- CI/CD fonctionnel
+- Monitoring opérationnel
+- Documentation exhaustive
+- Tous les scripts nécessaires
+- Configuration 3 environnements
+- Tests automatisés
+- Security hardening
+
+Bonne chance ! 🚀
