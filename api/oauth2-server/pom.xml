@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project
   xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -11,14 +11,23 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>oauth2-server</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
   <name>oauth2-server</name>
   <description>OAuth2 Authorization Server</description>
+
   <properties>
     <jooq.generator.db.schema>oauth2</jooq.generator.db.schema>
     <jooq.generator.target.package>tn.cyberious.compta.oauth2.generated</jooq.generator.target.package>
   </properties>
 
   <dependencies>
+    <!-- Commons Module -->
+    <dependency>
+      <groupId>tn.cyberious.compta</groupId>
+      <artifactId>compta-commons</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Spring Boot Starters -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -30,10 +39,6 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
 
@@ -42,6 +47,7 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-oauth2-authorization-server</artifactId>
     </dependency>
+
 
     <!-- Database -->
     <dependency>
