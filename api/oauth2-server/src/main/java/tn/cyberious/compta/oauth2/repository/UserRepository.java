@@ -1,5 +1,6 @@
 package tn.cyberious.compta.oauth2.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
+import tn.cyberious.compta.oauth2.generated.tables.Roles;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 import tn.cyberious.compta.oauth2.generated.tables.Users;
 import tn.cyberious.compta.oauth2.generated.tables.records.UsersRecord;
@@ -71,5 +73,15 @@ public class UserRepository {
       .returning(Users.USERS.ID)
       .fetchOne();
     return record.getId();
+  }
+
+  public List<String> getUserRoles(UUID userId) {
+    return dsl
+        .select(Roles.ROLES.NAME)
+        .from(UserRoles.USER_ROLES)
+        .join(Roles.ROLES)
+        .on(UserRoles.USER_ROLES.ROLE_ID.eq(Roles.ROLES.ID))
+        .where(UserRoles.USER_ROLES.USER_ID.eq(userId))
+        .fetch(Roles.ROLES.NAME);
   }
 }

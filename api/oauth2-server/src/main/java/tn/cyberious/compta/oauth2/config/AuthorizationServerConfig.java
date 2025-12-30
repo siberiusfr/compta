@@ -66,6 +66,53 @@ public class AuthorizationServerConfig {
 
   @Bean
   public RegisteredClientRepository registeredClientRepository(PasswordEncoder passwordEncoder) {
+    // Public client with PKCE support (for SPAs, mobile apps)
+    RegisteredClient publicClient =
+        RegisteredClient.withId(UUID.randomUUID().toString())
+            .clientId("public-client")
+            .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+            .redirectUri("http://localhost:3000/authorized")
+            .scope(OidcScopes.OPENID)
+            .scope("read")
+            .scope("write")
+            .clientSettings(
+                ClientSettings.builder()
+                    .requireAuthorizationConsent(true)
+                    .requireProofKey(true)
+                    .build())
+            .tokenSettings(
+                TokenSettings.builder()
+                    .accessTokenTimeToLive(java.time.Duration.ofMinutes(30))
+                    .authorizationCodeTimeToLive(java.time.Duration.ofMinutes(5))
+                    .reuseRefreshTokens(false)
+                    .build())
+            .build();
+
+    // Gateway client for token validation (backend service)
+    RegisteredClient gatewayClient =
+        RegisteredClient.withId(UUID.randomUUID().toString())
+            .clientId("gateway")
+            .clientSecret(passwordEncoder.encode("gateway-secret"))
+            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+            .redirectUri("http://localhost:8080/authorized")
+            .scope(OidcScopes.OPENID)
+            .scope("read")
+            .scope("write")
+            .clientSettings(
+                ClientSettings.builder()
+                    .requireAuthorizationConsent(false)
+                    .requireProofKey(false)
+                    .build())
+            .tokenSettings(
+                TokenSettings.builder()
+                    .accessTokenTimeToLive(java.time.Duration.ofMinutes(60))
+                    .build())
+            .build();
+
+    // Confidential clients with PKCE support (for backend services)
     RegisteredClient accountingServiceClient =
         RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("accounting-service")
@@ -79,10 +126,15 @@ public class AuthorizationServerConfig {
             .scope(OidcScopes.OPENID)
             .scope("read")
             .scope("write")
-            .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+            .clientSettings(
+                ClientSettings.builder()
+                    .requireAuthorizationConsent(true)
+                    .requireProofKey(true)
+                    .build())
             .tokenSettings(
                 TokenSettings.builder()
                     .accessTokenTimeToLive(java.time.Duration.ofMinutes(30))
+                    .authorizationCodeTimeToLive(java.time.Duration.ofMinutes(5))
                     .build())
             .build();
 
@@ -99,10 +151,15 @@ public class AuthorizationServerConfig {
             .scope(OidcScopes.OPENID)
             .scope("read")
             .scope("write")
-            .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+            .clientSettings(
+                ClientSettings.builder()
+                    .requireAuthorizationConsent(true)
+                    .requireProofKey(true)
+                    .build())
             .tokenSettings(
                 TokenSettings.builder()
                     .accessTokenTimeToLive(java.time.Duration.ofMinutes(30))
+                    .authorizationCodeTimeToLive(java.time.Duration.ofMinutes(5))
                     .build())
             .build();
 
@@ -119,15 +176,20 @@ public class AuthorizationServerConfig {
             .scope(OidcScopes.OPENID)
             .scope("read")
             .scope("write")
-            .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+            .clientSettings(
+                ClientSettings.builder()
+                    .requireAuthorizationConsent(true)
+                    .requireProofKey(true)
+                    .build())
             .tokenSettings(
                 TokenSettings.builder()
                     .accessTokenTimeToLive(java.time.Duration.ofMinutes(30))
+                    .authorizationCodeTimeToLive(java.time.Duration.ofMinutes(5))
                     .build())
             .build();
 
     return new InMemoryRegisteredClientRepository(
-        accountingServiceClient, authzServiceClient, hrServiceClient);
+        publicClient, gatewayClient, accountingServiceClient, authzServiceClient, hrServiceClient);
   }
 
   @Bean

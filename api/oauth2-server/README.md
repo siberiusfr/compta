@@ -1,134 +1,260 @@
-# OAuth2 Authorization Server
-
-OAuth2 Authorization Server for Compta microservices architecture.
+# OAuth2 Server Module
 
 ## Overview
 
-This service provides OAuth2 authorization capabilities including:
-- Token issuance (access tokens, refresh tokens)
-- User authentication with database-backed user details
-- Client credentials for service-to-service authentication
-- Authorization code flow for user authentication
-- OpenID Connect (OIDC) support
+This module provides a complete OAuth2 Authorization Server implementation using Spring Authorization Server 1.3+ with Spring Security 6. It supports both public clients (with PKCE) and confidential clients, and uses JOOQ for database access.
 
-## Configuration
+## Architecture
 
-### Database
+### Technology Stack
+- **Spring Boot 3.x** with Spring Security 6
+- **Spring Authorization Server 1.3+**
+- **JOOQ** for type-safe database access
+- **Flyway** for database migrations
+- **PostgreSQL** with `oauth2` schema
+- **RSA 2048-bit** keys for JWT signing
 
-The service uses PostgreSQL with Flyway migrations. Ensure your database is running:
+### Registered Clients
 
-```bash
-# Start PostgreSQL (if using Docker)
-docker run --name postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=compta -p 5432:5432 -d postgres:16
-```
+| Client ID | Type | Authentication | Grant Types | PKCE | Description |
+|-----------|------|----------------|--------------|------|-------------|
+| `public-client` | Public | None | Authorization Code, Refresh Token | Yes | SPAs, mobile apps |
+| `gateway` | Confidential | Client Secret Basic | Client Credentials | No | Gateway service |
+| `accounting-service` | Confidential | Client Secret Basic | Authorization Code, Refresh Token, Client Credentials | Yes | Accounting service |
+| `authz-service` | Confidential | Client Secret Basic | Authorization Code, Refresh Token, Client Credentials | Yes | Authorization service |
+| `hr-service` | Confidential | Client Secret Basic | Authorization Code, Refresh Token, Client Credentials | Yes | HR service |
 
-### Application Properties
+### Client Secrets
+- `public-client`: No secret (public client)
+- `gateway`: `gateway-secret`
+- `accounting-service`: `accounting-secret`
+- `authz-service`: `authz-secret`
+- `hr-service`: `hr-secret`
 
-The service is configured in `src/main/resources/application.yml`:
-
-- Server port: 9000
-- Database: PostgreSQL on localhost:5432
-- Flyway migrations: Enabled
-
-## Registered Clients
-
-The following OAuth2 clients are pre-configured:
-
-| Client ID | Client Secret | Grant Types | Scopes | PKCE |
-|-----------|---------------|-------------|-------|------|
-| public-client | (none) | authorization_code, refresh_token | openid, read, write | Yes |
-| accounting-service | accounting-secret | authorization_code, refresh_token, client_credentials | openid, read, write | Yes |
-| authz-service | authz-secret | authorization_code, refresh_token, client_credentials | openid, read, write | Yes |
-| hr-service | hr-secret | authorization_code, refresh_token, client_credentials | openid, read, write | Yes |
-
-## Default Users
-
-The following users are created by Flyway migrations:
-
+### Default Users
 | Username | Password | Roles |
 |----------|----------|-------|
-| admin | admin123 | ROLE_ADMIN |
-| user | user123 | ROLE_USER |
+| `admin` | `admin123` | ROLE_ADMIN |
+| `user` | `user123` | ROLE_USER |
 
-## API Endpoints
+## PKCE (Proof Key for Code Exchange)
+
+PKCE is enabled for all clients except the gateway (which uses Client Credentials flow). PKCE provides additional security for public clients and is recommended for confidential clients as well.
+
+### PKCE Flow
+1. Client generates a code verifier (random string)
+2. Client creates a code challenge (SHA256 hash of verifier)
+3. Client includes code challenge in authorization request
+4. Authorization server stores the challenge
+5. Client sends code verifier in token request
+6. Authorization server verifies the challenge
+
+## Database Schema
+
+All tables are in the `oauth2` schema:
+
+### OAuth2 Tables
+- `oauth2.oauth2_registered_client` - Registered OAuth2 clients
+- `oauth2.oauth2_authorization` - OAuth2 authorizations
+- `oauth2.oauth2_authorization_consent` - User consent records
+
+### User Authentication Tables
+- `oauth2.users` - User accounts
+- `oauth2.roles` - User roles
+- `oauth2.user_roles` - User-role associations
+
+## Endpoints
 
 ### OAuth2 Endpoints
-
 - **Authorization Endpoint**: `GET /oauth2/authorize`
 - **Token Endpoint**: `POST /oauth2/token`
 - **JWKS Endpoint**: `GET /.well-known/jwks.json`
 - **Token Revocation**: `POST /oauth2/revoke`
 - **Token Introspection**: `POST /oauth2/introspect`
 
-### Documentation
+### User Authentication
+- **Login**: `POST /login` (form-based)
+- **Logout**: `POST /logout`
 
-- **Swagger UI**: http://localhost:9000/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:9000/v3/api-docs
+## Configuration
 
-## Running the Service
+### Application Properties
+
+```yaml
+server:
+  port: 9000
+
+spring:
+  application:
+    name: oauth2-server
+  datasource:
+    url: jdbc:postgresql://localhost:5432/compta
+    username: postgres
+    password: postgres
+  flyway:
+    enabled: true
+    schemas: oauth2
+    locations: classpath:db/migration
+```
+
+### JOOQ Configuration
+
+```yaml
+jooq:
+  generator:
+    db:
+      schema: oauth2
+    target:
+      package: tn.cyberious.compta.oauth2.generated
+```
+
+## Usage Examples
+
+### Authorization Code Flow with PKCE (Public Client)
+
+```bash
+# 1. Generate code verifier and challenge
+CODE_VERIFIER=$(openssl rand -base64 64 | tr -d '/+=' | cut -c1-128)
+CODE_CHALLENGE=$(echo -n $CODE_VERIFIER | openssl dgst -sha256 -binary | openssl base64 -urlsafe | tr -d '=')
+
+# 2. Request authorization
+curl -X GET "http://localhost:9000/oauth2/authorize?client_id=public-client&response_type=code&scope=openid%20read%20write&redirect_uri=http://localhost:3000/authorized&code_challenge=$CODE_CHALLENGE&code_challenge_method=S256"
+
+# 3. Exchange code for token
+curl -X POST "http://localhost:9000/oauth2/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=authorization_code&code=AUTHORIZATION_CODE&redirect_uri=http://localhost:3000/authorized&client_id=public-client&code_verifier=$CODE_VERIFIER"
+```
+
+### Client Credentials Flow (Gateway)
+
+```bash
+curl -X POST "http://localhost:9000/oauth2/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -H "Authorization: Basic $(echo -n 'gateway:gateway-secret' | base64)" \
+  -d "grant_type=client_credentials&scope=read%20write"
+```
+
+### Authorization Code Flow with PKCE (Confidential Client)
+
+```bash
+# 1. Generate code verifier and challenge
+CODE_VERIFIER=$(openssl rand -base64 64 | tr -d '/+=' | cut -c1-128)
+CODE_CHALLENGE=$(echo -n $CODE_VERIFIER | openssl dgst -sha256 -binary | openssl base64 -urlsafe | tr -d '=')
+
+# 2. Request authorization
+curl -X GET "http://localhost:9000/oauth2/authorize?client_id=accounting-service&response_type=code&scope=openid%20read%20write&redirect_uri=http://127.0.0.1:8080/authorized&code_challenge=$CODE_CHALLENGE&code_challenge_method=S256"
+
+# 3. Exchange code for token
+curl -X POST "http://localhost:9000/oauth2/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -H "Authorization: Basic $(echo -n 'accounting-service:accounting-secret' | base64)" \
+  -d "grant_type=authorization_code&code=AUTHORIZATION_CODE&redirect_uri=http://127.0.0.1:8080/authorized&code_verifier=$CODE_VERIFIER"
+```
+
+### Refresh Token Flow
+
+```bash
+curl -X POST "http://localhost:9000/oauth2/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -H "Authorization: Basic $(echo -n 'public-client: ' | base64)" \
+  -d "grant_type=refresh_token&refresh_token=REFRESH_TOKEN"
+```
+
+## Token Validation
+
+The gateway validates JWT tokens using the JWKS endpoint:
+
+```bash
+# Get JWKS (public keys)
+curl http://localhost:9000/.well-known/jwks.json
+
+# Decode JWT (for inspection)
+echo "JWT_TOKEN" | jq -R 'split(".") | .[1] | @base64d | fromjson'
+```
+
+## Security Features
+
+1. **PKCE Support**: Enabled for all clients except gateway
+2. **RSA 2048-bit Keys**: Strong cryptographic signing
+3. **Authorization Code Expiry**: 5 minutes
+4. **Access Token Expiry**: 30 minutes (60 minutes for gateway)
+5. **Refresh Tokens**: Non-reusable for public clients
+6. **Consent Management**: Required for all authorization requests
+7. **JWKS Endpoint**: Automatic public key distribution
+
+## Development
+
+### Running the Server
 
 ```bash
 # Build the project
 mvn clean install
 
-# Run the service
+# Run the OAuth2 server
 cd oauth2-server
 mvn spring-boot:run
 ```
 
-## Database Schema
-
-All tables are created in the `oauth2` schema by Flyway migrations.
-
-### OAuth2 Tables
-
-- `oauth2.oauth2_registered_client` - Registered OAuth2 clients
-- `oauth2.oauth2_authorization` - OAuth2 authorizations and tokens
-- `oauth2.oauth2_authorization_consent` - User consent for authorizations
-
-### User Authentication Tables
-
-- `oauth2.users` - User accounts
-- `oauth2.roles` - User roles
-- `oauth2.user_roles` - User-role relationships
-
-## Service-to-Service Authentication
-
-Services can authenticate using the client credentials grant:
+### Database Migrations
 
 ```bash
-curl -X POST http://localhost:9000/oauth2/token \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -u "accounting-service:accounting-secret" \
-  -d "grant_type=client_credentials" \
-  -d "scope=read write"
+# Flyway migrations are automatically applied on startup
+# To manually run migrations:
+mvn flyway:migrate -pl oauth2-server
 ```
 
-## User Authentication (Authorization Code Flow)
+### JOOQ Code Generation
 
-1. Redirect user to authorization endpoint:
-   ```
-   http://localhost:9000/oauth2/authorize?client_id=accounting-service&response_type=code&scope=read write&redirect_uri=http://127.0.0.1:8080/authorized
-   ```
+```bash
+# Generate JOOQ classes from database schema
+mvn jooq-codegen:generate -pl oauth2-server
+```
 
-2. User logs in with username/password
+## Testing
 
-3. User is redirected with authorization code
+### Test with curl
 
-4. Exchange code for access token:
-   ```bash
-   curl -X POST http://localhost:9000/oauth2/token \
-     -H "Content-Type: application/x-www-form-urlencoded" \
-     -u "accounting-service:accounting-secret" \
-     -d "grant_type=authorization_code" \
-     -d "code=YOUR_CODE" \
-     -d "redirect_uri=http://127.0.0.1:8080/authorized"
-   ```
+```bash
+# Test JWKS endpoint
+curl http://localhost:9000/.well-known/jwks.json
 
-## Security Considerations
+# Test authorization endpoint (will redirect to login)
+curl -L http://localhost:9000/oauth2/authorize?client_id=public-client&response_type=code&scope=openid&redirect_uri=http://localhost:3000/authorized
+```
 
-- All client secrets should be stored securely in production
-- Use HTTPS in production environments
-- Implement proper token expiration policies
-- Regularly rotate RSA keys
-- Monitor and audit authorization activities
+### Test with Postman
+
+1. Create a new OAuth 2.0 request
+2. Configure client credentials
+3. Generate PKCE code verifier and challenge
+4. Request authorization code
+5. Exchange for access token
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Invalid Code Verifier**: Ensure code verifier matches the challenge used in authorization request
+2. **Expired Authorization Code**: Authorization codes expire in 5 minutes
+3. **Invalid Client Secret**: Verify client credentials match registered client configuration
+4. **Missing PKCE Parameters**: Public clients must include `code_challenge` and `code_challenge_method`
+
+### Logs
+
+Enable debug logging for troubleshooting:
+
+```yaml
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    tn.cyberious.compta.oauth2: DEBUG
+```
+
+## References
+
+- [Spring Authorization Server Documentation](https://docs.spring.io/spring-authorization-server/reference/)
+- [OAuth 2.1 RFC](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-09)
+- [PKCE RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636)
+- [JOOQ Documentation](https://www.jooq.org/)

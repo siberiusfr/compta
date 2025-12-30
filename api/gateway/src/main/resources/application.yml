@@ -177,12 +177,22 @@ cors:
   max-age: 3600
 
 # ✅ JWT Configuration
-# ⚠️ In production, JWT_SECRET must be set via environment variable
+# ⚠️  In production, JWT_SECRET must be set via environment variable
 # The default value is for development only - JwtConfigValidator blocks it in production
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   expiration: ${JWT_EXPIRATION:86400000} # 24 hours
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
+
+# ✅ OAuth2 Token Validation Configuration
+# The gateway validates RSA JWT tokens issued by the OAuth2 server
+oauth2:
+  enabled: ${OAUTH2_TOKEN_VALIDATION_ENABLED:true}
+  issuer: ${OAUTH2_ISSUER:http://localhost:9000}
+  jwks-url: ${OAUTH2_JWKS_URL:http://localhost:9000/.well-known/jwks.json}
+  jwks-cache-duration: ${OAUTH2_JWKS_CACHE_DURATION:300000} # 5 minutes
+  validate-signature: ${OAUTH2_VALIDATE_SIGNATURE:true}
+  cache-refresh-interval: ${OAUTH2_CACHE_REFRESH_INTERVAL:300000} # 5 minutes
 
 # ✅ Gateway URLs pour OpenAPI
 gateway:

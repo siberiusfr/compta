@@ -38,8 +38,9 @@ The Gateway Service provides the following core functionality:
 
 ### Security
 - **Spring Security** - Security framework for reactive applications
-- **OAuth2 Resource Server** - JWT token validation
+- **OAuth2 Resource Server** - JWT token validation from OAuth2 server
 - **Spring Security WebFlux** - Reactive security support
+- **JWKS (JSON Web Key Set)** - RSA public key validation
 
 ### Resilience & Fault Tolerance
 - **Resilience4j** - Circuit breaker and retry mechanisms
@@ -86,6 +87,7 @@ graph TB
         Router[Route Handler]
     end
     
+    OAuth2[OAuth2 Server<br/>:9000]
     Auth[Auth Service<br/>:8081]
     Authz[Authz Service<br/>:8082]
     Invoice[Invoice Service<br/>:8083]
@@ -94,6 +96,8 @@ graph TB
     Redis[(Redis<br/>Rate Limiting)]
     
     Client -->|HTTPS| Security
+    Security -->|Validate JWT| OAuth2
+    OAuth2 -.->|JWKS| Security
     Security --> RateLimit
     RateLimit --> Circuit
     Circuit --> Router
@@ -106,6 +110,7 @@ graph TB
     
     style Gateway fill:#e1f5ff
     style Redis fill:#ffe1e1
+    style OAuth2 fill:#e1ffe1
 ```
 
 ---
@@ -162,6 +167,7 @@ Each route includes:
 ## Dependencies on Other Services
 
 ### Downstream Services
+- **OAuth2 Server** (`http://localhost:9000`) - OAuth2 authorization server (JWT validation)
 - **Auth Service** (`http://localhost:8081`) - User authentication
 - **Authz Service** (`http://localhost:8082`) - Authorization management
 - **Invoice Service** (`http://localhost:8083`) - Invoice management
@@ -203,10 +209,13 @@ spring:
   application:
     name: gateway-service
 
-jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
-  expiration: ${JWT_EXPIRATION:86400000}
-  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
+oauth2:
+  enabled: ${OAUTH2_TOKEN_VALIDATION_ENABLED:true}
+  issuer: ${OAUTH2_ISSUER:http://localhost:9000}
+  jwks-url: ${OAUTH2_JWKS_URL:http://localhost:9000/.well-known/jwks.json}
+  jwks-cache-duration: ${OAUTH2_JWKS_CACHE_DURATION:300000}
+  validate-signature: ${OAUTH2_VALIDATE_SIGNATURE:true}
+  cache-refresh-interval: ${OAUTH2_CACHE_REFRESH_INTERVAL:300000}
 
 cors:
   allowed-origins:
@@ -284,9 +293,12 @@ management:
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `SPRING_PROFILES_ACTIVE` | Spring profile (dev/prod) | `dev` |
-| `JWT_SECRET` | JWT signing secret (64+ chars recommended for production) | `404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970` |
-| `JWT_EXPIRATION` | Access token expiration in milliseconds | `86400000` (24 hours) |
-| `JWT_REFRESH_EXPIRATION` | Refresh token expiration in milliseconds | `604800000` (7 days) |
+| `OAUTH2_TOKEN_VALIDATION_ENABLED` | Enable OAuth2 token validation | `true` |
+| `OAUTH2_ISSUER` | OAuth2 issuer URL | `http://localhost:9000` |
+| `OAUTH2_JWKS_URL` | JWKS endpoint URL | `http://localhost:9000/.well-known/jwks.json` |
+| `OAUTH2_JWKS_CACHE_DURATION` | JWKS cache duration (ms) | `300000` (5 minutes) |
+| `OAUTH2_VALIDATE_SIGNATURE` | Validate JWT signature | `true` |
+| `OAUTH2_CACHE_REFRESH_INTERVAL` | JWKS cache refresh interval (ms) | `300000` (5 minutes) |
 | `AUTH_SERVICE_URL` | Auth service URL | `http://localhost:8081` |
 | `AUTHZ_SERVICE_URL` | Authz service URL | `http://localhost:8082` |
 | `INVOICE_SERVICE_URL` | Invoice service URL | `http://localhost:8083` |
@@ -313,7 +325,7 @@ management:
 - **`OpenApiConfig`** - Swagger/OpenAPI aggregation configuration
 - **`WebClientConfig`** - WebClient configuration for health checks
 - **`WebPropertiesConfig`** - Web properties configuration
-- **`JwtConfigValidator`** - JWT configuration validation
+- **`OAuth2Properties`** - OAuth2 configuration properties
 - **`PublicEndpoints`** - Public endpoint path definitions
 - **`ProfileHelper`** - Profile-specific configuration helper
 
@@ -325,6 +337,7 @@ management:
 ### Filters
 
 #### `filter/`
+- **`OAuth2TokenValidationFilter`** - Validates OAuth2 JWT tokens before routing
 - **`JwtToHeadersGatewayFilter`** - Extracts JWT claims and adds as HTTP headers
 - **`StripUserHeadersFilter`** - Strips user headers from responses
 - **`SecureLoggingGlobalFilter`** - Secure logging with sensitive data masking
@@ -345,24 +358,48 @@ management:
 
 ## Security Implementation
 
-### JWT Token Validation
+### OAuth2 Token Validation
 
-The gateway uses OAuth2 Resource Server to validate JWT tokens:
+The gateway validates JWT tokens issued by the OAuth2 server using JWKS (JSON Web Key Set):
 
 ```mermaid
 sequenceDiagram
     participant Client
     participant Gateway
-    participant Auth Service
+    participant OAuth2Server
+    participant JWKS
     
     Client->>Gateway: Request with JWT
+    Gateway->>JWKS: Fetch public keys (cached)
+    JWKS-->>Gateway: RSA public keys
     Gateway->>Gateway: Validate JWT signature
+    Gateway->>Gateway: Verify issuer & expiration
     Gateway->>Gateway: Extract claims (userId, username, roles)
     Gateway->>Gateway: Add user context headers
     Gateway->>Auth Service: Forward request with headers
     Auth Service-->>Gateway: Response
     Gateway-->>Client: Response
 ```
+
+### OAuth2 Configuration
+
+The gateway is configured with the following OAuth2 settings:
+
+```yaml
+oauth2:
+  enabled: true
+  issuer: http://localhost:9000
+  jwks-url: http://localhost:9000/.well-known/jwks.json
+  jwks-cache-duration: 300000  # 5 minutes
+  validate-signature: true
+  cache-refresh-interval: 300000  # 5 minutes
+```
+
+### Key Classes
+
+- **`OAuth2TokenValidator`** - Fetches JWKS from OAuth2 server and validates JWT tokens
+- **`OAuth2TokenValidationFilter`** - Gateway filter that validates tokens before routing
+- **`PublicEndpoints`** - Defines public endpoints that skip token validation
 
 ### User Context Headers
 
@@ -383,7 +420,22 @@ The following paths are publicly accessible (no authentication required):
 - `/v3/api-docs/**` - OpenAPI documentation
 - `/swagger-ui/**` - Swagger UI
 
-All other paths require valid JWT authentication.
+All other paths require valid OAuth2 JWT authentication.
+
+### Token Validation Flow
+
+1. **JWKS Fetching**: Gateway fetches public RSA keys from OAuth2 server's JWKS endpoint
+2. **Caching**: JWKS are cached for 5 minutes to reduce network calls
+3. **Token Validation**: JWT tokens are validated against cached public keys
+4. **Claims Extraction**: User claims are extracted and added as HTTP headers
+5. **Request Forwarding**: Validated requests are forwarded to downstream services
+
+### Error Handling
+
+Invalid or missing tokens result in:
+- `401 Unauthorized` - Missing, empty, or invalid token
+- `403 Forbidden` - Token lacks required scopes/roles
+- `500 Internal Server Error` - JWKS fetch failure or validation error
 
 ---
 
@@ -585,20 +637,48 @@ Traces are exported using OpenTelemetry. Configure your tracing backend (Jaeger,
 
 ---
 
-## Migration to OAuth2
+## OAuth2 Integration
 
-The gateway currently uses JWT validation directly and needs to be migrated to full OAuth2:
+The gateway is configured to validate JWT tokens issued by the OAuth2 server using JWKS (JSON Web Key Set).
 
-1. **Current State**: Validates JWT tokens using shared secret
-2. **Target State**: OAuth2 Resource Server with OAuth2 provider integration
+### OAuth2 Server Configuration
 
-### Required Changes
+The gateway connects to the OAuth2 server at `http://localhost:9000` and validates tokens using the following endpoints:
 
-- Integrate with OAuth2 authorization server (e.g., Keycloak, Auth0)
-- Support OAuth2 flows (Authorization Code, Client Credentials)
-- Implement token introspection
-- Update JWT decoder to use OAuth2 provider's public keys
-- Maintain backward compatibility during transition
+- **JWKS Endpoint**: `http://localhost:9000/.well-known/jwks.json` - Public RSA keys for token validation
+- **Issuer**: `http://localhost:9000` - Token issuer URL
+
+### Token Validation
+
+The gateway validates JWT tokens by:
+1. Fetching public RSA keys from the JWKS endpoint
+2. Caching keys for 5 minutes to reduce network calls
+3. Verifying the JWT signature using the cached public keys
+4. Validating the issuer and expiration claims
+5. Extracting user claims and adding them as HTTP headers
+
+### OAuth2 Client Registration
+
+The gateway is registered as an OAuth2 client with the following credentials:
+- **Client ID**: `gateway`
+- **Client Secret**: `gateway-secret`
+- **Grant Type**: Client Credentials (for service-to-service communication)
+
+### Using OAuth2 Tokens
+
+To authenticate requests through the gateway:
+
+```bash
+# 1. Obtain an access token from the OAuth2 server
+curl -X POST "http://localhost:9000/oauth2/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -H "Authorization: Basic $(echo -n 'gateway:gateway-secret' | base64)" \
+  -d "grant_type=client_credentials&scope=read%20write"
+
+# 2. Use the access token in requests to the gateway
+curl -X GET "http://localhost:8080/auth/users" \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
 
 ---
 
@@ -644,19 +724,20 @@ spring:
 
 ## Security Best Practices
 
-1. **JWT Secret**: Always use strong, randomly generated secrets (64+ characters)
-2. **HTTPS**: Use HTTPS in production
+1. **OAuth2 Configuration**: Always use strong client secrets and secure token validation
+2. **HTTPS**: Use HTTPS in production for all OAuth2 communications
 3. **CORS**: Restrict allowed origins to trusted domains
 4. **Rate Limiting**: Enable Redis-based rate limiting in production
 5. **Security Headers**: All responses include security headers
 6. **Input Validation**: Validate all incoming requests
 7. **Error Messages**: Don't expose sensitive information in error messages
+8. **JWKS Caching**: Configure appropriate cache duration to balance performance and security
+9. **Token Expiry**: Set appropriate token expiration times based on security requirements
 
 ---
 
 ## Future Enhancements
 
-- Implement OAuth2 authorization server integration
 - Add request/response transformation capabilities
 - Implement API versioning strategy
 - Add WebSocket support for real-time features
@@ -666,3 +747,6 @@ spring:
 - Add service discovery integration (Eureka, Consul)
 - Implement blue-green deployment support
 - Add API gateway analytics dashboard
+- Support multiple OAuth2 providers (Keycloak, Auth0, etc.)
+- Implement token introspection endpoint for external validation
+- Add OAuth2 device code flow support

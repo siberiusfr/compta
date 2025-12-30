@@ -35,17 +35,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         new UsernameNotFoundException("User not found with username: " + username)
       );
 
-    return new CustomUserDetails(userRecord, getUserRoles(userRecord.getId()));
+    return new CustomUserDetails(userRecord, userRepository.getUserRoles(userRecord.getId()));
   }
 
-  private List<String> getUserRoles(UUID userId) {
-    return userRepository
-      .getDsl()
-      .select(Roles.ROLES.NAME)
-      .from(UserRoles.USER_ROLES)
-      .join(Roles.ROLES)
-      .on(UserRoles.USER_ROLES.ROLE_ID.eq(Roles.ROLES.ID))
-      .where(UserRoles.USER_ROLES.USER_ID.eq(userId))
-      .fetch(Roles.ROLES.NAME);
-  }
 }
