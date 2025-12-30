@@ -26,6 +26,7 @@
     <module>accounting-service</module>
     <module>hr-service</module>
     <module>migration-service</module>
+    <module>oauth2-server</module>
   </modules>
   <properties>
     <java.version>21</java.version>

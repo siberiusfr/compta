@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: oauth2-server
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/compta
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    schemas: oauth2
+    default-schema: oauth2
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+server:
+  port: 9000
+  servlet:
+    context-path: /
+
+logging:
+  level:
+    root: INFO
+    tn.cyberious.compta.oauth2: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  show-actuator: true
+
+# OAuth2 Server Configuration
+oauth2:
+  issuer: http://localhost:9000
+  authorization-code:
+    access-token-validity: 1800  # 30 minutes
+    refresh-token-validity: 86400  # 24 hours
+  client-credentials:
+    access-token-validity: 3600  # 1 hour
