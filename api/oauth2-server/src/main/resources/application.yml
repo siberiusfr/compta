@@ -29,9 +29,6 @@ spring:
     enabled: true
     schemas: oauth2
     default-schema: oauth2
-    baseline-on-migrate: true
-    locations: classpath:db/migration
-    validate-on-migrate: true
 
 server:
   port: 9000
@@ -45,8 +42,8 @@ logging:
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
 
 # SpringDoc OpenAPI Configuration
 springdoc:
@@ -61,7 +58,7 @@ springdoc:
 oauth2:
   issuer: http://localhost:9000
   authorization-code:
-    access-token-validity: 1800  # 30 minutes
-    refresh-token-validity: 86400  # 24 hours
+    access-token-validity: 1800 # 30 minutes
+    refresh-token-validity: 86400 # 24 hours
   client-credentials:
-    access-token-validity: 3600  # 1 hour
+    access-token-validity: 3600 # 1 hour

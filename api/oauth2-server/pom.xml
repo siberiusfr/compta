@@ -13,6 +13,10 @@
   <artifactId>oauth2-server</artifactId>
   <name>oauth2-server</name>
   <description>OAuth2 Authorization Server</description>
+  <properties>
+    <jooq.generator.db.schema>oauth2</jooq.generator.db.schema>
+    <jooq.generator.target.package>tn.cyberious.compta.oauth2.generated</jooq.generator.target.package>
+  </properties>
 
   <dependencies>
     <!-- Spring Boot Starters -->
@@ -90,6 +94,10 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
