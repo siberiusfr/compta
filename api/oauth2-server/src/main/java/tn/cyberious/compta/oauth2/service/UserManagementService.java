@@ -43,19 +43,19 @@ public class UserManagementService {
     }
 
     // Insert user
-    UsersRecord userRecord = dsl
-        .insertInto(Users.USERS)
-        .set(Users.USERS.USERNAME, request.getUsername())
-        .set(Users.USERS.PASSWORD, passwordEncoder.encode(request.getPassword()))
-        .set(Users.USERS.EMAIL, request.getEmail())
-        .set(Users.USERS.FIRST_NAME, request.getFirstName())
-        .set(Users.USERS.LAST_NAME, request.getLastName())
-        .set(Users.USERS.ENABLED, true)
-        .set(Users.USERS.ACCOUNT_NON_EXPIRED, true)
-        .set(Users.USERS.ACCOUNT_NON_LOCKED, true)
-        .set(Users.USERS.CREDENTIALS_NON_EXPIRED, true)
-        .returning()
-        .fetchOne();
+    UsersRecord userRecord =
+        dsl.insertInto(Users.USERS)
+            .set(Users.USERS.USERNAME, request.getUsername())
+            .set(Users.USERS.PASSWORD, passwordEncoder.encode(request.getPassword()))
+            .set(Users.USERS.EMAIL, request.getEmail())
+            .set(Users.USERS.FIRST_NAME, request.getFirstName())
+            .set(Users.USERS.LAST_NAME, request.getLastName())
+            .set(Users.USERS.ENABLED, true)
+            .set(Users.USERS.ACCOUNT_NON_EXPIRED, true)
+            .set(Users.USERS.ACCOUNT_NON_LOCKED, true)
+            .set(Users.USERS.CREDENTIALS_NON_EXPIRED, true)
+            .returning()
+            .fetchOne();
 
     // Assign roles if provided
     if (request.getRoles() != null && !request.getRoles().isEmpty()) {
@@ -69,21 +69,14 @@ public class UserManagementService {
   @Transactional(readOnly = true)
   public List<UserResponse> getAllUsers() {
     log.debug("Retrieving all users");
-    return dsl
-        .selectFrom(Users.USERS)
-        .fetch()
-        .stream()
-        .map(this::toUserResponse)
-        .toList();
+    return dsl.selectFrom(Users.USERS).fetch().stream().map(this::toUserResponse).toList();
   }
 
   @Transactional(readOnly = true)
   public UserResponse getUserById(UUID userId) {
     log.debug("Retrieving user with id: {}", userId);
-    UsersRecord userRecord = dsl
-        .selectFrom(Users.USERS)
-        .where(Users.USERS.ID.eq(userId))
-        .fetchOne();
+    UsersRecord userRecord =
+        dsl.selectFrom(Users.USERS).where(Users.USERS.ID.eq(userId)).fetchOne();
 
     if (userRecord == null) {
       throw new IllegalArgumentException("User not found with id: " + userId);
@@ -95,10 +88,8 @@ public class UserManagementService {
   @Transactional(readOnly = true)
   public UserResponse getUserByUsername(String username) {
     log.debug("Retrieving user with username: {}", username);
-    UsersRecord userRecord = dsl
-        .selectFrom(Users.USERS)
-        .where(Users.USERS.USERNAME.eq(username))
-        .fetchOne();
+    UsersRecord userRecord =
+        dsl.selectFrom(Users.USERS).where(Users.USERS.USERNAME.eq(username)).fetchOne();
 
     if (userRecord == null) {
       throw new IllegalArgumentException("User not found with username: " + username);
@@ -111,10 +102,8 @@ public class UserManagementService {
   public UserResponse updateUser(UUID userId, UpdateUserRequest request) {
     log.info("Updating user with id: {}", userId);
 
-    UsersRecord existingUser = dsl
-        .selectFrom(Users.USERS)
-        .where(Users.USERS.ID.eq(userId))
-        .fetchOne();
+    UsersRecord existingUser =
+        dsl.selectFrom(Users.USERS).where(Users.USERS.ID.eq(userId)).fetchOne();
 
     if (existingUser == null) {
       throw new IllegalArgumentException("User not found with id: " + userId);
@@ -131,8 +120,7 @@ public class UserManagementService {
     }
 
     // Build update query
-    var updateStep = dsl.update(Users.USERS)
-        .set(Users.USERS.UPDATED_AT, LocalDateTime.now());
+    var updateStep = dsl.update(Users.USERS).set(Users.USERS.UPDATED_AT, LocalDateTime.now());
 
     if (request.getFirstName() != null) {
       updateStep.set(Users.USERS.FIRST_NAME, request.getFirstName());
@@ -149,18 +137,14 @@ public class UserManagementService {
     // Update roles if provided
     if (request.getRoles() != null) {
       // Remove existing roles
-      dsl.deleteFrom(UserRoles.USER_ROLES)
-          .where(UserRoles.USER_ROLES.USER_ID.eq(userId))
-          .execute();
+      dsl.deleteFrom(UserRoles.USER_ROLES).where(UserRoles.USER_ROLES.USER_ID.eq(userId)).execute();
 
       // Assign new roles
       assignRolesToUser(userId, request.getRoles());
     }
 
-    UsersRecord updatedUser = dsl
-        .selectFrom(Users.USERS)
-        .where(Users.USERS.ID.eq(userId))
-        .fetchOne();
+    UsersRecord updatedUser =
+        dsl.selectFrom(Users.USERS).where(Users.USERS.ID.eq(userId)).fetchOne();
 
     log.info("Successfully updated user with id: {}", userId);
     return toUserResponse(updatedUser);
@@ -170,19 +154,15 @@ public class UserManagementService {
   public void deleteUser(UUID userId) {
     log.info("Deleting user with id: {}", userId);
 
-    UsersRecord userRecord = dsl
-        .selectFrom(Users.USERS)
-        .where(Users.USERS.ID.eq(userId))
-        .fetchOne();
+    UsersRecord userRecord =
+        dsl.selectFrom(Users.USERS).where(Users.USERS.ID.eq(userId)).fetchOne();
 
     if (userRecord == null) {
       throw new IllegalArgumentException("User not found with id: " + userId);
     }
 
     // Delete user (cascade will delete user_roles)
-    dsl.deleteFrom(Users.USERS)
-        .where(Users.USERS.ID.eq(userId))
-        .execute();
+    dsl.deleteFrom(Users.USERS).where(Users.USERS.ID.eq(userId)).execute();
 
     log.info("Successfully deleted user with id: {}", userId);
   }
@@ -191,11 +171,12 @@ public class UserManagementService {
   public void disableUser(UUID userId) {
     log.info("Disabling user with id: {}", userId);
 
-    int updated = dsl.update(Users.USERS)
-        .set(Users.USERS.ENABLED, false)
-        .set(Users.USERS.UPDATED_AT, LocalDateTime.now())
-        .where(Users.USERS.ID.eq(userId))
-        .execute();
+    int updated =
+        dsl.update(Users.USERS)
+            .set(Users.USERS.ENABLED, false)
+            .set(Users.USERS.UPDATED_AT, LocalDateTime.now())
+            .where(Users.USERS.ID.eq(userId))
+            .execute();
 
     if (updated == 0) {
       throw new IllegalArgumentException("User not found with id: " + userId);
@@ -208,11 +189,12 @@ public class UserManagementService {
   public void enableUser(UUID userId) {
     log.info("Enabling user with id: {}", userId);
 
-    int updated = dsl.update(Users.USERS)
-        .set(Users.USERS.ENABLED, true)
-        .set(Users.USERS.UPDATED_AT, LocalDateTime.now())
-        .where(Users.USERS.ID.eq(userId))
-        .execute();
+    int updated =
+        dsl.update(Users.USERS)
+            .set(Users.USERS.ENABLED, true)
+            .set(Users.USERS.UPDATED_AT, LocalDateTime.now())
+            .where(Users.USERS.ID.eq(userId))
+            .execute();
 
     if (updated == 0) {
       throw new IllegalArgumentException("User not found with id: " + userId);
@@ -223,8 +205,7 @@ public class UserManagementService {
 
   @Transactional(readOnly = true)
   public List<String> getUserRoles(UUID userId) {
-    return dsl
-        .select(Roles.ROLES.NAME)
+    return dsl.select(Roles.ROLES.NAME)
         .from(UserRoles.USER_ROLES)
         .join(Roles.ROLES)
         .on(UserRoles.USER_ROLES.ROLE_ID.eq(Roles.ROLES.ID))
@@ -237,16 +218,15 @@ public class UserManagementService {
     log.info("Assigning roles to user with id: {}", userId);
 
     // Remove existing roles
-    dsl.deleteFrom(UserRoles.USER_ROLES)
-        .where(UserRoles.USER_ROLES.USER_ID.eq(userId))
-        .execute();
+    dsl.deleteFrom(UserRoles.USER_ROLES).where(UserRoles.USER_ROLES.USER_ID.eq(userId)).execute();
 
     // Assign new roles
     for (String roleName : roleNames) {
-      UUID roleId = dsl.select(Roles.ROLES.ID)
-          .from(Roles.ROLES)
-          .where(Roles.ROLES.NAME.eq(roleName))
-          .fetchOne(Roles.ROLES.ID);
+      UUID roleId =
+          dsl.select(Roles.ROLES.ID)
+              .from(Roles.ROLES)
+              .where(Roles.ROLES.NAME.eq(roleName))
+              .fetchOne(Roles.ROLES.ID);
 
       if (roleId != null) {
         dsl.insertInto(UserRoles.USER_ROLES)
@@ -265,10 +245,11 @@ public class UserManagementService {
   public void removeRoleFromUser(UUID userId, UUID roleId) {
     log.info("Removing role {} from user with id: {}", roleId, userId);
 
-    int deleted = dsl.deleteFrom(UserRoles.USER_ROLES)
-        .where(UserRoles.USER_ROLES.USER_ID.eq(userId))
-        .and(UserRoles.USER_ROLES.ROLE_ID.eq(roleId))
-        .execute();
+    int deleted =
+        dsl.deleteFrom(UserRoles.USER_ROLES)
+            .where(UserRoles.USER_ROLES.USER_ID.eq(userId))
+            .and(UserRoles.USER_ROLES.ROLE_ID.eq(roleId))
+            .execute();
 
     if (deleted == 0) {
       throw new IllegalArgumentException("User role not found");
@@ -281,10 +262,8 @@ public class UserManagementService {
   public void changePassword(UUID userId, ChangePasswordRequest request) {
     log.info("Changing password for user with id: {}", userId);
 
-    UsersRecord userRecord = dsl
-        .selectFrom(Users.USERS)
-        .where(Users.USERS.ID.eq(userId))
-        .fetchOne();
+    UsersRecord userRecord =
+        dsl.selectFrom(Users.USERS).where(Users.USERS.ID.eq(userId)).fetchOne();
 
     if (userRecord == null) {
       throw new IllegalArgumentException("User not found with id: " + userId);

@@ -2,12 +2,10 @@ package tn.cyberious.compta.oauth2.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,17 +27,15 @@ public class IntrospectionController {
   @PostMapping("/introspect")
   public ResponseEntity<IntrospectionResponse> introspect(
       @RequestBody IntrospectionRequest request) {
-    IntrospectionResponse response = tokenIntrospectionService.introspectToken(
-        request.getToken(), request.getTokenTypeHint());
+    IntrospectionResponse response =
+        tokenIntrospectionService.introspectToken(request.token(), request.tokenTypeHint());
     return ResponseEntity.ok(response);
   }
 
   public record IntrospectionRequest(
       @Parameter(description = "The token value to introspect", required = true)
-      @NotBlank(message = "Token is required")
-      String token,
-
+          @NotBlank(message = "Token is required")
+          String token,
       @Parameter(description = "Hint about the type of token (access_token or refresh_token)")
-      String tokenTypeHint
-  ) {}
+          String tokenTypeHint) {}
 }

@@ -32,22 +32,29 @@ public class ClientManagementController {
 
   private final ClientManagementService clientManagementService;
 
-  @Operation(summary = "Create a new OAuth2 client", description = "Create a new OAuth2 registered client")
+  @Operation(
+      summary = "Create a new OAuth2 client",
+      description = "Create a new OAuth2 registered client")
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
-  public ResponseEntity<ClientResponse> createClient(@Valid @RequestBody CreateClientRequest request) {
+  public ResponseEntity<ClientResponse> createClient(
+      @Valid @RequestBody CreateClientRequest request) {
     ClientResponse response = clientManagementService.createClient(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  @Operation(summary = "Get all OAuth2 clients", description = "Retrieve all registered OAuth2 clients")
+  @Operation(
+      summary = "Get all OAuth2 clients",
+      description = "Retrieve all registered OAuth2 clients")
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping
   public ResponseEntity<?> getAllClients() {
     return ResponseEntity.ok(clientManagementService.getAllClients());
   }
 
-  @Operation(summary = "Get OAuth2 client by ID", description = "Retrieve a specific OAuth2 client by its client ID")
+  @Operation(
+      summary = "Get OAuth2 client by ID",
+      description = "Retrieve a specific OAuth2 client by its client ID")
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/{clientId}")
   public ResponseEntity<ClientResponse> getClientById(
@@ -75,7 +82,9 @@ public class ClientManagementController {
     return ResponseEntity.noContent().build();
   }
 
-  @Operation(summary = "Rotate client secret", description = "Generate a new client secret for an OAuth2 client")
+  @Operation(
+      summary = "Rotate client secret",
+      description = "Generate a new client secret for an OAuth2 client")
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/{clientId}/secret")
   public ResponseEntity<Map<String, String>> rotateClientSecret(

@@ -1,21 +1,16 @@
 package tn.cyberious.compta.oauth2.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
@@ -42,10 +37,11 @@ public class ClientManagementService {
     String id = UUID.randomUUID().toString();
     Instant issuedAt = Instant.now();
 
-    RegisteredClient.Builder builder = RegisteredClient.withId(id)
-        .clientId(request.getClientId())
-        .clientIdIssuedAt(issuedAt)
-        .clientName(request.getClientName());
+    RegisteredClient.Builder builder =
+        RegisteredClient.withId(id)
+            .clientId(request.getClientId())
+            .clientIdIssuedAt(issuedAt)
+            .clientName(request.getClientName());
 
     // Set client secret if provided
     if (request.getClientSecret() != null && !request.getClientSecret().isBlank()) {
@@ -54,14 +50,18 @@ public class ClientManagementService {
 
     // Set client authentication methods
     if (request.getClientAuthenticationMethods() != null) {
-      request.getClientAuthenticationMethods().forEach(method ->
-          builder.clientAuthenticationMethod(new ClientAuthenticationMethod(method)));
+      request
+          .getClientAuthenticationMethods()
+          .forEach(
+              method -> builder.clientAuthenticationMethod(new ClientAuthenticationMethod(method)));
     }
 
     // Set authorization grant types
     if (request.getAuthorizationGrantTypes() != null) {
-      request.getAuthorizationGrantTypes().forEach(grantType ->
-          builder.authorizationGrantType(new AuthorizationGrantType(grantType)));
+      request
+          .getAuthorizationGrantTypes()
+          .forEach(
+              grantType -> builder.authorizationGrantType(new AuthorizationGrantType(grantType)));
     }
 
     // Set redirect URIs
@@ -140,10 +140,14 @@ public class ClientManagementService {
     }
 
     // Build updated client
-    RegisteredClient.Builder builder = RegisteredClient.withId(existingClient.getId())
-        .clientId(existingClient.getClientId())
-        .clientIdIssuedAt(existingClient.getClientIdIssuedAt())
-        .clientName(request.getClientName() != null ? request.getClientName() : existingClient.getClientName());
+    RegisteredClient.Builder builder =
+        RegisteredClient.withId(existingClient.getId())
+            .clientId(existingClient.getClientId())
+            .clientIdIssuedAt(existingClient.getClientIdIssuedAt())
+            .clientName(
+                request.getClientName() != null
+                    ? request.getClientName()
+                    : existingClient.getClientName());
 
     // Update client secret if provided
     if (request.getClientSecret() != null && !request.getClientSecret().isBlank()) {
@@ -153,17 +157,23 @@ public class ClientManagementService {
     }
 
     // Update client authentication methods
-    if (request.getClientAuthenticationMethods() != null && !request.getClientAuthenticationMethods().isEmpty()) {
-      request.getClientAuthenticationMethods().forEach(method ->
-          builder.clientAuthenticationMethod(new ClientAuthenticationMethod(method)));
+    if (request.getClientAuthenticationMethods() != null
+        && !request.getClientAuthenticationMethods().isEmpty()) {
+      request
+          .getClientAuthenticationMethods()
+          .forEach(
+              method -> builder.clientAuthenticationMethod(new ClientAuthenticationMethod(method)));
     } else {
       existingClient.getClientAuthenticationMethods().forEach(builder::clientAuthenticationMethod);
     }
 
     // Update authorization grant types
-    if (request.getAuthorizationGrantTypes() != null && !request.getAuthorizationGrantTypes().isEmpty()) {
-      request.getAuthorizationGrantTypes().forEach(grantType ->
-          builder.authorizationGrantType(new AuthorizationGrantType(grantType)));
+    if (request.getAuthorizationGrantTypes() != null
+        && !request.getAuthorizationGrantTypes().isEmpty()) {
+      request
+          .getAuthorizationGrantTypes()
+          .forEach(
+              grantType -> builder.authorizationGrantType(new AuthorizationGrantType(grantType)));
     } else {
       existingClient.getAuthorizationGrantTypes().forEach(builder::authorizationGrantType);
     }
@@ -176,7 +186,8 @@ public class ClientManagementService {
     }
 
     // Update post logout redirect URIs
-    if (request.getPostLogoutRedirectUris() != null && !request.getPostLogoutRedirectUris().isEmpty()) {
+    if (request.getPostLogoutRedirectUris() != null
+        && !request.getPostLogoutRedirectUris().isEmpty()) {
       request.getPostLogoutRedirectUris().forEach(builder::postLogoutRedirectUri);
     } else {
       existingClient.getPostLogoutRedirectUris().forEach(builder::postLogoutRedirectUri);
@@ -200,8 +211,7 @@ public class ClientManagementService {
     if (request.getRequireProofKey() != null) {
       clientSettingsBuilder.requireProofKey(request.getRequireProofKey());
     } else {
-      clientSettingsBuilder.requireProofKey(
-          existingClient.getClientSettings().isRequireProofKey());
+      clientSettingsBuilder.requireProofKey(existingClient.getClientSettings().isRequireProofKey());
     }
     builder.clientSettings(clientSettingsBuilder.build());
 
@@ -210,22 +220,26 @@ public class ClientManagementService {
     if (request.getAccessTokenTimeToLive() != null) {
       tokenSettingsBuilder.accessTokenTimeToLive(request.getAccessTokenTimeToLive());
     } else {
-      tokenSettingsBuilder.accessTokenTimeToLive(existingClient.getTokenSettings().getAccessTokenTimeToLive());
+      tokenSettingsBuilder.accessTokenTimeToLive(
+          existingClient.getTokenSettings().getAccessTokenTimeToLive());
     }
     if (request.getAuthorizationCodeTimeToLive() != null) {
       tokenSettingsBuilder.authorizationCodeTimeToLive(request.getAuthorizationCodeTimeToLive());
     } else {
-      tokenSettingsBuilder.authorizationCodeTimeToLive(existingClient.getTokenSettings().getAuthorizationCodeTimeToLive());
+      tokenSettingsBuilder.authorizationCodeTimeToLive(
+          existingClient.getTokenSettings().getAuthorizationCodeTimeToLive());
     }
     if (request.getRefreshTokenTimeToLive() != null) {
       tokenSettingsBuilder.refreshTokenTimeToLive(request.getRefreshTokenTimeToLive());
     } else {
-      tokenSettingsBuilder.refreshTokenTimeToLive(existingClient.getTokenSettings().getRefreshTokenTimeToLive());
+      tokenSettingsBuilder.refreshTokenTimeToLive(
+          existingClient.getTokenSettings().getRefreshTokenTimeToLive());
     }
     if (request.getReuseRefreshTokens() != null) {
       tokenSettingsBuilder.reuseRefreshTokens(request.getReuseRefreshTokens());
     } else {
-      tokenSettingsBuilder.reuseRefreshTokens(existingClient.getTokenSettings().isReuseRefreshTokens());
+      tokenSettingsBuilder.reuseRefreshTokens(
+          existingClient.getTokenSettings().isReuseRefreshTokens());
     }
     builder.tokenSettings(tokenSettingsBuilder.build());
 
@@ -247,7 +261,8 @@ public class ClientManagementService {
 
     // JdbcRegisteredClientRepository doesn't have a delete method
     // We need to delete from the database directly
-    throw new UnsupportedOperationException("Delete operation not yet implemented for JdbcRegisteredClientRepository");
+    throw new UnsupportedOperationException(
+        "Delete operation not yet implemented for JdbcRegisteredClientRepository");
   }
 
   @Transactional
@@ -261,19 +276,24 @@ public class ClientManagementService {
 
     String newSecret = generateClientSecret();
 
-    RegisteredClient updatedClient = RegisteredClient.withId(existingClient.getId())
-        .clientId(existingClient.getClientId())
-        .clientIdIssuedAt(existingClient.getClientIdIssuedAt())
-        .clientSecret(passwordEncoder.encode(newSecret))
-        .clientName(existingClient.getClientName())
-        .clientAuthenticationMethods(existingClient.getClientAuthenticationMethods())
-        .authorizationGrantTypes(existingClient.getAuthorizationGrantTypes())
-        .redirectUris(existingClient.getRedirectUris())
-        .postLogoutRedirectUris(existingClient.getPostLogoutRedirectUris())
-        .scopes(existingClient.getScopes())
-        .clientSettings(existingClient.getClientSettings())
-        .tokenSettings(existingClient.getTokenSettings())
-        .build();
+    RegisteredClient.Builder builder =
+        RegisteredClient.withId(existingClient.getId())
+            .clientId(existingClient.getClientId())
+            .clientIdIssuedAt(existingClient.getClientIdIssuedAt())
+            .clientSecret(passwordEncoder.encode(newSecret))
+            .clientName(existingClient.getClientName());
+
+    existingClient.getClientAuthenticationMethods().forEach(builder::clientAuthenticationMethod);
+    existingClient.getAuthorizationGrantTypes().forEach(builder::authorizationGrantType);
+    existingClient.getRedirectUris().forEach(builder::redirectUri);
+    existingClient.getPostLogoutRedirectUris().forEach(builder::postLogoutRedirectUri);
+    existingClient.getScopes().forEach(builder::scope);
+
+    RegisteredClient updatedClient =
+        builder
+            .clientSettings(existingClient.getClientSettings())
+            .tokenSettings(existingClient.getTokenSettings())
+            .build();
 
     registeredClientRepository.save(updatedClient);
 
@@ -282,31 +302,38 @@ public class ClientManagementService {
   }
 
   private String generateClientSecret() {
-    return UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
+    return UUID.randomUUID().toString().replace("-", "")
+        + UUID.randomUUID().toString().replace("-", "");
   }
 
   private ClientResponse toClientResponse(RegisteredClient registeredClient) {
     return ClientResponse.builder()
         .id(registeredClient.getId())
         .clientId(registeredClient.getClientId())
-        .clientIdIssuedAt(LocalDateTime.ofInstant(
-            registeredClient.getClientIdIssuedAt(), ZoneId.systemDefault()))
+        .clientIdIssuedAt(
+            LocalDateTime.ofInstant(registeredClient.getClientIdIssuedAt(), ZoneId.systemDefault()))
         .clientName(registeredClient.getClientName())
-        .clientAuthenticationMethods(registeredClient.getClientAuthenticationMethods().stream()
-            .map(ClientAuthenticationMethod::getValue)
-            .toList())
-        .authorizationGrantTypes(registeredClient.getAuthorizationGrantTypes().stream()
-            .map(AuthorizationGrantType::getValue)
-            .toList())
+        .clientAuthenticationMethods(
+            registeredClient.getClientAuthenticationMethods().stream()
+                .map(ClientAuthenticationMethod::getValue)
+                .toList())
+        .authorizationGrantTypes(
+            registeredClient.getAuthorizationGrantTypes().stream()
+                .map(AuthorizationGrantType::getValue)
+                .toList())
         .redirectUris(registeredClient.getRedirectUris().stream().toList())
         .postLogoutRedirectUris(registeredClient.getPostLogoutRedirectUris().stream().toList())
         .scopes(registeredClient.getScopes().stream().toList())
-        .requireAuthorizationConsent(registeredClient.getClientSettings().isRequireAuthorizationConsent())
+        .requireAuthorizationConsent(
+            registeredClient.getClientSettings().isRequireAuthorizationConsent())
         .requireProofKey(registeredClient.getClientSettings().isRequireProofKey())
         .reuseRefreshTokens(registeredClient.getTokenSettings().isReuseRefreshTokens())
-        .accessTokenTimeToLiveSeconds((int) registeredClient.getTokenSettings().getAccessTokenTimeToLive().getSeconds())
-        .authorizationCodeTimeToLiveSeconds((int) registeredClient.getTokenSettings().getAuthorizationCodeTimeToLive().getSeconds())
-        .refreshTokenTimeToLiveSeconds((int) registeredClient.getTokenSettings().getRefreshTokenTimeToLive().getSeconds())
+        .accessTokenTimeToLiveSeconds(
+            (int) registeredClient.getTokenSettings().getAccessTokenTimeToLive().getSeconds())
+        .authorizationCodeTimeToLiveSeconds(
+            (int) registeredClient.getTokenSettings().getAuthorizationCodeTimeToLive().getSeconds())
+        .refreshTokenTimeToLiveSeconds(
+            (int) registeredClient.getTokenSettings().getRefreshTokenTimeToLive().getSeconds())
         .build();
   }
 }

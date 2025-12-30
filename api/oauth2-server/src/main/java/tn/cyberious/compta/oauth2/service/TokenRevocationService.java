@@ -4,9 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2RefreshToken;
-import org.springframework.security.oauth2.core.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -44,23 +41,20 @@ public class TokenRevocationService {
 
   private OAuth2Authorization findAuthorizationByToken(String tokenValue, String tokenTypeHint) {
     // Try to find by access token
-    OAuth2Authorization authorization = authorizationService.findByToken(
-        tokenValue, OAuth2TokenType.ACCESS_TOKEN);
+    OAuth2Authorization authorization =
+        authorizationService.findByToken(tokenValue, OAuth2TokenType.ACCESS_TOKEN);
 
     if (authorization == null) {
       // Try to find by refresh token
-      authorization = authorizationService.findByToken(
-          tokenValue, OAuth2TokenType.REFRESH_TOKEN);
+      authorization = authorizationService.findByToken(tokenValue, OAuth2TokenType.REFRESH_TOKEN);
     }
 
     if (authorization == null && tokenTypeHint != null) {
       // Try based on the hint
       if ("access_token".equalsIgnoreCase(tokenTypeHint)) {
-        authorization = authorizationService.findByToken(
-            tokenValue, OAuth2TokenType.ACCESS_TOKEN);
+        authorization = authorizationService.findByToken(tokenValue, OAuth2TokenType.ACCESS_TOKEN);
       } else if ("refresh_token".equalsIgnoreCase(tokenTypeHint)) {
-        authorization = authorizationService.findByToken(
-            tokenValue, OAuth2TokenType.REFRESH_TOKEN);
+        authorization = authorizationService.findByToken(tokenValue, OAuth2TokenType.REFRESH_TOKEN);
       }
     }
 

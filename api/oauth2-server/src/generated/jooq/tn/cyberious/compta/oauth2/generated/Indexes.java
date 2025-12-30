@@ -10,6 +10,7 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2Authorization;
+import tn.cyberious.compta.oauth2.generated.tables.Oauth2Keys;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2RegisteredClient;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 import tn.cyberious.compta.oauth2.generated.tables.Users;
@@ -25,6 +26,9 @@ public class Indexes {
     // INDEX definitions
     // -------------------------------------------------------------------------
 
+    public static final Index IDX_OAUTH2_KEYS_ACTIVE = Internal.createIndex(DSL.name("idx_oauth2_keys_active"), Oauth2Keys.OAUTH2_KEYS, new OrderField[] { Oauth2Keys.OAUTH2_KEYS.ACTIVE }, false);
+    public static final Index IDX_OAUTH2_KEYS_EXPIRES_AT = Internal.createIndex(DSL.name("idx_oauth2_keys_expires_at"), Oauth2Keys.OAUTH2_KEYS, new OrderField[] { Oauth2Keys.OAUTH2_KEYS.EXPIRES_AT }, false);
+    public static final Index IDX_OAUTH2_KEYS_KEY_ID = Internal.createIndex(DSL.name("idx_oauth2_keys_key_id"), Oauth2Keys.OAUTH2_KEYS, new OrderField[] { Oauth2Keys.OAUTH2_KEYS.KEY_ID }, false);
     public static final Index IDX_USER_ROLES_ROLE_ID = Internal.createIndex(DSL.name("idx_user_roles_role_id"), UserRoles.USER_ROLES, new OrderField[] { UserRoles.USER_ROLES.ROLE_ID }, false);
     public static final Index IDX_USER_ROLES_USER_ID = Internal.createIndex(DSL.name("idx_user_roles_user_id"), UserRoles.USER_ROLES, new OrderField[] { UserRoles.USER_ROLES.USER_ID }, false);
     public static final Index IDX_USERS_EMAIL = Internal.createIndex(DSL.name("idx_users_email"), Users.USERS, new OrderField[] { Users.USERS.EMAIL }, false);

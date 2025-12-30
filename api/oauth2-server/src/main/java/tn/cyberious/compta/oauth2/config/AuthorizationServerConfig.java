@@ -4,11 +4,11 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import java.time.Duration;
 import java.util.UUID;
-import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -61,8 +61,8 @@ public class AuthorizationServerConfig {
 
   @Bean
   public RegisteredClientRepository registeredClientRepository(
-      DataSource dataSource, PasswordEncoder passwordEncoder) {
-    JdbcRegisteredClientRepository repository = new JdbcRegisteredClientRepository(dataSource);
+      JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder) {
+    JdbcRegisteredClientRepository repository = new JdbcRegisteredClientRepository(jdbcTemplate);
 
     // Initialize default clients if they don't exist
     initializeDefaultClients(repository, passwordEncoder);
@@ -117,9 +117,7 @@ public class AuthorizationServerConfig {
                       .requireProofKey(false)
                       .build())
               .tokenSettings(
-                  TokenSettings.builder()
-                      .accessTokenTimeToLive(Duration.ofMinutes(60))
-                      .build())
+                  TokenSettings.builder().accessTokenTimeToLive(Duration.ofMinutes(60)).build())
               .build();
       repository.save(gatewayClient);
     }

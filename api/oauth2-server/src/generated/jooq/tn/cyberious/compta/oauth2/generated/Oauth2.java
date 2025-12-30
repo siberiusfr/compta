@@ -13,6 +13,7 @@ import org.jooq.impl.SchemaImpl;
 
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2Authorization;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2AuthorizationConsent;
+import tn.cyberious.compta.oauth2.generated.tables.Oauth2Keys;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2RegisteredClient;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
@@ -41,6 +42,11 @@ public class Oauth2 extends SchemaImpl {
      * The table <code>oauth2.oauth2_authorization_consent</code>.
      */
     public final Oauth2AuthorizationConsent OAUTH2_AUTHORIZATION_CONSENT = Oauth2AuthorizationConsent.OAUTH2_AUTHORIZATION_CONSENT;
+
+    /**
+     * The table <code>oauth2.oauth2_keys</code>.
+     */
+    public final Oauth2Keys OAUTH2_KEYS = Oauth2Keys.OAUTH2_KEYS;
 
     /**
      * The table <code>oauth2.oauth2_registered_client</code>.
@@ -80,6 +86,7 @@ public class Oauth2 extends SchemaImpl {
         return Arrays.asList(
             Oauth2Authorization.OAUTH2_AUTHORIZATION,
             Oauth2AuthorizationConsent.OAUTH2_AUTHORIZATION_CONSENT,
+            Oauth2Keys.OAUTH2_KEYS,
             Oauth2RegisteredClient.OAUTH2_REGISTERED_CLIENT,
             Roles.ROLES,
             UserRoles.USER_ROLES,

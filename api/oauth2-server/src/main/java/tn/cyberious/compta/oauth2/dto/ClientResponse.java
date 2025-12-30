@@ -1,6 +1,5 @@
 package tn.cyberious.compta.oauth2.dto;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;

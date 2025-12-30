@@ -135,10 +135,11 @@ public class UserManagementController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(summary = "Request password reset", description = "Request a password reset for a user")
+  @Operation(
+      summary = "Request password reset",
+      description = "Request a password reset for a user")
   @PostMapping("/password/reset")
-  public ResponseEntity<Void> requestPasswordReset(
-      @RequestBody Map<String, String> request) {
+  public ResponseEntity<Void> requestPasswordReset(@RequestBody Map<String, String> request) {
     String email = request.get("email");
     // TODO: Implement password reset token generation and email sending
     return ResponseEntity.ok().build();
@@ -146,8 +147,7 @@ public class UserManagementController {
 
   @Operation(summary = "Confirm password reset", description = "Confirm password reset with token")
   @PostMapping("/password/reset/confirm")
-  public ResponseEntity<Void> confirmPasswordReset(
-      @RequestBody Map<String, String> request) {
+  public ResponseEntity<Void> confirmPasswordReset(@RequestBody Map<String, String> request) {
     String token = request.get("token");
     String newPassword = request.get("newPassword");
     // TODO: Implement password reset confirmation

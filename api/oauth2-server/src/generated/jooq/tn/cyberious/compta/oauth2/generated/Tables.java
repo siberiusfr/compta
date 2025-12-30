@@ -6,6 +6,7 @@ package tn.cyberious.compta.oauth2.generated;
 
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2Authorization;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2AuthorizationConsent;
+import tn.cyberious.compta.oauth2.generated.tables.Oauth2Keys;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2RegisteredClient;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
@@ -27,6 +28,11 @@ public class Tables {
      * The table <code>oauth2.oauth2_authorization_consent</code>.
      */
     public static final Oauth2AuthorizationConsent OAUTH2_AUTHORIZATION_CONSENT = Oauth2AuthorizationConsent.OAUTH2_AUTHORIZATION_CONSENT;
+
+    /**
+     * The table <code>oauth2.oauth2_keys</code>.
+     */
+    public static final Oauth2Keys OAUTH2_KEYS = Oauth2Keys.OAUTH2_KEYS;
 
     /**
      * The table <code>oauth2.oauth2_registered_client</code>.

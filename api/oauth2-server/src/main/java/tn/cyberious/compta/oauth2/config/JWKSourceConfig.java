@@ -1,6 +1,6 @@
 package tn.cyberious.compta.oauth2.config;
 
-import com.nimbusds.jose.jwk.JWKSource;
+import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

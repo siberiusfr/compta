@@ -2,7 +2,6 @@ package tn.cyberious.compta.oauth2.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -26,16 +25,14 @@ public class RevocationController {
       description = "Revoke an OAuth2 token. The token will be invalidated immediately.")
   @PostMapping("/revoke")
   public ResponseEntity<Void> revoke(@RequestBody RevocationRequest request) {
-    tokenRevocationService.revokeToken(request.getToken(), request.getTokenTypeHint());
+    tokenRevocationService.revokeToken(request.token(), request.tokenTypeHint());
     return ResponseEntity.ok().build();
   }
 
   public record RevocationRequest(
       @Parameter(description = "The token value to revoke", required = true)
-      @NotBlank(message = "Token is required")
-      String token,
-
+          @NotBlank(message = "Token is required")
+          String token,
       @Parameter(description = "Hint about the type of token (access_token or refresh_token)")
-      String tokenTypeHint
-  ) {}
+          String tokenTypeHint) {}
 }
