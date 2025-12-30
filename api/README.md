@@ -4,7 +4,7 @@ A comprehensive ERP system built with Spring Boot microservices architecture, fe
 
 ## Overview
 
-This project implements a multi-module Maven architecture with the following services:
+This project implements a multi-module Maven architecture with following services:
 
 | Service | Port | Description |
 |---------|------|-------------|
@@ -113,11 +113,11 @@ graph TB
 ### Installation
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone <repository-url>
 cd api
 
-# Build the project
+# Build project
 mvn clean install
 
 # Run all services (requires PostgreSQL and Redis)
@@ -130,7 +130,7 @@ mvn spring-boot:run -pl auth-service
 ### Database Setup
 
 ```bash
-# Create the database
+# Create database
 createdb compta
 
 # Flyway migrations are automatically applied on startup
@@ -178,10 +178,21 @@ The system uses a centralized OAuth2 Authorization Server for authentication and
 | Client ID | Type | Grant Types | PKCE | Description |
 |-----------|------|-------------|------|-------------|
 | `public-client` | Public | Authorization Code, Refresh Token | Yes | SPAs, mobile apps |
-| `gateway` | Confidential | Client Credentials | No | Gateway service |
-| `accounting-service` | Confidential | Authorization Code, Refresh Token, Client Credentials | Yes | Accounting service |
-| `authz-service` | Confidential | Authorization Code, Refresh Token, Client Credentials | Yes | Authorization service |
-| `hr-service` | Confidential | Authorization Code, Refresh Token, Client Credentials | Yes | HR service |
+| `gateway` | Confidential | Client Credentials | No | Gateway service (service-to-service) |
+
+### Client Secrets
+- `public-client`: No secret (public client)
+- `gateway`: `gateway-secret`
+
+### Architecture Note
+
+Services behind the gateway (accounting-service, authz-service, hr-service, etc.) do NOT need to be registered as OAuth2 clients. They receive user information via HTTP headers added by the gateway after token validation:
+
+- `X-User-Id` - User ID
+- `X-User-Username` - Username
+- `X-User-Email` - User email
+- `X-User-Roles` - Comma-separated roles
+- `X-Tenant-Id` - Tenant/Company ID
 
 ### Authentication Flow
 
@@ -232,7 +243,7 @@ curl -X POST "http://localhost:9000/oauth2/token" \
   -H "Authorization: Basic $(echo -n 'gateway:gateway-secret' | base64)" \
   -d "grant_type=client_credentials&scope=read%20write"
 
-# 2. Use the token in requests
+# 2. Use the token in requests to the gateway
 curl -X GET "http://localhost:8080/auth/users" \
   -H "Authorization: Bearer ACCESS_TOKEN"
 ```

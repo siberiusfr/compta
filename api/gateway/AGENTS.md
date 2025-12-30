@@ -664,6 +664,8 @@ The gateway is registered as an OAuth2 client with the following credentials:
 - **Client Secret**: `gateway-secret`
 - **Grant Type**: Client Credentials (for service-to-service communication)
 
+**Note**: Services behind the gateway (accounting-service, authz-service, hr-service, etc.) do NOT need to be registered as OAuth2 clients. They receive user information via HTTP headers added by the gateway after token validation.
+
 ### Using OAuth2 Tokens
 
 To authenticate requests through the gateway:

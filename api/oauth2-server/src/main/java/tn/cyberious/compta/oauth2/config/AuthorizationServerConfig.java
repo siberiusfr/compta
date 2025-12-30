@@ -90,7 +90,7 @@ public class AuthorizationServerConfig {
                     .build())
             .build();
 
-    // Gateway client for token validation (backend service)
+    // Gateway client for service-to-service communication (Client Credentials flow)
     RegisteredClient gatewayClient =
         RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("gateway")
@@ -112,84 +112,7 @@ public class AuthorizationServerConfig {
                     .build())
             .build();
 
-    // Confidential clients with PKCE support (for backend services)
-    RegisteredClient accountingServiceClient =
-        RegisteredClient.withId(UUID.randomUUID().toString())
-            .clientId("accounting-service")
-            .clientSecret(passwordEncoder.encode("accounting-secret"))
-            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-            .redirectUri("http://127.0.0.1:8080/login/oauth2/code/accounting-service")
-            .redirectUri("http://127.0.0.1:8080/authorized")
-            .scope(OidcScopes.OPENID)
-            .scope("read")
-            .scope("write")
-            .clientSettings(
-                ClientSettings.builder()
-                    .requireAuthorizationConsent(true)
-                    .requireProofKey(true)
-                    .build())
-            .tokenSettings(
-                TokenSettings.builder()
-                    .accessTokenTimeToLive(java.time.Duration.ofMinutes(30))
-                    .authorizationCodeTimeToLive(java.time.Duration.ofMinutes(5))
-                    .build())
-            .build();
-
-    RegisteredClient authzServiceClient =
-        RegisteredClient.withId(UUID.randomUUID().toString())
-            .clientId("authz-service")
-            .clientSecret(passwordEncoder.encode("authz-secret"))
-            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-            .redirectUri("http://127.0.0.1:8081/login/oauth2/code/authz-service")
-            .redirectUri("http://127.0.0.1:8081/authorized")
-            .scope(OidcScopes.OPENID)
-            .scope("read")
-            .scope("write")
-            .clientSettings(
-                ClientSettings.builder()
-                    .requireAuthorizationConsent(true)
-                    .requireProofKey(true)
-                    .build())
-            .tokenSettings(
-                TokenSettings.builder()
-                    .accessTokenTimeToLive(java.time.Duration.ofMinutes(30))
-                    .authorizationCodeTimeToLive(java.time.Duration.ofMinutes(5))
-                    .build())
-            .build();
-
-    RegisteredClient hrServiceClient =
-        RegisteredClient.withId(UUID.randomUUID().toString())
-            .clientId("hr-service")
-            .clientSecret(passwordEncoder.encode("hr-secret"))
-            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-            .redirectUri("http://127.0.0.1:8082/login/oauth2/code/hr-service")
-            .redirectUri("http://127.0.0.1:8082/authorized")
-            .scope(OidcScopes.OPENID)
-            .scope("read")
-            .scope("write")
-            .clientSettings(
-                ClientSettings.builder()
-                    .requireAuthorizationConsent(true)
-                    .requireProofKey(true)
-                    .build())
-            .tokenSettings(
-                TokenSettings.builder()
-                    .accessTokenTimeToLive(java.time.Duration.ofMinutes(30))
-                    .authorizationCodeTimeToLive(java.time.Duration.ofMinutes(5))
-                    .build())
-            .build();
-
-    return new InMemoryRegisteredClientRepository(
-        publicClient, gatewayClient, accountingServiceClient, authzServiceClient, hrServiceClient);
+    return new InMemoryRegisteredClientRepository(publicClient, gatewayClient);
   }
 
   @Bean

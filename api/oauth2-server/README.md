@@ -19,17 +19,21 @@ This module provides a complete OAuth2 Authorization Server implementation using
 | Client ID | Type | Authentication | Grant Types | PKCE | Description |
 |-----------|------|----------------|--------------|------|-------------|
 | `public-client` | Public | None | Authorization Code, Refresh Token | Yes | SPAs, mobile apps |
-| `gateway` | Confidential | Client Secret Basic | Client Credentials | No | Gateway service |
-| `accounting-service` | Confidential | Client Secret Basic | Authorization Code, Refresh Token, Client Credentials | Yes | Accounting service |
-| `authz-service` | Confidential | Client Secret Basic | Authorization Code, Refresh Token, Client Credentials | Yes | Authorization service |
-| `hr-service` | Confidential | Client Secret Basic | Authorization Code, Refresh Token, Client Credentials | Yes | HR service |
+| `gateway` | Confidential | Client Secret Basic | Client Credentials | No | Gateway service (service-to-service) |
 
 ### Client Secrets
 - `public-client`: No secret (public client)
 - `gateway`: `gateway-secret`
-- `accounting-service`: `accounting-secret`
-- `authz-service`: `authz-secret`
-- `hr-service`: `hr-secret`
+
+### Architecture Note
+
+Services behind the gateway (accounting-service, authz-service, hr-service, etc.) do NOT need to be registered as OAuth2 clients. They receive user information via HTTP headers added by the gateway after token validation:
+
+- `X-User-Id` - User ID
+- `X-User-Username` - Username
+- `X-User-Email` - User email
+- `X-User-Roles` - Comma-separated roles
+- `X-Tenant-Id` - Tenant/Company ID
 
 ### Default Users
 | Username | Password | Roles |
