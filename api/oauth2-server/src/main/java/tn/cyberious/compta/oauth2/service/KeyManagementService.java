@@ -60,7 +60,9 @@ public class KeyManagementService {
   public List<RSAKey> getActiveKeys() {
     String sql =
         "SELECT public_key, private_key FROM oauth2.oauth2_keys WHERE active = true ORDER BY created_at DESC";
-    return jdbcTemplate.query(sql, (rs, rowNum) -> toRSAKey(rs));
+    return jdbcTemplate.query(sql, (rs, rowNum) -> toRSAKey(rs)).stream()
+        .filter(key -> key != null)
+        .toList();
   }
 
   /** Get the primary active key (the most recently created active key) */
@@ -69,7 +71,10 @@ public class KeyManagementService {
     String sql =
         "SELECT public_key, private_key FROM oauth2.oauth2_keys "
             + "WHERE active = true ORDER BY created_at DESC LIMIT 1";
-    List<RSAKey> keys = jdbcTemplate.query(sql, (rs, rowNum) -> toRSAKey(rs));
+    List<RSAKey> keys =
+        jdbcTemplate.query(sql, (rs, rowNum) -> toRSAKey(rs)).stream()
+            .filter(key -> key != null)
+            .toList();
     return keys.isEmpty() ? null : keys.get(0);
   }
 
@@ -193,10 +198,14 @@ public class KeyManagementService {
   private RSAKey toRSAKey(ResultSet rs) {
     try {
       String privateKeyJson = rs.getString("private_key");
+      if (privateKeyJson == null || privateKeyJson.trim().isEmpty()) {
+        log.warn("Found empty private_key in database record");
+        return null;
+      }
       return RSAKey.parse(privateKeyJson);
     } catch (Exception e) {
-      log.error("Failed to parse RSA key from database record", e);
-      throw new RuntimeException("Failed to parse RSA key", e);
+      log.error("Failed to parse RSA key from database record, skipping", e);
+      return null;
     }
   }
 }

@@ -13,6 +13,7 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+      schema: oauth2
 
   flyway:
     enabled: true
@@ -54,7 +55,7 @@ oauth2:
   key:
     rotation:
       enabled: true
-      schedule: "0 0 2 * * *" # Daily at 2 AM
+      schedule: '0 0 2 * * *' # Daily at 2 AM
       key-lifetime-days: 90
       grace-period-days: 7
       retention-days: 30

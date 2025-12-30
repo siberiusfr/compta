@@ -4,6 +4,8 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import java.time.Duration;
 import java.util.UUID;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -17,6 +19,10 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -68,6 +74,18 @@ public class AuthorizationServerConfig {
     initializeDefaultClients(repository, passwordEncoder);
 
     return repository;
+  }
+
+  @Bean
+  public OAuth2AuthorizationService authorizationService(
+      JdbcTemplate jdbcTemplate, RegisteredClientRepository registeredClientRepository) {
+    return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+  }
+
+  @Bean
+  public OAuth2AuthorizationConsentService authorizationConsentService(
+      JdbcTemplate jdbcTemplate, RegisteredClientRepository registeredClientRepository) {
+    return new JdbcOAuth2AuthorizationConsentService(jdbcTemplate, registeredClientRepository);
   }
 
   private void initializeDefaultClients(
@@ -136,5 +154,10 @@ public class AuthorizationServerConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public CacheManager cacheManager() {
+    return new ConcurrentMapCacheManager("tokens");
   }
 }
