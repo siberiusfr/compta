@@ -41,6 +41,7 @@ public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTe
 - Add validation for client properties
 - Implement client secret rotation
 - Add audit logging for client operations
+- Use JOOQ
 
 **Endpoints to Implement:**
 - `POST /api/clients` - Create new client
@@ -97,7 +98,7 @@ public class IntrospectionController {
   "exp": 1234567890,
   "iat": 1234567890,
   "sub": "user123",
-  "aud": ["accounting-service"],
+  "aud": ["gateway"],
   "iss": "http://localhost:9000",
   "scope": "read write"
 }
