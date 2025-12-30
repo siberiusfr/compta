@@ -3,7 +3,7 @@ package tn.compta.gateway.config;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.source.RemoteJWKSource;
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.jwk.source.URLJWKSource;
 import com.nimbusds.jose.proc.JWSAlgorithm;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -37,7 +37,7 @@ public class OAuth2TokenValidator {
   @Value("${oauth2.jwks-cache-duration:300000}")
   private Long jwksCacheDuration;
 
-  private RemoteJWKSource<SecurityContext> jwkSource;
+  private RemoteJWKSet<SecurityContext> jwkSource;
   private long lastJwksFetchTime = 0;
   private JWKSet cachedJwkSet;
 
@@ -64,12 +64,12 @@ public class OAuth2TokenValidator {
       log.info("Fetching JWKS from: {}", jwksUrl);
 
       URL url = new URL(jwksUrl);
-      RemoteJWKSource remoteJWKSource = new URLJWKSource(url);
-      remoteJWKSource.setConnectTimeout(5000); // 5 seconds timeout
-      remoteJWKSource.setReadTimeout(5000);
+      RemoteJWKSet RemoteJWKSet = new URLJWKSource(url);
+      RemoteJWKSet.setConnectTimeout(5000); // 5 seconds timeout
+      RemoteJWKSet.setReadTimeout(5000);
 
-      JWKSet jwkSet = remoteJWKSource.getJWKSet();
-      this.jwkSource = new RemoteJWKSource(url, jwkSet);
+      JWKSet jwkSet = RemoteJWKSet.getJWKSet();
+      this.jwkSource = new RemoteJWKSet(url, jwkSet);
       this.cachedJwkSet = jwkSet;
       this.lastJwksFetchTime = System.currentTimeMillis();
 

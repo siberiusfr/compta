@@ -594,11 +594,683 @@ All 6 High Priority Tasks have been successfully implemented:
 
 ---
 
+## Medium Priority Tasks
+
+### Task 1: Add Rate Limiting
+
+### Description
+Implemented rate limiting on OAuth2 endpoints to protect against brute force attacks and DDoS attacks.
+
+### Implementation Details
+
+The rate limiting system:
+- Limits requests per IP address per endpoint
+- Configurable time windows and request limits
+- Automatic IP blocking for repeated violations
+- Integration with audit logging and metrics
+
+#### Files Created
+
+| File | Type | Description |
+|------|------|-------------|
+| [`RateLimitConfig.java`](src/main/java/tn/cyberious/compta/oauth2/config/RateLimitConfig.java) | Configuration class with rate limits for different endpoints |
+| [`RateLimitFilter.java`](src/main/java/tn/cyberious/compta/oauth2/filter/RateLimitFilter.java) | Filter implementing rate limiting logic |
+| [`RateLimitService.java`](src/main/java/tn/cyberious/compta/oauth2/service/RateLimitService.java) | Service for rate limiting operations |
+
+#### Rate Limits Configured
+
+| Endpoint | Limit | Time Window | Description |
+|----------|--------|-------------|
+| `/oauth2/token` | 10 requests | 1 minute | Token endpoint |
+| `/oauth2/revoke` | 20 requests | 1 minute | Token revocation |
+| `/oauth2/introspect` | 100 requests | 1 minute | Token introspection |
+| `/login` | 5 requests | 1 minute | Login endpoint |
+| `/api/users/password/reset` | 3 requests | 1 hour | Password reset |
+
+#### Features
+
+- **In-Memory Storage**: Uses `ConcurrentHashMap` for request counters and blocked IPs
+- **Automatic Cleanup**: Scheduled task to clean up expired blocks
+- **Proxy Support**: Handles `X-Forwarded-For` and `X-Real-IP` headers
+- **Metrics Integration**: Records rate limit exceeded events in metrics
+
+### API Endpoints
+
+No additional endpoints are exposed. Rate limiting is enforced via filter.
+
+### Configuration
+
+Rate limits can be configured in [`RateLimitConfig.java`](src/main/java/tn/cyberious/compta/oauth2/config/RateLimitConfig.java).
+
+---
+
+### Task 2: Configure CORS
+
+### Description
+Configured Cross-Origin Resource Sharing (CORS) to allow frontend applications to call OAuth2 endpoints from different origins.
+
+### Implementation Details
+
+The CORS configuration:
+- Allows specific origins (localhost:3000, localhost:8080, https://app.compta.tn)
+- Supports all HTTP methods (GET, POST, PUT, DELETE, OPTIONS)
+- Allows all headers
+- Supports credentials (cookies, authorization headers)
+- Configurable max age (3600 seconds)
+
+#### Files Modified
+
+| File | Type | Description |
+|------|------|-------------|
+| [`AuthorizationServerConfig.java`](src/main/java/tn/cyberious/compta/oauth2/config/AuthorizationServerConfig.java) | Added `corsConfigurationSource()` bean and CORS configuration |
+
+#### Configuration
+
+```java
+@Bean
+public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+    org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+    
+    configuration.setAllowedOrigins(Arrays.asList(
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "https://app.compta.tn"
+    ));
+    
+    configuration.setAllowedMethods(Arrays.asList(
+        HttpMethod.GET,
+        HttpMethod.POST,
+        HttpMethod.PUT,
+        HttpMethod.DELETE,
+        HttpMethod.OPTIONS
+    ));
+    
+    configuration.setAllowedHeaders(Arrays.asList("*"));
+    configuration.setAllowCredentials(true);
+    configuration.setMaxAge(3600L);
+    
+    return new org.springframework.web.cors.UrlBasedCorsConfigurationSource(
+        Arrays.asList("/**", "/oauth2/**", "/api/**"),
+        configuration
+    );
+}
+```
+
+### Features
+
+- **Origin Whitelist**: Only allows configured origins
+- **Method Whitelist**: Only allows configured HTTP methods
+- **Header Support**: Allows all headers for custom headers
+- **Credentials Support**: Allows cookies and authorization headers
+- **Path-Based**: Different CORS rules for different paths
+
+---
+
+### Task 3: Implement CSRF Protection
+
+### Description
+Implemented CSRF (Cross-Site Request Forgery) protection for form-based authentication endpoints.
+
+### Implementation Details
+
+The CSRF protection system:
+- Custom token repository using cookies for SPA compatibility
+- Configured for both session-based and stateless requests
+- OAuth2 endpoints excluded from CSRF (use PKCE instead)
+- Public endpoints excluded from CSRF requirement
+
+#### Files Created
+
+| File | Type | Description |
+|------|------|-------------|
+| [`CsrfConfig.java`](src/main/java/tn/cyberious/compta/oauth2/config/CsrfConfig.java) | Configuration class for CSRF protection |
+| [`AuthorizationServerConfig.java`](src/main/java/tn/cyberious/compta/oauth2/config/AuthorizationServerConfig.java) | Modified to apply CSRF configuration |
+
+#### CSRF Configuration
+
+**OAuth2 Filter Chain** (Order 1):
+```java
+@Bean
+@Order(1)
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) {
+    // Disable CSRF for OAuth2 endpoints
+    http.csrf(csrf -> csrf.ignoringRequestMatchers(
+        "/oauth2/**",
+        "/.well-known/**",
+        "/jwks"
+    ));
+    // ... rest of configuration
+}
+```
+
+**Default Filter Chain** (Order 2):
+```java
+@Bean
+@Order(2)
+public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, CustomUserDetailsService userDetailsService, CsrfConfig csrfConfig) {
+    http.userDetailsService(userDetailsService)
+        .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+        .formLogin(Customizer.withDefaults())
+        // Enable CSRF with custom token repository
+        .csrf(csrf -> csrf
+            .csrfTokenRepository(csrfConfig.csrfTokenRepository())
+            // Exclude public endpoints
+            .ignoringRequestMatchers(
+                "/login",
+                "/logout",
+                "/error",
+                "/actuator/**"
+            )
+        );
+    return http.build();
+}
+```
+
+#### Features
+
+- **Cookie-Based Tokens**: CSRF tokens stored in cookies for SPA compatibility
+- **X-XSRF-TOKEN Header**: Standard header for CSRF token
+- **OAuth2 Exclusion**: OAuth2 endpoints excluded (use PKCE instead)
+- **Public Endpoint Exclusion**: Login, logout, error, actuator endpoints excluded
+- **SameSite=Strict**: Cookie security attribute for modern browsers
+
+---
+
+### Task 4: Implement Audit Logging
+
+### Description
+Implemented comprehensive audit logging for all security events to meet compliance requirements.
+
+### Implementation Details
+
+The audit logging system:
+- Logs all authentication, authorization, token operations, and security events
+- Asynchronous logging for performance
+- Database storage with automatic cleanup
+- Integration with metrics
+
+#### Files Created
+
+| File | Type | Description |
+|------|------|-------------|
+| [`V5__create_audit_log_table.sql`](src/main/resources/db/migration/V5__create_audit_log_table.sql) | Database migration for audit logs table |
+| [`AuditLog.java`](src/main/java/tn/cyberious/compta/oauth2/dto/AuditLog.java) | DTO for audit log entries |
+| [`AuditLogService.java`](src/main/java/tn/cyberious/compta/oauth2/service/AuditLogService.java) | Service for audit logging operations |
+| [`AuditLogAspect.java`](src/main/java/tn/cyberious/compta/oauth2/aspect/AuditLogAspect.java) | AOP aspect for automatic logging |
+| [`ScheduledTasksConfig.java`](src/main/java/tn/cyberious/compta/oauth2/config/ScheduledTasksConfig.java) | Configuration for scheduled tasks |
+| [`OAuth2ServerApplication.java`](src/main/java/tn/cyberious/compta/oauth2/OAuth2ServerApplication.java) | Added `@EnableAsync` annotation |
+
+#### Database Schema
+
+```sql
+CREATE TABLE oauth2.audit_logs (
+    id BIGSERIAL PRIMARY KEY,
+    event_type VARCHAR(50) NOT NULL,
+    event_category VARCHAR(50) NOT NULL,
+    user_id VARCHAR(255),
+    username VARCHAR(255),
+    client_id VARCHAR(255),
+    ip_address VARCHAR(45) NOT NULL,
+    user_agent TEXT,
+    request_uri VARCHAR(500),
+    request_method VARCHAR(10),
+    status VARCHAR(20) NOT NULL,
+    error_message TEXT,
+    details JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    tenant_id VARCHAR(255)
+);
+```
+
+#### Event Types
+
+| Event Type | Event Category | Description |
+|-------------|----------------|-------------|
+| LOGIN | AUTHENTICATION | User login success |
+| LOGOUT | AUTHENTICATION | User logout |
+| LOGIN_FAILED | AUTHENTICATION | Failed login attempt |
+| TOKEN_ISSUED | TOKEN | Access token issued |
+| TOKEN_REFRESHED | TOKEN | Refresh token issued |
+| TOKEN_REVOKED | TOKEN | Token revoked |
+| TOKEN_INTROSPECTED | TOKEN | Token introspected |
+| AUTHORIZATION_CODE_ISSUED | AUTHORIZATION | Authorization code issued |
+| AUTHORIZATION_GRANTED | AUTHORIZATION | Authorization granted |
+| AUTHORIZATION_DENIED | AUTHORIZATION | Authorization denied |
+| PASSWORD_CHANGED | USER | Password changed |
+| PASSWORD_RESET_REQUESTED | USER | Password reset requested |
+| PASSWORD_RESET_COMPLETED | USER | Password reset completed |
+| EMAIL_VERIFIED | USER | Email verified |
+| USER_CREATED | USER | User created |
+| USER_UPDATED | USER | User updated |
+| USER_DELETED | USER | User deleted |
+| ROLE_ASSIGNED | USER | Role assigned |
+| ROLE_REMOVED | USER | Role removed |
+| CLIENT_CREATED | CLIENT | Client created |
+| CLIENT_UPDATED | CLIENT | Client updated |
+| CLIENT_DELETED | CLIENT | Client deleted |
+| RATE_LIMIT_EXCEEDED | SECURITY | Rate limit exceeded |
+| CSRF_TOKEN_VALIDATION_FAILED | SECURITY | CSRF validation failed |
+
+#### Features
+
+- **Asynchronous Logging**: Non-blocking audit log writes
+- **JSONB Details**: Flexible storage of additional event data
+- **Automatic Cleanup**: Scheduled task to delete logs older than 90 days
+- **IP Address Tracking**: Handles proxies and load balancers
+- **Multi-Tenancy Support**: Tenant ID for multi-tenant applications
+
+---
+
+### Task 5: Add OAuth2 Specific Metrics
+
+### Description
+Implemented custom metrics for OAuth2 operations using Micrometer for monitoring and observability.
+
+### Implementation Details
+
+The metrics system:
+- Tracks token operations (issued, refreshed, revoked)
+- Tracks authentication events (success, failure)
+- Tracks authorization events (granted, denied)
+- Tracks operations by grant type and client
+- Tracks security events (rate limit, CSRF failures)
+- Tracks performance metrics (timers)
+
+#### Files Created
+
+| File | Type | Description |
+|------|------|-------------|
+| [`OAuth2Metrics.java`](src/main/java/tn/cyberious/compta/oauth2/metrics/OAuth2Metrics.java) | Metrics class with counters and timers |
+| [`MetricsAspect.java`](src/main/java/tn/cyberious/compta/oauth2/metrics/MetricsAspect.java) | AOP aspect for automatic metrics collection |
+
+#### Metrics Available
+
+**Token Operation Counters**:
+- `oauth2.token.issued` - Number of access tokens issued
+- `oauth2.token.refreshed` - Number of tokens refreshed
+- `oauth2.token.revoked` - Number of tokens revoked
+- `oauth2.token.introspected` - Number of tokens introspected
+- `oauth2.authorization_code.issued` - Number of authorization codes issued
+- `oauth2.authorization.granted` - Number of authorizations granted
+- `oauth2.authorization.denied` - Number of authorizations denied
+
+**Authentication Counters**:
+- `oauth2.login{status="success"}` - Successful logins
+- `oauth2.login{status="failure"}` - Failed logins
+- `oauth2.logout` - Logout events
+
+**Grant Type Counters**:
+- `oauth2.grant_type{type="authorization_code"}` - Authorization code grants
+- `oauth2.grant_type{type="refresh_token"}` - Refresh token grants
+- `oauth2.grant_type{type="client_credentials"}` - Client credentials grants
+
+**Client Counters**:
+- `oauth2.client.requests{client_id="public-client"}` - Requests by public client
+- `oauth2.client.requests{client_id="gateway"}` - Requests by gateway client
+
+**Error Counters**:
+- `oauth2.error{error="invalid_grant"}` - Invalid grant errors
+- `oauth2.error{error="invalid_client"}` - Invalid client errors
+- `oauth2.error{error="invalid_scope"}` - Invalid scope errors
+- `oauth2.error{error="unauthorized_client"}` - Unauthorized client errors
+
+**Security Event Counters**:
+- `oauth2.security.rate_limit_exceeded` - Rate limit violations
+- `oauth2.security.csrf_validation_failed` - CSRF validation failures
+
+**Performance Timers**:
+- `oauth2.token.issuance.duration` - Time to issue tokens
+- `oauth2.token.refresh.duration` - Time to refresh tokens
+- `oauth2.authentication.duration` - Time to authenticate
+- `oauth2.authorization.duration` - Time to authorize
+
+**Active Token Counters**:
+- `oauth2.token.active{type="access"}` - Number of active access tokens
+- `oauth2.token.active{type="refresh"}` - Number of active refresh tokens
+
+#### Features
+
+- **Micrometer Integration**: Standard metrics for Spring Boot Actuator
+- **Tag-Based Metrics**: Metrics tagged by grant type, client, status
+- **Performance Tracking**: Timer metrics for operation duration
+- **Automatic Collection**: AOP-based automatic metrics collection
+- **Rate Limit Integration**: Metrics recorded when rate limit exceeded
+
+---
+
+### Task 6: Implement Token Binding (mTLS/DPoP)
+
+### Description
+Implemented DPoP (Demonstrating Proof-of-Possession) token binding to prevent token theft and misuse.
+
+### Implementation Details
+
+The DPoP system:
+- Validates DPoP proofs on token requests
+- Generates DPoP proofs for clients
+- Binds access tokens to DPoP public key thumbprint
+- Supports RSA 2048-bit keys
+- Follows RFC 9449
+
+#### Files Created
+
+| File | Type | Description |
+|------|------|-------------|
+| [`DPoPConfig.java`](src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPConfig.java) | Configuration class for DPoP |
+| [`DPoPValidator.java`](src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPValidator.java) | Validator for DPoP proofs |
+| [`DPoPProofGenerator.java`](src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPProofGenerator.java) | Generator for DPoP proofs |
+| [`DPoPTokenCustomizer.java`](src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPTokenCustomizer.java) | Token customizer for DPoP binding |
+| [`DPoPFilter.java`](src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPFilter.java) | Filter for DPoP validation |
+
+#### Dependencies Added
+
+```xml
+<dependency>
+  <groupId>com.nimbusds</groupId>
+  <artifactId>nimbus-jose-jwt</artifactId>
+</dependency>
+```
+
+#### DPoP Configuration
+
+```yaml
+oauth2:
+  dpop:
+    enabled: true
+    proof-max-age-seconds: 300
+    supported-proof-methods: ["jwt"]
+    require-proof-for-token-requests: true
+    require-proof-for-refresh-requests: true
+```
+
+#### DPoP Proof Structure
+
+```json
+{
+  "typ": "dpop+jwt",
+  "alg": "RS256",
+  "jwk": { ... },
+  "htm": "POST",
+  "htu": "https://example.com/oauth2/token",
+  "iat": 1234567890,
+  "jti": "unique-id",
+  "ath": "hash-of-access-token"
+}
+```
+
+#### Features
+
+- **Proof Validation**: Validates all required claims (htm, htu, iat, jti)
+- **Header Validation**: Validates typ, alg, jwk
+- **Signature Verification**: Verifies RSA signatures
+- **Age Validation**: Rejects proofs older than 5 minutes
+- **Token Binding**: Binds access tokens to JWK thumbprint via `cnf` claim
+- **Access Token Hash**: Supports `ath` claim for refresh requests
+
+---
+
+### Task 7: Add JTI (JWT ID) for Token Tracking
+
+### Description
+Implemented JTI (JWT ID) claim for all tokens to enable token tracking and revocation.
+
+### Implementation Details
+
+The JTI system:
+- Generates unique JTI for each token
+- Tracks active and blacklisted tokens
+- Integrates with token revocation
+- Automatic cleanup of expired entries
+
+#### Files Created
+
+| File | Type | Description |
+|------|------|-------------|
+| [`TokenBlacklistService.java`](src/main/java/tn/cyberious/compta/oauth2/jti/TokenBlacklistService.java) | Service for token blacklisting |
+| [`JtiTokenCustomizer.java`](src/main/java/tn/cyberious/compta/oauth2/jti/JtiTokenCustomizer.java) | Token customizer for JTI claims |
+| [`TokenRevocationService.java`](src/main/java/tn/cyberious/compta/oauth2/service/TokenRevocationService.java) | Modified to use JTI blacklisting |
+
+#### Token Blacklisting
+
+```java
+// In-memory storage with automatic expiration
+private final ConcurrentHashMap<String, Instant> blacklistedJtis = new ConcurrentHashMap<>();
+private final ConcurrentSkipListSet<String> activeJtis = new ConcurrentSkipListSet<>();
+
+// Add to blacklist
+public void addToBlacklist(String jti, Instant expirationTime) {
+    blacklistedJtis.put(jti, expirationTime);
+    activeJtis.remove(jti);
+}
+
+// Check if blacklisted
+public boolean isBlacklisted(String jti) {
+    Instant expirationTime = blacklistedJtis.get(jti);
+    return expirationTime != null && Instant.now().isBefore(expirationTime);
+}
+```
+
+#### Token Customization
+
+```java
+@Override
+public void customize(JwtEncodingContext context) {
+    // Generate unique JTI
+    String jti = UUID.randomUUID().toString();
+    context.getClaims().id(jti);
+    
+    // Add to active tokens set (for access tokens only)
+    if (context.getTokenType() == OAuth2TokenType.ACCESS_TOKEN) {
+        tokenBlacklistService.addToActive(jti);
+    }
+}
+```
+
+#### Revocation Integration
+
+```java
+@Transactional
+public void revokeToken(String tokenValue, String tokenTypeHint) {
+    // Extract JTI and expiration time for blacklisting
+    String jti = extractJti(tokenValue);
+    Instant expirationTime = extractExpirationTime(authorization);
+    
+    // Add to blacklist if JTI is available
+    if (jti != null && expirationTime != null) {
+        tokenBlacklistService.addToBlacklist(jti, expirationTime);
+    }
+    
+    // Remove from cache and authorization
+    invalidateTokenInCache(tokenValue);
+    authorizationService.remove(authorization);
+}
+```
+
+#### Features
+
+- **Unique JTI**: UUID-based unique identifier for each token
+- **In-Memory Blacklist**: Fast lookup for token validation
+- **Automatic Cleanup**: Scheduled task to remove expired entries
+- **Active Token Tracking**: Separate set for active tokens
+- **Revocation Integration**: Tokens added to blacklist when revoked
+- **Access Token Only**: JTI only added for access tokens (not refresh tokens)
+
+---
+
+### Task 8: Implement Password Reset Flow
+
+### Description
+Implemented email-based password reset flow with secure token generation and validation.
+
+### Implementation Details
+
+The password reset system:
+- Generates secure reset tokens (UUID-based)
+- Sends reset links via email
+- Validates tokens before allowing password change
+- Marks tokens as used to prevent reuse
+- Automatic cleanup of expired tokens
+
+#### Files Created
+
+| File | Type | Description |
+|------|------|-------------|
+| [`V6__create_password_reset_tables.sql`](src/main/resources/db/migration/V6__create_password_reset_tables.sql) | Database migration for password reset |
+| [`PasswordResetRequest.java`](src/main/java/tn/cyberious/compta/oauth2/dto/PasswordResetRequest.java) | DTO for password reset request |
+| [`PasswordResetConfirmRequest.java`](src/main/java/tn/cyberious/compta/oauth2/dto/PasswordResetConfirmRequest.java) | DTO for password reset confirmation |
+| [`PasswordResetService.java`](src/main/java/tn/cyberious/compta/oauth2/service/PasswordResetService.java) | Service for password reset operations |
+| [`PasswordResetController.java`](src/main/java/tn/cyberious/compta/oauth2/controller/PasswordResetController.java) | REST controller for password reset |
+| [`EmailService.java`](src/main/java/tn/cyberious/compta/oauth2/service/EmailService.java) | Email service for sending emails |
+
+#### Database Schema
+
+```sql
+CREATE TABLE oauth2.password_reset_tokens (
+    id BIGSERIAL PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(45),
+    user_agent TEXT
+);
+```
+
+#### API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/users/password/reset` | Initiate password reset |
+| POST | `/api/users/password/reset/confirm` | Confirm password reset with token |
+
+#### Password Reset Flow
+
+1. **Request Reset**: User provides email address
+2. **Generate Token**: Server generates 36-character UUID token
+3. **Send Email**: Server sends reset link via email
+4. **Validate Token**: User clicks link, token is validated
+5. **Reset Password**: User provides new password and token
+6. **Mark Used**: Token is marked as used to prevent reuse
+
+#### Token Configuration
+
+- **Token Length**: 36 characters (UUID without dashes)
+- **Token Expiration**: 1 hour
+- **One-Time Use**: Tokens marked as used after successful reset
+- **Security**: Don't reveal if email exists (for account enumeration prevention)
+
+#### Features
+
+- **Secure Tokens**: UUID-based tokens with sufficient entropy
+- **Time-Limited**: Tokens expire after 1 hour
+- **One-Time Use**: Tokens cannot be reused
+- **Audit Logging**: All password reset events logged
+- **IP Tracking**: Records IP address and user agent
+
+---
+
+### Task 9: Implement Email Verification
+
+### Description
+Implemented email-based user verification for new account registration.
+
+### Implementation Details
+
+The email verification system:
+- Generates secure verification tokens (UUID-based)
+- Sends verification links via email
+- Validates tokens before enabling user account
+- Marks tokens as verified to prevent reuse
+- Automatic cleanup of expired tokens
+
+#### Files Created
+
+| File | Type | Description |
+|------|------|-------------|
+| [`V7__create_email_verification_tables.sql`](src/main/resources/db/migration/V7__create_email_verification_tables.sql) | Database migration for email verification |
+| [`EmailVerificationRequest.java`](src/main/java/tn/cyberious/compta/oauth2/dto/EmailVerificationRequest.java) | DTO for email verification request |
+| [`EmailVerificationService.java`](src/main/java/tn/cyberious/compta/oauth2/service/EmailVerificationService.java) | Service for email verification operations |
+| [`EmailVerificationController.java`](src/main/java/tn/cyberious/compta/oauth2/controller/EmailVerificationController.java) | REST controller for email verification |
+
+#### Database Schema
+
+```sql
+CREATE TABLE oauth2.email_verification_tokens (
+    id BIGSERIAL PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(45),
+    user_agent TEXT
+);
+```
+
+#### API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/users/email/verify` | Initiate email verification |
+| POST | `/api/users/email/verify/confirm` | Confirm email verification with token |
+
+#### Email Verification Flow
+
+1. **User Registers**: User provides email during registration
+2. **Generate Token**: Server generates 36-character UUID token
+3. **Send Email**: Server sends verification link via email
+4. **Validate Token**: User clicks link, token is validated
+5. **Enable Account**: User account is enabled and email marked as verified
+6. **Mark Verified**: Token is marked as verified to prevent reuse
+
+#### Token Configuration
+
+- **Token Length**: 36 characters (UUID without dashes)
+- **Token Expiration**: 24 hours
+- **One-Time Use**: Tokens marked as verified after successful verification
+- **Security**: Don't reveal if email exists (for account enumeration prevention)
+
+#### Features
+
+- **Secure Tokens**: UUID-based tokens with sufficient entropy
+- **Time-Limited**: Tokens expire after 24 hours
+- **One-Time Use**: Tokens cannot be reused
+- **Audit Logging**: All email verification events logged
+- **IP Tracking**: Records IP address and user agent
+- **Account Enablement**: User account enabled after verification
+
+---
+
+## Summary
+
+All 9 Medium Priority Tasks have been successfully implemented:
+
+| # | Task | Status | Files Created/Modified |
+|---|--------|--------|--------------------------|
+| 1 | Add Rate Limiting | ✅ Complete | 3 files |
+| 2 | Configure CORS | ✅ Complete | 1 file modified |
+| 3 | Implement CSRF Protection | ✅ Complete | 2 files |
+| 4 | Implement Audit Logging | ✅ Complete | 5 files |
+| 5 | Add OAuth2 Specific Metrics | ✅ Complete | 2 files |
+| 6 | Implement Token Binding (mTLS/DPoP) | ✅ Complete | 4 files |
+| 7 | Add JTI (JWT ID) for Token Tracking | ✅ Complete | 2 files created, 1 modified |
+| 8 | Implement Password Reset Flow | ✅ Complete | 5 files |
+| 9 | Implement Email Verification | ✅ Complete | 4 files |
+
+### Total Files Created: 28
+### Total Files Modified: 4
+
+---
+
 ## Next Steps
 
 For additional features and enhancements, refer to the remaining tasks in [`TASKS.md`](TASKS.md):
 
-- **Medium Priority Tasks**: Rate limiting, CORS, CSRF, audit logging, metrics, etc.
 - **Low Priority Tasks**: Device code flow, dynamic client registration, consent management, etc.
 - **Testing Tasks**: Integration tests, security tests, performance tests
 - **DevOps & Operations**: Health checks, monitoring, CI/CD, backup and recovery

@@ -10,17 +10,23 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
+import tn.cyberious.compta.oauth2.generated.tables.AuditLogs;
+import tn.cyberious.compta.oauth2.generated.tables.EmailVerificationTokens;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2Authorization;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2AuthorizationConsent;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2Keys;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2RegisteredClient;
+import tn.cyberious.compta.oauth2.generated.tables.PasswordResetTokens;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 import tn.cyberious.compta.oauth2.generated.tables.Users;
+import tn.cyberious.compta.oauth2.generated.tables.records.AuditLogsRecord;
+import tn.cyberious.compta.oauth2.generated.tables.records.EmailVerificationTokensRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.Oauth2AuthorizationConsentRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.Oauth2AuthorizationRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.Oauth2KeysRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.Oauth2RegisteredClientRecord;
+import tn.cyberious.compta.oauth2.generated.tables.records.PasswordResetTokensRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.UserRolesRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.UsersRecord;
@@ -37,11 +43,16 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final UniqueKey<AuditLogsRecord> AUDIT_LOGS_PKEY = Internal.createUniqueKey(AuditLogs.AUDIT_LOGS, DSL.name("audit_logs_pkey"), new TableField[] { AuditLogs.AUDIT_LOGS.ID }, true);
+    public static final UniqueKey<EmailVerificationTokensRecord> EMAIL_VERIFICATION_TOKENS_PKEY = Internal.createUniqueKey(EmailVerificationTokens.EMAIL_VERIFICATION_TOKENS, DSL.name("email_verification_tokens_pkey"), new TableField[] { EmailVerificationTokens.EMAIL_VERIFICATION_TOKENS.ID }, true);
+    public static final UniqueKey<EmailVerificationTokensRecord> EMAIL_VERIFICATION_TOKENS_TOKEN_KEY = Internal.createUniqueKey(EmailVerificationTokens.EMAIL_VERIFICATION_TOKENS, DSL.name("email_verification_tokens_token_key"), new TableField[] { EmailVerificationTokens.EMAIL_VERIFICATION_TOKENS.TOKEN }, true);
     public static final UniqueKey<Oauth2AuthorizationRecord> OAUTH2_AUTHORIZATION_PKEY = Internal.createUniqueKey(Oauth2Authorization.OAUTH2_AUTHORIZATION, DSL.name("oauth2_authorization_pkey"), new TableField[] { Oauth2Authorization.OAUTH2_AUTHORIZATION.ID }, true);
     public static final UniqueKey<Oauth2AuthorizationConsentRecord> OAUTH2_AUTHORIZATION_CONSENT_PKEY = Internal.createUniqueKey(Oauth2AuthorizationConsent.OAUTH2_AUTHORIZATION_CONSENT, DSL.name("oauth2_authorization_consent_pkey"), new TableField[] { Oauth2AuthorizationConsent.OAUTH2_AUTHORIZATION_CONSENT.REGISTERED_CLIENT_ID, Oauth2AuthorizationConsent.OAUTH2_AUTHORIZATION_CONSENT.PRINCIPAL_NAME }, true);
     public static final UniqueKey<Oauth2KeysRecord> OAUTH2_KEYS_KEY_ID_KEY = Internal.createUniqueKey(Oauth2Keys.OAUTH2_KEYS, DSL.name("oauth2_keys_key_id_key"), new TableField[] { Oauth2Keys.OAUTH2_KEYS.KEY_ID }, true);
     public static final UniqueKey<Oauth2KeysRecord> OAUTH2_KEYS_PKEY = Internal.createUniqueKey(Oauth2Keys.OAUTH2_KEYS, DSL.name("oauth2_keys_pkey"), new TableField[] { Oauth2Keys.OAUTH2_KEYS.ID }, true);
     public static final UniqueKey<Oauth2RegisteredClientRecord> OAUTH2_REGISTERED_CLIENT_PKEY = Internal.createUniqueKey(Oauth2RegisteredClient.OAUTH2_REGISTERED_CLIENT, DSL.name("oauth2_registered_client_pkey"), new TableField[] { Oauth2RegisteredClient.OAUTH2_REGISTERED_CLIENT.ID }, true);
+    public static final UniqueKey<PasswordResetTokensRecord> PASSWORD_RESET_TOKENS_PKEY = Internal.createUniqueKey(PasswordResetTokens.PASSWORD_RESET_TOKENS, DSL.name("password_reset_tokens_pkey"), new TableField[] { PasswordResetTokens.PASSWORD_RESET_TOKENS.ID }, true);
+    public static final UniqueKey<PasswordResetTokensRecord> PASSWORD_RESET_TOKENS_TOKEN_KEY = Internal.createUniqueKey(PasswordResetTokens.PASSWORD_RESET_TOKENS, DSL.name("password_reset_tokens_token_key"), new TableField[] { PasswordResetTokens.PASSWORD_RESET_TOKENS.TOKEN }, true);
     public static final UniqueKey<RolesRecord> ROLES_NAME_KEY = Internal.createUniqueKey(Roles.ROLES, DSL.name("roles_name_key"), new TableField[] { Roles.ROLES.NAME }, true);
     public static final UniqueKey<RolesRecord> ROLES_PKEY = Internal.createUniqueKey(Roles.ROLES, DSL.name("roles_pkey"), new TableField[] { Roles.ROLES.ID }, true);
     public static final UniqueKey<UserRolesRecord> USER_ROLES_PKEY = Internal.createUniqueKey(UserRoles.USER_ROLES, DSL.name("user_roles_pkey"), new TableField[] { UserRoles.USER_ROLES.USER_ID, UserRoles.USER_ROLES.ROLE_ID }, true);

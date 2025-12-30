@@ -3,6 +3,7 @@ package tn.cyberious.compta.oauth2.config;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.UUID;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -46,6 +47,13 @@ public class AuthorizationServerConfig {
       throws Exception {
     OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
     http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
+
+    // Configure CORS
+    http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+    // Disable CSRF for OAuth2 endpoints (they use PKCE, client secrets, etc.)
+    http.csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/**", "/.well-known/**", "/jwks"));
+
     http.exceptionHandling(
             (exceptions) ->
                 exceptions.defaultAuthenticationEntryPointFor(
@@ -56,12 +64,50 @@ public class AuthorizationServerConfig {
   }
 
   @Bean
+  public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+    org.springframework.web.cors.CorsConfiguration configuration =
+        new org.springframework.web.cors.CorsConfiguration();
+
+    // Configure allowed origins
+    configuration.setAllowedOrigins(
+        Arrays.asList("http://localhost:3000", "http://localhost:8080", "https://app.compta.tn"));
+
+    // Configure allowed methods (use String list, not HttpMethod)
+    configuration.setAllowedMethods(
+        Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+    // Configure allowed headers
+    configuration.setAllowedHeaders(Arrays.asList("*"));
+
+    // Allow credentials
+    configuration.setAllowCredentials(true);
+
+    // Set max age
+    configuration.setMaxAge(3600L);
+
+    // Use UrlBasedCorsConfigurationSource with path patterns
+    org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
+        new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    source.registerCorsConfiguration("/oauth2/**", configuration);
+    source.registerCorsConfiguration("/api/**", configuration);
+    return source;
+  }
+
+  @Bean
   @Order(2)
   public SecurityFilterChain defaultSecurityFilterChain(
-      HttpSecurity http, CustomUserDetailsService userDetailsService) throws Exception {
+      HttpSecurity http, CustomUserDetailsService userDetailsService, CsrfConfig csrfConfig)
+      throws Exception {
     http.userDetailsService(userDetailsService)
         .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-        .formLogin(Customizer.withDefaults());
+        .formLogin(Customizer.withDefaults())
+        // Enable CSRF protection with custom token repository
+        .csrf(
+            csrf ->
+                csrf.csrfTokenRepository(csrfConfig.csrfTokenRepository())
+                    // Allow public endpoints
+                    .ignoringRequestMatchers("/login", "/logout", "/error", "/actuator/**"));
     return http.build();
   }
 

@@ -1,5 +1,6 @@
 package tn.cyberious.compta.oauth2.service;
 
+import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
@@ -9,6 +10,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.cyberious.compta.oauth2.jti.TokenBlacklistService;
 
 @Slf4j
 @Service
@@ -17,6 +19,7 @@ public class TokenRevocationService {
 
   private final OAuth2AuthorizationService authorizationService;
   private final CacheManager cacheManager;
+  private final TokenBlacklistService tokenBlacklistService;
 
   @Transactional
   public void revokeToken(String tokenValue, String tokenTypeHint) {
@@ -59,6 +62,33 @@ public class TokenRevocationService {
     }
 
     return authorization;
+  }
+
+  /** Extract JTI from a JWT token. */
+  private String extractJti(String tokenValue) {
+    try {
+      SignedJWT jwt = SignedJWT.parse(tokenValue);
+      return jwt.getJWTClaimsSet().getJWTID();
+    } catch (Exception e) {
+      log.warn("Failed to extract JTI from token", e);
+      return null;
+    }
+  }
+
+  /** Extract expiration time from an authorization. */
+  private java.time.Instant extractExpirationTime(OAuth2Authorization authorization) {
+    try {
+      if (authorization.getAccessToken() != null) {
+        return authorization.getAccessToken().getToken().getExpiresAt();
+      }
+      if (authorization.getRefreshToken() != null) {
+        return authorization.getRefreshToken().getToken().getExpiresAt();
+      }
+      return null;
+    } catch (Exception e) {
+      log.warn("Failed to extract expiration time from authorization", e);
+      return null;
+    }
   }
 
   private void invalidateTokenInCache(String tokenValue) {

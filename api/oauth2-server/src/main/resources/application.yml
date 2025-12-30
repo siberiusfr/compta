@@ -2,6 +2,21 @@ spring:
   application:
     name: oauth2-server
 
+  # Mail Configuration (for password reset and email verification)
+  mail:
+    host: localhost
+    port: 1025
+    username: test
+    password: test
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+    test-connection: false
+
   datasource:
     url: jdbc:postgresql://localhost:5432/compta
     username: postgres

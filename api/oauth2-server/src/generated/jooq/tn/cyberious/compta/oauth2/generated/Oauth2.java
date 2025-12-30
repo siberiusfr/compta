@@ -11,10 +11,13 @@ import org.jooq.Catalog;
 import org.jooq.Table;
 import org.jooq.impl.SchemaImpl;
 
+import tn.cyberious.compta.oauth2.generated.tables.AuditLogs;
+import tn.cyberious.compta.oauth2.generated.tables.EmailVerificationTokens;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2Authorization;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2AuthorizationConsent;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2Keys;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2RegisteredClient;
+import tn.cyberious.compta.oauth2.generated.tables.PasswordResetTokens;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 import tn.cyberious.compta.oauth2.generated.tables.Users;
@@ -32,6 +35,16 @@ public class Oauth2 extends SchemaImpl {
      * The reference instance of <code>oauth2</code>
      */
     public static final Oauth2 OAUTH2 = new Oauth2();
+
+    /**
+     * Audit log table for tracking security events
+     */
+    public final AuditLogs AUDIT_LOGS = AuditLogs.AUDIT_LOGS;
+
+    /**
+     * Email verification tokens for new user registration
+     */
+    public final EmailVerificationTokens EMAIL_VERIFICATION_TOKENS = EmailVerificationTokens.EMAIL_VERIFICATION_TOKENS;
 
     /**
      * The table <code>oauth2.oauth2_authorization</code>.
@@ -52,6 +65,11 @@ public class Oauth2 extends SchemaImpl {
      * The table <code>oauth2.oauth2_registered_client</code>.
      */
     public final Oauth2RegisteredClient OAUTH2_REGISTERED_CLIENT = Oauth2RegisteredClient.OAUTH2_REGISTERED_CLIENT;
+
+    /**
+     * Password reset tokens for email-based password reset
+     */
+    public final PasswordResetTokens PASSWORD_RESET_TOKENS = PasswordResetTokens.PASSWORD_RESET_TOKENS;
 
     /**
      * The table <code>oauth2.roles</code>.
@@ -84,10 +102,13 @@ public class Oauth2 extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
+            AuditLogs.AUDIT_LOGS,
+            EmailVerificationTokens.EMAIL_VERIFICATION_TOKENS,
             Oauth2Authorization.OAUTH2_AUTHORIZATION,
             Oauth2AuthorizationConsent.OAUTH2_AUTHORIZATION_CONSENT,
             Oauth2Keys.OAUTH2_KEYS,
             Oauth2RegisteredClient.OAUTH2_REGISTERED_CLIENT,
+            PasswordResetTokens.PASSWORD_RESET_TOKENS,
             Roles.ROLES,
             UserRoles.USER_ROLES,
             Users.USERS

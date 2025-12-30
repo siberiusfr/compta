@@ -4,10 +4,13 @@
 package tn.cyberious.compta.oauth2.generated;
 
 
+import tn.cyberious.compta.oauth2.generated.tables.AuditLogs;
+import tn.cyberious.compta.oauth2.generated.tables.EmailVerificationTokens;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2Authorization;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2AuthorizationConsent;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2Keys;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2RegisteredClient;
+import tn.cyberious.compta.oauth2.generated.tables.PasswordResetTokens;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 import tn.cyberious.compta.oauth2.generated.tables.Users;
@@ -18,6 +21,16 @@ import tn.cyberious.compta.oauth2.generated.tables.Users;
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Tables {
+
+    /**
+     * Audit log table for tracking security events
+     */
+    public static final AuditLogs AUDIT_LOGS = AuditLogs.AUDIT_LOGS;
+
+    /**
+     * Email verification tokens for new user registration
+     */
+    public static final EmailVerificationTokens EMAIL_VERIFICATION_TOKENS = EmailVerificationTokens.EMAIL_VERIFICATION_TOKENS;
 
     /**
      * The table <code>oauth2.oauth2_authorization</code>.
@@ -38,6 +51,11 @@ public class Tables {
      * The table <code>oauth2.oauth2_registered_client</code>.
      */
     public static final Oauth2RegisteredClient OAUTH2_REGISTERED_CLIENT = Oauth2RegisteredClient.OAUTH2_REGISTERED_CLIENT;
+
+    /**
+     * Password reset tokens for email-based password reset
+     */
+    public static final PasswordResetTokens PASSWORD_RESET_TOKENS = PasswordResetTokens.PASSWORD_RESET_TOKENS;
 
     /**
      * The table <code>oauth2.roles</code>.
