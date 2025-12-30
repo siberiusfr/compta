@@ -34,11 +34,12 @@ The service is configured in `src/main/resources/application.yml`:
 
 The following OAuth2 clients are pre-configured:
 
-| Client ID | Client Secret | Grant Types | Scopes |
-|-----------|---------------|-------------|--------|
-| accounting-service | accounting-secret | authorization_code, refresh_token, client_credentials | openid, read, write |
-| authz-service | authz-secret | authorization_code, refresh_token, client_credentials | openid, read, write |
-| hr-service | hr-secret | authorization_code, refresh_token, client_credentials | openid, read, write |
+| Client ID | Client Secret | Grant Types | Scopes | PKCE |
+|-----------|---------------|-------------|-------|------|
+| public-client | (none) | authorization_code, refresh_token | openid, read, write | Yes |
+| accounting-service | accounting-secret | authorization_code, refresh_token, client_credentials | openid, read, write | Yes |
+| authz-service | authz-secret | authorization_code, refresh_token, client_credentials | openid, read, write | Yes |
+| hr-service | hr-secret | authorization_code, refresh_token, client_credentials | openid, read, write | Yes |
 
 ## Default Users
 
