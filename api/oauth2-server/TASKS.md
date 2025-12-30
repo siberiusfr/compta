@@ -2,331 +2,22 @@
 
 This document outlines all the missing components and features needed to make the OAuth2 server complete and production-ready.
 
+> **Note:** The High Priority Tasks (tasks 1-6) have been completed and moved to [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md).
+
 ---
 
 ## Table of Contents
 
-1. [High Priority Tasks](#high-priority-tasks)
-2. [Medium Priority Tasks](#medium-priority-tasks)
-3. [Low Priority Tasks](#low-priority-tasks)
-4. [Testing Tasks](#testing-tasks)
-5. [DevOps & Operations Tasks](#devops--operations-tasks)
-
----
-
-## High Priority Tasks
-
-### 1. Replace InMemoryRegisteredClientRepository with JdbcRegisteredClientRepository
-
-**Current State:**
-- Uses [`InMemoryRegisteredClientRepository`](src/main/java/tn/cyberious/compta/oauth2/config/AuthorizationServerConfig.java:115)
-- Clients are defined in code and lost on restart
-- Database table `oauth2_registered_client` exists but is not used
-
-**Problem:**
-- Cannot add/remove clients without code changes and redeployment
-- No persistence of client configurations
-- Cannot manage clients dynamically in production
-
-**Solution:**
-```java
-@Bean
-public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
-    return new JdbcRegisteredClientRepository(jdbcTemplate);
-}
-```
-
-**Additional Requirements:**
-- Create a `ClientManagementController` with CRUD endpoints for clients
-- Add validation for client properties
-- Implement client secret rotation
-- Add audit logging for client operations
-- Use JOOQ
-
-**Endpoints to Implement:**
-- `POST /api/clients` - Create new client
-- `GET /api/clients` - List all clients
-- `GET /api/clients/{clientId}` - Get client details
-- `PUT /api/clients/{clientId}` - Update client
-- `DELETE /api/clients/{clientId}` - Delete client
-- `POST /api/clients/{clientId}/secret` - Rotate client secret
-
-**Files to Create:**
-- `src/main/java/tn/cyberious/compta/oauth2/controller/ClientManagementController.java`
-- `src/main/java/tn/cyberious/compta/oauth2/dto/CreateClientRequest.java`
-- `src/main/java/tn/cyberious/compta/oauth2/dto/UpdateClientRequest.java`
-- `src/main/java/tn/cyberious/compta/oauth2/dto/ClientResponse.java`
-- `src/main/java/tn/cyberious/compta/oauth2/service/ClientManagementService.java`
-
----
-
-### 2. Implement Token Introspection Endpoint
-
-**Current State:**
-- Endpoint `POST /oauth2/introspect` is documented but not implemented
-- No way for resource servers to validate tokens
-
-**Problem:**
-- Resource servers cannot validate tokens without implementing JWT verification
-- Cannot check token revocation status
-- Cannot retrieve token metadata
-
-**Solution:**
-Implement RFC 6819 Token Introspection endpoint
-
-**Implementation Details:**
-```java
-@RestController
-@RequestMapping("/oauth2")
-public class IntrospectionController {
-    
-    @PostMapping("/introspect")
-    public ResponseEntity<IntrospectionResponse> introspect(
-            @RequestParam("token") String token,
-            @RequestParam(value = "token_type_hint", required = false) String tokenTypeHint) {
-        // Validate token and return metadata
-    }
-}
-```
-
-**Response Format:**
-```json
-{
-  "active": true,
-  "client_id": "gateway",
-  "token_type": "Bearer",
-  "exp": 1234567890,
-  "iat": 1234567890,
-  "sub": "user123",
-  "aud": ["gateway"],
-  "iss": "http://localhost:9000",
-  "scope": "read write"
-}
-```
-
-**Files to Create:**
-- `src/main/java/tn/cyberious/compta/oauth2/controller/IntrospectionController.java`
-- `src/main/java/tn/cyberious/compta/oauth2/dto/IntrospectionResponse.java`
-- `src/main/java/tn/cyberious/compta/oauth2/service/TokenIntrospectionService.java`
-
----
-
-### 3. Implement Token Revocation Endpoint
-
-**Current State:**
-- Endpoint `POST /oauth2/revoke` is documented but not implemented
-- No way to revoke tokens before expiration
-
-**Problem:**
-- Cannot invalidate compromised tokens
-- Users cannot logout from all devices
-- Cannot revoke specific refresh tokens
-
-**Solution:**
-Implement RFC 7009 Token Revocation endpoint
-
-**Implementation Details:**
-```java
-@RestController
-@RequestMapping("/oauth2")
-public class RevocationController {
-    
-    @PostMapping("/revoke")
-    public ResponseEntity<Void> revoke(
-            @RequestParam("token") String token,
-            @RequestParam(value = "token_type_hint", required = false) String tokenTypeHint,
-            Principal principal) {
-        // Revoke token
-    }
-}
-```
-
-**Revocation Logic:**
-- Delete token from `oauth2_authorization` table
-- Mark token as invalid in cache
-- Log revocation event
-
-**Files to Create:**
-- `src/main/java/tn/cyberious/compta/oauth2/controller/RevocationController.java`
-- `src/main/java/tn/cyberious/compta/oauth2/service/TokenRevocationService.java`
-
----
-
-### 4. Implement OIDC UserInfo Endpoint
-
-**Current State:**
-- OIDC is enabled in configuration
-- No `/userinfo` endpoint to retrieve user information
-
-**Problem:**
-- Clients cannot retrieve user profile information
-- Cannot get user claims beyond standard JWT claims
-- No way to get extended user attributes
-
-**Solution:**
-Implement RFC 7662 UserInfo endpoint
-
-**Implementation Details:**
-```java
-@RestController
-@RequestMapping("/userinfo")
-public class UserInfoController {
-    
-    @GetMapping
-    public ResponseEntity<UserInfoResponse> getUserInfo(
-            @AuthenticationPrincipal JwtAuthenticationToken token) {
-        // Return user information based on token subject
-    }
-}
-```
-
-**Response Format:**
-```json
-{
-  "sub": "user123",
-  "name": "John Doe",
-  "given_name": "John",
-  "family_name": "Doe",
-  "email": "john@example.com",
-  "email_verified": true,
-  "roles": ["ROLE_USER"],
-  "tenant_id": "tenant123"
-}
-```
-
-**Files to Create:**
-- `src/main/java/tn/cyberious/compta/oauth2/controller/UserInfoController.java`
-- `src/main/java/tn/cyberious/compta/oauth2/dto/UserInfoResponse.java`
-
----
-
-### 5. Implement User Management API
-
-**Current State:**
-- User tables exist with default users
-- No API to manage users programmatically
-- Only database operations available
-
-**Problem:**
-- Cannot create users without database access
-- No way to manage user roles via API
-- No user account management interface
-
-**Solution:**
-Create comprehensive CRUD API for user management
-
-**Endpoints to Implement:**
-
-**User CRUD:**
-- `POST /api/users` - Create new user
-- `GET /api/users` - List users (with pagination, filtering)
-- `GET /api/users/{id}` - Get user details
-- `PUT /api/users/{id}` - Update user
-- `DELETE /api/users/{id}` - Delete user
-- `PATCH /api/users/{id}/disable` - Disable user account
-- `PATCH /api/users/{id}/enable` - Enable user account
-
-**Role Management:**
-- `GET /api/users/{id}/roles` - Get user roles
-- `POST /api/users/{id}/roles` - Assign role to user
-- `DELETE /api/users/{id}/roles/{roleId}` - Remove role from user
-
-**Password Management:**
-- `POST /api/users/{id}/password` - Change password
-- `POST /api/users/{id}/password/reset` - Initiate password reset
-- `POST /api/users/password/reset/confirm` - Confirm password reset with token
-
-**Files to Create:**
-- `src/main/java/tn/cyberious/compta/oauth2/controller/UserManagementController.java`
-- `src/main/java/tn/cyberious/compta/oauth2/dto/CreateUserRequest.java`
-- `src/main/java/tn/cyberious/compta/oauth2/dto/UpdateUserRequest.java`
-- `src/main/java/tn/cyberious/compta/oauth2/dto/UserResponse.java`
-- `src/main/java/tn/cyberious/compta/oauth2/dto/ChangePasswordRequest.java`
-- `src/main/java/tn/cyberious/compta/oauth2/dto/PasswordResetRequest.java`
-- `src/main/java/tn/cyberious/compta/oauth2/service/UserManagementService.java`
-
-**Security:**
-- Require admin role for user management operations
-- Users can only update their own profile
-- Password reset flow with email verification
-
----
-
-### 6. Persist and Rotate RSA Keys
-
-**Current State:**
-- Keys are generated in [`generateRsaKey()`](src/main/java/tn/cyberious/compta/oauth2/config/AuthorizationServerConfig.java:132) on each startup
-- Keys are stored in memory only
-- No key rotation mechanism
-
-**Problem:**
-- All tokens become invalid after server restart
-- No key rotation for security
-- Cannot manage key lifecycle
-- No backup/recovery for keys
-
-**Solution:**
-Implement persistent key storage with rotation
-
-**Implementation Steps:**
-
-1. **Create Key Storage Table:**
-```sql
-CREATE TABLE oauth2.oauth2_keys (
-    id VARCHAR(255) PRIMARY KEY,
-    key_id VARCHAR(255) NOT NULL UNIQUE,
-    key_value TEXT NOT NULL,
-    algorithm VARCHAR(50) NOT NULL,
-    key_type VARCHAR(50) NOT NULL,
-    key_usage VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    expires_at TIMESTAMP,
-    active BOOLEAN DEFAULT FALSE
-);
-```
-
-2. **Create Key Management Service:**
-```java
-@Service
-public class KeyManagementService {
-    
-    public JWKSource<SecurityContext> loadActiveKeys();
-    public void rotateKeys();
-    public void deactivateOldKeys();
-    public RSAKey generateNewKey();
-}
-```
-
-3. **Configuration:**
-```yaml
-oauth2:
-  keys:
-    rotation:
-      enabled: true
-      schedule: "0 0 0 1 * *"  # Monthly rotation
-      grace-period: 7  # 7 days grace period
-    retention:
-      keep-inactive-keys: 90  # days
-```
-
-**Files to Create:**
-- `src/main/java/tn/cyberious/compta/oauth2/service/KeyManagementService.java`
-- `src/main/java/tn/cyberious/compta/oauth2/config/JWKSourceConfig.java`
-- `src/main/resources/db/migration/V5__oauth2_keys.sql`
-
-**Key Rotation Strategy:**
-1. Generate new key
-2. Mark new key as active
-3. Keep old key active for grace period
-4. Sign new tokens with new key
-5. Verify tokens with both old and new keys
-6. Deactivate old key after grace period
+1. [Medium Priority Tasks](#medium-priority-tasks)
+2. [Low Priority Tasks](#low-priority-tasks)
+3. [Testing Tasks](#testing-tasks)
+4. [DevOps & Operations Tasks](#devops--operations-tasks)
 
 ---
 
 ## Medium Priority Tasks
 
-### 7. Add Rate Limiting
+### 1. Add Rate Limiting
 
 **Current State:**
 - No rate limiting on OAuth2 endpoints
@@ -379,7 +70,7 @@ public class RateLimitConfig {
 
 ---
 
-### 8. Configure CORS
+### 2. Configure CORS
 
 **Current State:**
 - No CORS configuration
@@ -430,7 +121,7 @@ public CorsConfigurationSource corsConfigurationSource() {
 
 ---
 
-### 9. Implement CSRF Protection
+### 3. Implement CSRF Protection
 
 **Current State:**
 - CSRF protection not explicitly configured for OAuth2 endpoints
@@ -464,7 +155,7 @@ public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http,
 
 ---
 
-### 10. Implement Audit Logging
+### 4. Implement Audit Logging
 
 **Current State:**
 - Basic logging configured in [`application.yml`](src/main/resources/application.yml:27)
@@ -554,7 +245,7 @@ public class AuditAspect {
 
 ---
 
-### 11. Add OAuth2 Specific Metrics
+### 5. Add OAuth2 Specific Metrics
 
 **Current State:**
 - Basic Spring Boot metrics available
@@ -609,7 +300,7 @@ public class OAuth2Metrics {
 
 ---
 
-### 12. Implement Token Binding (mTLS/DPoP)
+### 6. Implement Token Binding (mTLS/DPoP)
 
 **Current State:**
 - No token binding mechanism
@@ -654,7 +345,7 @@ public class DPoPValidator {
 
 ---
 
-### 13. Add JTI (JWT ID) for Token Tracking
+### 7. Add JTI (JWT ID) for Token Tracking
 
 **Current State:**
 - JWTs don't have JTI claim
@@ -714,7 +405,7 @@ public class TokenBlacklistService {
 
 ---
 
-### 14. Implement Password Reset Flow
+### 8. Implement Password Reset Flow
 
 **Current State:**
 - No password reset mechanism
@@ -793,7 +484,7 @@ oauth2:
 
 ---
 
-### 15. Implement Email Verification
+### 9. Implement Email Verification
 
 **Current State:**
 - No email verification for new users
@@ -854,7 +545,7 @@ public class EmailVerificationService {
 
 ## Low Priority Tasks
 
-### 16. Implement Device Code Flow
+### 10. Implement Device Code Flow
 
 **Current State:**
 - Device Code Flow not implemented
@@ -903,7 +594,7 @@ CREATE TABLE oauth2.device_codes (
 
 ---
 
-### 17. Implement Dynamic Client Registration
+### 11. Implement Dynamic Client Registration
 
 **Current State:**
 - Clients must be registered manually
@@ -956,7 +647,7 @@ Content-Type: application/json
 
 ---
 
-### 18. Implement Consent Management UI
+### 12. Implement Consent Management UI
 
 **Current State:**
 - No UI for managing user consents
@@ -1001,7 +692,7 @@ public class ConsentManagementController {
 
 ---
 
-### 19. Implement Global Logout / Single Sign-Out (SLO)
+### 13. Implement Global Logout / Single Sign-Out (SLO)
 
 **Current State:**
 - No global logout mechanism
@@ -1045,7 +736,7 @@ public class BackChannelLogoutService {
 
 ---
 
-### 20. Implement Multi-Tenancy Support
+### 14. Implement Multi-Tenancy Support
 
 **Current State:**
 - No multi-tenancy support
@@ -1111,7 +802,7 @@ public class TenantContextFilter implements Filter {
 
 ---
 
-### 21. Implement FIDO2/WebAuthn Authentication
+### 15. Implement FIDO2/WebAuthn Authentication
 
 **Current State:**
 - Only username/password authentication
@@ -1177,7 +868,7 @@ CREATE TABLE oauth2.webauthn_credentials (
 
 ---
 
-### 22. Implement Two-Factor Authentication (2FA)
+### 16. Implement Two-Factor Authentication (2FA)
 
 **Current State:**
 - No 2FA support
@@ -1235,7 +926,7 @@ public class TwoFactorAuthService {
 
 ---
 
-### 23. Implement Account Lockout Policy
+### 17. Implement Account Lockout Policy
 
 **Current State:**
 - No account lockout after failed attempts
@@ -1299,7 +990,7 @@ oauth2:
 
 ---
 
-### 24. Implement Session Management
+### 18. Implement Session Management
 
 **Current State:**
 - No session management
@@ -1351,7 +1042,7 @@ CREATE INDEX idx_user_sessions_expires_at ON oauth2.user_sessions(expires_at);
 
 ---
 
-### 25. Implement Social Login (OAuth2/OIDC)
+### 19. Implement Social Login (OAuth2/OIDC)
 
 **Current State:**
 - No social login integration
@@ -1437,7 +1128,7 @@ oauth2:
 
 ## Testing Tasks
 
-### 26. Write Integration Tests
+### 20. Write Integration Tests
 
 **Current State:**
 - Only basic test class exists
@@ -1487,7 +1178,7 @@ oauth2:
 
 ---
 
-### 27. Write Security Tests
+### 21. Write Security Tests
 
 **Tests to Implement:**
 
@@ -1523,7 +1214,7 @@ oauth2:
 
 ---
 
-### 28. Write Performance Tests
+### 22. Write Performance Tests
 
 **Tests to Implement:**
 
@@ -1560,7 +1251,7 @@ oauth2:
 
 ## DevOps & Operations Tasks
 
-### 29. Externalize Configuration
+### 23. Externalize Configuration
 
 **Current State:**
 - Configuration in [`application.yml`](src/main/resources/application.yml:1)
@@ -1607,7 +1298,7 @@ oauth2:
 
 ---
 
-### 30. Implement Health Checks
+### 24. Implement Health Checks
 
 **Current State:**
 - Basic Spring Boot health checks
@@ -1642,7 +1333,7 @@ public class OAuth2HealthIndicator implements HealthIndicator {
 
 ---
 
-### 31. Implement Distributed Tracing
+### 25. Implement Distributed Tracing
 
 **Current State:**
 - No distributed tracing
@@ -1682,7 +1373,7 @@ management:
 
 ---
 
-### 32. Implement Alerting
+### 26. Implement Alerting
 
 **Current State:**
 - No alerting
@@ -1719,7 +1410,7 @@ groups:
 
 ---
 
-### 33. Implement Backup and Recovery
+### 27. Implement Backup and Recovery
 
 **Current State:**
 - No backup strategy
@@ -1751,7 +1442,7 @@ Implement backup and recovery procedures
 
 ---
 
-### 34. Implement Monitoring Dashboard
+### 28. Implement Monitoring Dashboard
 
 **Current State:**
 - No monitoring dashboard
@@ -1775,7 +1466,7 @@ Create monitoring dashboard with Grafana
 
 ---
 
-### 35. Implement CI/CD Pipeline
+### 29. Implement CI/CD Pipeline
 
 **Current State:**
 - No CI/CD pipeline
@@ -1810,7 +1501,7 @@ Implement CI/CD with GitHub Actions or GitLab CI
 
 ---
 
-### 36. Implement Log Aggregation
+### 30. Implement Log Aggregation
 
 **Current State:**
 - Logs only in console/file
@@ -1844,7 +1535,7 @@ Implement log aggregation with ELK Stack or Loki
 
 ---
 
-### 37. Implement Security Scanning
+### 31. Implement Security Scanning
 
 **Current State:**
 - No automated security scanning
@@ -1875,7 +1566,7 @@ Implement automated security scanning
 
 ---
 
-### 38. Implement API Documentation
+### 32. Implement API Documentation
 
 **Current State:**
 - Basic OpenAPI configuration exists
@@ -1904,23 +1595,26 @@ Enhance API documentation
 
 ## Summary
 
-This document outlines 38 tasks needed to make the OAuth2 server complete and production-ready. The tasks are organized by priority:
+This document outlines 32 tasks needed to make the OAuth2 server complete and production-ready. The tasks are organized by priority:
 
-- **High Priority (6 tasks):** Essential for production deployment
-- **Medium Priority (10 tasks):** Important for security and observability
+- **High Priority (6 tasks):** ✅ Completed - See [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md)
+- **Medium Priority (9 tasks):** Important for security and observability
 - **Low Priority (10 tasks):** Nice-to-have features
 - **Testing (3 tasks):** Comprehensive test coverage
-- **DevOps & Operations (9 tasks):** Production readiness
+- **DevOps & Operations (10 tasks):** Production readiness
 
 ### Quick Start
 
-To get started, focus on these high-priority tasks:
+To get started, focus on these medium-priority tasks:
 
-1. Replace InMemoryRegisteredClientRepository with JdbcRegisteredClientRepository
-2. Implement Token Introspection Endpoint
-3. Implement Token Revocation Endpoint
-4. Implement OIDC UserInfo Endpoint
-5. Implement User Management API
-6. Persist and Rotate RSA Keys
+1. Add Rate Limiting
+2. Configure CORS
+3. Implement CSRF Protection
+4. Implement Audit Logging
+5. Add OAuth2 Specific Metrics
+6. Implement Token Binding (mTLS/DPoP)
+7. Add JTI (JWT ID) for Token Tracking
+8. Implement Password Reset Flow
+9. Implement Email Verification
 
-These tasks will provide the foundation for a production-ready OAuth2 server.
+These tasks will enhance the security and observability of the OAuth2 server.

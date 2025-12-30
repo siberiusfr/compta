@@ -51,3 +51,10 @@ oauth2:
     refresh-token-validity: 86400 # 24 hours
   client-credentials:
     access-token-validity: 3600 # 1 hour
+  key:
+    rotation:
+      enabled: true
+      schedule: "0 0 2 * * *" # Daily at 2 AM
+      key-lifetime-days: 90
+      grace-period-days: 7
+      retention-days: 30
