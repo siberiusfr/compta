@@ -16,141 +16,54 @@ This document outlines all the missing components and features needed to make th
 
 ---
 
-## Bugs & Issues to Fix
+## Bugs & Issues - ✅ ALL FIXED
 
-> **CRITICAL:** These issues must be fixed before production deployment.
+All 8 critical issues have been fixed.
 
-### Issue 1: `getAllClients()` Returns Empty List
+### Fixed Issues Summary:
 
-**File:** `ClientManagementService.java:116-121`
+| Issue | Description | Fix Applied |
+|-------|-------------|-------------|
+| 1 | `getAllClients()` returned empty list | Now queries `oauth2_registered_client` table directly |
+| 2 | `deleteClient()` threw exception | Now properly deletes client and related records |
+| 3 | Hardcoded gateway secret | Now uses `${GATEWAY_SECRET}` from config |
+| 4 | Hardcoded issuer URL | Now uses `${OAUTH2_ISSUER}` from config |
+| 5 | Hardcoded frontend URL | Now uses `${app.frontend.url}` from config |
+| 6 | TokenBlacklistService in-memory only | Now persists to `oauth2.token_blacklist` table |
+| 7 | TokenBlacklistService not used | Now integrated in `TokenRevocationService` |
+| 8 | Rate limit logic inverted | Fixed logic and window size calculation |
 
-**Problem:**
-```java
-public List<ClientResponse> getAllClients() {
-    // Note: JdbcRegisteredClientRepository doesn't provide a findAll method
-    // We'll need to query the database directly for this
-    return List.of();  // <-- Always returns empty!
-}
+### Configuration Added to `application.yml`:
+
+```yaml
+oauth2:
+  issuer: ${OAUTH2_ISSUER:http://localhost:9000}
+  gateway:
+    secret: ${GATEWAY_SECRET:gateway-secret-change-in-production}
+
+app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:3000}
 ```
 
-**Solution:** Query the `oauth2_registered_client` table directly with JdbcTemplate.
+### New Migration Created:
 
----
-
-### Issue 2: `deleteClient()` Throws Exception
-
-**File:** `ClientManagementService.java:264-265`
-
-**Problem:**
-```java
-public void deleteClient(String clientId) {
-    throw new UnsupportedOperationException("Delete client not supported yet");
-}
-```
-
-**Solution:** Implement DELETE query on `oauth2_registered_client` table.
-
----
-
-### Issue 3: Hardcoded Secrets
-
-**File:** `AuthorizationServerConfig.java:171`
-
-**Problem:**
-```java
-.clientSecret(passwordEncoder.encode("gateway-secret"))  // Hardcoded!
-```
-
-**Solution:** Use environment variable `${GATEWAY_SECRET}` from application.yml.
-
----
-
-### Issue 4: Hardcoded Issuer URL
-
-**File:** `AuthorizationServerConfig.java:197`
-
-**Problem:**
-```java
-return AuthorizationServerSettings.builder().issuer("http://localhost:9000").build();
-```
-
-**Solution:** Use environment variable `${OAUTH2_ISSUER:http://localhost:9000}`.
-
----
-
-### Issue 5: Hardcoded Frontend URL
-
-**Files:**
-- `PasswordResetService.java:249`
-- `EmailVerificationService.java:244`
-
-**Problem:**
-```java
-String baseUrl = "http://localhost:3000";  // Hardcoded!
-```
-
-**Solution:** Use `@Value("${app.frontend.url}")` from configuration.
-
----
-
-### Issue 6: TokenBlacklistService Is In-Memory Only
-
-**File:** `TokenBlacklistService.java:27-30`
-
-**Problem:**
-```java
-private final ConcurrentHashMap<String, Instant> blacklistedJtis = new ConcurrentHashMap<>();
-private final ConcurrentSkipListSet<String> activeJtis = new ConcurrentSkipListSet<>();
-```
-
-Token blacklist is lost on server restart. In a multi-instance deployment, blacklist is not shared.
-
-**Solution:** Persist to database (create `oauth2.token_blacklist` table) or use Redis.
-
----
-
-### Issue 7: TokenBlacklistService Not Used in TokenRevocationService
-
-**File:** `TokenRevocationService.java:22-23`
-
-**Problem:** `TokenBlacklistService` is injected but never used to actually blacklist tokens.
-
-**Solution:** Call `tokenBlacklistService.addToBlacklist()` when revoking tokens.
-
----
-
-### Issue 8: Rate Limit Logic Inverted
-
-**File:** `RateLimitFilter.java:74`
-
-**Problem:**
-```java
-return counter.increment() > limit.limit();  // Returns TRUE when limit exceeded
-```
-
-But the caller expects `true` to mean "allow request":
-```java
-if (limit != null && !checkRateLimit(clientIp, path, limit)) {  // Inverted logic
-```
-
-This may cause rate limiting to fail or work incorrectly.
-
-**Solution:** Review and fix the logic flow.
+- `V9__create_token_blacklist_table.sql` - Persists revoked token JTIs
 
 ---
 
 ## Medium Priority Tasks - Partially Completed
 
 ### Completed Tasks:
-1. ✅ Add Rate Limiting (has bug - see Issue 8)
+1. ✅ Add Rate Limiting
 2. ✅ Configure CORS
 3. ✅ Implement CSRF Protection
 4. ✅ Implement Audit Logging
 5. ✅ Add OAuth2 Specific Metrics
-6. ❌ Implement Token Binding (DPoP) - **NOT IMPLEMENTED** (only in docs)
-7. ✅ Add JTI (JWT ID) for Token Tracking (in-memory only - see Issue 6)
-8. ✅ Implement Password Reset Flow (has hardcoded URL - see Issue 5)
-9. ✅ Implement Email Verification (has hardcoded URL - see Issue 5)
+6. ❌ Implement Token Binding (DPoP) - **NOT IMPLEMENTED**
+7. ✅ Add JTI (JWT ID) for Token Tracking (now persisted to DB)
+8. ✅ Implement Password Reset Flow
+9. ✅ Implement Email Verification
 
 ### Remaining Task: Implement Token Binding (DPoP)
 

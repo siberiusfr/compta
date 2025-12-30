@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -62,16 +61,29 @@ public class RateLimitFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
+  /**
+   * Check if the request is allowed under the rate limit.
+   *
+   * @param clientIp The client IP address
+   * @param path The request path
+   * @param limit The rate limit configuration
+   * @return true if request is allowed, false if rate limit exceeded
+   */
   private boolean checkRateLimit(String clientIp, String path, RateLimit limit) {
-    RequestCounter counter = requestCounters.computeIfAbsent(clientIp, k -> new RequestCounter());
+    String key = clientIp + ":" + path;
+    RequestCounter counter = requestCounters.computeIfAbsent(key, k -> new RequestCounter());
 
-    long windowSizeMillis = limit.timeUnit().toMillis(limit.limit());
+    // Window size is 1 unit of the configured time (e.g., 1 minute, 1 hour)
+    long windowSizeMillis = limit.timeUnit().toMillis(1);
 
     // Clean old entries
     counter.cleanup(windowSizeMillis);
 
-    // Check if limit exceeded
-    return counter.increment() > limit.limit();
+    // Increment and check if limit exceeded
+    int currentCount = counter.increment();
+
+    // Return true if request is ALLOWED (count <= limit), false if EXCEEDED
+    return currentCount <= limit.limit();
   }
 
   private RateLimit findRateLimit(String path) {
@@ -116,26 +128,28 @@ public class RateLimitFilter extends OncePerRequestFilter {
   }
 
   private static class RequestCounter {
-    private final Map<Instant, AtomicInteger> timestamps = new ConcurrentHashMap<>();
+    private final Map<Long, AtomicInteger> timestamps = new ConcurrentHashMap<>();
+    private long lastWindowSize = 60000; // Default 1 minute
 
     public void cleanup(long windowSizeMillis) {
-      Instant now = Instant.now();
-      timestamps
-          .entrySet()
-          .removeIf(entry -> ChronoUnit.MILLIS.between(entry.getKey(), now) > windowSizeMillis);
+      this.lastWindowSize = windowSizeMillis;
+      long now = System.currentTimeMillis();
+      long cutoff = now - windowSizeMillis;
+      timestamps.entrySet().removeIf(entry -> entry.getKey() < cutoff);
     }
 
     public int increment() {
-      Instant now = Instant.now();
-      timestamps.put(now, new AtomicInteger(1));
+      long now = System.currentTimeMillis();
 
-      // Count requests in the current window
-      long windowSizeMillis = 60000; // 1 minute default
-      timestamps
-          .entrySet()
-          .removeIf(entry -> ChronoUnit.MILLIS.between(entry.getKey(), now) > windowSizeMillis);
+      // Add current request
+      timestamps.compute(now, (k, v) -> v == null ? new AtomicInteger(1) : v);
 
-      return (int) timestamps.values().stream().mapToInt(AtomicInteger::get).sum();
+      // Clean old entries based on last known window size
+      long cutoff = now - lastWindowSize;
+      timestamps.entrySet().removeIf(entry -> entry.getKey() < cutoff);
+
+      // Return total count in window
+      return timestamps.values().stream().mapToInt(AtomicInteger::get).sum();
     }
   }
 }

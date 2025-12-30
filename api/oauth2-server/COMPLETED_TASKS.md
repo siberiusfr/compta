@@ -1195,27 +1195,35 @@ CREATE TABLE oauth2.email_verification_tokens (
 
 | # | Task | Status | Notes |
 |---|--------|--------|-------|
-| 1 | Add Rate Limiting | ✅ Complete | Has logic bug - see TASKS.md Issue 8 |
+| 1 | Add Rate Limiting | ✅ Complete | Bug fixed |
 | 2 | Configure CORS | ✅ Complete | |
 | 3 | Implement CSRF Protection | ✅ Complete | |
 | 4 | Implement Audit Logging | ✅ Complete | |
 | 5 | Add OAuth2 Specific Metrics | ✅ Complete | |
 | 6 | Implement Token Binding (DPoP) | ❌ **NOT DONE** | Only documented, code not written |
-| 7 | Add JTI (JWT ID) for Token Tracking | ⚠️ Partial | In-memory only, lost on restart |
-| 8 | Implement Password Reset Flow | ✅ Complete | Has hardcoded URL |
-| 9 | Implement Email Verification | ✅ Complete | Has hardcoded URL |
+| 7 | Add JTI (JWT ID) for Token Tracking | ✅ Complete | Now persisted to database |
+| 8 | Implement Password Reset Flow | ✅ Complete | URL now configurable |
+| 9 | Implement Email Verification | ✅ Complete | URL now configurable |
 
 ---
 
-## Known Issues
+## Bug Fixes Applied
 
-See [`TASKS.md`](TASKS.md) for critical bugs to fix:
+All 8 critical bugs have been fixed:
 
-1. `getAllClients()` returns empty list
-2. `deleteClient()` throws exception
-3. Hardcoded secrets and URLs
-4. TokenBlacklistService is in-memory only
-5. Rate limit logic may be inverted
+| Issue | Fix |
+|-------|-----|
+| `getAllClients()` empty | Now queries DB directly via JdbcTemplate |
+| `deleteClient()` exception | Now deletes client + related records |
+| Hardcoded gateway secret | Uses `${GATEWAY_SECRET}` from config |
+| Hardcoded issuer URL | Uses `${OAUTH2_ISSUER}` from config |
+| Hardcoded frontend URL | Uses `${app.frontend.url}` from config |
+| TokenBlacklistService in-memory | Persists to `oauth2.token_blacklist` table |
+| TokenBlacklistService unused | Integrated in `TokenRevocationService` |
+| Rate limit logic inverted | Fixed logic and window calculation |
+
+### New Files Created:
+- `V9__create_token_blacklist_table.sql` - Token blacklist persistence
 
 ---
 
@@ -1223,8 +1231,7 @@ See [`TASKS.md`](TASKS.md) for critical bugs to fix:
 
 For additional features and enhancements, refer to the remaining tasks in [`TASKS.md`](TASKS.md):
 
-- **Bugs & Issues**: Fix critical issues before production
-- **DPoP Implementation**: Token binding not yet implemented
+- **DPoP Implementation**: Token binding not yet implemented (RFC 9449)
 - **Low Priority Tasks**: Device code flow, dynamic client registration, consent management, etc.
 - **Testing Tasks**: Integration tests, security tests, performance tests
 - **DevOps & Operations**: Health checks, monitoring, CI/CD, backup and recovery

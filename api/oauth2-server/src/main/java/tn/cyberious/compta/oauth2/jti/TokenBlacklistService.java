@@ -1,13 +1,17 @@
 package tn.cyberious.compta.oauth2.jti;
 
 import com.nimbusds.jwt.SignedJWT;
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,22 +19,57 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service for managing token blacklisting using JTI (JWT ID).
  *
- * <p>Tracks revoked tokens by their JTI claim to prevent their reuse. Uses an in-memory cache with
- * automatic expiration for performance.
+ * <p>Tracks revoked tokens by their JTI claim to prevent their reuse. Uses database persistence
+ * with an in-memory cache for performance.
  */
 @Service
 public class TokenBlacklistService {
 
   private static final Logger log = LoggerFactory.getLogger(TokenBlacklistService.class);
 
-  // Cache for blacklisted JTIs with expiration time
-  private final ConcurrentHashMap<String, Instant> blacklistedJtis = new ConcurrentHashMap<>();
+  private final JdbcTemplate jdbcTemplate;
 
-  // Set of currently active JTIs for quick lookup
-  private final ConcurrentSkipListSet<String> activeJtis = new ConcurrentSkipListSet<>();
+  // In-memory cache for fast lookups (synchronized with database)
+  private final ConcurrentHashMap<String, Instant> blacklistCache = new ConcurrentHashMap<>();
 
-  // Default blacklist duration (24 hours)
-  private static final long DEFAULT_BLACKLIST_DURATION_HOURS = 24;
+  // Cache initialized flag
+  private volatile boolean cacheInitialized = false;
+
+  public TokenBlacklistService(JdbcTemplate jdbcTemplate) {
+    this.jdbcTemplate = jdbcTemplate;
+  }
+
+  /** Initialize the cache from database on first access. */
+  private void ensureCacheInitialized() {
+    if (!cacheInitialized) {
+      synchronized (this) {
+        if (!cacheInitialized) {
+          loadCacheFromDatabase();
+          cacheInitialized = true;
+        }
+      }
+    }
+  }
+
+  /** Load blacklist entries from database into cache. */
+  private void loadCacheFromDatabase() {
+    String sql = "SELECT jti, expires_at FROM oauth2.token_blacklist WHERE expires_at > ?";
+    LocalDateTime now = LocalDateTime.now();
+
+    List<Object[]> entries =
+        jdbcTemplate.query(
+            sql,
+            (rs, rowNum) ->
+                new Object[] {rs.getString("jti"), rs.getTimestamp("expires_at").toInstant()},
+            Timestamp.valueOf(now));
+
+    blacklistCache.clear();
+    for (Object[] entry : entries) {
+      blacklistCache.put((String) entry[0], (Instant) entry[1]);
+    }
+
+    log.info("Loaded {} blacklist entries from database into cache", entries.size());
+  }
 
   /**
    * Add a token to the blacklist by its JTI.
@@ -40,16 +79,39 @@ public class TokenBlacklistService {
    */
   @Transactional
   public void addToBlacklist(String jti, Instant expirationTime) {
+    addToBlacklist(jti, expirationTime, null, null);
+  }
+
+  /**
+   * Add a token to the blacklist by its JTI with additional metadata.
+   *
+   * @param jti The JWT ID to blacklist
+   * @param expirationTime The expiration time of the token
+   * @param revokedBy The user or client that revoked the token
+   * @param reason The reason for revocation
+   */
+  @Transactional
+  public void addToBlacklist(String jti, Instant expirationTime, String revokedBy, String reason) {
     if (jti == null || jti.isEmpty()) {
       log.warn("Attempted to blacklist token with null or empty JTI");
       return;
     }
 
-    // Add to blacklist with expiration time
-    blacklistedJtis.put(jti, expirationTime);
+    ensureCacheInitialized();
 
-    // Remove from active set
-    activeJtis.remove(jti);
+    // Insert into database (ignore if already exists)
+    String sql =
+        """
+        INSERT INTO oauth2.token_blacklist (jti, expires_at, revoked_by, reason)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT (jti) DO NOTHING
+        """;
+
+    LocalDateTime expiresAt = LocalDateTime.ofInstant(expirationTime, ZoneId.systemDefault());
+    jdbcTemplate.update(sql, jti, Timestamp.valueOf(expiresAt), revokedBy, reason);
+
+    // Update cache
+    blacklistCache.put(jti, expirationTime);
 
     log.debug("Token with JTI {} added to blacklist, expires at {}", jti, expirationTime);
   }
@@ -65,22 +127,35 @@ public class TokenBlacklistService {
       return false;
     }
 
-    Instant expirationTime = blacklistedJtis.get(jti);
+    ensureCacheInitialized();
 
-    // If not in blacklist, not blacklisted
-    if (expirationTime == null) {
-      return false;
+    // Check cache first for performance
+    Instant expirationTime = blacklistCache.get(jti);
+
+    if (expirationTime != null) {
+      // Check if expired
+      if (Instant.now().isAfter(expirationTime)) {
+        // Clean up expired entry from cache
+        blacklistCache.remove(jti);
+        return false;
+      }
+      return true;
     }
 
-    // Check if blacklist entry has expired
-    if (Instant.now().isAfter(expirationTime)) {
-      // Clean up expired entry
-      blacklistedJtis.remove(jti);
-      log.debug("Expired blacklist entry for JTI {}", jti);
-      return false;
+    // If not in cache, check database (in case another instance added it)
+    String sql = "SELECT expires_at FROM oauth2.token_blacklist WHERE jti = ?";
+    List<Timestamp> results = jdbcTemplate.queryForList(sql, Timestamp.class, jti);
+
+    if (!results.isEmpty() && results.get(0) != null) {
+      Instant dbExpirationTime = results.get(0).toInstant();
+      if (Instant.now().isBefore(dbExpirationTime)) {
+        // Add to cache and return true
+        blacklistCache.put(jti, dbExpirationTime);
+        return true;
+      }
     }
 
-    return true;
+    return false;
   }
 
   /**
@@ -100,41 +175,6 @@ public class TokenBlacklistService {
   }
 
   /**
-   * Add a token to the active set.
-   *
-   * @param jti The JWT ID to mark as active
-   */
-  public void addToActive(String jti) {
-    if (jti != null && !jti.isEmpty()) {
-      activeJtis.add(jti);
-    }
-  }
-
-  /**
-   * Remove a token from the active set.
-   *
-   * @param jti The JWT ID to remove from active set
-   */
-  public void removeFromActive(String jti) {
-    if (jti != null && !jti.isEmpty()) {
-      activeJtis.remove(jti);
-    }
-  }
-
-  /**
-   * Check if a token is currently active.
-   *
-   * @param jti The JWT ID to check
-   * @return true if the token is active, false otherwise
-   */
-  public boolean isActive(String jti) {
-    if (jti == null || jti.isEmpty()) {
-      return false;
-    }
-    return activeJtis.contains(jti);
-  }
-
-  /**
    * Revoke a token by adding it to the blacklist.
    *
    * @param token The JWT token string to revoke
@@ -143,6 +183,21 @@ public class TokenBlacklistService {
    */
   @Transactional
   public boolean revokeToken(String token, Instant expirationTime) {
+    return revokeToken(token, expirationTime, null, null);
+  }
+
+  /**
+   * Revoke a token by adding it to the blacklist with metadata.
+   *
+   * @param token The JWT token string to revoke
+   * @param expirationTime The expiration time of the token
+   * @param revokedBy The user or client that revoked the token
+   * @param reason The reason for revocation
+   * @return true if successfully revoked, false otherwise
+   */
+  @Transactional
+  public boolean revokeToken(
+      String token, Instant expirationTime, String revokedBy, String reason) {
     String jti = extractJti(token);
 
     if (jti == null) {
@@ -150,7 +205,7 @@ public class TokenBlacklistService {
       return false;
     }
 
-    addToBlacklist(jti, expirationTime);
+    addToBlacklist(jti, expirationTime, revokedBy, reason);
     return true;
   }
 
@@ -160,16 +215,10 @@ public class TokenBlacklistService {
    * @return The count of blacklisted tokens
    */
   public int getBlacklistedCount() {
-    return blacklistedJtis.size();
-  }
-
-  /**
-   * Get the number of active tokens.
-   *
-   * @return The count of active tokens
-   */
-  public int getActiveCount() {
-    return activeJtis.size();
+    String sql = "SELECT COUNT(*) FROM oauth2.token_blacklist WHERE expires_at > ?";
+    Integer count =
+        jdbcTemplate.queryForObject(sql, Integer.class, Timestamp.valueOf(LocalDateTime.now()));
+    return count != null ? count : 0;
   }
 
   /**
@@ -179,22 +228,10 @@ public class TokenBlacklistService {
    */
   @Transactional
   public int clearBlacklist() {
-    int count = blacklistedJtis.size();
-    blacklistedJtis.clear();
+    String sql = "DELETE FROM oauth2.token_blacklist";
+    int count = jdbcTemplate.update(sql);
+    blacklistCache.clear();
     log.info("Cleared {} blacklisted tokens", count);
-    return count;
-  }
-
-  /**
-   * Clear all active tokens.
-   *
-   * @return The number of tokens cleared
-   */
-  @Transactional
-  public int clearActiveTokens() {
-    int count = activeJtis.size();
-    activeJtis.clear();
-    log.info("Cleared {} active tokens", count);
     return count;
   }
 
@@ -202,26 +239,18 @@ public class TokenBlacklistService {
    * Scheduled task to clean up expired blacklist entries. Runs every hour to remove entries that
    * have expired.
    */
-  @Scheduled(fixedRate = 3600000) // Every hour (in milliseconds)
+  @Scheduled(fixedRate = 3600000) // Every hour
   @Transactional
   public void cleanupExpiredEntries() {
-    AtomicInteger removed = new AtomicInteger(0);
+    String sql = "DELETE FROM oauth2.token_blacklist WHERE expires_at < ?";
+    int removed = jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()));
+
+    // Clean up cache as well
     Instant now = Instant.now();
+    blacklistCache.entrySet().removeIf(entry -> now.isAfter(entry.getValue()));
 
-    blacklistedJtis
-        .entrySet()
-        .removeIf(
-            entry -> {
-              if (now.isAfter(entry.getValue())) {
-                removed.incrementAndGet();
-                return true;
-              }
-              return false;
-            });
-
-    int removedCount = removed.get();
-    if (removedCount > 0) {
-      log.info("Cleaned up {} expired blacklist entries", removedCount);
+    if (removed > 0) {
+      log.info("Cleaned up {} expired blacklist entries from database", removed);
     }
   }
 
@@ -231,41 +260,33 @@ public class TokenBlacklistService {
    * @return Set of blacklisted JWT IDs
    */
   public Set<String> getBlacklistedJtis() {
-    return Set.copyOf(blacklistedJtis.keySet());
+    String sql = "SELECT jti FROM oauth2.token_blacklist WHERE expires_at > ?";
+    List<String> jtis =
+        jdbcTemplate.queryForList(sql, String.class, Timestamp.valueOf(LocalDateTime.now()));
+    return new HashSet<>(jtis);
   }
 
   /**
-   * Get all active JTIs.
-   *
-   * @return Set of active JWT IDs
-   */
-  public Set<String> getActiveJtis() {
-    return Set.copyOf(activeJtis);
-  }
-
-  /**
-   * Check and remove expired entries from blacklist.
+   * Remove expired entries from blacklist.
    *
    * @return The number of expired entries removed
    */
   @Transactional
   public int removeExpiredEntries() {
-    AtomicInteger removed = new AtomicInteger(0);
+    String sql = "DELETE FROM oauth2.token_blacklist WHERE expires_at < ?";
+    int removed = jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()));
+
+    // Clean up cache
     Instant now = Instant.now();
+    blacklistCache.entrySet().removeIf(entry -> now.isAfter(entry.getValue()));
 
-    blacklistedJtis
-        .entrySet()
-        .removeIf(
-            entry -> {
-              if (now.isAfter(entry.getValue())) {
-                removed.incrementAndGet();
-                return true;
-              }
-              return false;
-            });
+    log.info("Removed {} expired blacklist entries", removed);
+    return removed;
+  }
 
-    int removedCount = removed.get();
-    log.info("Removed {} expired blacklist entries", removedCount);
-    return removedCount;
+  /** Refresh cache from database. Useful after database changes from other instances. */
+  @Transactional(readOnly = true)
+  public void refreshCache() {
+    loadCacheFromDatabase();
   }
 }

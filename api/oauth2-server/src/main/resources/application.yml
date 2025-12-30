@@ -61,7 +61,9 @@ springdoc:
 
 # OAuth2 Server Configuration
 oauth2:
-  issuer: http://localhost:9000
+  issuer: ${OAUTH2_ISSUER:http://localhost:9000}
+  gateway:
+    secret: ${GATEWAY_SECRET:gateway-secret-change-in-production}
   authorization-code:
     access-token-validity: 1800 # 30 minutes
     refresh-token-validity: 86400 # 24 hours
@@ -74,3 +76,10 @@ oauth2:
       key-lifetime-days: 90
       grace-period-days: 7
       retention-days: 30
+  rate-limiting:
+    enabled: true
+
+# Application Configuration
+app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:3000}

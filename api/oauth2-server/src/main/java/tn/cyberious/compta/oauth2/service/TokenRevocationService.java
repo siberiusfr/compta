@@ -33,6 +33,15 @@ public class TokenRevocationService {
       return;
     }
 
+    // Add token to blacklist using JTI
+    String jti = extractJti(tokenValue);
+    java.time.Instant expirationTime = extractExpirationTime(authorization);
+    if (jti != null && expirationTime != null) {
+      tokenBlacklistService.addToBlacklist(
+          jti, expirationTime, authorization.getPrincipalName(), "token_revocation");
+      log.debug("Token JTI {} added to blacklist", jti);
+    }
+
     // Remove from cache
     invalidateTokenInCache(tokenValue);
 

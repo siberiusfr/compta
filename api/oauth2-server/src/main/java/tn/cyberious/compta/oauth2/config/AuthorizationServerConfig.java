@@ -5,6 +5,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +41,12 @@ import tn.cyberious.compta.oauth2.security.CustomUserDetailsService;
 @Configuration
 @EnableWebSecurity
 public class AuthorizationServerConfig {
+
+  @Value("${oauth2.issuer:http://localhost:9000}")
+  private String issuerUrl;
+
+  @Value("${oauth2.gateway.secret:gateway-secret-change-in-production}")
+  private String gatewaySecret;
 
   @Bean
   @Order(1)
@@ -168,7 +175,7 @@ public class AuthorizationServerConfig {
       RegisteredClient gatewayClient =
           RegisteredClient.withId(UUID.randomUUID().toString())
               .clientId("gateway")
-              .clientSecret(passwordEncoder.encode("gateway-secret"))
+              .clientSecret(passwordEncoder.encode(gatewaySecret))
               .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
               .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
               .redirectUri("http://localhost:8080/authorized")
@@ -194,7 +201,7 @@ public class AuthorizationServerConfig {
 
   @Bean
   public AuthorizationServerSettings authorizationServerSettings() {
-    return AuthorizationServerSettings.builder().issuer("http://localhost:9000").build();
+    return AuthorizationServerSettings.builder().issuer(issuerUrl).build();
   }
 
   @Bean

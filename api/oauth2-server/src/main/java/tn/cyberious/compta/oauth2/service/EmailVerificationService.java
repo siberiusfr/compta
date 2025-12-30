@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,9 @@ public class EmailVerificationService {
   private final PasswordEncoder passwordEncoder;
   private final AuditLogService auditLogService;
   private final EmailService emailService;
+
+  @Value("${app.frontend.url:http://localhost:3000}")
+  private String frontendUrl;
 
   // Token expiration time (24 hours)
   private static final long TOKEN_EXPIRATION_HOURS = 24;
@@ -240,9 +244,7 @@ public class EmailVerificationService {
    * @return The full verification URL
    */
   private String buildVerificationLink(String token) {
-    // In production, this should come from configuration
-    String baseUrl = "http://localhost:3000";
-    return baseUrl + "/verify-email?token=" + token;
+    return frontendUrl + "/verify-email?token=" + token;
   }
 
   /**

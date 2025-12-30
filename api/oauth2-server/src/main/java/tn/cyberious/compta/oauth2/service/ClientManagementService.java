@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -29,6 +31,7 @@ public class ClientManagementService {
   private final RegisteredClientRepository registeredClientRepository;
   private final PasswordEncoder passwordEncoder;
   private final ObjectMapper objectMapper;
+  private final JdbcTemplate jdbcTemplate;
 
   @Transactional
   public ClientResponse createClient(CreateClientRequest request) {
@@ -115,9 +118,23 @@ public class ClientManagementService {
   @Transactional(readOnly = true)
   public List<ClientResponse> getAllClients() {
     log.debug("Retrieving all OAuth2 clients");
-    // Note: JdbcRegisteredClientRepository doesn't provide a findAll method
-    // We'll need to query the database directly for this
-    return List.of();
+
+    // Query client IDs from the database directly since JdbcRegisteredClientRepository
+    // doesn't provide a findAll method
+    String sql = "SELECT client_id FROM oauth2_registered_client ORDER BY client_id_issued_at DESC";
+
+    List<String> clientIds = jdbcTemplate.queryForList(sql, String.class);
+
+    List<ClientResponse> clients = new ArrayList<>();
+    for (String clientId : clientIds) {
+      RegisteredClient registeredClient = registeredClientRepository.findByClientId(clientId);
+      if (registeredClient != null) {
+        clients.add(toClientResponse(registeredClient));
+      }
+    }
+
+    log.debug("Found {} OAuth2 clients", clients.size());
+    return clients;
   }
 
   @Transactional(readOnly = true)
@@ -259,10 +276,28 @@ public class ClientManagementService {
       throw new IllegalArgumentException("Client not found with clientId: " + clientId);
     }
 
-    // JdbcRegisteredClientRepository doesn't have a delete method
-    // We need to delete from the database directly
-    throw new UnsupportedOperationException(
-        "Delete operation not yet implemented for JdbcRegisteredClientRepository");
+    // Delete related authorizations first (foreign key constraint)
+    String deleteAuthorizationsSql =
+        "DELETE FROM oauth2_authorization WHERE registered_client_id = ?";
+    int deletedAuthorizations =
+        jdbcTemplate.update(deleteAuthorizationsSql, existingClient.getId());
+    log.debug("Deleted {} authorizations for client: {}", deletedAuthorizations, clientId);
+
+    // Delete related authorization consents
+    String deleteConsentsSql =
+        "DELETE FROM oauth2_authorization_consent WHERE registered_client_id = ?";
+    int deletedConsents = jdbcTemplate.update(deleteConsentsSql, existingClient.getId());
+    log.debug("Deleted {} authorization consents for client: {}", deletedConsents, clientId);
+
+    // Delete the client
+    String deleteClientSql = "DELETE FROM oauth2_registered_client WHERE id = ?";
+    int deleted = jdbcTemplate.update(deleteClientSql, existingClient.getId());
+
+    if (deleted == 0) {
+      throw new IllegalStateException("Failed to delete client with clientId: " + clientId);
+    }
+
+    log.info("Successfully deleted OAuth2 client with clientId: {}", clientId);
   }
 
   @Transactional
