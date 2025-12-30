@@ -2,35 +2,167 @@
 
 This document outlines all the missing components and features needed to make the OAuth2 server complete and production-ready.
 
-> **Note:** The High Priority Tasks (tasks 1-6) and Medium Priority Tasks (tasks 1-9) have been completed and moved to [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md).
+> **Note:** The High Priority Tasks (tasks 1-6) and most Medium Priority Tasks have been completed and moved to [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md).
 
 ---
 
 ## Table of Contents
 
-1. [Medium Priority Tasks](#medium-priority-tasks) - ✅ Completed
-2. [Low Priority Tasks](#low-priority-tasks)
-3. [Testing Tasks](#testing-tasks)
-4. [DevOps & Operations Tasks](#devops--operations-tasks)
+1. [Bugs & Issues to Fix](#bugs--issues-to-fix) - **URGENT**
+2. [Medium Priority Tasks](#medium-priority-tasks) - Partially Completed
+3. [Low Priority Tasks](#low-priority-tasks)
+4. [Testing Tasks](#testing-tasks)
+5. [DevOps & Operations Tasks](#devops--operations-tasks)
 
 ---
 
-## Medium Priority Tasks - ✅ Completed
+## Bugs & Issues to Fix
 
-All Medium Priority Tasks (tasks 1-9) have been completed and moved to [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md).
+> **CRITICAL:** These issues must be fixed before production deployment.
+
+### Issue 1: `getAllClients()` Returns Empty List
+
+**File:** `ClientManagementService.java:116-121`
+
+**Problem:**
+```java
+public List<ClientResponse> getAllClients() {
+    // Note: JdbcRegisteredClientRepository doesn't provide a findAll method
+    // We'll need to query the database directly for this
+    return List.of();  // <-- Always returns empty!
+}
+```
+
+**Solution:** Query the `oauth2_registered_client` table directly with JdbcTemplate.
+
+---
+
+### Issue 2: `deleteClient()` Throws Exception
+
+**File:** `ClientManagementService.java:264-265`
+
+**Problem:**
+```java
+public void deleteClient(String clientId) {
+    throw new UnsupportedOperationException("Delete client not supported yet");
+}
+```
+
+**Solution:** Implement DELETE query on `oauth2_registered_client` table.
+
+---
+
+### Issue 3: Hardcoded Secrets
+
+**File:** `AuthorizationServerConfig.java:171`
+
+**Problem:**
+```java
+.clientSecret(passwordEncoder.encode("gateway-secret"))  // Hardcoded!
+```
+
+**Solution:** Use environment variable `${GATEWAY_SECRET}` from application.yml.
+
+---
+
+### Issue 4: Hardcoded Issuer URL
+
+**File:** `AuthorizationServerConfig.java:197`
+
+**Problem:**
+```java
+return AuthorizationServerSettings.builder().issuer("http://localhost:9000").build();
+```
+
+**Solution:** Use environment variable `${OAUTH2_ISSUER:http://localhost:9000}`.
+
+---
+
+### Issue 5: Hardcoded Frontend URL
+
+**Files:**
+- `PasswordResetService.java:249`
+- `EmailVerificationService.java:244`
+
+**Problem:**
+```java
+String baseUrl = "http://localhost:3000";  // Hardcoded!
+```
+
+**Solution:** Use `@Value("${app.frontend.url}")` from configuration.
+
+---
+
+### Issue 6: TokenBlacklistService Is In-Memory Only
+
+**File:** `TokenBlacklistService.java:27-30`
+
+**Problem:**
+```java
+private final ConcurrentHashMap<String, Instant> blacklistedJtis = new ConcurrentHashMap<>();
+private final ConcurrentSkipListSet<String> activeJtis = new ConcurrentSkipListSet<>();
+```
+
+Token blacklist is lost on server restart. In a multi-instance deployment, blacklist is not shared.
+
+**Solution:** Persist to database (create `oauth2.token_blacklist` table) or use Redis.
+
+---
+
+### Issue 7: TokenBlacklistService Not Used in TokenRevocationService
+
+**File:** `TokenRevocationService.java:22-23`
+
+**Problem:** `TokenBlacklistService` is injected but never used to actually blacklist tokens.
+
+**Solution:** Call `tokenBlacklistService.addToBlacklist()` when revoking tokens.
+
+---
+
+### Issue 8: Rate Limit Logic Inverted
+
+**File:** `RateLimitFilter.java:74`
+
+**Problem:**
+```java
+return counter.increment() > limit.limit();  // Returns TRUE when limit exceeded
+```
+
+But the caller expects `true` to mean "allow request":
+```java
+if (limit != null && !checkRateLimit(clientIp, path, limit)) {  // Inverted logic
+```
+
+This may cause rate limiting to fail or work incorrectly.
+
+**Solution:** Review and fix the logic flow.
+
+---
+
+## Medium Priority Tasks - Partially Completed
 
 ### Completed Tasks:
-1. ✅ Add Rate Limiting
+1. ✅ Add Rate Limiting (has bug - see Issue 8)
 2. ✅ Configure CORS
 3. ✅ Implement CSRF Protection
 4. ✅ Implement Audit Logging
 5. ✅ Add OAuth2 Specific Metrics
-6. ✅ Implement Token Binding (DPoP)
-7. ✅ Add JTI (JWT ID) for Token Tracking
-8. ✅ Implement Password Reset Flow
-9. ✅ Implement Email Verification
+6. ❌ Implement Token Binding (DPoP) - **NOT IMPLEMENTED** (only in docs)
+7. ✅ Add JTI (JWT ID) for Token Tracking (in-memory only - see Issue 6)
+8. ✅ Implement Password Reset Flow (has hardcoded URL - see Issue 5)
+9. ✅ Implement Email Verification (has hardcoded URL - see Issue 5)
 
-See [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md) for detailed implementation information.
+### Remaining Task: Implement Token Binding (DPoP)
+
+DPoP (Demonstrating Proof-of-Possession) is documented but **not actually implemented**.
+
+**Files to Create:**
+- `src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPConfig.java`
+- `src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPValidator.java`
+- `src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPProofGenerator.java`
+- `src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPFilter.java`
+
+See RFC 9449 for implementation details.
 
 ---
 

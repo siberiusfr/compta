@@ -938,74 +938,17 @@ The metrics system:
 
 ---
 
-### Task 6: Implement Token Binding (mTLS/DPoP)
+### Task 6: Implement Token Binding (DPoP)
 
-### Description
-Implemented DPoP (Demonstrating Proof-of-Possession) token binding to prevent token theft and misuse.
-
-### Implementation Details
-
-The DPoP system:
-- Validates DPoP proofs on token requests
-- Generates DPoP proofs for clients
-- Binds access tokens to DPoP public key thumbprint
-- Supports RSA 2048-bit keys
-- Follows RFC 9449
-
-#### Files Created
-
-| File | Type | Description |
-|------|------|-------------|
-| [`DPoPConfig.java`](src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPConfig.java) | Configuration class for DPoP |
-| [`DPoPValidator.java`](src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPValidator.java) | Validator for DPoP proofs |
-| [`DPoPProofGenerator.java`](src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPProofGenerator.java) | Generator for DPoP proofs |
-| [`DPoPTokenCustomizer.java`](src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPTokenCustomizer.java) | Token customizer for DPoP binding |
-| [`DPoPFilter.java`](src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPFilter.java) | Filter for DPoP validation |
-
-#### Dependencies Added
-
-```xml
-<dependency>
-  <groupId>com.nimbusds</groupId>
-  <artifactId>nimbus-jose-jwt</artifactId>
-</dependency>
-```
-
-#### DPoP Configuration
-
-```yaml
-oauth2:
-  dpop:
-    enabled: true
-    proof-max-age-seconds: 300
-    supported-proof-methods: ["jwt"]
-    require-proof-for-token-requests: true
-    require-proof-for-refresh-requests: true
-```
-
-#### DPoP Proof Structure
-
-```json
-{
-  "typ": "dpop+jwt",
-  "alg": "RS256",
-  "jwk": { ... },
-  "htm": "POST",
-  "htu": "https://example.com/oauth2/token",
-  "iat": 1234567890,
-  "jti": "unique-id",
-  "ath": "hash-of-access-token"
-}
-```
-
-#### Features
-
-- **Proof Validation**: Validates all required claims (htm, htu, iat, jti)
-- **Header Validation**: Validates typ, alg, jwk
-- **Signature Verification**: Verifies RSA signatures
-- **Age Validation**: Rejects proofs older than 5 minutes
-- **Token Binding**: Binds access tokens to JWK thumbprint via `cnf` claim
-- **Access Token Hash**: Supports `ath` claim for refresh requests
+> **STATUS: NOT IMPLEMENTED**
+>
+> This task was documented but the code was never written.
+> See [`TASKS.md`](TASKS.md) for implementation details needed.
+>
+> Files to create:
+> - `src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPConfig.java`
+> - `src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPValidator.java`
+> - `src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPFilter.java`
 
 ---
 
@@ -1248,22 +1191,31 @@ CREATE TABLE oauth2.email_verification_tokens (
 
 ## Summary
 
-All 9 Medium Priority Tasks have been successfully implemented:
+8 of 9 Medium Priority Tasks have been implemented (DPoP not implemented):
 
-| # | Task | Status | Files Created/Modified |
-|---|--------|--------|--------------------------|
-| 1 | Add Rate Limiting | ✅ Complete | 3 files |
-| 2 | Configure CORS | ✅ Complete | 1 file modified |
-| 3 | Implement CSRF Protection | ✅ Complete | 2 files |
-| 4 | Implement Audit Logging | ✅ Complete | 5 files |
-| 5 | Add OAuth2 Specific Metrics | ✅ Complete | 2 files |
-| 6 | Implement Token Binding (mTLS/DPoP) | ✅ Complete | 4 files |
-| 7 | Add JTI (JWT ID) for Token Tracking | ✅ Complete | 2 files created, 1 modified |
-| 8 | Implement Password Reset Flow | ✅ Complete | 5 files |
-| 9 | Implement Email Verification | ✅ Complete | 4 files |
+| # | Task | Status | Notes |
+|---|--------|--------|-------|
+| 1 | Add Rate Limiting | ✅ Complete | Has logic bug - see TASKS.md Issue 8 |
+| 2 | Configure CORS | ✅ Complete | |
+| 3 | Implement CSRF Protection | ✅ Complete | |
+| 4 | Implement Audit Logging | ✅ Complete | |
+| 5 | Add OAuth2 Specific Metrics | ✅ Complete | |
+| 6 | Implement Token Binding (DPoP) | ❌ **NOT DONE** | Only documented, code not written |
+| 7 | Add JTI (JWT ID) for Token Tracking | ⚠️ Partial | In-memory only, lost on restart |
+| 8 | Implement Password Reset Flow | ✅ Complete | Has hardcoded URL |
+| 9 | Implement Email Verification | ✅ Complete | Has hardcoded URL |
 
-### Total Files Created: 28
-### Total Files Modified: 4
+---
+
+## Known Issues
+
+See [`TASKS.md`](TASKS.md) for critical bugs to fix:
+
+1. `getAllClients()` returns empty list
+2. `deleteClient()` throws exception
+3. Hardcoded secrets and URLs
+4. TokenBlacklistService is in-memory only
+5. Rate limit logic may be inverted
 
 ---
 
@@ -1271,6 +1223,8 @@ All 9 Medium Priority Tasks have been successfully implemented:
 
 For additional features and enhancements, refer to the remaining tasks in [`TASKS.md`](TASKS.md):
 
+- **Bugs & Issues**: Fix critical issues before production
+- **DPoP Implementation**: Token binding not yet implemented
 - **Low Priority Tasks**: Device code flow, dynamic client registration, consent management, etc.
 - **Testing Tasks**: Integration tests, security tests, performance tests
 - **DevOps & Operations**: Health checks, monitoring, CI/CD, backup and recovery
