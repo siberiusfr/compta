@@ -44,12 +44,6 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-
-        <!-- Validation annotations -->
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -80,7 +74,8 @@
                     <!-- Configuration options -->
                     <sourceType>jsonschema</sourceType>
                     <annotationStyle>jackson2</annotationStyle>
-                    <includeJsr303Annotations>true</includeJsr303Annotations>
+                    <!-- Disable JSR303 - validation is done by Zod on TypeScript side -->
+                    <includeJsr303Annotations>false</includeJsr303Annotations>
                     <includeJsr305Annotations>false</includeJsr305Annotations>
                     <useLongIntegers>false</useLongIntegers>
                     <useDoubleNumbers>false</useDoubleNumbers>
