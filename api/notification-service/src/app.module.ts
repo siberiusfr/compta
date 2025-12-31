@@ -8,6 +8,8 @@ import { NotificationService } from './notification/notification.service';
 import { MailProcessor } from './notification/mail.processor';
 import { EmailVerificationProcessor } from './processors/email-verification.processor';
 import { PasswordResetProcessor } from './processors/password-reset.processor';
+import { SendPulseEmailVerificationProcessor } from './processors/sendpulse-email-verification.processor';
+import { SendPulsePasswordResetProcessor } from './processors/sendpulse-password-reset.processor';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
@@ -15,6 +17,9 @@ import { QueueNames } from '@compta/notification-contracts';
 
 // Prisma
 import { PrismaModule } from './database/prisma.module';
+
+// SendPulse
+import { SendPulseModule } from './sendpulse/sendpulse.module';
 
 // Services
 import { NotificationsService } from './services/notifications.service';
@@ -37,6 +42,9 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
   imports: [
     // Prisma Database
     PrismaModule,
+
+    // SendPulse Module
+    SendPulseModule,
 
     // Connexion globale à Redis
     BullModule.forRoot({
@@ -104,6 +112,8 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
     MailProcessor,
     EmailVerificationProcessor,
     PasswordResetProcessor,
+    SendPulseEmailVerificationProcessor,
+    SendPulsePasswordResetProcessor,
     NotificationsService,
     NotificationTemplatesService,
     NotificationStatsService,
