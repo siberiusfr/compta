@@ -11,12 +11,21 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import {
-  SendVerificationEmailJobSchema,
-  SendPasswordResetEmailJobSchema,
-  EmailVerificationSentEventSchema,
-  EmailVerificationFailedEventSchema,
-  PasswordResetSentEventSchema,
-  PasswordResetFailedEventSchema,
+  // Messages complets (enveloppe + payload)
+  EmailVerificationRequestedSchema,
+  PasswordResetRequestedSchema,
+  EmailVerificationSentSchema,
+  EmailVerificationFailedSchema,
+  PasswordResetSentSchema,
+  PasswordResetFailedSchema,
+  // Payloads seuls (pour reference)
+  SendVerificationEmailPayloadSchema,
+  SendPasswordResetEmailPayloadSchema,
+  EmailVerificationSentPayloadSchema,
+  EmailVerificationFailedPayloadSchema,
+  PasswordResetSentPayloadSchema,
+  PasswordResetFailedPayloadSchema,
+  // Options BullMQ
   BullMQJobOptionsSchema,
 } from './email-contracts';
 
@@ -24,44 +33,91 @@ import {
 const OUTPUT_DIR = path.join(__dirname, '..', 'generated', 'json-schemas');
 const JAVA_PACKAGE = 'tn.cyberious.compta.contracts.notification';
 
-// Liste des schemas a generer
-const schemas = [
+// Liste des schemas de messages complets (enveloppe + payload)
+const messageSchemas = [
   {
-    name: 'SendVerificationEmailJob',
-    schema: SendVerificationEmailJobSchema,
-    description: 'Job de demande d\'envoi d\'email de verification',
+    name: 'EmailVerificationRequested',
+    schema: EmailVerificationRequestedSchema,
+    description:
+      'Message complet: Demande d\'envoi d\'email de verification (oauth2-server -> notification-service)',
   },
   {
-    name: 'SendPasswordResetEmailJob',
-    schema: SendPasswordResetEmailJobSchema,
-    description: 'Job de demande d\'envoi d\'email de reset de mot de passe',
+    name: 'PasswordResetRequested',
+    schema: PasswordResetRequestedSchema,
+    description:
+      'Message complet: Demande d\'envoi d\'email de reset (oauth2-server -> notification-service)',
   },
   {
-    name: 'EmailVerificationSentEvent',
-    schema: EmailVerificationSentEventSchema,
-    description: 'Event: email de verification envoye avec succes',
+    name: 'EmailVerificationSent',
+    schema: EmailVerificationSentSchema,
+    description:
+      'Message complet: Email de verification envoye (notification-service -> oauth2-server)',
   },
   {
-    name: 'EmailVerificationFailedEvent',
-    schema: EmailVerificationFailedEventSchema,
-    description: 'Event: echec d\'envoi de l\'email de verification',
+    name: 'EmailVerificationFailed',
+    schema: EmailVerificationFailedSchema,
+    description:
+      'Message complet: Echec d\'envoi email de verification (notification-service -> oauth2-server)',
   },
   {
-    name: 'PasswordResetSentEvent',
-    schema: PasswordResetSentEventSchema,
-    description: 'Event: email de reset envoye avec succes',
+    name: 'PasswordResetSent',
+    schema: PasswordResetSentSchema,
+    description:
+      'Message complet: Email de reset envoye (notification-service -> oauth2-server)',
   },
   {
-    name: 'PasswordResetFailedEvent',
-    schema: PasswordResetFailedEventSchema,
-    description: 'Event: echec d\'envoi de l\'email de reset',
+    name: 'PasswordResetFailed',
+    schema: PasswordResetFailedSchema,
+    description:
+      'Message complet: Echec d\'envoi email de reset (notification-service -> oauth2-server)',
   },
+];
+
+// Liste des schemas de payload uniquement (sans enveloppe)
+const payloadSchemas = [
+  {
+    name: 'SendVerificationEmailPayload',
+    schema: SendVerificationEmailPayloadSchema,
+    description: 'Payload: Donnees pour l\'envoi d\'email de verification',
+  },
+  {
+    name: 'SendPasswordResetEmailPayload',
+    schema: SendPasswordResetEmailPayloadSchema,
+    description: 'Payload: Donnees pour l\'envoi d\'email de reset',
+  },
+  {
+    name: 'EmailVerificationSentPayload',
+    schema: EmailVerificationSentPayloadSchema,
+    description: 'Payload: Confirmation d\'envoi email de verification',
+  },
+  {
+    name: 'EmailVerificationFailedPayload',
+    schema: EmailVerificationFailedPayloadSchema,
+    description: 'Payload: Echec d\'envoi email de verification',
+  },
+  {
+    name: 'PasswordResetSentPayload',
+    schema: PasswordResetSentPayloadSchema,
+    description: 'Payload: Confirmation d\'envoi email de reset',
+  },
+  {
+    name: 'PasswordResetFailedPayload',
+    schema: PasswordResetFailedPayloadSchema,
+    description: 'Payload: Echec d\'envoi email de reset',
+  },
+];
+
+// Schemas utilitaires
+const utilitySchemas = [
   {
     name: 'BullMQJobOptions',
     schema: BullMQJobOptionsSchema,
     description: 'Options de configuration des jobs BullMQ',
   },
 ];
+
+// Tous les schemas a generer
+const allSchemas = [...messageSchemas, ...payloadSchemas, ...utilitySchemas];
 
 /**
  * Cree le repertoire de sortie s'il n'existe pas
@@ -113,10 +169,29 @@ function generateIndex(): void {
   const index = {
     $schema: 'http://json-schema.org/draft-07/schema#',
     title: 'COMPTA Notification Contracts Index',
-    description: 'Liste des schemas de contrats disponibles',
+    description:
+      'Liste des schemas de contrats disponibles. Tous les messages utilisent le format d\'enveloppe standard.',
     generatedAt: new Date().toISOString(),
     javaPackage: JAVA_PACKAGE,
-    schemas: schemas.map((s) => ({
+    envelopeFormat: {
+      eventId: 'UUID v4 - Identifiant unique de l\'evenement',
+      eventType: 'String - Type de l\'evenement (ex: EmailVerificationRequested)',
+      eventVersion: 'Integer - Version du schema (default: 1)',
+      occurredAt: 'ISO 8601 - Timestamp de creation',
+      producer: 'String - Service producteur (oauth2-server ou notification-service)',
+      payload: 'Object - Donnees specifiques a l\'evenement',
+    },
+    messageSchemas: messageSchemas.map((s) => ({
+      name: s.name,
+      file: `${s.name}.schema.json`,
+      description: s.description,
+    })),
+    payloadSchemas: payloadSchemas.map((s) => ({
+      name: s.name,
+      file: `${s.name}.schema.json`,
+      description: s.description,
+    })),
+    utilitySchemas: utilitySchemas.map((s) => ({
       name: s.name,
       file: `${s.name}.schema.json`,
       description: s.description,
@@ -135,12 +210,48 @@ function main(): void {
   console.log('='.repeat(60));
   console.log('Generating JSON Schemas from Zod schemas');
   console.log('='.repeat(60));
+  console.log('');
+  console.log('ENVELOPE FORMAT:');
+  console.log('{');
+  console.log('  eventId: "uuid",');
+  console.log('  eventType: "NomDuType",');
+  console.log('  eventVersion: 1,');
+  console.log('  occurredAt: "ISO8601",');
+  console.log('  producer: "nom-du-service",');
+  console.log('  payload: { ... }');
+  console.log('}');
+  console.log('');
 
   // Creer le repertoire de sortie
   ensureOutputDir();
 
   // Generer chaque schema
-  for (const { name, schema, description } of schemas) {
+  console.log('Generating message schemas (envelope + payload)...');
+  for (const { name, schema, description } of messageSchemas) {
+    try {
+      const jsonSchema = generateJsonSchema(name, schema, description);
+      writeJsonSchema(name, jsonSchema);
+    } catch (error) {
+      console.error(`Error generating ${name}:`, error);
+      process.exit(1);
+    }
+  }
+
+  console.log('');
+  console.log('Generating payload schemas...');
+  for (const { name, schema, description } of payloadSchemas) {
+    try {
+      const jsonSchema = generateJsonSchema(name, schema, description);
+      writeJsonSchema(name, jsonSchema);
+    } catch (error) {
+      console.error(`Error generating ${name}:`, error);
+      process.exit(1);
+    }
+  }
+
+  console.log('');
+  console.log('Generating utility schemas...');
+  for (const { name, schema, description } of utilitySchemas) {
     try {
       const jsonSchema = generateJsonSchema(name, schema, description);
       writeJsonSchema(name, jsonSchema);
@@ -151,10 +262,15 @@ function main(): void {
   }
 
   // Generer l'index
+  console.log('');
   generateIndex();
 
+  console.log('');
   console.log('='.repeat(60));
-  console.log(`Successfully generated ${schemas.length} JSON Schemas`);
+  console.log(`Successfully generated ${allSchemas.length} JSON Schemas`);
+  console.log(`  - ${messageSchemas.length} message schemas (envelope + payload)`);
+  console.log(`  - ${payloadSchemas.length} payload schemas`);
+  console.log(`  - ${utilitySchemas.length} utility schemas`);
   console.log(`Output directory: ${OUTPUT_DIR}`);
   console.log('='.repeat(60));
 }
