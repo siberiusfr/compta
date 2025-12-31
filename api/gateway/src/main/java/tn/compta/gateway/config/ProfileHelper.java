@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Utility class for environment/profile detection.
- * Centralized logic to avoid duplication across configuration classes.
+ * Utility class for environment/profile detection. Centralized logic to avoid duplication across
+ * configuration classes.
  */
 @Component
 public class ProfileHelper {
@@ -17,8 +17,8 @@ public class ProfileHelper {
   }
 
   /**
-   * Check if running in production environment.
-   * Handles multiple profiles (e.g., "prod,monitoring").
+   * Check if running in production environment. Handles multiple profiles (e.g.,
+   * "prod,monitoring").
    */
   public boolean isProduction() {
     if (activeProfile == null) {
@@ -27,16 +27,12 @@ public class ProfileHelper {
     return activeProfile.toLowerCase().contains("prod");
   }
 
-  /**
-   * Check if running in development environment.
-   */
+  /** Check if running in development environment. */
   public boolean isDevelopment() {
     return !isProduction();
   }
 
-  /**
-   * Get the active profile string.
-   */
+  /** Get the active profile string. */
   public String getActiveProfile() {
     return activeProfile;
   }

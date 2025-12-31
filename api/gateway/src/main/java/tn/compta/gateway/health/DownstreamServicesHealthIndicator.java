@@ -1,5 +1,8 @@
 package tn.compta.gateway.health;
 
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
@@ -9,14 +12,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Health indicator that checks the status of all downstream services.
  *
- * Allows monitoring if the gateway can correctly route to services.
+ * <p>Allows monitoring if the gateway can correctly route to services.
  */
 @Slf4j
 @Component
@@ -50,71 +49,71 @@ public class DownstreamServicesHealthIndicator implements ReactiveHealthIndicato
             checkService("auth-service", authServiceUrl),
             checkService("authz-service", authzServiceUrl),
             checkService("invoice-service", invoiceServiceUrl),
-            checkService("employee-service", employeeServiceUrl)
-        )
+            checkService("employee-service", employeeServiceUrl))
         .collectList()
-        .map(serviceStatuses -> {
-          Map<String, Object> details = new HashMap<>();
-          boolean allUp = true;
+        .map(
+            serviceStatuses -> {
+              Map<String, Object> details = new HashMap<>();
+              boolean allUp = true;
 
-          for (Map<String, Object> serviceStatus : serviceStatuses) {
-            String serviceName = (String) serviceStatus.get("name");
-            String status = (String) serviceStatus.get("status");
+              for (Map<String, Object> serviceStatus : serviceStatuses) {
+                String serviceName = (String) serviceStatus.get("name");
+                String status = (String) serviceStatus.get("status");
 
-            details.put(serviceName, serviceStatus);
+                details.put(serviceName, serviceStatus);
 
-            if (!"UP".equals(status)) {
-              allUp = false;
-            }
-          }
+                if (!"UP".equals(status)) {
+                  allUp = false;
+                }
+              }
 
-          if (allUp) {
-            return Health.up().withDetails(details).build();
-          } else {
-            return Health.down().withDetails(details).build();
-          }
-        })
-        .onErrorResume(error -> {
-          log.error("Error checking downstream services health", error);
-          return Mono.just(Health.down()
-              .withException(error)
-              .build());
-        });
+              if (allUp) {
+                return Health.up().withDetails(details).build();
+              } else {
+                return Health.down().withDetails(details).build();
+              }
+            })
+        .onErrorResume(
+            error -> {
+              log.error("Error checking downstream services health", error);
+              return Mono.just(Health.down().withException(error).build());
+            });
   }
 
-  /**
-   * Checks a service status via its /actuator/health endpoint.
-   */
+  /** Checks a service status via its /actuator/health endpoint. */
   private Mono<Map<String, Object>> checkService(String serviceName, String serviceUrl) {
     String healthUrl = serviceUrl + "/actuator/health";
 
-    return webClient.get()
+    return webClient
+        .get()
         .uri(healthUrl)
         .retrieve()
         .toBodilessEntity()
-        .map(response -> {
-          Map<String, Object> status = new HashMap<>();
-          status.put("name", serviceName);
+        .map(
+            response -> {
+              Map<String, Object> status = new HashMap<>();
+              status.put("name", serviceName);
 
-          if (response.getStatusCode().is2xxSuccessful()) {
-            status.put("status", "UP");
-          } else {
-            status.put("status", "DOWN");
-            status.put("code", response.getStatusCode().value());
-          }
+              if (response.getStatusCode().is2xxSuccessful()) {
+                status.put("status", "UP");
+              } else {
+                status.put("status", "DOWN");
+                status.put("code", response.getStatusCode().value());
+              }
 
-          return status;
-        })
+              return status;
+            })
         .timeout(Duration.ofSeconds(healthCheckTimeoutSeconds))
-        .onErrorResume(error -> {
-          log.warn("Service {} is DOWN: {}", serviceName, error.getMessage());
+        .onErrorResume(
+            error -> {
+              log.warn("Service {} is DOWN: {}", serviceName, error.getMessage());
 
-          Map<String, Object> status = new HashMap<>();
-          status.put("name", serviceName);
-          status.put("status", "DOWN");
-          status.put("reason", "Connection failed or timeout");
+              Map<String, Object> status = new HashMap<>();
+              status.put("name", serviceName);
+              status.put("status", "DOWN");
+              status.put("reason", "Connection failed or timeout");
 
-          return Mono.just(status);
-        });
+              return Mono.just(status);
+            });
   }
 }

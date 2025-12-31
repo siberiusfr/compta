@@ -3,6 +3,8 @@ package tn.compta.gateway.config;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Configuration du WebClient pour les health checks et autres appels HTTP.
- */
+/** Configuration du WebClient pour les health checks et autres appels HTTP. */
 @Configuration
 public class WebClientConfig {
 
@@ -43,21 +40,24 @@ public class WebClientConfig {
 
   @Bean
   public WebClient.Builder webClientBuilder() {
-    ConnectionProvider connectionProvider = ConnectionProvider.builder("gateway-pool")
-        .maxConnections(maxConnections)
-        .pendingAcquireTimeout(Duration.ofSeconds(pendingAcquireTimeoutSeconds))
-        .maxIdleTime(Duration.ofSeconds(maxIdleTimeSeconds))
-        .build();
+    ConnectionProvider connectionProvider =
+        ConnectionProvider.builder("gateway-pool")
+            .maxConnections(maxConnections)
+            .pendingAcquireTimeout(Duration.ofSeconds(pendingAcquireTimeoutSeconds))
+            .maxIdleTime(Duration.ofSeconds(maxIdleTimeSeconds))
+            .build();
 
-    HttpClient httpClient = HttpClient.create(connectionProvider)
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMs)
-        .responseTimeout(Duration.ofSeconds(responseTimeoutSeconds))
-        .doOnConnected(conn -> conn
-            .addHandlerLast(new ReadTimeoutHandler(readTimeoutSeconds, TimeUnit.SECONDS))
-            .addHandlerLast(new WriteTimeoutHandler(writeTimeoutSeconds, TimeUnit.SECONDS))
-        );
+    HttpClient httpClient =
+        HttpClient.create(connectionProvider)
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMs)
+            .responseTimeout(Duration.ofSeconds(responseTimeoutSeconds))
+            .doOnConnected(
+                conn ->
+                    conn.addHandlerLast(
+                            new ReadTimeoutHandler(readTimeoutSeconds, TimeUnit.SECONDS))
+                        .addHandlerLast(
+                            new WriteTimeoutHandler(writeTimeoutSeconds, TimeUnit.SECONDS)));
 
-    return WebClient.builder()
-        .clientConnector(new ReactorClientHttpConnector(httpClient));
+    return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
   }
 }

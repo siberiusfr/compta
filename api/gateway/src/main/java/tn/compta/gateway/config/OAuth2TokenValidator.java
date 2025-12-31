@@ -1,27 +1,24 @@
 package tn.compta.gateway.config;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
-import com.nimbusds.jose.jwk.source.URLJWKSource;
-import com.nimbusds.jose.proc.JWSAlgorithm;
-import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import jakarta.annotation.PostConstruct;
 import java.net.URL;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.RestTemplate;
-import tn.compta.gateway.config.ProfileHelper;
 
 /**
- * Configuration pour la validation des tokens JWT RSA issus par le serveur OAuth2.
- * Le serveur OAuth2 expose les clés publiques via l'endpoint JWKS.
+ * Configuration pour la validation des tokens JWT RSA issus par le serveur OAuth2. Le serveur
+ * OAuth2 expose les clés publiques via l'endpoint JWKS.
  */
 @Slf4j
 @Configuration
@@ -37,7 +34,7 @@ public class OAuth2TokenValidator {
   @Value("${oauth2.jwks-cache-duration:300000}")
   private Long jwksCacheDuration;
 
-  private RemoteJWKSet<SecurityContext> jwkSource;
+  private RemoteJWKSet<com.nimbusds.jose.proc.SecurityContext> jwkSource;
   private long lastJwksFetchTime = 0;
   private JWKSet cachedJwkSet;
 
@@ -49,9 +46,7 @@ public class OAuth2TokenValidator {
     fetchJwks();
   }
 
-  /**
-   * Récupère les clés JWKS depuis le serveur OAuth2
-   */
+  /** Récupère les clés JWKS depuis le serveur OAuth2 */
   @Scheduled(fixedRate = 300000) // Refresh every 5 minutes
   public void refreshJwks() {
     log.debug("Refreshing JWKS from OAuth2 server...");
@@ -64,67 +59,80 @@ public class OAuth2TokenValidator {
       log.info("Fetching JWKS from: {}", jwksUrl);
 
       URL url = new URL(jwksUrl);
-      RemoteJWKSet RemoteJWKSet = new URLJWKSource(url);
-      RemoteJWKSet.setConnectTimeout(5000); // 5 seconds timeout
-      RemoteJWKSet.setReadTimeout(5000);
+      this.jwkSource = new RemoteJWKSet<>(url);
 
-      JWKSet jwkSet = RemoteJWKSet.getJWKSet();
-      this.jwkSource = new RemoteJWKSet(url, jwkSet);
-      this.cachedJwkSet = jwkSet;
+      // Get JWKSet directly from the source
+      this.cachedJwkSet = this.jwkSource.getJWKSet(com.nimbusds.jose.proc.SecurityContext.NONE);
       this.lastJwksFetchTime = System.currentTimeMillis();
 
-      log.info("JWKS fetched successfully. Keys: {}", jwkSet.getKeys().size());
+      log.info("JWKS fetched successfully. Keys: {}", cachedJwkSet.getKeys().size());
     } catch (Exception e) {
       log.error("Failed to fetch JWKS from OAuth2 server: {}", e.getMessage(), e);
       // Keep previous cache on error
     }
   }
 
-  /**
-   * Valide un token JWT RSA
-   */
+  /** Valide un token JWT RSA */
   public boolean validateToken(String token) {
     try {
       log.debug("Validating JWT token...");
 
-      com.nimbusds.jose.jwt.JWT jwt = com.nimbusds.jose.jwt.JWT.parse(token);
+      SignedJWT signedJwt = SignedJWT.parse(token);
 
       // Vérifier l'algorithme (doit être RSA)
-      JWSAlgorithm algorithm = jwt.getHeader().getAlgorithm();
-      if (!algorithm.getName().startsWith("RS")) {
-        log.warn("Token is not signed with RSA algorithm: {}", algorithm.getName());
+      JWSAlgorithm algorithm = signedJwt.getHeader().getAlgorithm();
+      if (algorithm == null || !algorithm.getName().startsWith("RS")) {
+        log.warn(
+            "Token is not signed with RSA algorithm: {}",
+            algorithm != null ? algorithm.getName() : "null");
         return false;
       }
 
       // Vérifier l'issuer
-      String issuer = jwt.getJWTClaimsSet().getIssuer();
+      JWTClaimsSet claims = signedJwt.getJWTClaimsSet();
+      String issuer = claims.getIssuer();
       if (!oauth2Issuer.equals(issuer)) {
         log.warn("Token issuer mismatch. Expected: {}, Got: {}", oauth2Issuer, issuer);
         return false;
       }
 
       // Vérifier l'expiration
-      long expirationTime = jwt.getJWTClaimsSet().getExpirationTime().getTime();
-      long currentTime = System.currentTimeMillis();
-      if (expirationTime < currentTime) {
-        log.warn("Token expired. Expiration: {}, Current: {}", expirationTime, currentTime);
-        return false;
+      if (claims.getExpirationTime() != null) {
+        long expirationTime = claims.getExpirationTime().getTime();
+        long currentTime = System.currentTimeMillis();
+        if (expirationTime < currentTime) {
+          log.warn("Token expired. Expiration: {}, Current: {}", expirationTime, currentTime);
+          return false;
+        }
       }
 
       // Vérifier la signature avec les clés JWKS
-      jwt.verify(jwkSource);
+      String keyId = signedJwt.getHeader().getKeyID();
+      JWK jwk = cachedJwkSet.getKeyByKeyId(keyId);
+      if (jwk == null) {
+        log.warn("No matching JWK found for key ID: {}", keyId);
+        return false;
+      }
+
+      // Create verifier from RSA key
+      java.security.interfaces.RSAPublicKey rsaKey = jwk.toRSAKey();
+      com.nimbusds.jose.JWSVerifier verifier =
+          new com.nimbusds.jose.crypto.RSASSAVerifier(rsaKey, signedJwt.getHeader().getAlgorithm());
+
+      signedJwt.verify(verifier);
 
       log.debug("JWT token validated successfully");
       return true;
     } catch (JOSEException e) {
       log.error("JWT validation failed: {}", e.getMessage(), e);
       return false;
+    } catch (Exception e) {
+      log.error("Unexpected error during JWT validation: {}", e.getMessage(), e);
+      return false;
     }
   }
 
-  /**
-   * Valide un token JWT sans lever d'exception
-   */
+  /** Valide un token JWT sans lever d'exception */
   public boolean validateTokenSilent(String token) {
     try {
       return validateToken(token);
@@ -134,24 +142,18 @@ public class OAuth2TokenValidator {
     }
   }
 
-  /**
-   * Récupère les clés JWKS en cache
-   */
+  /** Récupère les clés JWKS en cache */
   public JWKSet getCachedJwkSet() {
     return cachedJwkSet;
   }
 
-  /**
-   * Vérifie si le cache JWKS est expiré
-   */
+  /** Vérifie si le cache JWKS est expiré */
   public boolean isJwksCacheExpired() {
     long cacheAge = System.currentTimeMillis() - lastJwksFetchTime;
     return cacheAge > jwksCacheDuration;
   }
 
-  /**
-   * Force le rafraîchissement du cache JWKS
-   */
+  /** Force le rafraîchissement du cache JWKS */
   public void forceRefreshJwks() {
     log.info("Forcing JWKS refresh...");
     fetchJwks();

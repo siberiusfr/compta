@@ -1,8 +1,9 @@
 package tn.compta.gateway.filter;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
@@ -13,11 +14,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import tn.compta.gateway.config.PublicEndpoints;
 
-import java.util.List;
-
-/**
- * Gateway filter that extracts JWT claims and adds them as HTTP headers.
- */
+/** Gateway filter that extracts JWT claims and adds them as HTTP headers. */
 @Slf4j
 @Component
 public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
@@ -41,32 +38,32 @@ public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
     }
 
     return ReactiveSecurityContextHolder.getContext()
-        .map(securityContext -> {
-          Authentication authentication = securityContext.getAuthentication();
+        .map(
+            securityContext -> {
+              Authentication authentication = securityContext.getAuthentication();
 
-          if (authentication != null && authentication.isAuthenticated()) {
-            return extractHeadersFromAuthentication(authentication, exchange.getRequest());
-          }
+              if (authentication != null && authentication.isAuthenticated()) {
+                return extractHeadersFromAuthentication(authentication, exchange.getRequest());
+              }
 
-          return exchange.getRequest();
-        })
+              return exchange.getRequest();
+            })
         .defaultIfEmpty(exchange.getRequest())
         .map(modifiedRequest -> exchange.mutate().request(modifiedRequest).build())
         .flatMap(chain::filter);
   }
 
-  /**
-   * Check if endpoint is public (doesn't need user headers).
-   */
+  /** Check if endpoint is public (doesn't need user headers). */
   private boolean isPublicEndpoint(String path) {
     return PublicEndpoints.isPublic(path);
   }
 
   /**
-   * Extract user information from JWT and add headers.
-   * ✅ Only add headers if values are present (no empty strings).
+   * Extract user information from JWT and add headers. ✅ Only add headers if values are present (no
+   * empty strings).
    */
-  private ServerHttpRequest extractHeadersFromAuthentication(Authentication authentication, ServerHttpRequest request) {
+  private ServerHttpRequest extractHeadersFromAuthentication(
+      Authentication authentication, ServerHttpRequest request) {
     Object principal = authentication.getPrincipal();
 
     if (!(principal instanceof Jwt jwt)) {
@@ -111,15 +108,20 @@ public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
     }
 
     // ✅ Log avec masquage de l'email pour GDPR
-    log.debug("Added user headers: userId={}, username={}, email={}, tenantId={}, roles={}",
-        userId, username, maskEmail(email), tenantId, roles);
+    log.debug(
+        "Added user headers: userId={}, username={}, email={}, tenantId={}, roles={}",
+        userId,
+        username,
+        maskEmail(email),
+        tenantId,
+        roles);
 
     return builder.build();
   }
 
   /**
-   * Masque partiellement l'email pour la protection des données personnelles (GDPR).
-   * Exemple: john.doe@example.com -> j***@example.com
+   * Masque partiellement l'email pour la protection des données personnelles (GDPR). Exemple:
+   * john.doe@example.com -> j***@example.com
    */
   private String maskEmail(String email) {
     if (email == null || !email.contains("@")) {
@@ -144,7 +146,10 @@ public class JwtToHeadersGatewayFilter implements GlobalFilter, Ordered {
       return null;
     }
     if (value.length() > MAX_HEADER_VALUE_LENGTH) {
-      log.warn("Claim value too long, truncating from {} to {} chars", value.length(), MAX_HEADER_VALUE_LENGTH);
+      log.warn(
+          "Claim value too long, truncating from {} to {} chars",
+          value.length(),
+          MAX_HEADER_VALUE_LENGTH);
       return value.substring(0, MAX_HEADER_VALUE_LENGTH);
     }
     return value;

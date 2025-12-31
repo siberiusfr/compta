@@ -1,5 +1,12 @@
 package tn.compta.gateway.exception;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+import java.net.ConnectException;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
@@ -14,23 +21,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.*;
 import reactor.core.publisher.Mono;
 
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
-import io.github.resilience4j.ratelimiter.RequestNotPermitted;
-
-import java.net.ConnectException;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
-
 /**
  * Global error handler for Gateway routing errors.
  *
- * Handles:
- * - Service unavailable (ConnectException)
- * - Timeout errors
- * - 404 Not Found
- * - Generic routing errors
+ * <p>Handles: - Service unavailable (ConnectException) - Timeout errors - 404 Not Found - Generic
+ * routing errors
  */
 @Slf4j
 @Component
@@ -65,15 +60,12 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
 
     log.error("Gateway error: {} - {}", status, errorAttributes.get("message"), error);
 
-    return ServerResponse
-        .status(status)
+    return ServerResponse.status(status)
         .contentType(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromValue(errorAttributes));
   }
 
-  /**
-   * Determine HTTP status based on exception type.
-   */
+  /** Determine HTTP status based on exception type. */
   private HttpStatus determineHttpStatus(Throwable error) {
     if (error instanceof TimeoutException) {
       return HttpStatus.GATEWAY_TIMEOUT;
@@ -89,9 +81,7 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 
-  /**
-   * Generate user-friendly error message.
-   */
+  /** Generate user-friendly error message. */
   private String determineErrorMessage(Throwable error) {
     if (error instanceof TimeoutException) {
       return "Le service a mis trop de temps à répondre. Veuillez réessayer.";

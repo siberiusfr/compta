@@ -5,8 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Configuration to expose WebProperties.Resources bean
- * required by GlobalErrorWebExceptionHandler.
+ * Configuration to expose WebProperties.Resources bean required by GlobalErrorWebExceptionHandler.
  */
 @Configuration
 public class WebPropertiesConfig {

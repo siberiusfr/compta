@@ -1,5 +1,8 @@
 package tn.compta.gateway.config;
 
+import java.nio.charset.StandardCharsets;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,13 +20,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import tn.compta.gateway.exception.JwtAuthenticationEntryPoint;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-
-/**
- * Security configuration for API Gateway using OAuth2 Resource Server.
- */
+/** Security configuration for API Gateway using OAuth2 Resource Server. */
 @Configuration
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
@@ -50,25 +47,28 @@ public class SecurityConfig {
         .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
 
         // ✅ Authorization rules
-        .authorizeExchange(exchanges -> exchanges
-            .pathMatchers(PublicEndpoints.PATTERNS).permitAll()
-            .anyExchange().authenticated()
-        )
+        .authorizeExchange(
+            exchanges ->
+                exchanges
+                    .pathMatchers(PublicEndpoints.PATTERNS)
+                    .permitAll()
+                    .anyExchange()
+                    .authenticated())
 
         // ✅ OAuth2 Resource Server with JWT
-        .oauth2ResourceServer(oauth2 -> oauth2
-            .jwt(jwt -> jwt
-                .jwtDecoder(jwtDecoder())
-                .jwtAuthenticationConverter(jwtAuthenticationConverter())
-            )
-            // ✅ Custom authentication entry point for JWT errors
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-        )
+        .oauth2ResourceServer(
+            oauth2 ->
+                oauth2
+                    .jwt(
+                        jwt ->
+                            jwt.jwtDecoder(jwtDecoder())
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                    // ✅ Custom authentication entry point for JWT errors
+                    .authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
         // ✅ Exception handling
-        .exceptionHandling(exceptions -> exceptions
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-        );
+        .exceptionHandling(
+            exceptions -> exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
     return http.build();
   }
@@ -78,10 +78,8 @@ public class SecurityConfig {
     byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
     SecretKey secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
 
-    NimbusReactiveJwtDecoder decoder = NimbusReactiveJwtDecoder
-        .withSecretKey(secretKey)
-        .macAlgorithm(MacAlgorithm.HS256)
-        .build();
+    NimbusReactiveJwtDecoder decoder =
+        NimbusReactiveJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build();
 
     decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(jwtIssuer));
 

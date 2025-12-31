@@ -1,5 +1,7 @@
 package tn.compta.gateway.config;
 
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,14 +9,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * CORS configuration for API Gateway.
  *
- * Allows frontend applications to call the API from different origins.
- * Origins are configured via application.yml based on environment.
+ * <p>Allows frontend applications to call the API from different origins. Origins are configured
+ * via application.yml based on environment.
  */
 @Configuration
 public class CorsConfig {
@@ -25,9 +24,7 @@ public class CorsConfig {
   @Value("${cors.max-age:3600}")
   private Long maxAge;
 
-  /**
-   * Configure CORS for reactive WebFlux.
-   */
+  /** Configure CORS for reactive WebFlux. */
   @Bean
   public CorsWebFilter corsWebFilter() {
     CorsConfiguration corsConfig = new CorsConfiguration();
@@ -36,31 +33,21 @@ public class CorsConfig {
     corsConfig.setAllowedOrigins(allowedOrigins);
 
     // Allowed HTTP methods
-    corsConfig.setAllowedMethods(Arrays.asList(
-        "GET",
-        "POST",
-        "PUT",
-        "DELETE",
-        "PATCH",
-        "OPTIONS"
-    ));
+    corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
     // Allowed headers
-    corsConfig.setAllowedHeaders(Arrays.asList(
-        "Authorization",
-        "Content-Type",
-        "Accept",
-        "X-Requested-With",
-        "X-Tenant-Id"
-    ));
+    corsConfig.setAllowedHeaders(
+        Arrays.asList(
+            "Authorization", "Content-Type", "Accept", "X-Requested-With", "X-Tenant-Id"));
 
     // ✅ Expose headers to frontend (SANS Authorization pour la sécurité)
-    corsConfig.setExposedHeaders(Arrays.asList(
-        "X-Total-Count",
-        "X-Page-Number",
-        "X-Page-Size",
-        "traceresponse" // W3C Trace Context response header
-    ));
+    corsConfig.setExposedHeaders(
+        Arrays.asList(
+            "X-Total-Count",
+            "X-Page-Number",
+            "X-Page-Size",
+            "traceresponse" // W3C Trace Context response header
+            ));
 
     // Allow credentials (cookies, authorization headers)
     corsConfig.setAllowCredentials(true);

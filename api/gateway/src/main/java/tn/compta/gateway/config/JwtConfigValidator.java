@@ -29,31 +29,31 @@ public class JwtConfigValidator {
     if (jwtSecret == null || jwtSecret.length() < 64) {
       throw new IllegalStateException(
           "JWT secret must be at least 256 bits (64 hex characters) for HS256 algorithm. "
-              + "Current length: " + (jwtSecret != null ? jwtSecret.length() : 0)
-      );
+              + "Current length: "
+              + (jwtSecret != null ? jwtSecret.length() : 0));
     }
 
     if (profileHelper.isProduction() && DEFAULT_SECRET.equals(jwtSecret)) {
       throw new IllegalStateException(
           "CRITICAL SECURITY ERROR: Default JWT secret is being used in production! "
-              + "Please set a unique JWT_SECRET environment variable."
-      );
+              + "Please set a unique JWT_SECRET environment variable.");
     }
 
     if (!profileHelper.isProduction() && DEFAULT_SECRET.equals(jwtSecret)) {
-      log.warn("WARNING: Using default JWT secret. This is acceptable for development "
-          + "but NEVER use this in production!");
+      log.warn(
+          "WARNING: Using default JWT secret. This is acceptable for development "
+              + "but NEVER use this in production!");
     }
 
     if (jwtExpiration == null || jwtExpiration <= 0) {
-      throw new IllegalStateException(
-          "JWT expiration must be a positive value in milliseconds"
-      );
+      throw new IllegalStateException("JWT expiration must be a positive value in milliseconds");
     }
 
     if (profileHelper.isProduction() && jwtExpiration > 7200000) {
-      log.warn("JWT expiration is set to {} hours. Consider using shorter expiration "
-          + "times in production for better security.", jwtExpiration / 3600000.0);
+      log.warn(
+          "JWT expiration is set to {} hours. Consider using shorter expiration "
+              + "times in production for better security.",
+          jwtExpiration / 3600000.0);
     }
 
     log.info("JWT configuration validated successfully");

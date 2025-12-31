@@ -1,5 +1,10 @@
 package tn.compta.gateway.filter;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -11,12 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Slf4j
 @Component
 public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
@@ -24,26 +23,26 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
   @Value("${logging.slow-request-threshold-ms:5000}")
   private long slowRequestThresholdMs;
 
-  private static final Set<String> SENSITIVE_HEADERS = Set.of(
-      "authorization",
-      "cookie",
-      "set-cookie",
-      "x-csrf-token",
-      "x-api-key",
-      "x-auth-token",
-      "proxy-authorization"
-  );
+  private static final Set<String> SENSITIVE_HEADERS =
+      Set.of(
+          "authorization",
+          "cookie",
+          "set-cookie",
+          "x-csrf-token",
+          "x-api-key",
+          "x-auth-token",
+          "proxy-authorization");
 
-  private static final Set<String> SENSITIVE_QUERY_PARAMS = Set.of(
-      "token",
-      "access_token",
-      "refresh_token",
-      "api_key",
-      "apikey",
-      "password",
-      "secret",
-      "key"
-  );
+  private static final Set<String> SENSITIVE_QUERY_PARAMS =
+      Set.of(
+          "token",
+          "access_token",
+          "refresh_token",
+          "api_key",
+          "apikey",
+          "password",
+          "secret",
+          "key");
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -52,20 +51,21 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
 
     logRequest(request);
 
-    return chain.filter(exchange).doFinally(signal -> {
-      long duration = System.currentTimeMillis() - startTime;
-      logResponse(request, exchange, duration);
-    });
+    return chain
+        .filter(exchange)
+        .doFinally(
+            signal -> {
+              long duration = System.currentTimeMillis() - startTime;
+              logResponse(request, exchange, duration);
+            });
   }
 
   private void logRequest(ServerHttpRequest request) {
     String safePath = maskQueryParams(request.getURI());
     if (log.isDebugEnabled()) {
       String maskedHeaders = maskSensitiveHeaders(request.getHeaders());
-      log.debug("Incoming request: {} {} | Headers: {}",
-          request.getMethod(),
-          safePath,
-          maskedHeaders);
+      log.debug(
+          "Incoming request: {} {} | Headers: {}", request.getMethod(), safePath, maskedHeaders);
     } else {
       log.info("Request: {} {}", request.getMethod(), safePath);
     }
@@ -76,7 +76,8 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
     String safePath = maskQueryParams(request.getURI());
 
     if (statusCode == null) {
-      log.warn("Response completed without status code: {} {} | Duration: {}ms",
+      log.warn(
+          "Response completed without status code: {} {} | Duration: {}ms",
           request.getMethod(),
           safePath,
           duration);
@@ -85,7 +86,8 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
 
     String statusLabel = getStatusLabel(statusCode.value());
 
-    log.info("{} response: {} {} | Status: {} | Duration: {}ms",
+    log.info(
+        "{} response: {} {} | Status: {} | Duration: {}ms",
         statusLabel,
         request.getMethod(),
         safePath,
@@ -93,7 +95,8 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
         duration);
 
     if (duration > slowRequestThresholdMs) {
-      log.warn("Slow request detected: {} {} took {}ms (threshold: {}ms)",
+      log.warn(
+          "Slow request detected: {} {} took {}ms (threshold: {}ms)",
           request.getMethod(),
           safePath,
           duration,
@@ -101,24 +104,24 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
     }
   }
 
-  /**
-   * Masks sensitive query parameters in the URI.
-   */
+  /** Masks sensitive query parameters in the URI. */
   private String maskQueryParams(URI uri) {
     String query = uri.getQuery();
     if (query == null || query.isEmpty()) {
       return uri.getPath();
     }
 
-    String maskedQuery = java.util.Arrays.stream(query.split("&"))
-        .map(param -> {
-          String[] parts = param.split("=", 2);
-          if (parts.length == 2 && isSensitiveParam(parts[0])) {
-            return parts[0] + "=***";
-          }
-          return param;
-        })
-        .collect(Collectors.joining("&"));
+    String maskedQuery =
+        java.util.Arrays.stream(query.split("&"))
+            .map(
+                param -> {
+                  String[] parts = param.split("=", 2);
+                  if (parts.length == 2 && isSensitiveParam(parts[0])) {
+                    return parts[0] + "=***";
+                  }
+                  return param;
+                })
+            .collect(Collectors.joining("&"));
 
     return uri.getPath() + "?" + maskedQuery;
   }
@@ -130,18 +133,16 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
 
   private String maskSensitiveHeaders(HttpHeaders headers) {
     return headers.entrySet().stream()
-        .collect(Collectors.toMap(
-            Map.Entry::getKey,
-            entry -> isSensitiveHeader(entry.getKey())
-                ? List.of("***MASKED***")
-                : entry.getValue()
-        ))
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey,
+                entry ->
+                    isSensitiveHeader(entry.getKey()) ? List.of("***MASKED***") : entry.getValue()))
         .toString();
   }
 
   private boolean isSensitiveHeader(String headerName) {
-    return SENSITIVE_HEADERS.stream()
-        .anyMatch(sensitive -> sensitive.equalsIgnoreCase(headerName));
+    return SENSITIVE_HEADERS.stream().anyMatch(sensitive -> sensitive.equalsIgnoreCase(headerName));
   }
 
   private String getStatusLabel(int statusCode) {

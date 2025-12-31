@@ -2,8 +2,8 @@ package tn.compta.gateway.filter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -16,8 +16,7 @@ import tn.compta.gateway.config.ProfileHelper;
 /**
  * Global filter to add security headers to all responses.
  *
- * Uses ServerHttpResponseDecorator to ensure headers are added
- * before the response is committed.
+ * <p>Uses ServerHttpResponseDecorator to ensure headers are added before the response is committed.
  */
 @Slf4j
 @Component
@@ -31,14 +30,15 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
     String path = exchange.getRequest().getPath().value();
 
     ServerHttpResponse originalResponse = exchange.getResponse();
-    ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(originalResponse) {
-      @Override
-      public HttpHeaders getHeaders() {
-        HttpHeaders headers = super.getHeaders();
-        addSecurityHeaders(headers, path);
-        return headers;
-      }
-    };
+    ServerHttpResponseDecorator decoratedResponse =
+        new ServerHttpResponseDecorator(originalResponse) {
+          @Override
+          public HttpHeaders getHeaders() {
+            HttpHeaders headers = super.getHeaders();
+            addSecurityHeaders(headers, path);
+            return headers;
+          }
+        };
 
     return chain.filter(exchange.mutate().response(decoratedResponse).build());
   }
@@ -56,14 +56,15 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
 
     // HSTS - Only in production
     if (profileHelper.isProduction()) {
-      headers.addIfAbsent("Strict-Transport-Security",
-          "max-age=31536000; includeSubDomains; preload");
+      headers.addIfAbsent(
+          "Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
     }
 
     // Content Security Policy
     if (path.startsWith("/swagger-ui") || path.startsWith("/webjars")) {
       // CSP permissive for Swagger UI only
-      headers.addIfAbsent("Content-Security-Policy",
+      headers.addIfAbsent(
+          "Content-Security-Policy",
           "default-src 'self'; "
               + "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
               + "style-src 'self' 'unsafe-inline'; "
@@ -71,15 +72,15 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
               + "font-src 'self' data:;");
     } else {
       // Strict CSP for API endpoints
-      headers.addIfAbsent("Content-Security-Policy",
-          "default-src 'none'; frame-ancestors 'none';");
+      headers.addIfAbsent("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none';");
     }
 
     // Referrer policy
     headers.addIfAbsent("Referrer-Policy", "strict-origin-when-cross-origin");
 
     // Permissions policy
-    headers.addIfAbsent("Permissions-Policy",
+    headers.addIfAbsent(
+        "Permissions-Policy",
         "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=()");
 
     // Remove server information

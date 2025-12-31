@@ -7,20 +7,18 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * OpenAPI/Swagger configuration for API Gateway.
  *
- * Environment-specific configuration:
- * - Dev: Exposes local URLs only
- * - Prod: Exposes production URLs only
+ * <p>Environment-specific configuration: - Dev: Exposes local URLs only - Prod: Exposes production
+ * URLs only
  */
 @Configuration
 @RequiredArgsConstructor
@@ -36,50 +34,44 @@ public class OpenApiConfig {
 
   @Bean
   public OpenAPI gatewayOpenAPI() {
-    OpenAPI api = new OpenAPI()
-        .info(new Info()
-            .title("COMPTA API Gateway")
-            .version("1.0.0")
-            .description("API Gateway for COMPTA ERP System. "
-                + "This gateway routes requests to downstream microservices "
-                + "and handles authentication via OAuth2 JWT.")
-            .contact(new Contact()
-                .name("COMPTA Team")
-                .email("support@compta.tn")
-            )
-        )
-        // ✅ Serveurs adaptés selon l'environnement
-        .servers(getServerUrls())
-        // ✅ Configuration du security scheme
-        .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-        .components(new Components()
-            .addSecuritySchemes("bearerAuth",
-                new SecurityScheme()
-                    .type(SecurityScheme.Type.HTTP)
-                    .scheme("bearer")
-                    .bearerFormat("JWT")
-                    .description("JWT token obtenu via /auth/login")
-            )
-        );
+    OpenAPI api =
+        new OpenAPI()
+            .info(
+                new Info()
+                    .title("COMPTA API Gateway")
+                    .version("1.0.0")
+                    .description(
+                        "API Gateway for COMPTA ERP System. "
+                            + "This gateway routes requests to downstream microservices "
+                            + "and handles authentication via OAuth2 JWT.")
+                    .contact(new Contact().name("COMPTA Team").email("support@compta.tn")))
+            // ✅ Serveurs adaptés selon l'environnement
+            .servers(getServerUrls())
+            // ✅ Configuration du security scheme
+            .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+            .components(
+                new Components()
+                    .addSecuritySchemes(
+                        "bearerAuth",
+                        new SecurityScheme()
+                            .type(SecurityScheme.Type.HTTP)
+                            .scheme("bearer")
+                            .bearerFormat("JWT")
+                            .description("JWT token obtenu via /auth/login")));
 
     return api;
   }
 
   /**
-   * Returns server URLs based on environment.
-   * In production, only the production URL is exposed.
+   * Returns server URLs based on environment. In production, only the production URL is exposed.
    */
   private List<Server> getServerUrls() {
     List<Server> servers = new ArrayList<>();
 
     if (profileHelper.isProduction()) {
-      servers.add(new Server()
-          .url(prodGatewayUrl)
-          .description("Production Gateway"));
+      servers.add(new Server().url(prodGatewayUrl).description("Production Gateway"));
     } else {
-      servers.add(new Server()
-          .url(devGatewayUrl)
-          .description("Development Gateway"));
+      servers.add(new Server().url(devGatewayUrl).description("Development Gateway"));
     }
 
     return servers;
