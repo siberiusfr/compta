@@ -1,6 +1,8 @@
 package tn.cyberious.compta.oauth2.service;
 
+import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -11,8 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import tn.cyberious.compta.contracts.notification.SendPasswordResetEmailPayload;
 import tn.cyberious.compta.oauth2.dto.PasswordResetConfirmRequest;
-import tn.cyberious.compta.oauth2.dto.PasswordResetMessage;
 import tn.cyberious.compta.oauth2.queue.PasswordResetQueuePublisher;
 
 /**
@@ -87,16 +89,15 @@ public class PasswordResetService {
 
     // Build reset link and publish to async queue
     String resetLink = buildResetLink(token);
-    PasswordResetMessage message =
-        PasswordResetMessage.builder()
-            .userId(userId)
-            .email(email)
-            .username(username)
-            .token(token)
-            .resetLink(resetLink)
-            .expiresAt(expiresAt)
-            .build();
-    passwordResetQueuePublisher.publishPasswordResetRequested(message);
+    SendPasswordResetEmailPayload payload = new SendPasswordResetEmailPayload()
+        .withUserId(UUID.fromString(userId))
+        .withEmail(email)
+        .withUsername(username)
+        .withToken(token)
+        .withResetLink(URI.create(resetLink))
+        .withExpiresAt(expiresAt.toInstant(ZoneOffset.UTC))
+        .withLocale(SendPasswordResetEmailPayload.Locale.FR);
+    passwordResetQueuePublisher.publishPasswordResetRequested(payload);
 
     // Log the event
     auditLogService.logAsync(

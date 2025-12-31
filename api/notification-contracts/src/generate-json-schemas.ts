@@ -34,40 +34,47 @@ const OUTPUT_DIR = path.join(__dirname, '..', 'generated', 'json-schemas');
 const JAVA_PACKAGE = 'tn.cyberious.compta.contracts.notification';
 
 // Liste des schemas de messages complets (enveloppe + payload)
+// payloadType indique le nom de la classe Java a utiliser pour le payload
 const messageSchemas = [
   {
     name: 'EmailVerificationRequested',
     schema: EmailVerificationRequestedSchema,
+    payloadType: 'SendVerificationEmailPayload',
     description:
       'Message complet: Demande d\'envoi d\'email de verification (oauth2-server -> notification-service)',
   },
   {
     name: 'PasswordResetRequested',
     schema: PasswordResetRequestedSchema,
+    payloadType: 'SendPasswordResetEmailPayload',
     description:
       'Message complet: Demande d\'envoi d\'email de reset (oauth2-server -> notification-service)',
   },
   {
     name: 'EmailVerificationSent',
     schema: EmailVerificationSentSchema,
+    payloadType: 'EmailVerificationSentPayload',
     description:
       'Message complet: Email de verification envoye (notification-service -> oauth2-server)',
   },
   {
     name: 'EmailVerificationFailed',
     schema: EmailVerificationFailedSchema,
+    payloadType: 'EmailVerificationFailedPayload',
     description:
       'Message complet: Echec d\'envoi email de verification (notification-service -> oauth2-server)',
   },
   {
     name: 'PasswordResetSent',
     schema: PasswordResetSentSchema,
+    payloadType: 'PasswordResetSentPayload',
     description:
       'Message complet: Email de reset envoye (notification-service -> oauth2-server)',
   },
   {
     name: 'PasswordResetFailed',
     schema: PasswordResetFailedSchema,
+    payloadType: 'PasswordResetFailedPayload',
     description:
       'Message complet: Echec d\'envoi email de reset (notification-service -> oauth2-server)',
   },
@@ -131,19 +138,21 @@ function ensureOutputDir(): void {
 
 /**
  * Genere un JSON Schema depuis un schema Zod
+ * @param payloadType Si specifie, ajoute javaType au payload pour referencier la classe Java correspondante
  */
 function generateJsonSchema(
   name: string,
   zodSchema: any,
   description: string,
+  payloadType?: string,
 ): object {
   const jsonSchema = zodToJsonSchema(zodSchema, {
     name,
     $refStrategy: 'none',
-  });
+  }) as any;
 
   // Ajouter des metadonnees pour jsonschema2pojo
-  return {
+  const result: any = {
     $schema: 'http://json-schema.org/draft-07/schema#',
     $id: `${JAVA_PACKAGE}.${name}`,
     title: name,
@@ -151,6 +160,14 @@ function generateJsonSchema(
     javaType: `${JAVA_PACKAGE}.${name}`,
     ...jsonSchema,
   };
+
+  // Si un payloadType est specifie, ajouter javaType au payload
+  // pour que jsonschema2pojo utilise la bonne classe Java
+  if (payloadType && result.definitions?.[name]?.properties?.payload) {
+    result.definitions[name].properties.payload.javaType = `${JAVA_PACKAGE}.${payloadType}`;
+  }
+
+  return result;
 }
 
 /**
@@ -227,9 +244,9 @@ function main(): void {
 
   // Generer chaque schema
   console.log('Generating message schemas (envelope + payload)...');
-  for (const { name, schema, description } of messageSchemas) {
+  for (const { name, schema, description, payloadType } of messageSchemas) {
     try {
-      const jsonSchema = generateJsonSchema(name, schema, description);
+      const jsonSchema = generateJsonSchema(name, schema, description, payloadType);
       writeJsonSchema(name, jsonSchema);
     } catch (error) {
       console.error(`Error generating ${name}:`, error);

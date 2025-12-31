@@ -1,5 +1,6 @@
 package tn.cyberious.compta.oauth2.queue;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -15,13 +16,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import tn.cyberious.compta.oauth2.dto.PasswordResetMessage;
+import tn.cyberious.compta.contracts.notification.PasswordResetRequested;
+import tn.cyberious.compta.contracts.notification.SendPasswordResetEmailPayload;
 
 /**
  * Publisher pour envoyer des messages de reset de mot de passe vers la queue BullMQ.
  *
  * <p>Cette classe publie des jobs compatibles avec BullMQ/NestJS dans Redis. Le format du job
- * respecte la structure attendue par @nestjs/bullmq.
+ * respecte la structure d'enveloppe standard definie dans notification-contracts:
+ * <pre>
+ * {
+ *   "eventId": "uuid",
+ *   "eventType": "PasswordResetRequested",
+ *   "eventVersion": 1,
+ *   "occurredAt": "ISO8601",
+ *   "producer": "oauth2-server",
+ *   "payload": { ... }
+ * }
+ * </pre>
  */
 @Service
 public class PasswordResetQueuePublisher {
@@ -29,8 +41,11 @@ public class PasswordResetQueuePublisher {
   private static final Logger log = LoggerFactory.getLogger(PasswordResetQueuePublisher.class);
 
   private static final String QUEUE_NAME = "password-reset";
-  private static final String JOB_NAME = "password-reset-requested";
+  private static final String JOB_NAME = "send-password-reset-email";
   private static final String BULL_PREFIX = "bull";
+  private static final String PRODUCER = "oauth2-server";
+  private static final String EVENT_TYPE = "PasswordResetRequested";
+  private static final int EVENT_VERSION = 1;
 
   private final StringRedisTemplate redisTemplate;
   private final ObjectMapper objectMapper;
@@ -48,18 +63,30 @@ public class PasswordResetQueuePublisher {
   /**
    * Publie un message de demande de reset de mot de passe dans la queue BullMQ.
    *
-   * @param message le message contenant les informations de reset
-   * @return l'ID du job cree
+   * @param payload le payload contenant les informations de reset
+   * @return l'ID de l'evenement (eventId)
    * @throws RuntimeException si la publication echoue ou si Redis est indisponible
    */
-  public String publishPasswordResetRequested(PasswordResetMessage message) {
+  public String publishPasswordResetRequested(SendPasswordResetEmailPayload payload) {
     if (!queueEnabled) {
       log.warn("Queue is disabled, password reset message will not be published");
       throw new IllegalStateException("Notification queue is disabled");
     }
 
     try {
-      String jobId = generateJobId();
+      // Generer l'eventId
+      UUID eventId = UUID.randomUUID();
+      String jobId = eventId.toString().replace("-", "").substring(0, 16);
+
+      // Creer le message avec enveloppe standard
+      PasswordResetRequested message = new PasswordResetRequested()
+          .withEventId(eventId)
+          .withEventType(EVENT_TYPE)
+          .withEventVersion(EVENT_VERSION)
+          .withOccurredAt(Instant.now())
+          .withProducer(PasswordResetRequested.Producer.OAUTH_2_SERVER)
+          .withPayload(payload);
+
       String queueKey = BULL_PREFIX + ":" + QUEUE_NAME;
 
       // Creer la structure du job BullMQ
@@ -87,12 +114,14 @@ public class PasswordResetQueuePublisher {
       redisTemplate.convertAndSend(eventChannel, jobId);
 
       log.info(
-          "Published password reset job {} for user {} (email: {})",
+          "Published {} (eventId: {}, jobId: {}) for user {} (email: {})",
+          EVENT_TYPE,
+          eventId,
           jobId,
-          message.getUsername(),
-          message.getEmail());
+          payload.getUsername(),
+          payload.getEmail());
 
-      return jobId;
+      return eventId.toString();
     } catch (JsonProcessingException e) {
       log.error("Failed to serialize password reset message", e);
       throw new RuntimeException("Failed to publish password reset message", e);
@@ -103,16 +132,17 @@ public class PasswordResetQueuePublisher {
   }
 
   /**
-   * Cree la structure du job BullMQ.
+   * Cree la structure du job BullMQ avec le message complet (enveloppe + payload).
    *
    * @param jobId l'ID du job
-   * @param message le message de reset
+   * @param message le message avec enveloppe standard
    * @return la map representant le job
    */
-  private Map<String, Object> createBullMQJob(String jobId, PasswordResetMessage message) {
+  private Map<String, Object> createBullMQJob(String jobId, PasswordResetRequested message) {
     Map<String, Object> job = new HashMap<>();
     job.put("id", jobId);
     job.put("name", JOB_NAME);
+    // Le data contient le message complet avec enveloppe
     job.put("data", createJobData(message));
     job.put("opts", createJobOptionsMap());
     job.put("timestamp", System.currentTimeMillis());
@@ -121,20 +151,34 @@ public class PasswordResetQueuePublisher {
   }
 
   /**
-   * Cree les donnees du job a partir du message.
+   * Cree les donnees du job avec le format d'enveloppe standard.
    *
-   * @param message le message de reset
+   * @param message le message avec enveloppe
    * @return la map des donnees
    */
-  private Map<String, Object> createJobData(PasswordResetMessage message) {
+  private Map<String, Object> createJobData(PasswordResetRequested message) {
     Map<String, Object> data = new HashMap<>();
-    data.put("userId", message.getUserId());
-    data.put("email", message.getEmail());
-    data.put("username", message.getUsername());
-    data.put("token", message.getToken());
-    data.put("resetLink", message.getResetLink());
-    data.put(
-        "expiresAt", message.getExpiresAt() != null ? message.getExpiresAt().toString() : null);
+
+    // Enveloppe standard
+    data.put("eventId", message.getEventId().toString());
+    data.put("eventType", message.getEventType());
+    data.put("eventVersion", message.getEventVersion());
+    data.put("occurredAt", message.getOccurredAt().toString());
+    data.put("producer", PRODUCER);
+
+    // Payload
+    Map<String, Object> payload = new HashMap<>();
+    SendPasswordResetEmailPayload p = message.getPayload();
+    payload.put("userId", p.getUserId().toString());
+    payload.put("email", p.getEmail());
+    payload.put("username", p.getUsername());
+    payload.put("token", p.getToken());
+    payload.put("resetLink", p.getResetLink().toString());
+    payload.put("expiresAt", p.getExpiresAt().toString());
+    payload.put("locale", p.getLocale() != null ? p.getLocale().value() : "fr");
+
+    data.put("payload", payload);
+
     return data;
   }
 
@@ -170,12 +214,4 @@ public class PasswordResetQueuePublisher {
     return opts;
   }
 
-  /**
-   * Genere un ID unique pour le job.
-   *
-   * @return l'ID du job
-   */
-  private String generateJobId() {
-    return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-  }
 }

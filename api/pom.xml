@@ -1,11 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.5.9</version>
-    <relativePath/>
+    <relativePath />
   </parent>
   <groupId>tn.cyberious.compta</groupId>
   <artifactId>api</artifactId>
@@ -27,7 +31,6 @@
   </modules>
   <properties>
     <java.version>21</java.version>
-    <spring-boot.version>3.5.8</spring-boot.version>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -240,6 +243,31 @@
           </dependencies>
         </plugin>
         <plugin>
+          <groupId>org.flywaydb</groupId>
+          <artifactId>flyway-maven-plugin</artifactId>
+          <version>11.20.0</version>
+          <configuration>
+            <url>${jooq.generator.db.url}</url>
+            <user>${jooq.generator.db.username}</user>
+            <password>${jooq.generator.db.password}</password>
+            <schemas>
+              <schema>${jooq.generator.db.schema}</schema>
+            </schemas>
+            <defaultSchema>${jooq.generator.db.schema}</defaultSchema>
+            <createSchemas>true</createSchemas>
+            <locations>
+              <location>classpath:db/migration</location>
+            </locations>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.postgresql</groupId>
+              <artifactId>postgresql</artifactId>
+              <version>${postgresql.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
           <groupId>org.jooq</groupId>
           <artifactId>jooq-codegen-maven</artifactId>
           <configuration>
@@ -341,10 +369,10 @@
               <order>java|javax,org,com,\#</order>
             </importOrder>
             <!-- Supprime les imports inutilisés -->
-            <removeUnusedImports/>
+            <removeUnusedImports />
             <!-- Nettoyage des espaces -->
-            <trimTrailingWhitespace/>
-            <endWithNewline/>
+            <trimTrailingWhitespace />
+            <endWithNewline />
           </java>
 
           <!-- ========== SQL ========== -->
@@ -405,7 +433,7 @@
             <includes>
               <include>pom.xml</include>
             </includes>
-            <sortPom/>
+            <sortPom />
           </pom>
         </configuration>
 

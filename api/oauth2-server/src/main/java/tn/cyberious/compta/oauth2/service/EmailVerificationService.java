@@ -1,6 +1,9 @@
 package tn.cyberious.compta.oauth2.service;
 
+import java.net.URI;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -11,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import tn.cyberious.compta.oauth2.dto.EmailVerificationMessage;
+import tn.cyberious.compta.contracts.notification.SendVerificationEmailPayload;
 import tn.cyberious.compta.oauth2.queue.EmailVerificationQueuePublisher;
 
 /**
@@ -87,16 +90,15 @@ public class EmailVerificationService {
 
     // Build verification link and publish to async queue
     String verificationLink = buildVerificationLink(token);
-    EmailVerificationMessage message =
-        EmailVerificationMessage.builder()
-            .userId(userId)
-            .email(email)
-            .username(username)
-            .token(token)
-            .verificationLink(verificationLink)
-            .expiresAt(expiresAt)
-            .build();
-    emailVerificationQueuePublisher.publishEmailVerificationRequested(message);
+    SendVerificationEmailPayload payload = new SendVerificationEmailPayload()
+        .withUserId(UUID.fromString(userId))
+        .withEmail(email)
+        .withUsername(username)
+        .withToken(token)
+        .withVerificationLink(URI.create(verificationLink))
+        .withExpiresAt(expiresAt.toInstant(ZoneOffset.UTC))
+        .withLocale(SendVerificationEmailPayload.Locale.FR);
+    emailVerificationQueuePublisher.publishEmailVerificationRequested(payload);
 
     // Log the event
     auditLogService.logAsync(

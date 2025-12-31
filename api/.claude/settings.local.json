@@ -41,7 +41,13 @@
       "Bash(npm install)",
       "Bash(npm run generate:schemas:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run build:all:*)"
+      "Bash(npm run build:all:*)",
+      "Bash(del \"C:\\\\dev\\\\compta\\\\api\\\\oauth2-server\\\\src\\\\main\\\\java\\\\tn\\\\cyberious\\\\compta\\\\oauth2\\\\dto\\\\EmailVerificationMessage.java\")",
+      "Bash(cmd /c del \"C:\\\\dev\\\\compta\\\\api\\\\oauth2-server\\\\src\\\\main\\\\java\\\\tn\\\\cyberious\\\\compta\\\\oauth2\\\\dto\\\\EmailVerificationMessage.java\")",
+      "Bash(cmd /c del \"C:\\\\dev\\\\compta\\\\api\\\\oauth2-server\\\\src\\\\main\\\\java\\\\tn\\\\cyberious\\\\compta\\\\oauth2\\\\dto\\\\PasswordResetMessage.java\")",
+      "Bash(pnpm run build:*)",
+      "Bash(pnpm install:*)",
+      "Bash(mvn install:*)"
     ]
   }
 }

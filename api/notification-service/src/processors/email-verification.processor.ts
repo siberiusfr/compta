@@ -2,13 +2,13 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
-import * as mjml from 'mjml';
+import mjml from 'mjml';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
   QueueNames,
-  SendVerificationEmailJob,
-  safeParseSendVerificationEmailJob,
+  EmailVerificationRequested,
+  safeParseEmailVerificationRequested,
 } from '@compta/notification-contracts';
 
 /**
@@ -17,7 +17,17 @@ import {
  * Consomme les messages de la queue 'email-verification' publies par oauth2-server
  * et envoie les emails de verification via SMTP.
  *
- * @see {@link SendVerificationEmailJob} pour le schema du payload (defini dans @compta/notification-contracts)
+ * Le format du message suit l'enveloppe standard:
+ * {
+ *   eventId: "uuid",
+ *   eventType: "EmailVerificationRequested",
+ *   eventVersion: 1,
+ *   occurredAt: "ISO8601",
+ *   producer: "oauth2-server",
+ *   payload: { userId, email, username, token, verificationLink, expiresAt, locale }
+ * }
+ *
+ * @see {@link EmailVerificationRequested} pour le schema du message (defini dans @compta/notification-contracts)
  */
 @Processor(QueueNames.EMAIL_VERIFICATION)
 export class EmailVerificationProcessor extends WorkerHost {
@@ -31,14 +41,14 @@ export class EmailVerificationProcessor extends WorkerHost {
   /**
    * Traite un job de demande de verification d'email.
    *
-   * @param job Le job BullMQ contenant les donnees de verification
+   * @param job Le job BullMQ contenant le message avec enveloppe
    * @returns Le resultat de l'envoi d'email
    */
   async process(
-    job: Job<SendVerificationEmailJob, any, string>,
+    job: Job<EmailVerificationRequested, any, string>,
   ): Promise<any> {
-    // Valider le payload avec Zod
-    const parseResult = safeParseSendVerificationEmailJob(job.data);
+    // Valider le message complet (enveloppe + payload) avec Zod
+    const parseResult = safeParseEmailVerificationRequested(job.data);
     if (!parseResult.success) {
       this.logger.error(
         `Invalid job payload for job ${job.id}: ${parseResult.error.message}`,
@@ -46,7 +56,12 @@ export class EmailVerificationProcessor extends WorkerHost {
       throw new Error(`Invalid job payload: ${parseResult.error.message}`);
     }
 
-    const { email, username, verificationLink, expiresAt, userId } = parseResult.data;
+    const { eventId, eventType, producer, payload } = parseResult.data;
+    const { email, username, verificationLink, expiresAt, userId, locale } = payload;
+
+    this.logger.debug(
+      `Processing ${eventType} (eventId: ${eventId}) from ${producer}`,
+    );
 
     this.logger.log(
       `Processing email verification job ${job.id} for user ${username} (${email})`,
@@ -68,11 +83,12 @@ export class EmailVerificationProcessor extends WorkerHost {
       });
 
       this.logger.log(
-        `Successfully sent verification email to ${email} (job ${job.id}, messageId: ${result?.messageId})`,
+        `Successfully sent verification email to ${email} (job ${job.id}, eventId: ${eventId}, messageId: ${result?.messageId})`,
       );
 
       return {
         success: true,
+        eventId,
         messageId: result?.messageId,
         userId,
         email,
