@@ -1,12 +1,14 @@
 package tn.compta.commons.security.config;
 
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.method.HandlerMethod;
+
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import tn.compta.commons.security.annotation.AuthenticatedUser;
 
 /**

@@ -1,12 +1,14 @@
 package tn.cyberious.compta.auth.security;
 
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.auth.enums.Role;
 import tn.cyberious.compta.auth.generated.tables.pojos.Users;
 import tn.cyberious.compta.auth.repository.UserRepository;

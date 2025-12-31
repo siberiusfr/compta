@@ -1,14 +1,16 @@
 package tn.cyberious.compta.authz.repository;
 
-import static tn.cyberious.compta.authz.generated.Tables.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
+
+import static tn.cyberious.compta.authz.generated.Tables.*;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.authz.generated.tables.pojos.Employees;
 import tn.cyberious.compta.authz.generated.tables.records.EmployeesRecord;
 

@@ -1,16 +1,18 @@
 package tn.compta.commons.security.interceptor;
 
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.web.method.HandlerMethod;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.web.method.HandlerMethod;
 import tn.compta.commons.security.annotation.Public;
 import tn.compta.commons.security.annotation.RequireRole;
 import tn.compta.commons.security.context.SecurityContext;

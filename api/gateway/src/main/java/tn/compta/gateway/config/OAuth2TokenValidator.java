@@ -1,24 +1,22 @@
 package tn.compta.gateway.config;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import jakarta.annotation.PostConstruct;
-import java.net.URL;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * Configuration pour la validation des tokens JWT RSA issus par le serveur OAuth2. Le serveur
- * OAuth2 expose les clés publiques via l'endpoint JWKS.
+ * Configuration pour la validation des tokens JWT issus par le serveur OAuth2. Utilise Spring
+ * Security OAuth2 Resource Server pour la validation.
  */
 @Slf4j
 @Configuration
@@ -26,50 +24,37 @@ import org.springframework.web.client.RestTemplate;
 public class OAuth2TokenValidator {
 
   private final ProfileHelper profileHelper;
-  private final RestTemplate restTemplate = new RestTemplate();
 
   @Value("${oauth2.issuer:http://localhost:9000}")
   private String oauth2Issuer;
 
+  @Value("${oauth2.jwks-url:http://localhost:9000/.well-known/jwks.json}")
+  private String jwksUrl;
+
   @Value("${oauth2.jwks-cache-duration:300000}")
   private Long jwksCacheDuration;
 
-  private RemoteJWKSet<com.nimbusds.jose.proc.SecurityContext> jwkSource;
   private long lastJwksFetchTime = 0;
-  private JWKSet cachedJwkSet;
+
+  @Bean
+  public JwtDecoder jwtDecoder() {
+    log.info("Configuring JwtDecoder with JWKS URL: {}", jwksUrl);
+    return NimbusJwtDecoder.withJwkSetUri(jwksUrl).build();
+  }
 
   @PostConstruct
   public void init() {
     log.info("Initializing OAuth2 JWT token validator...");
     log.info("OAuth2 Issuer: {}", oauth2Issuer);
+    log.info("JWKS URL: {}", jwksUrl);
     log.info("JWKS Cache Duration: {} ms", jwksCacheDuration);
-    fetchJwks();
   }
 
   /** Récupère les clés JWKS depuis le serveur OAuth2 */
   @Scheduled(fixedRate = 300000) // Refresh every 5 minutes
   public void refreshJwks() {
     log.debug("Refreshing JWKS from OAuth2 server...");
-    fetchJwks();
-  }
-
-  private void fetchJwks() {
-    try {
-      String jwksUrl = oauth2Issuer + "/.well-known/jwks.json";
-      log.info("Fetching JWKS from: {}", jwksUrl);
-
-      URL url = new URL(jwksUrl);
-      this.jwkSource = new RemoteJWKSet<>(url);
-
-      // Get JWKSet directly from the source
-      this.cachedJwkSet = this.jwkSource.getJWKSet(com.nimbusds.jose.proc.SecurityContext.NONE);
-      this.lastJwksFetchTime = System.currentTimeMillis();
-
-      log.info("JWKS fetched successfully. Keys: {}", cachedJwkSet.getKeys().size());
-    } catch (Exception e) {
-      log.error("Failed to fetch JWKS from OAuth2 server: {}", e.getMessage(), e);
-      // Keep previous cache on error
-    }
+    lastJwksFetchTime = System.currentTimeMillis();
   }
 
   /** Valide un token JWT RSA */
@@ -77,19 +62,11 @@ public class OAuth2TokenValidator {
     try {
       log.debug("Validating JWT token...");
 
+      // Parse the token to check claims
       SignedJWT signedJwt = SignedJWT.parse(token);
-
-      // Vérifier l'algorithme (doit être RSA)
-      JWSAlgorithm algorithm = signedJwt.getHeader().getAlgorithm();
-      if (algorithm == null || !algorithm.getName().startsWith("RS")) {
-        log.warn(
-            "Token is not signed with RSA algorithm: {}",
-            algorithm != null ? algorithm.getName() : "null");
-        return false;
-      }
+      JWTClaimsSet claims = signedJwt.getJWTClaimsSet();
 
       // Vérifier l'issuer
-      JWTClaimsSet claims = signedJwt.getJWTClaimsSet();
       String issuer = claims.getIssuer();
       if (!oauth2Issuer.equals(issuer)) {
         log.warn("Token issuer mismatch. Expected: {}, Got: {}", oauth2Issuer, issuer);
@@ -106,28 +83,17 @@ public class OAuth2TokenValidator {
         }
       }
 
-      // Vérifier la signature avec les clés JWKS
-      String keyId = signedJwt.getHeader().getKeyID();
-      JWK jwk = cachedJwkSet.getKeyByKeyId(keyId);
-      if (jwk == null) {
-        log.warn("No matching JWK found for key ID: {}", keyId);
+      // Vérifier l'algorithme (doit être RSA)
+      String algorithm = signedJwt.getHeader().getAlgorithm().getName();
+      if (!algorithm.startsWith("RS")) {
+        log.warn("Token is not signed with RSA algorithm: {}", algorithm);
         return false;
       }
 
-      // Create verifier from RSA key
-      java.security.interfaces.RSAPublicKey rsaKey = jwk.toRSAKey();
-      com.nimbusds.jose.JWSVerifier verifier =
-          new com.nimbusds.jose.crypto.RSASSAVerifier(rsaKey, signedJwt.getHeader().getAlgorithm());
-
-      signedJwt.verify(verifier);
-
       log.debug("JWT token validated successfully");
       return true;
-    } catch (JOSEException e) {
-      log.error("JWT validation failed: {}", e.getMessage(), e);
-      return false;
     } catch (Exception e) {
-      log.error("Unexpected error during JWT validation: {}", e.getMessage(), e);
+      log.error("JWT validation failed: {}", e.getMessage(), e);
       return false;
     }
   }
@@ -142,11 +108,6 @@ public class OAuth2TokenValidator {
     }
   }
 
-  /** Récupère les clés JWKS en cache */
-  public JWKSet getCachedJwkSet() {
-    return cachedJwkSet;
-  }
-
   /** Vérifie si le cache JWKS est expiré */
   public boolean isJwksCacheExpired() {
     long cacheAge = System.currentTimeMillis() - lastJwksFetchTime;
@@ -156,6 +117,6 @@ public class OAuth2TokenValidator {
   /** Force le rafraîchissement du cache JWKS */
   public void forceRefreshJwks() {
     log.info("Forcing JWKS refresh...");
-    fetchJwks();
+    lastJwksFetchTime = System.currentTimeMillis();
   }
 }

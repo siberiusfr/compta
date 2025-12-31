@@ -1,6 +1,6 @@
 spring:
   application:
-    name: '@project.name@'
+    name: "@project.name@"
 
   # Configuration PostgreSQL
   datasource:
@@ -34,7 +34,7 @@ sentry:
     module: authz
 
 project:
-  version: '@project.version@'
+  version: "@project.version@"
 
 # Configuration du module de sécurité partagé
 compta:

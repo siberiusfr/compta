@@ -3,12 +3,14 @@ package tn.cyberious.compta.oauth2.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.jooq.DSLContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.oauth2.dto.ChangePasswordRequest;
 import tn.cyberious.compta.oauth2.dto.CreateUserRequest;
 import tn.cyberious.compta.oauth2.dto.UpdateUserRequest;

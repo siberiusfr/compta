@@ -2,6 +2,7 @@ package tn.compta.commons.security.context;
 
 import java.io.Serial;
 import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,8 +1,5 @@
 package tn.cyberious.compta.oauth2.service;
 
-import com.nimbusds.jwt.SignedJWT;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -10,6 +7,11 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.nimbusds.jwt.SignedJWT;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.oauth2.jti.TokenBlacklistService;
 
 @Slf4j

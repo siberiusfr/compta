@@ -1,128 +1,124 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
->
-    <modelVersion>4.0.0</modelVersion>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>tn.cyberious.compta</groupId>
-        <artifactId>api</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>tn.cyberious.compta</groupId>
+    <artifactId>api</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
 
-    <artifactId>notification-contracts</artifactId>
-    <packaging>jar</packaging>
-    <name>notification-contracts</name>
-    <description>Contrats AsyncAPI et DTOs partages pour la communication asynchrone entre services</description>
+  <artifactId>notification-contracts</artifactId>
+  <packaging>jar</packaging>
+  <name>notification-contracts</name>
+  <description>Contrats AsyncAPI et DTOs partages pour la communication asynchrone entre services</description>
 
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+  <properties>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
-    <dependencies>
-        <!-- Jackson for JSON serialization -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
+  <dependencies>
+    <!-- Jackson for JSON serialization -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
 
-        <!-- Lombok for boilerplate reduction -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-    </dependencies>
+    <!-- Lombok for boilerplate reduction -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
 
-            <!-- jsonschema2pojo: Generate Java classes from JSON Schemas -->
-            <plugin>
-                <groupId>org.jsonschema2pojo</groupId>
-                <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-                <version>1.2.2</version>
-                <configuration>
-                    <sourceDirectory>${basedir}/generated/json-schemas</sourceDirectory>
-                    <targetPackage>tn.cyberious.compta.contracts.notification</targetPackage>
-                    <outputDirectory>${project.build.directory}/generated-sources/jsonschema2pojo</outputDirectory>
-                    <!-- Configuration options -->
-                    <sourceType>jsonschema</sourceType>
-                    <annotationStyle>jackson2</annotationStyle>
-                    <!-- Disable JSR303 - validation is done by Zod on TypeScript side -->
-                    <includeJsr303Annotations>false</includeJsr303Annotations>
-                    <includeJsr305Annotations>false</includeJsr305Annotations>
-                    <useLongIntegers>false</useLongIntegers>
-                    <useDoubleNumbers>false</useDoubleNumbers>
-                    <generateBuilders>true</generateBuilders>
-                    <useInnerClassBuilders>false</useInnerClassBuilders>
-                    <includeConstructors>true</includeConstructors>
-                    <constructorsRequiredPropertiesOnly>false</constructorsRequiredPropertiesOnly>
-                    <includeToString>true</includeToString>
-                    <includeHashcodeAndEquals>true</includeHashcodeAndEquals>
-                    <includeAdditionalProperties>false</includeAdditionalProperties>
-                    <includeDynamicAccessors>false</includeDynamicAccessors>
-                    <usePrimitives>false</usePrimitives>
-                    <dateTimeType>java.time.Instant</dateTimeType>
-                    <dateType>java.time.LocalDate</dateType>
-                    <timeType>java.time.LocalTime</timeType>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>generate-java-from-json-schema</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+      <!-- jsonschema2pojo: Generate Java classes from JSON Schemas -->
+      <plugin>
+        <groupId>org.jsonschema2pojo</groupId>
+        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+        <version>1.2.2</version>
+        <configuration>
+          <sourceDirectory>${basedir}/generated/json-schemas</sourceDirectory>
+          <targetPackage>tn.cyberious.compta.contracts.notification</targetPackage>
+          <outputDirectory>${project.build.directory}/generated-sources/jsonschema2pojo</outputDirectory>
+          <!-- Configuration options -->
+          <sourceType>jsonschema</sourceType>
+          <annotationStyle>jackson2</annotationStyle>
+          <!-- Disable JSR303 - validation is done by Zod on TypeScript side -->
+          <includeJsr303Annotations>false</includeJsr303Annotations>
+          <includeJsr305Annotations>false</includeJsr305Annotations>
+          <useLongIntegers>false</useLongIntegers>
+          <useDoubleNumbers>false</useDoubleNumbers>
+          <generateBuilders>true</generateBuilders>
+          <useInnerClassBuilders>false</useInnerClassBuilders>
+          <includeConstructors>true</includeConstructors>
+          <constructorsRequiredPropertiesOnly>false</constructorsRequiredPropertiesOnly>
+          <includeToString>true</includeToString>
+          <includeHashcodeAndEquals>true</includeHashcodeAndEquals>
+          <includeAdditionalProperties>false</includeAdditionalProperties>
+          <includeDynamicAccessors>false</includeDynamicAccessors>
+          <usePrimitives>false</usePrimitives>
+          <dateTimeType>java.time.Instant</dateTimeType>
+          <dateType>java.time.LocalDate</dateType>
+          <timeType>java.time.LocalTime</timeType>
+        </configuration>
+        <executions>
+          <execution>
+            <id>generate-java-from-json-schema</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
 
-            <!-- Add generated sources to compilation -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <id>add-generated-sources</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated-sources/jsonschema2pojo</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+      <!-- Add generated sources to compilation -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>add-generated-sources</id>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources/jsonschema2pojo</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

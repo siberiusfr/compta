@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # ==========================================
@@ -44,7 +44,7 @@ services:
     networks:
       - compta-network
     profiles:
-      - tools  # Démarrer avec: docker-compose --profile tools up
+      - tools # Démarrer avec: docker-compose --profile tools up
 
 volumes:
   redis-data:

@@ -1,12 +1,9 @@
 package tn.cyberious.compta.oauth2.service;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.jooq.DSLContext;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -14,6 +11,12 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.oauth2.dto.IntrospectionResponse;
 import tn.cyberious.compta.oauth2.generated.tables.Users;
 import tn.cyberious.compta.oauth2.generated.tables.records.UsersRecord;

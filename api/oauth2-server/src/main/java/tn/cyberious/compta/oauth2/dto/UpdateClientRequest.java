@@ -1,8 +1,9 @@
 package tn.cyberious.compta.oauth2.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import java.time.Duration;
 import java.util.List;
+
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

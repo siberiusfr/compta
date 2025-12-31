@@ -1,6 +1,5 @@
 package tn.cyberious.compta.auth.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
+
+import lombok.RequiredArgsConstructor;
 import tn.cyberious.compta.auth.security.CustomUserDetailsService;
 import tn.cyberious.compta.auth.security.JwtAuthenticationEntryPoint;
 import tn.cyberious.compta.auth.security.JwtAuthenticationFilter;

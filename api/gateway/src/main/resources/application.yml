@@ -58,7 +58,7 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-                key-resolver: '#{@userKeyResolver}'
+                key-resolver: "#{@userKeyResolver}"
             # ✅ Retry strategy for transient errors
             - name: Retry
               args:
@@ -89,7 +89,7 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 20
                 redis-rate-limiter.burstCapacity: 40
-                key-resolver: '#{@userKeyResolver}'
+                key-resolver: "#{@userKeyResolver}"
             # ✅ Retry strategy for transient errors
             - name: Retry
               args:
@@ -121,7 +121,7 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 15
                 redis-rate-limiter.burstCapacity: 30
-                key-resolver: '#{@userKeyResolver}'
+                key-resolver: "#{@userKeyResolver}"
             # ✅ Retry strategy for transient errors
             - name: Retry
               args:
@@ -153,7 +153,7 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 20
                 redis-rate-limiter.burstCapacity: 40
-                key-resolver: '#{@userKeyResolver}'
+                key-resolver: "#{@userKeyResolver}"
             # ✅ Retry strategy for transient errors
             - name: Retry
               args:
@@ -308,4 +308,4 @@ logging:
     io.github.resilience4j: INFO
     tn.compta.gateway: DEBUG
   pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [traceId=%X{traceId} spanId=%X{spanId}] %msg%n'
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [traceId=%X{traceId} spanId=%X{spanId}] %msg%n"

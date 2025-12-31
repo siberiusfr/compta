@@ -1,6 +1,6 @@
 spring:
   application:
-    name: '@project.name@'
+    name: "@project.name@"
 
   # Configuration PostgreSQL
   datasource:
@@ -31,4 +31,4 @@ sentry:
     module: accounting
 
 project:
-  version: '@project.version@'
+  version: "@project.version@"

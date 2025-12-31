@@ -2,6 +2,7 @@ package tn.cyberious.compta.oauth2.service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import tn.cyberious.compta.oauth2.dto.EmailVerificationMessage;
 import tn.cyberious.compta.oauth2.queue.EmailVerificationQueuePublisher;
 

@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
->
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.5.9</version>
-    <relativePath />
+    <relativePath/>
   </parent>
   <groupId>tn.cyberious.compta</groupId>
   <artifactId>api</artifactId>
@@ -109,11 +105,21 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>spring-milestones</id>
+      <name>Spring Milestones</name>
+      <url>https://repo.spring.io/milestone</url>
+    </repository>
+  </repositories>
   <build>
     <resources>
       <resource>
-        <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <directory>src/main/resources</directory>
       </resource>
     </resources>
     <pluginManagement>
@@ -168,6 +174,11 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
           <version>${maven-checkstyle-plugin.version}</version>
+          <configuration>
+            <configLocation>checkstyle.xml</configLocation>
+            <consoleOutput>true</consoleOutput>
+            <failsOnError>true</failsOnError>
+          </configuration>
           <dependencies>
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
@@ -175,18 +186,13 @@
               <version>${checkstyle.version}</version>
             </dependency>
           </dependencies>
-          <configuration>
-            <configLocation>checkstyle.xml</configLocation>
-            <consoleOutput>true</consoleOutput>
-            <failsOnError>true</failsOnError>
-          </configuration>
           <executions>
             <execution>
               <id>validate</id>
-              <phase>validate</phase>
               <goals>
                 <goal>check</goal>
               </goals>
+              <phase>validate</phase>
             </execution>
           </executions>
         </plugin>
@@ -202,10 +208,10 @@
             </execution>
             <execution>
               <id>report</id>
-              <phase>test</phase>
               <goals>
                 <goal>report</goal>
               </goals>
+              <phase>test</phase>
             </execution>
           </executions>
         </plugin>
@@ -236,22 +242,6 @@
         <plugin>
           <groupId>org.jooq</groupId>
           <artifactId>jooq-codegen-maven</artifactId>
-          <executions>
-            <execution>
-              <id>jooq-codegen</id>
-              <phase>generate-sources</phase>
-              <goals>
-                <goal>generate</goal>
-              </goals>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>org.postgresql</groupId>
-              <artifactId>postgresql</artifactId>
-              <version>${postgresql.version}</version>
-            </dependency>
-          </dependencies>
           <configuration>
             <jdbc>
               <driver>org.postgresql.Driver</driver>
@@ -283,6 +273,22 @@
               </generate>
             </generator>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.postgresql</groupId>
+              <artifactId>postgresql</artifactId>
+              <version>${postgresql.version}</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <id>jooq-codegen</id>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+              <phase>generate-sources</phase>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -292,10 +298,10 @@
         <artifactId>build-helper-maven-plugin</artifactId>
         <executions>
           <execution>
-            <phase>generate-sources</phase>
             <goals>
               <goal>add-source</goal>
             </goals>
+            <phase>generate-sources</phase>
             <configuration>
               <sources>
                 <source>src/generated/jooq</source>
@@ -313,34 +319,109 @@
         <artifactId>rewrite-maven-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>com.spotify.fmt</groupId>
-        <artifactId>fmt-maven-plugin</artifactId>
-        <version>2.29</version>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+
+          <!-- ========== JAVA ========== -->
+          <java>
+            <!-- Includes par défaut (facultatif, tu peux adapter) -->
+            <includes>
+              <include>src/main/java/**/*.java</include>
+              <include>src/test/java/**/*.java</include>
+            </includes>
+            <!-- Formatter Google Java Format -->
+            <googleJavaFormat>
+              <version>1.33.0</version>
+              <style>GOOGLE</style>
+            </googleJavaFormat>
+            <!-- Tri des imports -->
+            <importOrder>
+              <order>java|javax,org,com,\#</order>
+            </importOrder>
+            <!-- Supprime les imports inutilisés -->
+            <removeUnusedImports/>
+            <!-- Nettoyage des espaces -->
+            <trimTrailingWhitespace/>
+            <endWithNewline/>
+          </java>
+
+          <!-- ========== SQL ========== -->
+          <sql>
+            <!-- Spotless demande de définir soi-même les cibles pour SQL -->
+            <includes>
+              <include>src/main/resources/**/*.sql</include>
+              <include>src/test/resources/**/*.sql</include>
+            </includes>
+            <!-- Formatter DBeaver (formateur SQL intégré) -->
+            <dbeaver>
+              <!-- configFile est optionnel : si tu l'omets, la config par défaut est utilisée -->
+              <!-- <configFile>dbeaver.properties</configFile> -->
+            </dbeaver>
+          </sql>
+
+          <!-- ========== YAML / YML ========== -->
+          <yaml>
+            <!-- Pour YAML, Spotless attend que tu définisses la cible -->
+            <includes>
+              <include>src/**/*.yaml</include>
+              <include>src/**/*.yml</include>
+              <include>*.yml</include>
+              <include>*.yaml</include>
+            </includes>
+            <!-- Formatter Prettier pour YAML -->
+            <prettier>
+              <!-- Version de Prettier (optionnel, adapte si besoin) -->
+              <prettierVersion>2.8.8</prettierVersion>
+            </prettier>
+          </yaml>
+
+          <!-- ========== XML (+ XSD) via format générique et Eclipse WTP ========== -->
+          <formats>
+            <!-- Format dédié à XML / XSD -->
+            <format>
+              <includes>
+                <include>src/**/resources/**/*.xml</include>
+                <include>src/**/resources/**/*.xsd</include>
+              </includes>
+
+              <!-- Exclusions -->
+
+              <!-- Formatter Eclipse WTP de type XML -->
+              <eclipseWtp>
+                <type>XML</type>
+                <!-- type de formatter -->
+                <!-- Pour utiliser la config par défaut d'Eclipse, tu peux omit <files> -->
+                <!-- <files> -->
+                <!--     <file>${project.basedir}/xml.prefs</file> -->
+                <!-- </files> -->
+                <version>4.21.0</version>
+                <!-- version Eclipse (optionnel) -->
+              </eclipseWtp>
+            </format>
+          </formats>
+          <pom>
+            <includes>
+              <include>pom.xml</include>
+            </includes>
+            <sortPom/>
+          </pom>
+        </configuration>
+
+        <!-- (Optionnel) Lier le check à une phase de build, par exemple verify -->
+        <!--
         <executions>
-          <execution>
-            <goals>
-              <goal>format</goal>
-            </goals>
-          </execution>
+            <execution>
+                <id>spotless-check</id>
+                <goals>
+                    <goal>check</goal>
+                </goals>
+                <phase>verify</phase>
+            </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>com.google.googlejavaformat</groupId>
-            <artifactId>google-java-format</artifactId>
-            <version>1.33.0</version>
-          </dependency>
-        </dependencies>
+        -->
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <id>spring-milestones</id>
-      <name>Spring Milestones</name>
-      <url>https://repo.spring.io/milestone</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 </project>

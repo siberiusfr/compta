@@ -12,7 +12,7 @@ spring:
           args:
             redis-rate-limiter.replenishRate: 1000 # Plus permissif en dev
             redis-rate-limiter.burstCapacity: 2000
-            key-resolver: '#{@userKeyResolver}'
+            key-resolver: "#{@userKeyResolver}"
 
 # Development service URLs (localhost)
 AUTH_SERVICE_URL: http://localhost:8081
@@ -51,7 +51,7 @@ logging:
     reactor.netty.http.client: DEBUG
     tn.compta.gateway: DEBUG
   pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [traceId=%X{traceId} spanId=%X{spanId}] %msg%n'
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [traceId=%X{traceId} spanId=%X{spanId}] %msg%n"
 
 # Show detailed actuator info
 management:
@@ -61,7 +61,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*' # Expose all endpoints in dev
+        include: "*" # Expose all endpoints in dev
   # Full tracing in dev
   tracing:
     sampling:

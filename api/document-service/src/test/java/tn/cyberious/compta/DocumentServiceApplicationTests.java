@@ -1,6 +1,7 @@
 package tn.cyberious.compta;
 
 import org.junit.jupiter.api.Test;
+
 import tn.cyberious.compta.test.AbstractIntegrationTest;
 
 class DocumentServiceApplicationTests extends AbstractIntegrationTest {
