@@ -2,6 +2,65 @@
 
 Documentation des contrats de communication asynchrone entre `oauth2-server` (Spring Boot) et `notification-service` (NestJS) via Redis/BullMQ.
 
+## Source de Verite: Schemas Zod
+
+Les contrats sont definis en TypeScript avec **Zod** dans `src/email-contracts.ts`. Ce fichier est la source de verite unique pour:
+- **notification-service** (NestJS): Import direct des schemas Zod pour validation runtime
+- **oauth2-server** (Spring Boot): Generation de classes Java via JSON Schema
+
+```
+notification-contracts/
+├── src/
+│   ├── email-contracts.ts        # Source de verite (Zod schemas)
+│   ├── generate-json-schemas.ts  # Script de generation JSON Schema
+│   └── index.ts                  # Re-exports publics
+├── scripts/
+│   └── generate-java.sh          # Script de generation Java
+├── generated/
+│   └── json-schemas/             # JSON Schemas generes
+├── package.json                  # TypeScript/Zod dependencies
+└── pom.xml                       # Maven avec jsonschema2pojo
+```
+
+## Workflow de Generation
+
+### 1. Modifier les contrats
+Editer `src/email-contracts.ts` pour ajouter/modifier des schemas.
+
+### 2. Generer les JSON Schemas
+```bash
+cd notification-contracts
+npm run generate:schemas
+```
+
+### 3. Generer les classes Java
+```bash
+npm run generate:java
+# ou
+mvn generate-sources
+```
+
+### 4. Importer dans les projets
+
+**notification-service (TypeScript)**:
+```typescript
+import {
+  QueueNames,
+  SendVerificationEmailJob,
+  safeParseSendVerificationEmailJob,
+} from '@compta/notification-contracts';
+```
+
+**oauth2-server (Java)** - via dependency Maven:
+```xml
+<dependency>
+  <groupId>tn.cyberious.compta</groupId>
+  <artifactId>notification-contracts</artifactId>
+</dependency>
+```
+
+---
+
 ## Architecture
 
 ```
@@ -37,6 +96,15 @@ oauth2-server (Spring Boot)
 | `email-verification` | oauth2-server | notification-service | 24 heures |
 | `password-reset` | oauth2-server | notification-service | 1 heure |
 
+### Constantes TypeScript
+
+```typescript
+import { QueueNames } from '@compta/notification-contracts';
+
+QueueNames.EMAIL_VERIFICATION  // 'email-verification'
+QueueNames.PASSWORD_RESET      // 'password-reset'
+```
+
 ### Format Redis
 
 Les queues utilisent le prefixe `bull:` dans Redis:
@@ -45,37 +113,29 @@ Les queues utilisent le prefixe `bull:` dans Redis:
 
 ---
 
-## Queue: email-verification
+## Schemas Zod
 
-### Description
-Demande de verification d'adresse email lors de l'inscription d'un utilisateur.
+### SendVerificationEmailJob
 
-### Producer (oauth2-server)
-
-**Classe**: `EmailVerificationQueuePublisher.java`
-
-```java
-@Service
-public class EmailVerificationQueuePublisher {
-    public String publishEmailVerificationRequested(EmailVerificationMessage message);
-}
-```
-
-**Declencheur**: `EmailVerificationService.initiateEmailVerification()`
-
-### Consumer (notification-service)
-
-**Classe**: `email-verification.processor.ts`
+Job de demande d'envoi d'email de verification.
 
 ```typescript
-@Processor('email-verification')
-export class EmailVerificationProcessor extends WorkerHost {
-    async process(job: Job<EmailVerificationPayload>): Promise<any>;
-}
+import { z } from 'zod';
+
+export const SendVerificationEmailJobSchema = z.object({
+  userId: z.string().uuid(),
+  email: z.string().email(),
+  username: z.string().min(1).max(255),
+  token: z.string().min(32).max(64),
+  verificationLink: z.string().url(),
+  expiresAt: z.string().datetime(),
+  locale: z.enum(['fr', 'en', 'ar']).default('fr'),
+});
+
+export type SendVerificationEmailJob = z.infer<typeof SendVerificationEmailJobSchema>;
 ```
 
-### Payload
-
+**Exemple de payload**:
 ```json
 {
   "userId": "550e8400-e29b-41d4-a716-446655440000",
@@ -83,7 +143,8 @@ export class EmailVerificationProcessor extends WorkerHost {
   "username": "jean.dupont",
   "token": "abc123def456ghi789jkl012mno345pqr",
   "verificationLink": "https://app.compta.tn/verify-email?token=abc123def456ghi789jkl012mno345pqr",
-  "expiresAt": "2025-01-02T12:00:00"
+  "expiresAt": "2025-01-02T12:00:00Z",
+  "locale": "fr"
 }
 ```
 
@@ -95,51 +156,27 @@ export class EmailVerificationProcessor extends WorkerHost {
 | `token` | string | Token de verification unique | Required, 32-64 chars |
 | `verificationLink` | string | URL complete de verification | Required, format URI |
 | `expiresAt` | ISO 8601 | Date d'expiration (24h apres creation) | Required |
+| `locale` | enum | Langue du template | Optional, default: 'fr' |
 
-### Template Email
+### SendPasswordResetEmailJob
 
-**Fichier**: `src/templates/email-verification.mjml`
-
-**Variables disponibles**:
-- `{{username}}` - Nom d'utilisateur
-- `{{verificationLink}}` - Lien de verification
-- `{{expiresAt}}` - Date d'expiration formatee
-
-**Sujet**: `Verification de votre adresse email - COMPTA`
-
----
-
-## Queue: password-reset
-
-### Description
-Demande de reinitialisation de mot de passe.
-
-### Producer (oauth2-server)
-
-**Classe**: `PasswordResetQueuePublisher.java`
-
-```java
-@Service
-public class PasswordResetQueuePublisher {
-    public String publishPasswordResetRequested(PasswordResetMessage message);
-}
-```
-
-**Declencheur**: `PasswordResetService.initiatePasswordReset()`
-
-### Consumer (notification-service)
-
-**Classe**: `password-reset.processor.ts`
+Job de demande d'envoi d'email de reset de mot de passe.
 
 ```typescript
-@Processor('password-reset')
-export class PasswordResetProcessor extends WorkerHost {
-    async process(job: Job<PasswordResetPayload>): Promise<any>;
-}
+export const SendPasswordResetEmailJobSchema = z.object({
+  userId: z.string().uuid(),
+  email: z.string().email(),
+  username: z.string().min(1).max(255),
+  token: z.string().min(32).max(64),
+  resetLink: z.string().url(),
+  expiresAt: z.string().datetime(),
+  locale: z.enum(['fr', 'en', 'ar']).default('fr'),
+});
+
+export type SendPasswordResetEmailJob = z.infer<typeof SendPasswordResetEmailJobSchema>;
 ```
 
-### Payload
-
+**Exemple de payload**:
 ```json
 {
   "userId": "550e8400-e29b-41d4-a716-446655440000",
@@ -147,29 +184,92 @@ export class PasswordResetProcessor extends WorkerHost {
   "username": "jean.dupont",
   "token": "xyz789abc456def123ghi012jkl345mno",
   "resetLink": "https://app.compta.tn/reset-password?token=xyz789abc456def123ghi012jkl345mno",
-  "expiresAt": "2025-01-01T13:00:00"
+  "expiresAt": "2025-01-01T13:00:00Z",
+  "locale": "fr"
 }
 ```
 
-| Champ | Type | Description | Contraintes |
-|-------|------|-------------|-------------|
-| `userId` | UUID | Identifiant unique de l'utilisateur | Required |
-| `email` | string | Adresse email de l'utilisateur | Required, format email |
-| `username` | string | Nom d'utilisateur | Required, 1-255 chars |
-| `token` | string | Token de reset unique | Required, 32-64 chars |
-| `resetLink` | string | URL complete de reset | Required, format URI |
-| `expiresAt` | ISO 8601 | Date d'expiration (1h apres creation) | Required |
+---
 
-### Template Email
+## Events de Retour
 
-**Fichier**: `src/templates/password-reset.mjml`
+Schemas pour les events de retour notification-service -> oauth2-server (optionnel).
 
-**Variables disponibles**:
-- `{{username}}` - Nom d'utilisateur
-- `{{resetLink}}` - Lien de reinitialisation
-- `{{expiresAt}}` - Date d'expiration formatee
+### EmailVerificationSentEvent
 
-**Sujet**: `Reinitialisation de votre mot de passe - COMPTA`
+```typescript
+export const EmailVerificationSentEventSchema = z.object({
+  jobId: z.string().min(1),
+  userId: z.string().uuid(),
+  email: z.string().email(),
+  messageId: z.string().optional(),
+  sentAt: z.string().datetime(),
+});
+```
+
+### EmailVerificationFailedEvent
+
+```typescript
+export const EmailVerificationFailedEventSchema = z.object({
+  jobId: z.string().min(1),
+  userId: z.string().uuid(),
+  email: z.string().email(),
+  errorCode: z.string().optional(),
+  errorMessage: z.string(),
+  attemptsMade: z.number().int().min(1),
+  failedAt: z.string().datetime(),
+});
+```
+
+### PasswordResetSentEvent / PasswordResetFailedEvent
+
+Schemas similaires pour le password reset.
+
+---
+
+## Validation Runtime
+
+### TypeScript (notification-service)
+
+```typescript
+import {
+  safeParseSendVerificationEmailJob,
+  validateSendVerificationEmailJob,
+} from '@compta/notification-contracts';
+
+// Safe parse (retourne success/error)
+const result = safeParseSendVerificationEmailJob(job.data);
+if (!result.success) {
+  console.error('Invalid payload:', result.error.message);
+}
+
+// Validation stricte (throw si invalide)
+const validData = validateSendVerificationEmailJob(job.data);
+```
+
+### Java (oauth2-server)
+
+Les classes Java generees incluent les annotations Jakarta Validation:
+
+```java
+import tn.cyberious.compta.contracts.notification.SendVerificationEmailJob;
+import jakarta.validation.constraints.*;
+
+public class SendVerificationEmailJob {
+    @NotNull
+    private String userId;
+
+    @Email
+    @NotNull
+    private String email;
+
+    @Size(min = 1, max = 255)
+    @NotNull
+    private String username;
+
+    // ...
+}
+```
 
 ---
 
@@ -177,18 +277,16 @@ export class PasswordResetProcessor extends WorkerHost {
 
 ### Options des Jobs
 
-Tous les jobs sont configures avec les options suivantes:
-
-```json
-{
-  "attempts": 3,
-  "removeOnComplete": true,
-  "removeOnFail": false,
-  "backoff": {
-    "type": "exponential",
-    "delay": 1000
-  }
-}
+```typescript
+export const DefaultJobOptions = {
+  attempts: 3,
+  removeOnComplete: true,
+  removeOnFail: false,
+  backoff: {
+    type: 'exponential',
+    delay: 1000,
+  },
+};
 ```
 
 | Option | Valeur | Description |
@@ -199,25 +297,31 @@ Tous les jobs sont configures avec les options suivantes:
 | `backoff.type` | exponential | Delai exponentiel entre retries |
 | `backoff.delay` | 1000ms | Delai initial (1s, 2s, 4s...) |
 
-### Structure Redis du Job
+---
 
-Chaque job est stocke dans Redis avec la structure suivante:
+## Templates Email
 
-```
-bull:{queue-name}:{job-id}
-├── data      → JSON du payload complet
-├── name      → Nom du job (ex: "email-verification-requested")
-├── opts      → Options JSON
-├── timestamp → Timestamp de creation (ms)
-├── attemptsMade → Nombre de tentatives effectuees
-├── processedOn  → Timestamp de debut de traitement
-└── finishedOn   → Timestamp de fin de traitement
-```
+### email-verification.mjml
 
-La liste d'attente:
-```
-bull:{queue-name}:wait → Liste des job IDs en attente
-```
+**Fichier**: `notification-service/src/templates/email-verification.mjml`
+
+**Variables disponibles**:
+- `{{username}}` - Nom d'utilisateur
+- `{{verificationLink}}` - Lien de verification
+- `{{expiresAt}}` - Date d'expiration formatee
+
+**Sujet**: `Verification de votre adresse email - COMPTA`
+
+### password-reset.mjml
+
+**Fichier**: `notification-service/src/templates/password-reset.mjml`
+
+**Variables disponibles**:
+- `{{username}}` - Nom d'utilisateur
+- `{{resetLink}}` - Lien de reinitialisation
+- `{{expiresAt}}` - Date d'expiration formatee
+
+**Sujet**: `Reinitialisation de votre mot de passe - COMPTA`
 
 ---
 
@@ -241,37 +345,6 @@ Permet de:
 
 ---
 
-## Configuration
-
-### oauth2-server (application.yml)
-
-```yaml
-spring:
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-
-notification:
-  queue:
-    enabled: ${NOTIFICATION_QUEUE_ENABLED:true}
-```
-
-### notification-service (app.module.ts)
-
-```typescript
-BullModule.forRoot({
-  connection: {
-    host: 'localhost',
-    port: 6379,
-  },
-}),
-BullModule.registerQueue({ name: 'email-verification' }),
-BullModule.registerQueue({ name: 'password-reset' }),
-```
-
----
-
 ## Gestion des Erreurs
 
 ### Cote Producer (oauth2-server)
@@ -287,85 +360,6 @@ En cas d'echec d'envoi SMTP:
 1. Le job est retente jusqu'a 3 fois (backoff exponentiel)
 2. Apres 3 echecs, le job reste dans la queue "failed"
 3. Les erreurs sont loggees avec stack trace complete
-
----
-
-## Types TypeScript
-
-### EmailVerificationPayload
-
-```typescript
-interface EmailVerificationPayload {
-  userId: string;
-  email: string;
-  username: string;
-  token: string;
-  verificationLink: string;
-  expiresAt: string;
-}
-```
-
-### PasswordResetPayload
-
-```typescript
-interface PasswordResetPayload {
-  userId: string;
-  email: string;
-  username: string;
-  token: string;
-  resetLink: string;
-  expiresAt: string;
-}
-```
-
-### Constantes
-
-```typescript
-const NotificationQueues = {
-  EMAIL_VERIFICATION: 'email-verification',
-  PASSWORD_RESET: 'password-reset',
-  BULL_PREFIX: 'bull',
-} as const;
-
-const JobNames = {
-  EMAIL_VERIFICATION_REQUESTED: 'email-verification-requested',
-  PASSWORD_RESET_REQUESTED: 'password-reset-requested',
-} as const;
-```
-
----
-
-## Classes Java
-
-### EmailVerificationMessage
-
-```java
-@Data
-@Builder
-public class EmailVerificationMessage {
-    private String userId;
-    private String email;
-    private String username;
-    private String token;
-    private String verificationLink;
-    private LocalDateTime expiresAt;
-}
-```
-
-### PasswordResetMessage
-
-```java
-@Data
-@Builder
-public class PasswordResetMessage {
-    private String userId;
-    private String email;
-    private String username;
-    private String token;
-    private String resetLink;
-    private LocalDateTime expiresAt;
-}
-```
 
 ---
 
@@ -386,13 +380,15 @@ public class PasswordResetMessage {
    │
 6. EmailVerificationProcessor.process() (notification-service)
    │
-7. Charger email-verification.mjml
+7. Validation Zod du payload
    │
-8. Compiler MJML → HTML
+8. Charger email-verification.mjml
    │
-9. MailerService.sendMail()
+9. Compiler MJML → HTML
    │
-10. Email envoye via SMTP
+10. MailerService.sendMail()
+   │
+11. Email envoye via SMTP
 ```
 
 ### Password Reset
@@ -410,17 +406,52 @@ public class PasswordResetMessage {
    │
 6. PasswordResetProcessor.process() (notification-service)
    │
-7. Charger password-reset.mjml
+7. Validation Zod du payload
    │
-8. Compiler MJML → HTML
+8. Charger password-reset.mjml
    │
-9. MailerService.sendMail()
+9. Compiler MJML → HTML
    │
-10. Email envoye via SMTP
+10. MailerService.sendMail()
+   │
+11. Email envoye via SMTP
 ```
 
 ---
 
-## Specification AsyncAPI
+## Exports Disponibles
 
-Voir `asyncapi.yaml` pour la specification complete au format AsyncAPI 3.0.0.
+```typescript
+import {
+  // Constantes
+  QueueNames,
+  JobNames,
+  DefaultJobOptions,
+
+  // Schemas Zod
+  SendVerificationEmailJobSchema,
+  SendPasswordResetEmailJobSchema,
+  EmailVerificationSentEventSchema,
+  EmailVerificationFailedEventSchema,
+  PasswordResetSentEventSchema,
+  PasswordResetFailedEventSchema,
+
+  // Types inferes
+  type SendVerificationEmailJob,
+  type SendPasswordResetEmailJob,
+  type EmailVerificationSentEvent,
+  type EmailVerificationFailedEvent,
+  type PasswordResetSentEvent,
+  type PasswordResetFailedEvent,
+
+  // Fonctions de validation
+  validateSendVerificationEmailJob,
+  validateSendPasswordResetEmailJob,
+  safeParseSendVerificationEmailJob,
+  safeParseSendPasswordResetEmailJob,
+
+  // Groupes de schemas
+  JobSchemas,
+  EventSchemas,
+} from '@compta/notification-contracts';
+```

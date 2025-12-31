@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@compta/notification-contracts": "file:../notification-contracts",
     "@bull-board/api": "^6.15.0",
     "@bull-board/express": "^6.15.0",
     "@bull-board/nestjs": "^6.15.0",

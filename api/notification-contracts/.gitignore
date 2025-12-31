@@ -5,6 +5,9 @@ node_modules/
 dist/
 target/
 
+# Generated files (regenerate with: npm run generate:schemas)
+generated/
+
 # IDE
 .idea/
 *.iml

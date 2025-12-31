@@ -1,94 +1,53 @@
 /**
  * COMPTA Notification Contracts
  *
- * Types TypeScript pour la communication asynchrone entre services COMPTA
+ * Module principal exportant tous les contrats de communication asynchrone
+ * entre oauth2-server (Spring Boot) et notification-service (NestJS)
  * via Redis/BullMQ.
- */
-
-/**
- * Payload du message de demande de verification d'email.
  *
- * Utilise pour la communication asynchrone entre oauth2-server et notification-service
- * via Redis/BullMQ.
+ * @example
+ * ```typescript
+ * import {
+ *   SendVerificationEmailJobSchema,
+ *   validateSendVerificationEmailJob,
+ *   QueueNames,
+ *   JobNames,
+ * } from '@compta/notification-contracts';
+ * ```
  */
-export interface EmailVerificationPayload {
-  /** Identifiant unique de l'utilisateur (UUID) */
-  userId: string;
 
-  /** Adresse email a verifier */
-  email: string;
-
-  /** Nom d'utilisateur pour personnaliser l'email */
-  username: string;
-
-  /** Token de verification unique */
-  token: string;
-
-  /** Lien complet de verification a inclure dans l'email */
-  verificationLink: string;
-
-  /** Date et heure d'expiration du token (ISO 8601) */
-  expiresAt: string;
-}
-
-/**
- * Payload du message de demande de reinitialisation de mot de passe.
- *
- * Utilise pour la communication asynchrone entre oauth2-server et notification-service
- * via Redis/BullMQ.
- */
-export interface PasswordResetPayload {
-  /** Identifiant unique de l'utilisateur (UUID) */
-  userId: string;
-
-  /** Adresse email de l'utilisateur */
-  email: string;
-
-  /** Nom d'utilisateur pour personnaliser l'email */
-  username: string;
-
-  /** Token de reset unique */
-  token: string;
-
-  /** Lien complet de reset a inclure dans l'email */
-  resetLink: string;
-
-  /** Date et heure d'expiration du token (ISO 8601) - 1 heure apres creation */
-  expiresAt: string;
-}
-
-/**
- * Constantes pour les noms de queues BullMQ.
- */
-export const NotificationQueues = {
-  /** Queue pour les demandes de verification d'email */
-  EMAIL_VERIFICATION: 'email-verification',
-
-  /** Queue pour les demandes de reinitialisation de mot de passe */
-  PASSWORD_RESET: 'password-reset',
-
-  /** Prefixe Redis pour les queues BullMQ */
-  BULL_PREFIX: 'bull',
-} as const;
-
-/**
- * Noms des jobs BullMQ.
- */
-export const JobNames = {
-  /** Job de demande de verification d'email */
-  EMAIL_VERIFICATION_REQUESTED: 'email-verification-requested',
-
-  /** Job de demande de reinitialisation de mot de passe */
-  PASSWORD_RESET_REQUESTED: 'password-reset-requested',
-} as const;
-
-/**
- * Type utilitaire pour les valeurs de NotificationQueues.
- */
-export type NotificationQueueName =
-  (typeof NotificationQueues)[keyof typeof NotificationQueues];
-
-/**
- * Type utilitaire pour les noms de jobs.
- */
-export type JobName = (typeof JobNames)[keyof typeof JobNames];
+// Re-export tous les schemas et types depuis email-contracts
+export {
+  // Constantes
+  QueueNames,
+  JobNames,
+  DefaultJobOptions,
+  // Schemas Zod
+  JobMetadataSchema,
+  BullMQJobOptionsSchema,
+  SendVerificationEmailJobSchema,
+  SendPasswordResetEmailJobSchema,
+  EmailVerificationSentEventSchema,
+  EmailVerificationFailedEventSchema,
+  PasswordResetSentEventSchema,
+  PasswordResetFailedEventSchema,
+  // Types inferes
+  type JobMetadata,
+  type BullMQJobOptions,
+  type SendVerificationEmailJob,
+  type SendPasswordResetEmailJob,
+  type EmailVerificationSentEvent,
+  type EmailVerificationFailedEvent,
+  type PasswordResetSentEvent,
+  type PasswordResetFailedEvent,
+  type QueueName,
+  type JobName,
+  // Fonctions de validation
+  validateSendVerificationEmailJob,
+  validateSendPasswordResetEmailJob,
+  safeParseSendVerificationEmailJob,
+  safeParseSendPasswordResetEmailJob,
+  // Groupes de schemas
+  JobSchemas,
+  EventSchemas,
+} from './email-contracts';

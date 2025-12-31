@@ -11,6 +11,7 @@ import { PasswordResetProcessor } from './processors/password-reset.processor';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { QueueNames } from '@compta/notification-contracts';
 
 // Prisma
 import { PrismaModule } from './database/prisma.module';
@@ -44,17 +45,19 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
         port: 6379,
       },
     }),
-    // Enregistrement de la file d'attente spécifique aux emails
+    // Enregistrement de la file d'attente spécifique aux emails (legacy)
     BullModule.registerQueue({
       name: 'mail_queue',
     }),
     // Queue pour la verification d'email (oauth2-server -> notification-service)
+    // @see QueueNames.EMAIL_VERIFICATION from @compta/notification-contracts
     BullModule.registerQueue({
-      name: 'email-verification',
+      name: QueueNames.EMAIL_VERIFICATION,
     }),
     // Queue pour le reset de mot de passe (oauth2-server -> notification-service)
+    // @see QueueNames.PASSWORD_RESET from @compta/notification-contracts
     BullModule.registerQueue({
-      name: 'password-reset',
+      name: QueueNames.PASSWORD_RESET,
     }),
     // Configuration de BullBoard pour surveiller les queues
     BullBoardModule.forRoot({
@@ -66,11 +69,11 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
-      name: 'email-verification',
+      name: QueueNames.EMAIL_VERIFICATION,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
-      name: 'password-reset',
+      name: QueueNames.PASSWORD_RESET,
       adapter: BullMQAdapter,
     }),
     MailerModule.forRoot({

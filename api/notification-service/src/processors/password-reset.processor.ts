@@ -5,38 +5,21 @@ import { MailerService } from '@nestjs-modules/mailer';
 import * as mjml from 'mjml';
 import * as fs from 'fs';
 import * as path from 'path';
-
-/**
- * Payload du message de demande de reset de mot de passe.
- * Correspond au format envoye par oauth2-server.
- */
-export interface PasswordResetPayload {
-  /** Identifiant unique de l'utilisateur (UUID) */
-  userId: string;
-
-  /** Adresse email de l'utilisateur */
-  email: string;
-
-  /** Nom d'utilisateur pour personnaliser l'email */
-  username: string;
-
-  /** Token de reset unique */
-  token: string;
-
-  /** Lien complet de reset a inclure dans l'email */
-  resetLink: string;
-
-  /** Date et heure d'expiration du token (ISO 8601) */
-  expiresAt: string;
-}
+import {
+  QueueNames,
+  SendPasswordResetEmailJob,
+  safeParseSendPasswordResetEmailJob,
+} from '@compta/notification-contracts';
 
 /**
  * Processor BullMQ pour les demandes de reset de mot de passe.
  *
  * Consomme les messages de la queue 'password-reset' publies par oauth2-server
  * et envoie les emails de reset via SMTP.
+ *
+ * @see {@link SendPasswordResetEmailJob} pour le schema du payload (defini dans @compta/notification-contracts)
  */
-@Processor('password-reset')
+@Processor(QueueNames.PASSWORD_RESET)
 export class PasswordResetProcessor extends WorkerHost {
   private readonly logger = new Logger(PasswordResetProcessor.name);
   private templateCache: string | null = null;
@@ -51,8 +34,17 @@ export class PasswordResetProcessor extends WorkerHost {
    * @param job Le job BullMQ contenant les donnees de reset
    * @returns Le resultat de l'envoi d'email
    */
-  async process(job: Job<PasswordResetPayload, any, string>): Promise<any> {
-    const { email, username, resetLink, expiresAt, userId } = job.data;
+  async process(job: Job<SendPasswordResetEmailJob, any, string>): Promise<any> {
+    // Valider le payload avec Zod
+    const parseResult = safeParseSendPasswordResetEmailJob(job.data);
+    if (!parseResult.success) {
+      this.logger.error(
+        `Invalid job payload for job ${job.id}: ${parseResult.error.message}`,
+      );
+      throw new Error(`Invalid job payload: ${parseResult.error.message}`);
+    }
+
+    const { email, username, resetLink, expiresAt, userId } = parseResult.data;
 
     this.logger.log(
       `Processing password reset job ${job.id} for user ${username} (${email})`,

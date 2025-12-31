@@ -1,29 +1,54 @@
 {
   "name": "@compta/notification-contracts",
   "version": "1.0.0",
-  "description": "Contrats AsyncAPI et types TypeScript pour la communication asynchrone entre services COMPTA",
+  "description": "Contrats Zod et types TypeScript pour la communication asynchrone entre services COMPTA via Redis/BullMQ",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "asyncapi.yaml"
+    "generated"
   ],
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist",
-    "prebuild": "npm run clean"
+    "clean:all": "rimraf dist generated/json-schemas",
+    "prebuild": "npm run clean",
+    "generate:schemas": "ts-node src/generate-json-schemas.ts",
+    "generate:java": "bash scripts/generate-java.sh",
+    "generate": "npm run generate:schemas && npm run generate:java",
+    "build:all": "npm run build && npm run generate:schemas",
+    "prepare": "npm run build:all"
   },
   "keywords": [
     "compta",
     "notification",
     "contracts",
-    "asyncapi",
-    "bullmq"
+    "zod",
+    "bullmq",
+    "json-schema"
   ],
   "author": "COMPTA Team",
   "license": "UNLICENSED",
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
   "devDependencies": {
+    "@types/node": "^20.10.0",
     "rimraf": "^5.0.5",
-    "typescript": "^5.3.3"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "zod-to-json-schema": "^3.23.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./email-contracts": {
+      "types": "./dist/email-contracts.d.ts",
+      "import": "./dist/email-contracts.js",
+      "require": "./dist/email-contracts.js"
+    }
   }
 }

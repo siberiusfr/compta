@@ -5,38 +5,21 @@ import { MailerService } from '@nestjs-modules/mailer';
 import * as mjml from 'mjml';
 import * as fs from 'fs';
 import * as path from 'path';
-
-/**
- * Payload du message de demande de verification d'email.
- * Correspond au format envoye par oauth2-server.
- */
-export interface EmailVerificationPayload {
-  /** Identifiant unique de l'utilisateur (UUID) */
-  userId: string;
-
-  /** Adresse email a verifier */
-  email: string;
-
-  /** Nom d'utilisateur pour personnaliser l'email */
-  username: string;
-
-  /** Token de verification unique */
-  token: string;
-
-  /** Lien complet de verification a inclure dans l'email */
-  verificationLink: string;
-
-  /** Date et heure d'expiration du token (ISO 8601) */
-  expiresAt: string;
-}
+import {
+  QueueNames,
+  SendVerificationEmailJob,
+  safeParseSendVerificationEmailJob,
+} from '@compta/notification-contracts';
 
 /**
  * Processor BullMQ pour les demandes de verification d'email.
  *
  * Consomme les messages de la queue 'email-verification' publies par oauth2-server
  * et envoie les emails de verification via SMTP.
+ *
+ * @see {@link SendVerificationEmailJob} pour le schema du payload (defini dans @compta/notification-contracts)
  */
-@Processor('email-verification')
+@Processor(QueueNames.EMAIL_VERIFICATION)
 export class EmailVerificationProcessor extends WorkerHost {
   private readonly logger = new Logger(EmailVerificationProcessor.name);
   private templateCache: string | null = null;
@@ -52,9 +35,18 @@ export class EmailVerificationProcessor extends WorkerHost {
    * @returns Le resultat de l'envoi d'email
    */
   async process(
-    job: Job<EmailVerificationPayload, any, string>,
+    job: Job<SendVerificationEmailJob, any, string>,
   ): Promise<any> {
-    const { email, username, verificationLink, expiresAt, userId } = job.data;
+    // Valider le payload avec Zod
+    const parseResult = safeParseSendVerificationEmailJob(job.data);
+    if (!parseResult.success) {
+      this.logger.error(
+        `Invalid job payload for job ${job.id}: ${parseResult.error.message}`,
+      );
+      throw new Error(`Invalid job payload: ${parseResult.error.message}`);
+    }
+
+    const { email, username, verificationLink, expiresAt, userId } = parseResult.data;
 
     this.logger.log(
       `Processing email verification job ${job.id} for user ${username} (${email})`,

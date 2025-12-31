@@ -1,7 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -64,6 +66,67 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+
+            <!-- jsonschema2pojo: Generate Java classes from JSON Schemas -->
+            <plugin>
+                <groupId>org.jsonschema2pojo</groupId>
+                <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+                <version>1.2.2</version>
+                <configuration>
+                    <sourceDirectory>${basedir}/generated/json-schemas</sourceDirectory>
+                    <targetPackage>tn.cyberious.compta.contracts.notification</targetPackage>
+                    <outputDirectory>${project.build.directory}/generated-sources/jsonschema2pojo</outputDirectory>
+                    <!-- Configuration options -->
+                    <sourceType>jsonschema</sourceType>
+                    <annotationStyle>jackson2</annotationStyle>
+                    <includeJsr303Annotations>true</includeJsr303Annotations>
+                    <includeJsr305Annotations>false</includeJsr305Annotations>
+                    <useLongIntegers>false</useLongIntegers>
+                    <useDoubleNumbers>false</useDoubleNumbers>
+                    <generateBuilders>true</generateBuilders>
+                    <useInnerClassBuilders>false</useInnerClassBuilders>
+                    <includeConstructors>true</includeConstructors>
+                    <constructorsRequiredPropertiesOnly>false</constructorsRequiredPropertiesOnly>
+                    <includeToString>true</includeToString>
+                    <includeHashcodeAndEquals>true</includeHashcodeAndEquals>
+                    <includeAdditionalProperties>false</includeAdditionalProperties>
+                    <includeDynamicAccessors>false</includeDynamicAccessors>
+                    <usePrimitives>false</usePrimitives>
+                    <dateTimeType>java.time.Instant</dateTimeType>
+                    <dateType>java.time.LocalDate</dateType>
+                    <timeType>java.time.LocalTime</timeType>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-java-from-json-schema</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Add generated sources to compilation -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>add-generated-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/jsonschema2pojo</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
