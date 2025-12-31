@@ -330,27 +330,27 @@ node -e "console.log(Object.keys(require('./dist')))"
 Le service utilise les classes Java generees:
 
 ```java
-import tn.cyberious.compta.contracts.notification.EmailVerificationRequested;
-import tn.cyberious.compta.contracts.notification.SendVerificationEmailPayload;
+import notification.contracts.tn.cyberious.compta.document.EmailVerificationRequested;
+import notification.contracts.tn.cyberious.compta.document.SendVerificationEmailPayload;
 
 // Creer le message avec enveloppe
 EmailVerificationRequested message = new EmailVerificationRequested()
-    .withEventId(UUID.randomUUID().toString())
-    .withEventType("EmailVerificationRequested")
-    .withEventVersion(1)
-    .withOccurredAt(Instant.now().toString())
-    .withProducer("oauth2-server")
-    .withPayload(new SendVerificationEmailPayload()
-        .withUserId(userId)
-        .withEmail(email)
-        .withUsername(username)
-        .withToken(token)
-        .withVerificationLink(link)
-        .withExpiresAt(expiresAt)
-        .withLocale(SendVerificationEmailPayload.Locale.FR));
+        .withEventId(UUID.randomUUID().toString())
+        .withEventType("EmailVerificationRequested")
+        .withEventVersion(1)
+        .withOccurredAt(Instant.now().toString())
+        .withProducer("oauth2-server")
+        .withPayload(new SendVerificationEmailPayload()
+                .withUserId(userId)
+                .withEmail(email)
+                .withUsername(username)
+                .withToken(token)
+                .withVerificationLink(link)
+                .withExpiresAt(expiresAt)
+                .withLocale(SendVerificationEmailPayload.Locale.FR));
 
-// Serialisation Jackson
-String json = objectMapper.writeValueAsString(message);
+        // Serialisation Jackson
+        String json = objectMapper.writeValueAsString(message);
 ```
 
 ### notification-service (TypeScript/NestJS)

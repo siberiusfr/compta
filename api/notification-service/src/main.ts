@@ -1,19 +1,83 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const config = new DocumentBuilder()
-    .setTitle('Notification Service')
-    .setDescription('API documentation for the Notification Service')
-    .setVersion('1.0')
-    .addTag('notifications')
-    .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  // Enable validation pipes
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }));
 
-  await app.listen(process.env.PORT ?? 3000);
+  // Enable CORS (for gateway communication)
+  app.enableCors({
+    origin: true, // Allow all origins (gateway will handle auth)
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-User-Id', 'X-User-Roles', 'X-Tenant-Id'],
+  });
+
+  // Configure Swagger/OpenAPI
+  const config = new DocumentBuilder()
+    .setTitle('Notification Service API')
+    .setDescription(`
+      Notification Service for COMPTA ERP system.
+
+      This service handles email, SMS, push notifications, and in-app notifications
+      using queue-based architecture with BullMQ and Redis.
+
+      ## Authentication
+      This service is behind by API Gateway.
+      Authentication is handled by the gateway.
+
+      The gateway forwards to following headers:
+      - \`X-User-Id\`: The authenticated user ID
+      - \`X-User-Username\`: The username
+      - \`X-User-Email\`: The user email (masked)
+      - \`X-User-Roles\`: Comma-separated list of user roles (e.g., "ADMIN,COMPTABLE")
+      - \`X-Tenant-Id\`: The tenant ID
+
+      ## Features
+      - Multi-channel notifications (Email, SMS, Push, In-App)
+      - Queue-based processing with BullMQ
+      - Template management with MJML
+      - User preferences management
+      - Delivery tracking and analytics
+      - SendPulse integration
+    `)
+    .setVersion('1.0.0')
+    .addTag('notifications', 'Notification management endpoints')
+    .addTag('users', 'User management endpoints')
+    .addTag('templates', 'Template management endpoints')
+    .addTag('stats', 'Statistics and analytics endpoints')
+    .addTag('health', 'Health check endpoints')
+    .addTag('sendpulse', 'SendPulse API endpoints')
+    .addServer('http://localhost:3000', 'Local development server')
+    .addServer('https://api.compta.tn', 'Production server')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
+
+  console.log(`
+    ╔════════════════════════════════════════════════╗
+    ║                                                               ║
+    ║   Notification Service API Documentation                      ║
+    ║                                                               ║
+    ║   📚 Swagger UI: http://localhost:${port}/api/docs       ║
+    ║   📄 API JSON:   http://localhost:${port}/api/docs-json  ║
+    ║                                                               ║
+    ║   ℹ️  Authentication: Handled by Gateway               ║
+    ║   ℹ️  Headers: X-User-Id, X-User-Roles, X-Tenant-Id   ║
+    ║                                                               ║
+    ╚════════════════════════════════════════════════╝
+  `);
 }
 bootstrap();

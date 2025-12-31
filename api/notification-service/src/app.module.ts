@@ -38,6 +38,9 @@ import { HealthController } from './controllers/health.controller';
 // Filters
 import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 
+// Guards
+import { GatewayHeadersGuard } from './guards/gateway-headers.guard';
+
 @Module({
   imports: [
     // Prisma Database
@@ -123,6 +126,8 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
     },
+    // Global Guards
+    GatewayHeadersGuard,
   ],
 })
 export class AppModule {}

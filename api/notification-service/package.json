@@ -20,10 +20,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@compta/notification-contracts": "file:../notification-contracts",
     "@bull-board/api": "^6.15.0",
     "@bull-board/express": "^6.15.0",
     "@bull-board/nestjs": "^6.15.0",
+    "@compta/notification-contracts": "file:../notification-contracts",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.1",
@@ -33,6 +33,8 @@
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "bullmq": "^5.66.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
     "dotenv": "^17.2.3",
     "ioredis": "^5.8.2",
     "mjml": "^4.18.0",

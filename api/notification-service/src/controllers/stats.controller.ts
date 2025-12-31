@@ -1,10 +1,20 @@
 import { Controller, Get, Post, Query, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
+import {
   NotificationStatsService,
   DailyStatsFilters,
 } from '../services/notification-stats.service';
 import { NotificationChannel, NotificationType } from '@prisma/client';
 
+@ApiTags('stats')
+@ApiBearerAuth('JWT')
 @Controller('stats')
 export class StatsController {
   constructor(
@@ -13,6 +23,12 @@ export class StatsController {
 
   // Récupérer les statistiques quotidiennes
   @Get('daily')
+  @ApiOperation({ summary: 'Get daily statistics' })
+  @ApiQuery({ name: 'startDate', required: false, type: Date })
+  @ApiQuery({ name: 'endDate', required: false, type: Date })
+  @ApiQuery({ name: 'channel', required: false, enum: NotificationChannel })
+  @ApiQuery({ name: 'type', required: false, enum: NotificationType })
+  @ApiResponse({ status: 200, description: 'Daily statistics' })
   async getDailyStats(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
@@ -31,6 +47,11 @@ export class StatsController {
 
   // Récupérer le résumé global
   @Get('summary')
+  @ApiOperation({ summary: 'Get global summary' })
+  @ApiQuery({ name: 'startDate', required: false, type: Date })
+  @ApiQuery({ name: 'endDate', required: false, type: Date })
+  @ApiQuery({ name: 'channel', required: false, enum: NotificationChannel })
+  @ApiResponse({ status: 200, description: 'Global summary' })
   async getGlobalSummary(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
@@ -47,6 +68,11 @@ export class StatsController {
 
   // Récupérer le taux de succès
   @Get('success-rate')
+  @ApiOperation({ summary: 'Get success rate' })
+  @ApiQuery({ name: 'startDate', required: true, type: Date, description: 'Start date (required)' })
+  @ApiQuery({ name: 'endDate', required: true, type: Date, description: 'End date (required)' })
+  @ApiQuery({ name: 'channel', required: false, enum: NotificationChannel })
+  @ApiResponse({ status: 200, description: 'Success rate metrics' })
   async getSuccessRate(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
@@ -66,6 +92,9 @@ export class StatsController {
   // Agréger les statistiques depuis les notifications
   @Post('aggregate')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Aggregate statistics from notifications' })
+  @ApiBody({ description: 'Aggregation parameters' })
+  @ApiResponse({ status: 200, description: 'Aggregated statistics' })
   async aggregateStats(
     @Body()
     body: {
