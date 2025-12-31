@@ -6,6 +6,9 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Set global prefix for all routes
+  app.setGlobalPrefix('notification');
+
   // Enable validation pipes
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -32,7 +35,7 @@ async function bootstrap() {
 
       ## Authentication
       This service is behind by API Gateway.
-      Authentication is handled by the gateway.
+      Authentication is handled by gateway.
 
       The gateway forwards to following headers:
       - \`X-User-Id\`: The authenticated user ID
@@ -40,6 +43,7 @@ async function bootstrap() {
       - \`X-User-Email\`: The user email (masked)
       - \`X-User-Roles\`: Comma-separated list of user roles (e.g., "ADMIN,COMPTABLE")
       - \`X-Tenant-Id\`: The tenant ID
+      - \`Authorization\`: Optional internal service token for service-to-service communication
 
       ## Features
       - Multi-channel notifications (Email, SMS, Push, In-App)
@@ -61,23 +65,24 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('notification/api/docs', app, document);
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
 
   console.log(`
-    ╔════════════════════════════════════════════════╗
+    ╔════════════════════════════════════════╗
     ║                                                               ║
     ║   Notification Service API Documentation                      ║
     ║                                                               ║
-    ║   📚 Swagger UI: http://localhost:${port}/api/docs       ║
-    ║   📄 API JSON:   http://localhost:${port}/api/docs-json  ║
+    ║   📚 Swagger UI: http://localhost:${port}/notification/api/docs       ║
+    ║   📄 API JSON:   http://localhost:${port}/notification/api/docs-json  ║
     ║                                                               ║
     ║   ℹ️  Authentication: Handled by Gateway               ║
     ║   ℹ️  Headers: X-User-Id, X-User-Roles, X-Tenant-Id   ║
+    ║   ℹ️  Context: /notification/                             ║
     ║                                                               ║
-    ╚════════════════════════════════════════════════╝
+    ╚══════════════════════════════════════════════╝
   `);
 }
 bootstrap();
