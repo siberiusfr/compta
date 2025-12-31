@@ -47,7 +47,8 @@
       "Bash(cmd /c del \"C:\\\\dev\\\\compta\\\\api\\\\oauth2-server\\\\src\\\\main\\\\java\\\\tn\\\\cyberious\\\\compta\\\\oauth2\\\\dto\\\\PasswordResetMessage.java\")",
       "Bash(pnpm run build:*)",
       "Bash(pnpm install:*)",
-      "Bash(mvn install:*)"
+      "Bash(mvn install:*)",
+      "Bash(cmd /c \"del C:\\\\dev\\\\compta\\\\api\\\\notification-contracts\\\\generated\\\\json-schemas\\\\*Event.schema.json\")"
     ]
   }
 }

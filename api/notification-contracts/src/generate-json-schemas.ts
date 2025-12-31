@@ -127,6 +127,20 @@ const utilitySchemas = [
 const allSchemas = [...messageSchemas, ...payloadSchemas, ...utilitySchemas];
 
 /**
+ * Nettoie le repertoire de sortie (supprime tous les anciens fichiers)
+ */
+function cleanOutputDir(): void {
+  if (fs.existsSync(OUTPUT_DIR)) {
+    const files = fs.readdirSync(OUTPUT_DIR);
+    for (const file of files) {
+      const filePath = path.join(OUTPUT_DIR, file);
+      fs.unlinkSync(filePath);
+    }
+    console.log(`Cleaned output directory: ${OUTPUT_DIR} (${files.length} files removed)`);
+  }
+}
+
+/**
  * Cree le repertoire de sortie s'il n'existe pas
  */
 function ensureOutputDir(): void {
@@ -239,7 +253,8 @@ function main(): void {
   console.log('}');
   console.log('');
 
-  // Creer le repertoire de sortie
+  // Nettoyer et creer le repertoire de sortie
+  cleanOutputDir();
   ensureOutputDir();
 
   // Generer chaque schema
