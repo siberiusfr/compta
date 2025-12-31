@@ -1,0 +1,29 @@
+{
+  "name": "@compta/notification-contracts",
+  "version": "1.0.0",
+  "description": "Contrats AsyncAPI et types TypeScript pour la communication asynchrone entre services COMPTA",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "asyncapi.yaml"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean"
+  },
+  "keywords": [
+    "compta",
+    "notification",
+    "contracts",
+    "asyncapi",
+    "bullmq"
+  ],
+  "author": "COMPTA Team",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  }
+}

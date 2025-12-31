@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.cyberious.compta.oauth2.dto.EmailVerificationMessage;
+import tn.cyberious.compta.oauth2.queue.EmailVerificationQueuePublisher;
 
 /**
  * Service for handling email verification functionality.
@@ -23,7 +25,7 @@ public class EmailVerificationService {
   private final JdbcTemplate jdbcTemplate;
   private final PasswordEncoder passwordEncoder;
   private final AuditLogService auditLogService;
-  private final EmailService emailService;
+  private final EmailVerificationQueuePublisher emailVerificationQueuePublisher;
 
   @Value("${app.frontend.url:http://localhost:3000}")
   private String frontendUrl;
@@ -35,11 +37,11 @@ public class EmailVerificationService {
       JdbcTemplate jdbcTemplate,
       PasswordEncoder passwordEncoder,
       AuditLogService auditLogService,
-      EmailService emailService) {
+      EmailVerificationQueuePublisher emailVerificationQueuePublisher) {
     this.jdbcTemplate = jdbcTemplate;
     this.passwordEncoder = passwordEncoder;
     this.auditLogService = auditLogService;
-    this.emailService = emailService;
+    this.emailVerificationQueuePublisher = emailVerificationQueuePublisher;
   }
 
   /**
@@ -81,9 +83,18 @@ public class EmailVerificationService {
 
     jdbcTemplate.update(sql, userId, username, email, token, expiresAt, ipAddress, userAgent);
 
-    // Send email with verification link
+    // Build verification link and publish to async queue
     String verificationLink = buildVerificationLink(token);
-    emailService.sendEmailVerificationEmail(email, username, verificationLink);
+    EmailVerificationMessage message =
+        EmailVerificationMessage.builder()
+            .userId(userId)
+            .email(email)
+            .username(username)
+            .token(token)
+            .verificationLink(verificationLink)
+            .expiresAt(expiresAt)
+            .build();
+    emailVerificationQueuePublisher.publishEmailVerificationRequested(message);
 
     // Log the event
     auditLogService.logAsync(

@@ -18,6 +18,7 @@ import tn.cyberious.compta.oauth2.generated.tables.Oauth2Keys;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2RegisteredClient;
 import tn.cyberious.compta.oauth2.generated.tables.PasswordResetTokens;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
+import tn.cyberious.compta.oauth2.generated.tables.TokenBlacklist;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 import tn.cyberious.compta.oauth2.generated.tables.Users;
 import tn.cyberious.compta.oauth2.generated.tables.records.AuditLogsRecord;
@@ -28,6 +29,7 @@ import tn.cyberious.compta.oauth2.generated.tables.records.Oauth2KeysRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.Oauth2RegisteredClientRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.PasswordResetTokensRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord;
+import tn.cyberious.compta.oauth2.generated.tables.records.TokenBlacklistRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.UserRolesRecord;
 import tn.cyberious.compta.oauth2.generated.tables.records.UsersRecord;
 
@@ -55,6 +57,8 @@ public class Keys {
     public static final UniqueKey<PasswordResetTokensRecord> PASSWORD_RESET_TOKENS_TOKEN_KEY = Internal.createUniqueKey(PasswordResetTokens.PASSWORD_RESET_TOKENS, DSL.name("password_reset_tokens_token_key"), new TableField[] { PasswordResetTokens.PASSWORD_RESET_TOKENS.TOKEN }, true);
     public static final UniqueKey<RolesRecord> ROLES_NAME_KEY = Internal.createUniqueKey(Roles.ROLES, DSL.name("roles_name_key"), new TableField[] { Roles.ROLES.NAME }, true);
     public static final UniqueKey<RolesRecord> ROLES_PKEY = Internal.createUniqueKey(Roles.ROLES, DSL.name("roles_pkey"), new TableField[] { Roles.ROLES.ID }, true);
+    public static final UniqueKey<TokenBlacklistRecord> TOKEN_BLACKLIST_JTI_KEY = Internal.createUniqueKey(TokenBlacklist.TOKEN_BLACKLIST, DSL.name("token_blacklist_jti_key"), new TableField[] { TokenBlacklist.TOKEN_BLACKLIST.JTI }, true);
+    public static final UniqueKey<TokenBlacklistRecord> TOKEN_BLACKLIST_PKEY = Internal.createUniqueKey(TokenBlacklist.TOKEN_BLACKLIST, DSL.name("token_blacklist_pkey"), new TableField[] { TokenBlacklist.TOKEN_BLACKLIST.ID }, true);
     public static final UniqueKey<UserRolesRecord> USER_ROLES_PKEY = Internal.createUniqueKey(UserRoles.USER_ROLES, DSL.name("user_roles_pkey"), new TableField[] { UserRoles.USER_ROLES.USER_ID, UserRoles.USER_ROLES.ROLE_ID }, true);
     public static final UniqueKey<UsersRecord> USERS_EMAIL_KEY = Internal.createUniqueKey(Users.USERS, DSL.name("users_email_key"), new TableField[] { Users.USERS.EMAIL }, true);
     public static final UniqueKey<UsersRecord> USERS_PKEY = Internal.createUniqueKey(Users.USERS, DSL.name("users_pkey"), new TableField[] { Users.USERS.ID }, true);

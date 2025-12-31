@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.cyberious.compta.oauth2.dto.PasswordResetConfirmRequest;
+import tn.cyberious.compta.oauth2.dto.PasswordResetMessage;
+import tn.cyberious.compta.oauth2.queue.PasswordResetQueuePublisher;
 
 /**
  * Service for handling password reset functionality.
@@ -24,7 +26,7 @@ public class PasswordResetService {
   private final JdbcTemplate jdbcTemplate;
   private final PasswordEncoder passwordEncoder;
   private final AuditLogService auditLogService;
-  private final EmailService emailService;
+  private final PasswordResetQueuePublisher passwordResetQueuePublisher;
 
   @Value("${app.frontend.url:http://localhost:3000}")
   private String frontendUrl;
@@ -36,11 +38,11 @@ public class PasswordResetService {
       JdbcTemplate jdbcTemplate,
       PasswordEncoder passwordEncoder,
       AuditLogService auditLogService,
-      EmailService emailService) {
+      PasswordResetQueuePublisher passwordResetQueuePublisher) {
     this.jdbcTemplate = jdbcTemplate;
     this.passwordEncoder = passwordEncoder;
     this.auditLogService = auditLogService;
-    this.emailService = emailService;
+    this.passwordResetQueuePublisher = passwordResetQueuePublisher;
   }
 
   /**
@@ -81,9 +83,18 @@ public class PasswordResetService {
 
     jdbcTemplate.update(sql, userId, username, email, token, expiresAt, ipAddress, userAgent);
 
-    // Send email with reset link
+    // Build reset link and publish to async queue
     String resetLink = buildResetLink(token);
-    emailService.sendPasswordResetEmail(email, username, resetLink);
+    PasswordResetMessage message =
+        PasswordResetMessage.builder()
+            .userId(userId)
+            .email(email)
+            .username(username)
+            .token(token)
+            .resetLink(resetLink)
+            .expiresAt(expiresAt)
+            .build();
+    passwordResetQueuePublisher.publishPasswordResetRequested(message);
 
     // Log the event
     auditLogService.logAsync(

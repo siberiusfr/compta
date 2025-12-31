@@ -19,6 +19,7 @@ import tn.cyberious.compta.oauth2.generated.tables.Oauth2Keys;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2RegisteredClient;
 import tn.cyberious.compta.oauth2.generated.tables.PasswordResetTokens;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
+import tn.cyberious.compta.oauth2.generated.tables.TokenBlacklist;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 import tn.cyberious.compta.oauth2.generated.tables.Users;
 
@@ -77,6 +78,11 @@ public class Oauth2 extends SchemaImpl {
     public final Roles ROLES = Roles.ROLES;
 
     /**
+     * Blacklisted JWT tokens identified by their JTI claim
+     */
+    public final TokenBlacklist TOKEN_BLACKLIST = TokenBlacklist.TOKEN_BLACKLIST;
+
+    /**
      * The table <code>oauth2.user_roles</code>.
      */
     public final UserRoles USER_ROLES = UserRoles.USER_ROLES;
@@ -110,6 +116,7 @@ public class Oauth2 extends SchemaImpl {
             Oauth2RegisteredClient.OAUTH2_REGISTERED_CLIENT,
             PasswordResetTokens.PASSWORD_RESET_TOKENS,
             Roles.ROLES,
+            TokenBlacklist.TOKEN_BLACKLIST,
             UserRoles.USER_ROLES,
             Users.USERS
         );

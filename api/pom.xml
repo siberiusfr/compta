@@ -20,6 +20,7 @@
   <modules>
     <module>compta-commons</module>
     <module>compta-security-commons</module>
+    <module>notification-contracts</module>
     <module>auth-service</module>
     <module>authz-service</module>
     <module>document-service</module>

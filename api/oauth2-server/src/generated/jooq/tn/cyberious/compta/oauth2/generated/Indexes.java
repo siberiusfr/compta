@@ -15,6 +15,7 @@ import tn.cyberious.compta.oauth2.generated.tables.Oauth2Authorization;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2Keys;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2RegisteredClient;
 import tn.cyberious.compta.oauth2.generated.tables.PasswordResetTokens;
+import tn.cyberious.compta.oauth2.generated.tables.TokenBlacklist;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 import tn.cyberious.compta.oauth2.generated.tables.Users;
 
@@ -47,6 +48,8 @@ public class Indexes {
     public static final Index IDX_PASSWORD_RESET_TOKENS_EXPIRES_AT = Internal.createIndex(DSL.name("idx_password_reset_tokens_expires_at"), PasswordResetTokens.PASSWORD_RESET_TOKENS, new OrderField[] { PasswordResetTokens.PASSWORD_RESET_TOKENS.EXPIRES_AT }, false);
     public static final Index IDX_PASSWORD_RESET_TOKENS_TOKEN = Internal.createIndex(DSL.name("idx_password_reset_tokens_token"), PasswordResetTokens.PASSWORD_RESET_TOKENS, new OrderField[] { PasswordResetTokens.PASSWORD_RESET_TOKENS.TOKEN }, false);
     public static final Index IDX_PASSWORD_RESET_TOKENS_USER_ID = Internal.createIndex(DSL.name("idx_password_reset_tokens_user_id"), PasswordResetTokens.PASSWORD_RESET_TOKENS, new OrderField[] { PasswordResetTokens.PASSWORD_RESET_TOKENS.USER_ID }, false);
+    public static final Index IDX_TOKEN_BLACKLIST_EXPIRES_AT = Internal.createIndex(DSL.name("idx_token_blacklist_expires_at"), TokenBlacklist.TOKEN_BLACKLIST, new OrderField[] { TokenBlacklist.TOKEN_BLACKLIST.EXPIRES_AT }, false);
+    public static final Index IDX_TOKEN_BLACKLIST_JTI = Internal.createIndex(DSL.name("idx_token_blacklist_jti"), TokenBlacklist.TOKEN_BLACKLIST, new OrderField[] { TokenBlacklist.TOKEN_BLACKLIST.JTI }, false);
     public static final Index IDX_USER_ROLES_ROLE_ID = Internal.createIndex(DSL.name("idx_user_roles_role_id"), UserRoles.USER_ROLES, new OrderField[] { UserRoles.USER_ROLES.ROLE_ID }, false);
     public static final Index IDX_USER_ROLES_USER_ID = Internal.createIndex(DSL.name("idx_user_roles_user_id"), UserRoles.USER_ROLES, new OrderField[] { UserRoles.USER_ROLES.USER_ID }, false);
     public static final Index IDX_USERS_EMAIL = Internal.createIndex(DSL.name("idx_users_email"), Users.USERS, new OrderField[] { Users.USERS.EMAIL }, false);

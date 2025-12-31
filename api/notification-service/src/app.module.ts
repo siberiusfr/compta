@@ -6,6 +6,8 @@ import { BullModule } from '@nestjs/bullmq';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { NotificationService } from './notification/notification.service';
 import { MailProcessor } from './notification/mail.processor';
+import { EmailVerificationProcessor } from './processors/email-verification.processor';
+import { PasswordResetProcessor } from './processors/password-reset.processor';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
@@ -46,6 +48,14 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
     BullModule.registerQueue({
       name: 'mail_queue',
     }),
+    // Queue pour la verification d'email (oauth2-server -> notification-service)
+    BullModule.registerQueue({
+      name: 'email-verification',
+    }),
+    // Queue pour le reset de mot de passe (oauth2-server -> notification-service)
+    BullModule.registerQueue({
+      name: 'password-reset',
+    }),
     // Configuration de BullBoard pour surveiller les queues
     BullBoardModule.forRoot({
       route: '/queues',
@@ -53,6 +63,14 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
     }),
     BullBoardModule.forFeature({
       name: 'mail_queue',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'email-verification',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'password-reset',
       adapter: BullMQAdapter,
     }),
     MailerModule.forRoot({
@@ -81,6 +99,8 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
     AppService,
     NotificationService,
     MailProcessor,
+    EmailVerificationProcessor,
+    PasswordResetProcessor,
     NotificationsService,
     NotificationTemplatesService,
     NotificationStatsService,

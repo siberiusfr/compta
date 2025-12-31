@@ -2,20 +2,11 @@ spring:
   application:
     name: oauth2-server
 
-  # Mail Configuration (for password reset and email verification)
-  mail:
-    host: localhost
-    port: 1025
-    username: test
-    password: test
-    protocol: smtp
-    properties:
-      mail:
-        smtp:
-          auth: false
-          starttls:
-            enable: false
-    test-connection: false
+  # Redis Configuration (for async notification queue via BullMQ)
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
   datasource:
     url: jdbc:postgresql://localhost:5432/compta
@@ -83,3 +74,8 @@ oauth2:
 app:
   frontend:
     url: ${FRONTEND_URL:http://localhost:3000}
+
+# Notification Queue Configuration
+notification:
+  queue:
+    enabled: ${NOTIFICATION_QUEUE_ENABLED:true}

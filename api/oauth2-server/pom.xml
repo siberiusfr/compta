@@ -58,10 +58,17 @@
       <artifactId>spring-security-oauth2-jose</artifactId>
     </dependency>
 
-    <!-- JavaMail for email sending -->
+    <!-- Redis for async notification queue (BullMQ) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-mail</artifactId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+
+    <!-- Notification Contracts (shared DTOs) -->
+    <dependency>
+      <groupId>tn.cyberious.compta</groupId>
+      <artifactId>notification-contracts</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- Database -->

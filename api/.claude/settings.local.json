@@ -34,7 +34,9 @@
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
       "Bash(cmd /c \"taskkill /PID 21096 /F\")",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(del \"C:\\\\dev\\\\compta\\\\api\\\\oauth2-server\\\\src\\\\main\\\\java\\\\tn\\\\cyberious\\\\compta\\\\oauth2\\\\service\\\\EmailService.java\")"
     ]
   }
 }

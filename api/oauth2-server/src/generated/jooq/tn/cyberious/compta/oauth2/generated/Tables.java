@@ -12,6 +12,7 @@ import tn.cyberious.compta.oauth2.generated.tables.Oauth2Keys;
 import tn.cyberious.compta.oauth2.generated.tables.Oauth2RegisteredClient;
 import tn.cyberious.compta.oauth2.generated.tables.PasswordResetTokens;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
+import tn.cyberious.compta.oauth2.generated.tables.TokenBlacklist;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 import tn.cyberious.compta.oauth2.generated.tables.Users;
 
@@ -61,6 +62,11 @@ public class Tables {
      * The table <code>oauth2.roles</code>.
      */
     public static final Roles ROLES = Roles.ROLES;
+
+    /**
+     * Blacklisted JWT tokens identified by their JTI claim
+     */
+    public static final TokenBlacklist TOKEN_BLACKLIST = TokenBlacklist.TOKEN_BLACKLIST;
 
     /**
      * The table <code>oauth2.user_roles</code>.

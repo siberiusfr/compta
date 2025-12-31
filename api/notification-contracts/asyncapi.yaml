@@ -1,0 +1,206 @@
+asyncapi: 3.0.0
+info:
+  title: COMPTA Notification Events
+  version: 1.0.0
+  description: |
+    Specification des evenements asynchrones pour le systeme de notifications COMPTA.
+    Communication entre oauth2-server (Spring Boot) et notification-service (NestJS) via Redis/BullMQ.
+  contact:
+    name: COMPTA Team
+  license:
+    name: Proprietary
+
+servers:
+  development:
+    host: localhost:6379
+    protocol: redis
+    description: Serveur Redis de developpement
+  production:
+    host: ${REDIS_HOST}:${REDIS_PORT}
+    protocol: redis
+    description: Serveur Redis de production
+
+defaultContentType: application/json
+
+channels:
+  email-verification:
+    address: bull:email-verification
+    description: Queue BullMQ pour les demandes de verification d'email
+    messages:
+      emailVerificationRequested:
+        $ref: '#/components/messages/EmailVerificationRequested'
+
+  password-reset:
+    address: bull:password-reset
+    description: Queue BullMQ pour les demandes de reinitialisation de mot de passe
+    messages:
+      passwordResetRequested:
+        $ref: '#/components/messages/PasswordResetRequested'
+
+operations:
+  publishEmailVerificationRequested:
+    action: send
+    channel:
+      $ref: '#/channels/email-verification'
+    summary: Publier une demande de verification d'email
+    description: |
+      oauth2-server publie ce message lorsqu'un utilisateur demande la verification de son email.
+      notification-service consomme ce message pour envoyer l'email de verification.
+    messages:
+      - $ref: '#/channels/email-verification/messages/emailVerificationRequested'
+
+  consumeEmailVerificationRequested:
+    action: receive
+    channel:
+      $ref: '#/channels/email-verification'
+    summary: Consommer une demande de verification d'email
+    description: notification-service traite ce message et envoie l'email via SMTP
+    messages:
+      - $ref: '#/channels/email-verification/messages/emailVerificationRequested'
+
+  publishPasswordResetRequested:
+    action: send
+    channel:
+      $ref: '#/channels/password-reset'
+    summary: Publier une demande de reinitialisation de mot de passe
+    description: |
+      oauth2-server publie ce message lorsqu'un utilisateur demande la reinitialisation de son mot de passe.
+      notification-service consomme ce message pour envoyer l'email de reset.
+    messages:
+      - $ref: '#/channels/password-reset/messages/passwordResetRequested'
+
+  consumePasswordResetRequested:
+    action: receive
+    channel:
+      $ref: '#/channels/password-reset'
+    summary: Consommer une demande de reinitialisation de mot de passe
+    description: notification-service traite ce message et envoie l'email via SMTP
+    messages:
+      - $ref: '#/channels/password-reset/messages/passwordResetRequested'
+
+components:
+  messages:
+    EmailVerificationRequested:
+      name: emailVerificationRequested
+      title: Email Verification Requested
+      summary: Demande de verification d'email emise par oauth2-server
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/EmailVerificationPayload'
+      examples:
+        - name: exempleVerification
+          summary: Exemple de demande de verification
+          payload:
+            userId: "550e8400-e29b-41d4-a716-446655440000"
+            email: "utilisateur@example.com"
+            username: "jean.dupont"
+            token: "abc123def456ghi789"
+            verificationLink: "https://app.compta.tn/verify-email?token=abc123def456ghi789"
+            expiresAt: "2025-01-01T12:00:00Z"
+
+    PasswordResetRequested:
+      name: passwordResetRequested
+      title: Password Reset Requested
+      summary: Demande de reinitialisation de mot de passe emise par oauth2-server
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PasswordResetPayload'
+      examples:
+        - name: exempleReset
+          summary: Exemple de demande de reset
+          payload:
+            userId: "550e8400-e29b-41d4-a716-446655440000"
+            email: "utilisateur@example.com"
+            username: "jean.dupont"
+            token: "xyz789abc456def123"
+            resetLink: "https://app.compta.tn/reset-password?token=xyz789abc456def123"
+            expiresAt: "2025-01-01T13:00:00Z"
+
+  schemas:
+    EmailVerificationPayload:
+      type: object
+      description: Payload du message de demande de verification d'email
+      required:
+        - userId
+        - email
+        - username
+        - token
+        - verificationLink
+        - expiresAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Identifiant unique de l'utilisateur
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          description: Adresse email a verifier
+          example: "utilisateur@example.com"
+        username:
+          type: string
+          description: Nom d'utilisateur pour personnaliser l'email
+          minLength: 1
+          maxLength: 255
+          example: "jean.dupont"
+        token:
+          type: string
+          description: Token de verification unique
+          minLength: 32
+          maxLength: 64
+          example: "abc123def456ghi789"
+        verificationLink:
+          type: string
+          format: uri
+          description: Lien complet de verification a inclure dans l'email
+          example: "https://app.compta.tn/verify-email?token=abc123def456ghi789"
+        expiresAt:
+          type: string
+          format: date-time
+          description: Date et heure d'expiration du token (ISO 8601)
+          example: "2025-01-01T12:00:00Z"
+
+    PasswordResetPayload:
+      type: object
+      description: Payload du message de demande de reinitialisation de mot de passe
+      required:
+        - userId
+        - email
+        - username
+        - token
+        - resetLink
+        - expiresAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Identifiant unique de l'utilisateur
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          description: Adresse email de l'utilisateur
+          example: "utilisateur@example.com"
+        username:
+          type: string
+          description: Nom d'utilisateur pour personnaliser l'email
+          minLength: 1
+          maxLength: 255
+          example: "jean.dupont"
+        token:
+          type: string
+          description: Token de reset unique
+          minLength: 32
+          maxLength: 64
+          example: "xyz789abc456def123"
+        resetLink:
+          type: string
+          format: uri
+          description: Lien complet de reset a inclure dans l'email
+          example: "https://app.compta.tn/reset-password?token=xyz789abc456def123"
+        expiresAt:
+          type: string
+          format: date-time
+          description: Date et heure d'expiration du token (ISO 8601) - 1 heure apres creation
+          example: "2025-01-01T13:00:00Z"

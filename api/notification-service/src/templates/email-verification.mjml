@@ -1,0 +1,85 @@
+<mjml>
+  <mj-head>
+    <mj-title>Verification de votre adresse email - COMPTA</mj-title>
+    <mj-preview>Confirmez votre adresse email pour activer votre compte COMPTA</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Arial, sans-serif" />
+      <mj-text font-size="14px" color="#555555" line-height="1.6" />
+      <mj-button background-color="#4CAF50" color="#ffffff" font-size="16px" border-radius="4px" />
+    </mj-attributes>
+    <mj-style>
+      .footer-link { color: #888888; text-decoration: none; }
+      .footer-link:hover { text-decoration: underline; }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#f4f4f4">
+    <!-- Header avec logo -->
+    <mj-section background-color="#2C3E50" padding="20px 0">
+      <mj-column>
+        <mj-text align="center" color="#ffffff" font-size="28px" font-weight="bold">
+          COMPTA
+        </mj-text>
+        <mj-text align="center" color="#ecf0f1" font-size="14px">
+          Systeme de Gestion Comptable
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Contenu principal -->
+    <mj-section background-color="#ffffff" padding="40px 30px">
+      <mj-column>
+        <mj-text font-size="24px" font-weight="bold" color="#2C3E50" padding-bottom="20px">
+          Verification de votre adresse email
+        </mj-text>
+
+        <mj-text padding-bottom="15px">
+          Bonjour {{username}},
+        </mj-text>
+
+        <mj-text padding-bottom="15px">
+          Merci de vous etre inscrit sur COMPTA. Pour activer votre compte et acceder a toutes les fonctionnalites, veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous :
+        </mj-text>
+
+        <mj-button href="{{verificationLink}}" padding="20px 0">
+          Verifier mon adresse email
+        </mj-button>
+
+        <mj-text padding-top="20px" font-size="13px" color="#888888">
+          Ce lien est valide jusqu'au {{expiresAt}}.
+        </mj-text>
+
+        <mj-divider border-color="#eeeeee" padding="20px 0" />
+
+        <mj-text font-size="13px" color="#888888">
+          Si le bouton ne fonctionne pas, copiez et collez le lien suivant dans votre navigateur :
+        </mj-text>
+
+        <mj-text font-size="12px" color="#4CAF50" padding-top="10px" word-break="break-all">
+          {{verificationLink}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Section securite -->
+    <mj-section background-color="#fff9e6" padding="20px 30px">
+      <mj-column>
+        <mj-text font-size="13px" color="#856404">
+          <strong>Information de securite :</strong> Si vous n'avez pas cree de compte sur COMPTA, vous pouvez ignorer cet email en toute securite. Personne ne pourra acceder a votre adresse email sans ce lien de confirmation.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section padding="20px 30px">
+      <mj-column>
+        <mj-text align="center" font-size="12px" color="#888888">
+          Cet email a ete envoye automatiquement par COMPTA.
+        </mj-text>
+        <mj-text align="center" font-size="12px" color="#888888" padding-top="10px">
+          &copy; 2025 COMPTA - Tous droits reserves
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
