@@ -1,5 +1,6 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Logger, SetMetadata } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Logger, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { NotificationException } from '../common/exceptions/notification.exception';
 
 /**
  * Guard to verify Gateway headers for internal service-to-service communication.
@@ -42,7 +43,7 @@ export class GatewayHeadersGuard implements CanActivate {
 
     if (!userRolesHeader) {
       this.logger.warn('X-User-Roles header missing from Gateway');
-      throw new ForbiddenException('Access denied: Missing user roles header');
+      throw NotificationException.missingHeaders([GatewayHeadersGuard.HEADER_ROLES]);
     }
 
     // Parse roles from header (comma-separated)
@@ -55,9 +56,7 @@ export class GatewayHeadersGuard implements CanActivate {
       this.logger.warn(
         `Access denied: User roles [${userRoles.join(', ')}] do not include any required role [${requiredRoles.join(', ')}]`,
       );
-      throw new ForbiddenException(
-        `Access denied: Required role(s) not found. User has: ${userRoles.join(', ')}`,
-      );
+      throw NotificationException.invalidRoles(requiredRoles, userRoles);
     }
 
     this.logger.debug(

@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { NotificationException } from '../common/exceptions/notification.exception';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -34,13 +35,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.message
         : 'Internal server error';
 
-    const errorResponse = {
+    const errorResponse: any = {
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
       method: request.method,
       message,
     };
+
+    // Add error code and details if it's a NotificationException
+    if (exception instanceof NotificationException) {
+      errorResponse.errorCode = exception.errorCode;
+      if (exception.details) {
+        errorResponse.details = exception.details;
+      }
+    }
 
     // Log only real errors, not Redis connection attempts
     if (!(exception instanceof HttpException) && !this.isRedisConnectionError(exception)) {

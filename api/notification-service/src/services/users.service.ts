@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { NotificationException } from '../common/exceptions/notification.exception';
 
 export interface CreateUserDto {
   email: string;
@@ -56,7 +57,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw NotificationException.userNotFound(id);
     }
 
     return user;
@@ -69,7 +70,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with email ${email} not found`);
+      throw NotificationException.userEmailNotFound(email);
     }
 
     return user;

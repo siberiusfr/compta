@@ -10,6 +10,7 @@ import {
   PasswordResetRequested,
   safeParsePasswordResetRequested,
 } from '@compta/notification-contracts';
+import { NotificationException } from '../common/exceptions/notification.exception';
 
 /**
  * Processor BullMQ pour les demandes de reset de mot de passe utilisant SendPulse.
@@ -49,10 +50,11 @@ export class SendPulsePasswordResetProcessor extends WorkerHost {
     // Valider le message complet (enveloppe + payload) avec Zod
     const parseResult = safeParsePasswordResetRequested(job.data);
     if (!parseResult.success) {
+      const errorMessage = parseResult.error.message || 'Unknown validation error';
       this.logger.error(
-        `Invalid job payload for job ${job.id}: ${parseResult.error.message}`,
+        `Invalid job payload for job ${job.id}: ${errorMessage}`,
       );
-      throw new Error(`Invalid job payload: ${parseResult.error.message}`);
+      throw NotificationException.invalidPayload(String(job.id), errorMessage);
     }
 
     const { eventId, eventType, producer, payload } = parseResult.data;
@@ -171,7 +173,7 @@ export class SendPulsePasswordResetProcessor extends WorkerHost {
       this.logger.error(
         `Failed to load template from ${templatePath}: ${error.message}`,
       );
-      throw new Error(`Email template not found: ${templatePath}`);
+      throw NotificationException.templateLoadFailed(templatePath, error.message);
     }
   }
 

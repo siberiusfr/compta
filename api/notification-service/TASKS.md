@@ -16,6 +16,9 @@
 7. **Validation**: Validation des payloads avec Zod via @compta/notification-contracts
 8. **Logging**: Logging détaillé avec NestJS Logger
 9. **Error Handling**: Gestion des erreurs avec try-catch et re-throw pour BullMQ retries
+10. **Global Exception Filter**: AllExceptionsFilter configuré globalement pour capturer toutes les exceptions
+11. **Standardized Error Codes**: Codes d'erreur standardisés via NotificationException et ErrorCode enum
+12. **Contextual Error Messages**: Messages d'erreur contextuels avec détails (userId, email, etc.)
 
 #### Features
 10. **Template Caching**: Cache en mémoire pour les templates MJML
@@ -35,10 +38,9 @@
 ### ⚠️ What's Not Good (Points Faibles)
 
 #### Security
-1. **No Gateway Headers Validation**: Pas de validation des headers envoyés par la gateway
-2. **No Rate Limiting**: Pas de protection contre les abus
-3. **No Input Sanitization**: Pas de sanitization des entrées utilisateur
-4. **Exposed Endpoints**: Tous les endpoints sont publics (devraient être protégés par gateway)
+1. **No Rate Limiting**: Pas de protection contre les abus
+2. **No Input Sanitization**: Pas de sanitization des entrées utilisateur
+3. **Exposed Endpoints**: Tous les endpoints sont publics (devraient être protégés par gateway)
 
 #### Code Quality
 5. **Code Duplication**: Duplication entre `EmailVerificationProcessor` et `PasswordResetProcessor`
@@ -47,16 +49,10 @@
    - `formatExpirationDate()` identique
 6. **No DTO Validation**: Pas de class-validator pour valider les DTOs
 7. **Hardcoded Values**: Timezone hardcodée ('Africa/Tunis'), locale hardcodée ('fr-FR')
-8. **No Swagger Decorators**: Pas de documentation OpenAPI/Swagger
-9. **No Structured Logging**: Pas de Winston/Pino pour des logs structurés
-
-#### Error Handling
-10. **Generic Errors**: Erreurs génériques sans codes d'erreur spécifiques
-11. **No Global Exception Filter**: `AllExceptionsFilter` existe mais pas configuré globalement
-12. **No Error Codes**: Pas de codes d'erreur standardisés
+8. **No Structured Logging**: Pas de Winston/Pino pour des logs structurés
 
 #### Features
-13. **No SMS Support**: Pas d'intégration SMS (Twilio, etc.)
+11. **No SMS Support**: Pas d'intégration SMS (Twilio, etc.)
 14. **No Push Notifications**: Pas de support pour FCM/APNs
 15. **No Webhook Endpoints**: Pas d'endpoints pour recevoir les webhooks de delivery
 16. **No Preference Checking**: Les préférences utilisateur ne sont pas vérifiées avant envoi
@@ -90,9 +86,8 @@
 ### ❌ What's Missing (Ce qui manque)
 
 #### Gateway Integration
-1. **Gateway Headers Validation**: Valider les headers envoyés par la gateway
-2. **Service-to-Service Auth**: Support pour l'authentification entre services internes
-3. **Gateway Health Checks**: Vérifier la santé de la gateway
+1. **Service-to-Service Auth**: Support pour l'authentification entre services internes
+2. **Gateway Health Checks**: Vérifier la santé de la gateway
 
 #### Validation & Sanitization
 4. **DTO Validation**: class-validator et class-transformer pour tous les DTOs
@@ -101,9 +96,8 @@
 7. **Phone Validation**: Validation des numéros de téléphone
 
 #### Documentation
-8. **Swagger/OpenAPI**: Documentation complète avec @nestjs/swagger
-9. **API Versioning**: Versioning de l'API (/v1, /v2)
-10. **API Examples**: Exemples de requêtes/réponses dans Swagger
+8. **API Versioning**: Versioning de l'API (/v1, /v2)
+9. **API Examples**: Exemples de requêtes/réponses dans Swagger
 
 #### Rate Limiting & Throttling
 11. **Rate Limiting**: @nestjs/throttler pour limiter les requêtes
@@ -215,15 +209,12 @@
 ## 📋 Priority Tasks
 
 ### 🔴 Critical (Do Immediately)
-1. **Add Gateway Headers Guard**: Protéger les endpoints selon les rôles envoyés par la gateway
-2. **Add Role-Based Access Control**: Implémenter les guards pour les rôles
-3. **Add Rate Limiting**: Protéger contre les abus
-4. **Add Input Validation**: Valider tous les DTOs avec class-validator
-5. **Add Swagger Documentation**: Documenter l'API avec OpenAPI
+1. **Add Rate Limiting**: Protéger contre les abus
+2. **Add Input Validation**: Valider tous les DTOs avec class-validator
+3. **Refactor Processors**: Éliminer la duplication de code
 
 ### 🟠 High Priority (Do Soon)
-6. **Refactor Processors**: Éliminer la duplication de code
-7. **Add SMS Provider Integration**: Intégrer Twilio ou AWS SNS
+4. **Add SMS Provider Integration**: Intégrer Twilio ou AWS SNS
 8. **Add Webhook Endpoints**: Recevoir les webhooks de delivery
 9. **Add Structured Logging**: Implémenter Winston/Pino
 10. **Add Unit Tests**: Tests unitaires pour les services
@@ -256,6 +247,9 @@
 - [x] Add Gateway Headers Guard
 - [x] Add Role-Based Access Control
 - [x] Add Swagger Documentation
+- [x] Configure Global Exception Filter
+- [x] Add Standardized Error Codes
+- [x] Add Contextual Error Messages
 - [ ] Add Rate Limiting
 - [ ] Add DTO Validation
 
