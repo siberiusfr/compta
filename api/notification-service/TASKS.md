@@ -35,189 +35,187 @@
 ### ⚠️ What's Not Good (Points Faibles)
 
 #### Security
-1. **No Authentication**: Pas d'authentification JWT sur les endpoints API
-2. **No Authorization**: Pas de guards ou de contrôle d'accès par rôle
-3. **No Rate Limiting**: Pas de protection contre les abus
-4. **No Input Sanitization**: Pas de sanitization des entrées utilisateur
-5. **Exposed Endpoints**: Tous les endpoints sont publics
+1. **No Gateway Headers Validation**: Pas de validation des headers envoyés par la gateway
+2. **No Rate Limiting**: Pas de protection contre les abus
+3. **No Input Sanitization**: Pas de sanitization des entrées utilisateur
+4. **Exposed Endpoints**: Tous les endpoints sont publics (devraient être protégés par gateway)
 
 #### Code Quality
-6. **Code Duplication**: Duplication entre `EmailVerificationProcessor` et `PasswordResetProcessor`
+5. **Code Duplication**: Duplication entre `EmailVerificationProcessor` et `PasswordResetProcessor`
    - `loadTemplate()` identique
    - `compileTemplate()` identique
    - `formatExpirationDate()` identique
-7. **No DTO Validation**: Pas de class-validator pour valider les DTOs
-8. **Hardcoded Values**: Timezone hardcodée ('Africa/Tunis'), locale hardcodée ('fr-FR')
-9. **No Swagger Decorators**: Pas de documentation OpenAPI/Swagger
-10. **No Structured Logging**: Pas de Winston/Pino pour des logs structurés
+6. **No DTO Validation**: Pas de class-validator pour valider les DTOs
+7. **Hardcoded Values**: Timezone hardcodée ('Africa/Tunis'), locale hardcodée ('fr-FR')
+8. **No Swagger Decorators**: Pas de documentation OpenAPI/Swagger
+9. **No Structured Logging**: Pas de Winston/Pino pour des logs structurés
 
 #### Error Handling
-11. **Generic Errors**: Erreurs génériques sans codes d'erreur spécifiques
-12. **No Global Exception Filter**: `AllExceptionsFilter` existe mais pas configuré globalement
-13. **No Error Codes**: Pas de codes d'erreur standardisés
+10. **Generic Errors**: Erreurs génériques sans codes d'erreur spécifiques
+11. **No Global Exception Filter**: `AllExceptionsFilter` existe mais pas configuré globalement
+12. **No Error Codes**: Pas de codes d'erreur standardisés
 
 #### Features
-14. **No SMS Support**: Pas d'intégration SMS (Twilio, etc.)
-15. **No Push Notifications**: Pas de support pour FCM/APNs
-16. **No Webhook Endpoints**: Pas d'endpoints pour recevoir les webhooks de delivery
-17. **No Preference Checking**: Les préférences utilisateur ne sont pas vérifiées avant envoi
-18. **No Batch Processing**: Pas d'envoi en lot
-19. **No Scheduled Jobs**: Pas de jobs planifiés pour le cleanup automatique
-20. **No Retry Logic Custom**: Retry logic par défaut de BullMQ sans personnalisation
+13. **No SMS Support**: Pas d'intégration SMS (Twilio, etc.)
+14. **No Push Notifications**: Pas de support pour FCM/APNs
+15. **No Webhook Endpoints**: Pas d'endpoints pour recevoir les webhooks de delivery
+16. **No Preference Checking**: Les préférences utilisateur ne sont pas vérifiées avant envoi
+17. **No Batch Processing**: Pas d'envoi en lot
+18. **No Scheduled Jobs**: Pas de jobs planifiés pour le cleanup automatique
+19. **No Retry Logic Custom**: Retry logic par défaut de BullMQ sans personnalisation
 
 #### Monitoring & Observability
-21. **No Metrics**: Pas de métriques Prometheus/Datadog
-22. **No Distributed Tracing**: Pas de tracing distribué
-23. **No Sentry Integration**: Pas de tracking d'erreurs avec Sentry
-24. **No Health Checks**: Health checks basiques sans détails
+20. **No Metrics**: Pas de métriques Prometheus/Datadog
+21. **No Distributed Tracing**: Pas de tracing distribué
+22. **No Sentry Integration**: Pas de tracking d'erreurs avec Sentry
+23. **No Health Checks**: Health checks basiques sans détails
 
 #### Testing
-25. **No Unit Tests**: Pas de tests unitaires
-26. **No E2E Tests**: Pas de tests end-to-end
-27. **No Load Tests**: Pas de tests de charge
+24. **No Unit Tests**: Pas de tests unitaires
+25. **No E2E Tests**: Pas de tests end-to-end
+26. **No Load Tests**: Pas de tests de charge
 
 #### Performance
-28. **No Connection Pooling**: Pas de configuration du connection pooling Prisma
-29. **No Caching Layer**: Pas de Redis cache pour les données fréquentes
-30. **No Database Optimization**: Pas de query optimization ou N+1 queries
-31. **No Circuit Breaker**: Pas de circuit breaker pour les appels SMTP
+27. **No Connection Pooling**: Pas de configuration du connection pooling Prisma
+28. **No Caching Layer**: Pas de Redis cache pour les données fréquentes
+29. **No Database Optimization**: Pas de query optimization ou N+1 queries
+30. **No Circuit Breaker**: Pas de circuit breaker pour les appels SMTP
 
 #### Internationalization
-32. **No i18n Support**: Pas de support multi-langue (hardcoded 'fr-FR')
-33. **No Locale Detection**: Pas de détection de locale utilisateur
+31. **No i18n Support**: Pas de support multi-langue (hardcoded 'fr-FR')
+32. **No Locale Detection**: Pas de détection de locale utilisateur
 
 ---
 
 ### ❌ What's Missing (Ce qui manque)
 
-#### Authentication & Authorization
-1. **JWT Authentication Guard**: Guard pour valider les tokens JWT
-2. **Role-Based Access Control**: Guards pour les rôles (ADMIN, COMPTABLE, etc.)
-3. **Permission System**: Système de permissions granulaires
-4. **API Key Authentication**: Support pour les API keys (pour les services internes)
+#### Gateway Integration
+1. **Gateway Headers Validation**: Valider les headers envoyés par la gateway
+2. **Service-to-Service Auth**: Support pour l'authentification entre services internes
+3. **Gateway Health Checks**: Vérifier la santé de la gateway
 
 #### Validation & Sanitization
-5. **DTO Validation**: class-validator et class-transformer pour tous les DTOs
-6. **Input Sanitization**: Sanitization des emails, phones, etc.
-7. **Email Validation**: Validation avancée des emails (MX records, etc.)
-8. **Phone Validation**: Validation des numéros de téléphone
+4. **DTO Validation**: class-validator et class-transformer pour tous les DTOs
+5. **Input Sanitization**: Sanitization des emails, phones, etc.
+6. **Email Validation**: Validation avancée des emails (MX records, etc.)
+7. **Phone Validation**: Validation des numéros de téléphone
 
 #### Documentation
-9. **Swagger/OpenAPI**: Documentation complète avec @nestjs/swagger
-10. **API Versioning**: Versioning de l'API (/v1, /v2)
-11. **API Examples**: Exemples de requêtes/réponses dans Swagger
+8. **Swagger/OpenAPI**: Documentation complète avec @nestjs/swagger
+9. **API Versioning**: Versioning de l'API (/v1, /v2)
+10. **API Examples**: Exemples de requêtes/réponses dans Swagger
 
 #### Rate Limiting & Throttling
-12. **Rate Limiting**: @nestjs/throttler pour limiter les requêtes
-13. **Per-User Rate Limiting**: Limites par utilisateur
-14. **IP-based Rate Limiting**: Limites par IP
-15. **Notification Throttling**: Throttling des notifications par utilisateur
+11. **Rate Limiting**: @nestjs/throttler pour limiter les requêtes
+12. **Per-User Rate Limiting**: Limites par utilisateur
+13. **IP-based Rate Limiting**: Limites par IP
+14. **Notification Throttling**: Throttling des notifications par utilisateur
 
 #### SMS & Push Notifications
-16. **SMS Provider Integration**: Twilio, AWS SNS, etc.
-17. **Push Notifications**: FCM pour Android, APNs pour iOS
-18. **In-App Notifications**: WebSocket pour les notifications en temps réel
-19. **Multi-Provider Support**: Support de plusieurs providers avec fallback
+15. **SMS Provider Integration**: Twilio, AWS SNS, etc.
+16. **Push Notifications**: FCM pour Android, APNs pour iOS
+17. **In-App Notifications**: WebSocket pour les notifications en temps réel
+18. **Multi-Provider Support**: Support de plusieurs providers avec fallback
 
 #### Webhooks & Delivery Tracking
-20. **Webhook Endpoints**: Endpoints pour recevoir les webhooks des providers
-21. **Webhook Signature Verification**: Vérification des signatures webhooks
-22. **Delivery Status Updates**: Mise à jour automatique du status via webhooks
-23. **Bounce Handling**: Traitement des emails rebondis
-24. **Complaint Handling**: Traitement des plaintes (spam reports)
+19. **Webhook Endpoints**: Endpoints pour recevoir les webhooks des providers
+20. **Webhook Signature Verification**: Vérification des signatures webhooks
+21. **Delivery Status Updates**: Mise à jour automatique du status via webhooks
+22. **Bounce Handling**: Traitement des emails rebondis
+23. **Complaint Handling**: Traitement des plaintes (spam reports)
 
 #### Batch & Scheduled Operations
-25. **Batch Sending**: Envoi en lot de notifications
-26. **Scheduled Notifications**: Notifications planifiées avec cron jobs
-27. **Automatic Cleanup**: Job planifié pour nettoyer les anciennes notifications
-28. **Retry Jobs**: Jobs de retry automatique pour les notifications échouées
+24. **Batch Sending**: Envoi en lot de notifications
+25. **Scheduled Notifications**: Notifications planifiées avec cron jobs
+26. **Automatic Cleanup**: Job planifié pour nettoyer les anciennes notifications
+27. **Retry Jobs**: Jobs de retry automatique pour les notifications échouées
 
 #### Monitoring & Observability
-29. **Prometheus Metrics**: Export des métriques Prometheus
-30. **Grafana Dashboards**: Dashboards Grafana pour la visualisation
-31. **Distributed Tracing**: Jaeger/Zipkin pour le tracing distribué
-32. **Sentry Integration**: Tracking des erreurs avec Sentry
-33. **Health Checks**: Health checks détaillés (DB, Redis, SMTP)
-34. **Performance Monitoring**: Monitoring des temps de réponse et throughput
+28. **Prometheus Metrics**: Export des métriques Prometheus
+29. **Grafana Dashboards**: Dashboards Grafana pour la visualisation
+30. **Distributed Tracing**: Jaeger/Zipkin pour le tracing distribué
+31. **Sentry Integration**: Tracking des erreurs avec Sentry
+32. **Health Checks**: Health checks détaillés (DB, Redis, SMTP)
+33. **Performance Monitoring**: Monitoring des temps de réponse et throughput
 
 #### Logging
-35. **Structured Logging**: Winston ou Pino pour des logs structurés
-36. **Log Correlation**: Correlation IDs pour tracer les requêtes
-37. **Log Levels**: Niveaux de log configurables
-38. **Log Aggregation**: Agrégation des logs (ELK, Loki)
+34. **Structured Logging**: Winston ou Pino pour des logs structurés
+35. **Log Correlation**: Correlation IDs pour tracer les requêtes
+36. **Log Levels**: Niveaux de log configurables
+37. **Log Aggregation**: Agrégation des logs (ELK, Loki)
 
 #### Internationalization
-39. **i18n Support**: @nestjs/i18n pour le support multi-langue
-40. **Locale Detection**: Détection automatique de la locale
-41. **Template Localization**: Templates localisés par langue
-42. **Date/Time Formatting**: Formatage selon la locale
+38. **i18n Support**: @nestjs/i18n pour le support multi-langue
+39. **Locale Detection**: Détection automatique de la locale
+40. **Template Localization**: Templates localisés par langue
+41. **Date/Time Formatting**: Formatage selon la locale
 
 #### Testing
-43. **Unit Tests**: Tests unitaires pour tous les services
-44. **E2E Tests**: Tests end-to-end avec Supertest
-45. **Integration Tests**: Tests d'intégration avec Testcontainers
-46. **Load Tests**: Tests de charge avec k6 ou Artillery
-47. **Contract Tests**: Tests de contrat avec @compta/notification-contracts
+42. **Unit Tests**: Tests unitaires pour tous les services
+43. **E2E Tests**: Tests end-to-end avec Supertest
+44. **Integration Tests**: Tests d'intégration avec Testcontainers
+45. **Load Tests**: Tests de charge avec k6 ou Artillery
+46. **Contract Tests**: Tests de contrat avec @compta/notification-contracts
 
 #### Performance Optimization
-48. **Connection Pooling**: Configuration du connection pooling Prisma
-49. **Query Optimization**: Optimisation des requêtes N+1
-50. **Caching Layer**: Redis cache pour les templates, utilisateurs, etc.
-51. **Database Indexes**: Indexes supplémentaires pour les requêtes complexes
-52. **Lazy Loading**: Chargement différé des relations
-53. **Pagination Optimization**: Cursor-based pagination pour les grandes datasets
+47. **Connection Pooling**: Configuration du connection pooling Prisma
+48. **Query Optimization**: Optimisation des requêtes N+1
+49. **Caching Layer**: Redis cache pour les templates, utilisateurs, etc.
+50. **Database Indexes**: Indexes supplémentaires pour les requêtes complexes
+51. **Lazy Loading**: Chargement différé des relations
+52. **Pagination Optimization**: Cursor-based pagination pour les grandes datasets
 
 #### Resilience
-54. **Circuit Breaker**: Circuit breaker pour les appels SMTP/SMS
-55. **Retry Policies**: Politiques de retry personnalisées par type d'erreur
-56. **Fallback Providers**: Fallback vers d'autres providers en cas d'échec
-57. **Timeout Handling**: Timeouts configurables pour les appels externes
-58. **Bulkhead Pattern**: Isolation des ressources pour éviter la cascade failure
+53. **Circuit Breaker**: Circuit breaker pour les appels SMTP/SMS
+54. **Retry Policies**: Politiques de retry personnalisées par type d'erreur
+55. **Fallback Providers**: Fallback vers d'autres providers en cas d'échec
+56. **Timeout Handling**: Timeouts configurables pour les appels externes
+57. **Bulkhead Pattern**: Isolation des ressources pour éviter la cascade failure
 
 #### Data Management
-59. **Data Export**: Export des notifications en CSV/PDF
-60. **Data Archival**: Archivage des anciennes notifications
-61. **Data Retention Policy**: Politique de rétention des données
-62. **GDPR Compliance**: Suppression/export des données utilisateur (GDPR)
-63. **Audit Logs**: Logs d'audit pour toutes les opérations sensibles
+58. **Data Export**: Export des notifications en CSV/PDF
+59. **Data Archival**: Archivage des anciennes notifications
+60. **Data Retention Policy**: Politique de rétention des données
+61. **GDPR Compliance**: Suppression/export des données utilisateur (GDPR)
+62. **Audit Logs**: Logs d'audit pour toutes les opérations sensibles
 
 #### User Experience
-64. **Notification Preview**: Prévisualisation des notifications avant envoi
-65. **Template Preview**: Prévisualisation des templates MJML
-66. **A/B Testing**: A/B testing pour les templates
-67. **Campaign Management**: Gestion des campagnes de notification
-68. **User Segmentation**: Segmentation des utilisateurs pour le targeting
+63. **Notification Preview**: Prévisualisation des notifications avant envoi
+64. **Template Preview**: Prévisualisation des templates MJML
+65. **A/B Testing**: A/B testing pour les templates
+66. **Campaign Management**: Gestion des campagnes de notification
+67. **User Segmentation**: Segmentation des utilisateurs pour le targeting
 
 #### Email-Specific
-69. **Email Bounce Handling**: Traitement automatique des bounces
-70. **Email Complaint Handling**: Traitement des spam complaints
-71. **Unsubscribe Management**: Gestion des désabonnements
-72. **Email Tracking**: Tracking des ouvertures et clics
-73. **Reply Handling**: Traitement des réponses aux emails
+68. **Email Bounce Handling**: Traitement automatique des bounces
+69. **Email Complaint Handling**: Traitement des spam complaints
+70. **Unsubscribe Management**: Gestion des désabonnements
+71. **Email Tracking**: Tracking des ouvertures et clics
+72. **Reply Handling**: Traitement des réponses aux emails
 
 #### SMS-Specific
-74. **SMS Delivery Status**: Tracking du status de livraison SMS
-75. **SMS Opt-out**: Gestion des opt-out SMS
-76. **SMS Templates**: Templates SMS avec variables
+73. **SMS Delivery Status**: Tracking du status de livraison SMS
+74. **SMS Opt-out**: Gestion des opt-out SMS
+75. **SMS Templates**: Templates SMS avec variables
 
 #### Push-Specific
-77. **Push Token Management**: Gestion des tokens push
-78. **Push Badge Management**: Gestion des badges notifications
-79. **Push Sound/Action**: Configuration des sons et actions push
+76. **Push Token Management**: Gestion des tokens push
+77. **Push Badge Management**: Gestion des badges notifications
+78. **Push Sound/Action**: Configuration des sons et actions push
 
 #### Admin Features
-80. **Admin Dashboard**: Dashboard administrateur pour la gestion
-81. **Notification Queue Monitor**: Monitoring des queues en temps réel
-82. **Template Management UI**: Interface pour gérer les templates
-83. **User Management UI**: Interface pour gérer les utilisateurs
-84. **Reports & Analytics**: Rapports et analytics avancés
+79. **Admin Dashboard**: Dashboard administrateur pour la gestion
+80. **Notification Queue Monitor**: Monitoring des queues en temps réel
+81. **Template Management UI**: Interface pour gérer les templates
+82. **User Management UI**: Interface pour gérer les utilisateurs
+83. **Reports & Analytics**: Rapports et analytics avancés
 
 ---
 
 ## 📋 Priority Tasks
 
 ### 🔴 Critical (Do Immediately)
-1. **Add JWT Authentication Guard**: Protéger tous les endpoints API
+1. **Add Gateway Headers Guard**: Protéger les endpoints selon les rôles envoyés par la gateway
 2. **Add Role-Based Access Control**: Implémenter les guards pour les rôles
 3. **Add Rate Limiting**: Protéger contre les abus
 4. **Add Input Validation**: Valider tous les DTOs avec class-validator
@@ -255,11 +253,11 @@
 ## 🚀 Implementation Roadmap
 
 ### Phase 1: Security & Documentation (Week 1-2)
-- [ ] Add JWT Authentication Guard
-- [ ] Add Role-Based Access Control
+- [x] Add Gateway Headers Guard
+- [x] Add Role-Based Access Control
+- [x] Add Swagger Documentation
 - [ ] Add Rate Limiting
 - [ ] Add DTO Validation
-- [ ] Add Swagger Documentation
 
 ### Phase 2: Code Quality & Testing (Week 3-4)
 - [ ] Refactor Processors (remove duplication)
@@ -304,19 +302,67 @@
 
 ## 📝 Code Examples
 
-### Example: JWT Authentication Guard
+### Example: Gateway Headers Guard
 ```typescript
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Logger, SetMetadata } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
-  canActivate(context: ExecutionContext) {
-    return super.canActivate(context);
+export class GatewayHeadersGuard implements CanActivate {
+  private static readonly HEADER_USER_ID = 'x-user-id';
+  private static readonly HEADER_ROLES = 'x-user-roles';
+
+  constructor(private readonly reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    const requiredRoles = this.reflector.get<string[]>('roles', context.getHandler()) || [];
+
+    if (requiredRoles.length === 0) {
+      return true;
+    }
+
+    const userRolesHeader = request.headers[GatewayHeadersGuard.HEADER_ROLES] as string;
+    
+    if (!userRolesHeader) {
+      throw new ForbiddenException('Missing user roles header');
+    }
+
+    const userRoles = userRolesHeader.split(',').map((r: string) => r.trim().toUpperCase());
+    const hasRequiredRole = requiredRoles.some((role: string) => userRoles.includes(role));
+
+    if (!hasRequiredRole) {
+      throw new ForbiddenException(`Required role(s) not found. User has: ${userRoles.join(', ')}`);
+    }
+
+    request.user = {
+      id: request.headers[GatewayHeadersGuard.HEADER_USER_ID],
+      roles: userRoles,
+    };
+
+    return true;
   }
 }
 
+export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
+```
+
+### Example: Using the Guard
+```typescript
 @Controller('notifications')
-@UseGuards(JwtAuthGuard)
+@ApiTags('notifications')
+@UseGuards(GatewayHeadersGuard)
 export class NotificationsController {
-  // ...
+  @Get()
+  @Roles('ADMIN', 'COMPTABLE')
+  async adminEndpoint() {
+    // Only ADMIN and COMPTABLE can access
+  }
+
+  @Get()
+  async publicEndpoint() {
+    // Everyone can access (no roles required)
+  }
 }
 ```
 
