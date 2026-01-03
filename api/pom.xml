@@ -256,14 +256,28 @@
             <defaultSchema>${jooq.generator.db.schema}</defaultSchema>
             <createSchemas>true</createSchemas>
             <locations>
-              <location>classpath:db/migration</location>
+              <location>filesystem:src/main/resources/db/migration</location>
             </locations>
           </configuration>
+          <executions>
+            <execution>
+              <id>flyway-migrate</id>
+              <goals>
+                <goal>migrate</goal>
+              </goals>
+              <phase>generate-sources</phase>
+            </execution>
+          </executions>
           <dependencies>
             <dependency>
               <groupId>org.postgresql</groupId>
               <artifactId>postgresql</artifactId>
               <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.flywaydb</groupId>
+              <artifactId>flyway-database-postgresql</artifactId>
+              <version>11.20.0</version>
             </dependency>
           </dependencies>
         </plugin>

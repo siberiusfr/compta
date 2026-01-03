@@ -70,60 +70,89 @@ The Notification Service provides the following core functionality:
 
 ## API Endpoints
 
+**Note:** All endpoints are prefixed with `/notification/` (e.g., `/notification/health`, `/notification/notifications`).
+
 ### Health Endpoints
 
 | Method | Path | Description | Authentication |
 |--------|------|-------------|----------------|
-| GET | `/health` | Overall service health | None |
-| GET | `/health/redis` | Redis connection health | None |
+| GET | `/notification/health` | Overall service health | None |
+| GET | `/notification/health/redis` | Redis connection health | None |
 
 ### Notification Endpoints
 
 | Method | Path | Description | Authentication |
 |--------|------|-------------|----------------|
-| GET | `/notifications` | List all notifications | Required |
-| GET | `/notifications/:id` | Get notification by ID | Required |
-| POST | `/notifications` | Create new notification | Required |
-| POST | `/notifications/send` | Send notification immediately | Required |
-| POST | `/notifications/batch` | Send batch notifications | Required |
-| DELETE | `/notifications/:id` | Cancel/delete notification | Required |
+| GET | `/notification/notifications` | List notifications with filters | Gateway |
+| GET | `/notification/notifications/:id` | Get notification by ID | Gateway |
+| POST | `/notification/notifications` | Create new notification | Gateway |
+| PATCH | `/notification/notifications/:id/status` | Update notification status | Gateway |
+| GET | `/notification/notifications/stats/global` | Get global statistics | Gateway |
+| GET | `/notification/notifications/scheduled/ready` | Get scheduled notifications ready to send | Gateway |
+| GET | `/notification/notifications/failed/retryable` | Get retryable failed notifications | Gateway |
+| DELETE | `/notification/notifications/cleanup/:days` | Clean up old notifications | Gateway |
 
 ### User Endpoints
 
 | Method | Path | Description | Authentication |
 |--------|------|-------------|----------------|
-| GET | `/users` | List all users | Required |
-| GET | `/users/:id` | Get user by ID | Required |
-| POST | `/users` | Create user | Required |
-| PUT | `/users/:id` | Update user | Required |
-| DELETE | `/users/:id` | Delete user | Required |
-| PUT | `/users/:id/preferences` | Update user notification preferences | Required |
+| GET | `/notification/users` | List all users | Gateway |
+| GET | `/notification/users/:id` | Get user by ID | Gateway |
+| GET | `/notification/users/email/:email` | Get user by email | Gateway |
+| POST | `/notification/users` | Create user | Gateway |
+| PATCH | `/notification/users/:id` | Update user | Gateway |
+| PATCH | `/notification/users/:id/preferences` | Update user notification preferences | Gateway |
+| GET | `/notification/users/:id/stats` | Get user notification statistics | Gateway |
+| DELETE | `/notification/users/:id` | Delete user | Gateway |
 
 ### Template Endpoints
 
 | Method | Path | Description | Authentication |
 |--------|------|-------------|----------------|
-| GET | `/templates` | List all templates | Required |
-| GET | `/templates/:id` | Get template by ID | Required |
-| GET | `/templates/code/:code` | Get template by code | Required |
-| POST | `/templates` | Create template | Required |
-| PUT | `/templates/:id` | Update template | Required |
-| DELETE | `/templates/:id` | Delete template | Required |
+| GET | `/notification/templates` | List all templates | Gateway |
+| GET | `/notification/templates/:id` | Get template by ID | Gateway |
+| GET | `/notification/templates/code/:code` | Get active template by code | Gateway |
+| GET | `/notification/templates/code/:code/versions` | Get all versions of a template | Gateway |
+| POST | `/notification/templates` | Create template | Gateway |
+| PATCH | `/notification/templates/:id` | Update template | Gateway |
+| PATCH | `/notification/templates/:id/active` | Activate/deactivate template | Gateway |
+| DELETE | `/notification/templates/:id` | Delete template | Gateway |
 
 ### Statistics Endpoints
 
 | Method | Path | Description | Authentication |
 |--------|------|-------------|----------------|
-| GET | `/stats/overview` | Get notification overview statistics | Required |
-| GET | `/stats/channel/:channel` | Get statistics by channel | Required |
-| GET | `/stats/type/:type` | Get statistics by type | Required |
-| GET | `/stats/daily` | Get daily statistics | Required |
+| GET | `/notification/stats/daily` | Get daily statistics | Gateway |
+| GET | `/notification/stats/summary` | Get global summary | Gateway |
+| GET | `/notification/stats/success-rate` | Get success rate | Gateway |
+| POST | `/notification/stats/aggregate` | Aggregate statistics from notifications | Gateway |
+
+### SendPulse Endpoints
+
+| Method | Path | Description | Authentication |
+|--------|------|-------------|----------------|
+| POST | `/notification/sendpulse/send-email` | Send email via SendPulse | Gateway |
+| POST | `/notification/sendpulse/send-template` | Send email using SendPulse template | Gateway |
+| GET | `/notification/sendpulse/emails` | Get list of sent emails | Gateway |
+| GET | `/notification/sendpulse/emails/:id` | Get email by ID | Gateway |
+| GET | `/notification/sendpulse/emails/total` | Get total sent emails | Gateway |
+| GET | `/notification/sendpulse/bounces` | Get bounces information | Gateway |
+| GET | `/notification/sendpulse/bounces/total` | Get total bounces | Gateway |
+| POST | `/notification/sendpulse/unsubscribe` | Unsubscribe recipients | Gateway |
+| DELETE | `/notification/sendpulse/unsubscribe` | Remove from unsubscribed list | Gateway |
+| GET | `/notification/sendpulse/unsubscribe` | Get unsubscribed users | Gateway |
+| GET | `/notification/sendpulse/unsubscribe/search` | Check if email is unsubscribed | Gateway |
+| POST | `/notification/sendpulse/resubscribe` | Resubscribe recipient | Gateway |
+| GET | `/notification/sendpulse/senders` | Get sender email addresses | Gateway |
+| GET | `/notification/sendpulse/sender-domains` | Get sender domains | Gateway |
+| POST | `/notification/sendpulse/senders` | Add sender email | Gateway |
+| POST | `/notification/sendpulse/sender-domains/:domain` | Add sender domain | Gateway |
 
 ### Queue Monitoring
 
 | Method | Path | Description | Authentication |
 |--------|------|-------------|----------------|
-| GET | `/queues` | Bull Board UI for queue monitoring | None |
+| GET | `/notification/queues` | Bull Board UI for queue monitoring | None |
 
 ---
 
@@ -165,7 +194,7 @@ Configuration is managed through environment variables (see `.env.example`).
 | `SMTP_PASSWORD` | SMTP password | (required) |
 | `SMTP_FROM` | Default from email address | `noreply@example.com` |
 | `SMTP_FROM_NAME` | Default from name | `No Reply` |
-| `JWT_SECRET` | JWT secret for authentication | (required) |
+| `SENDPULSE_ACCESS_TOKEN` | SendPulse API access token | (optional) |
 
 ---
 
@@ -325,8 +354,10 @@ Webhook events from providers for delivery tracking.
 ### Processors (Queue Workers)
 
 #### `processors/`
-- **`EmailVerificationProcessor`** - Processes email verification jobs
-- **`PasswordResetProcessor`** - Processes password reset jobs
+- **`EmailVerificationProcessor`** - Processes email verification jobs (SMTP via Nodemailer)
+- **`PasswordResetProcessor`** - Processes password reset jobs (SMTP via Nodemailer)
+- **`SendPulseEmailVerificationProcessor`** - Processes email verification jobs (SendPulse API)
+- **`SendPulsePasswordResetProcessor`** - Processes password reset jobs (SendPulse API)
 
 #### `notification/`
 - **`MailProcessor`** - Legacy mail queue processor
@@ -342,6 +373,14 @@ Webhook events from providers for delivery tracking.
 
 #### `health/`
 - **`RedisHealthService`** - Redis connection health checks
+
+### SendPulse
+
+#### `sendpulse/`
+- **`SendPulseModule`** - SendPulse email service module
+- **`SendPulseService`** - SendPulse SMTP API integration
+- **`SendPulseEmailVerificationProcessor`** - Email verification via SendPulse
+- **`SendPulsePasswordResetProcessor`** - Password reset via SendPulse
 
 ### Filters
 
@@ -366,19 +405,19 @@ The service uses three main queues:
 #### 1. `mail_queue` (Legacy)
 - **Purpose:** Legacy email queue
 - **Processor:** `MailProcessor`
-- **Monitoring:** Available via Bull Board at `/queues`
+- **Monitoring:** Available via Bull Board at `/notification/queues`
 
 #### 2. `EMAIL_VERIFICATION`
 - **Purpose:** Email verification notifications from oauth2-server
-- **Processor:** `EmailVerificationProcessor`
+- **Processors:** `EmailVerificationProcessor` (SMTP), `SendPulseEmailVerificationProcessor` (SendPulse)
 - **Contract:** `@compta/notification-contracts`
-- **Monitoring:** Available via Bull Board at `/queues`
+- **Monitoring:** Available via Bull Board at `/notification/queues`
 
 #### 3. `PASSWORD_RESET`
 - **Purpose:** Password reset notifications from oauth2-server
-- **Processor:** `PasswordResetProcessor`
+- **Processors:** `PasswordResetProcessor` (SMTP), `SendPulsePasswordResetProcessor` (SendPulse)
 - **Contract:** `@compta/notification-contracts`
-- **Monitoring:** Available via Bull Board at `/queues`
+- **Monitoring:** Available via Bull Board at `/notification/queues`
 
 ### Queue Configuration
 
@@ -393,7 +432,7 @@ BullModule.forRoot({
 
 ### Bull Board UI
 
-Access queue monitoring at: `http://localhost:3000/queues`
+Access queue monitoring at: `http://localhost:3000/notification/queues`
 
 Features:
 - View queue status and statistics
@@ -619,21 +658,29 @@ All errors are logged with:
 
 ### Health Checks
 
-- **Service Health:** `GET /health`
-- **Redis Health:** `GET /health/redis`
+- **Service Health:** `GET /notification/health`
+- **Redis Health:** `GET /notification/health/redis`
 
 ### Queue Monitoring
 
-- **Bull Board UI:** `http://localhost:3000/queues`
+- **Bull Board UI:** `http://localhost:3000/notification/queues`
 - View queue statistics
 - Inspect job details
 - Retry failed jobs
 
 ### Statistics
 
-- **Daily Statistics:** Aggregated by date, channel, type
+- **Daily Statistics:** `GET /notification/stats/daily`
+- **Global Summary:** `GET /notification/stats/summary`
+- **Success Rate:** `GET /notification/stats/success-rate`
+- **Aggregate:** `POST /notification/stats/aggregate`
 - **Metrics:** Sent, Delivered, Failed, Bounced
 - **Performance:** Average processing time
+
+### API Documentation
+
+- **Swagger UI:** `http://localhost:3000/notification/api/docs`
+- **OpenAPI JSON:** `http://localhost:3000/notification/api/docs-json`
 
 ---
 
@@ -641,18 +688,27 @@ All errors are logged with:
 
 ### Authentication
 
-- JWT-based authentication for API endpoints
-- Token validation via auth-service or oauth2-server
+The service is protected by API Gateway which handles authentication and forwards the following headers:
+
+- **X-User-Id**: The authenticated user ID
+- **X-User-Username**: The username
+- **X-User-Email**: The user email (masked)
+- **X-User-Roles**: Comma-separated list of user roles (e.g., "ADMIN,COMPTABLE")
+- **X-Tenant-Id**: The tenant ID
+- **Authorization**: Optional internal service token for service-to-service communication
+
+**GatewayHeadersGuard**: A custom guard validates gateway headers and provides role-based access control via `@Roles()` decorator.
 
 ### Data Protection
 
 - Passwords never sent in notifications
 - Sensitive data masked in logs
 - TLS encryption for SMTP connections
+- Global ValidationPipe with whitelisting and transformation enabled
 
 ### Rate Limiting
 
-- Configure rate limits per user/IP
+- Rate limiting should be configured (currently not implemented)
 - Prevent abuse of notification endpoints
 
 ---
@@ -681,8 +737,8 @@ All errors are logged with:
 ### Common Issues
 
 **Queue jobs not processing:**
-- Check Redis connection: `GET /health/redis`
-- Verify Bull Board UI: `http://localhost:3000/queues`
+- Check Redis connection: `GET /notification/health/redis`
+- Verify Bull Board UI: `http://localhost:3000/notification/queues`
 - Check worker logs for errors
 
 **Emails not sending:**

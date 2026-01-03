@@ -13,12 +13,16 @@
 #### Code Quality
 5. **TypeScript**: Typage strict et interfaces bien définies
 6. **Prisma ORM**: Utilisation d'un ORM moderne avec type safety
-7. **Validation**: Validation des payloads avec Zod via @compta/notification-contracts
+7. **Validation**: Validation des payloads avec Zod via @compta/notification-contracts et Global ValidationPipe
 8. **Logging**: Logging détaillé avec NestJS Logger
 9. **Error Handling**: Gestion des erreurs avec try-catch et re-throw pour BullMQ retries
 10. **Global Exception Filter**: AllExceptionsFilter configuré globalement pour capturer toutes les exceptions
 11. **Standardized Error Codes**: Codes d'erreur standardisés via NotificationException et ErrorCode enum
 12. **Contextual Error Messages**: Messages d'erreur contextuels avec détails (userId, email, etc.)
+13. **Gateway Headers Guard**: GatewayHeadersGuard pour l'authentification via API Gateway
+14. **Role-Based Access Control**: Décorateur @Roles() pour le contrôle d'accès basé sur les rôles
+15. **Swagger/OpenAPI Documentation**: Documentation API complète avec Swagger
+16. **SendPulse Integration**: Intégration complète de SendPulse pour l'envoi d'emails
 
 #### Features
 10. **Template Caching**: Cache en mémoire pour les templates MJML
@@ -40,16 +44,15 @@
 #### Security
 1. **No Rate Limiting**: Pas de protection contre les abus
 2. **No Input Sanitization**: Pas de sanitization des entrées utilisateur
-3. **Exposed Endpoints**: Tous les endpoints sont publics (devraient être protégés par gateway)
+3. **Exposed Endpoints**: Tous les endpoints sont accessibles via gateway (pas de protection directe)
 
 #### Code Quality
 5. **Code Duplication**: Duplication entre `EmailVerificationProcessor` et `PasswordResetProcessor`
    - `loadTemplate()` identique
    - `compileTemplate()` identique
    - `formatExpirationDate()` identique
-6. **No DTO Validation**: Pas de class-validator pour valider les DTOs
+6. **No Structured Logging**: Pas de Winston/Pino pour des logs structurés
 7. **Hardcoded Values**: Timezone hardcodée ('Africa/Tunis'), locale hardcodée ('fr-FR')
-8. **No Structured Logging**: Pas de Winston/Pino pour des logs structurés
 
 #### Features
 11. **No SMS Support**: Pas d'intégration SMS (Twilio, etc.)
@@ -86,18 +89,15 @@
 ### ❌ What's Missing (Ce qui manque)
 
 #### Gateway Integration
-1. **Service-to-Service Auth**: Support pour l'authentification entre services internes
-2. **Gateway Health Checks**: Vérifier la santé de la gateway
+1. **Gateway Health Checks**: Vérifier la santé de la gateway
 
 #### Validation & Sanitization
-4. **DTO Validation**: class-validator et class-transformer pour tous les DTOs
-5. **Input Sanitization**: Sanitization des emails, phones, etc.
-6. **Email Validation**: Validation avancée des emails (MX records, etc.)
-7. **Phone Validation**: Validation des numéros de téléphone
+2. **Input Sanitization**: Sanitization des emails, phones, etc.
+3. **Email Validation**: Validation avancée des emails (MX records, etc.)
+4. **Phone Validation**: Validation des numéros de téléphone
 
 #### Documentation
-8. **API Versioning**: Versioning de l'API (/v1, /v2)
-9. **API Examples**: Exemples de requêtes/réponses dans Swagger
+5. **API Versioning**: Versioning de l'API (/v1, /v2)
 
 #### Rate Limiting & Throttling
 11. **Rate Limiting**: @nestjs/throttler pour limiter les requêtes
@@ -210,16 +210,15 @@
 
 ### 🔴 Critical (Do Immediately)
 1. **Add Rate Limiting**: Protéger contre les abus
-2. **Add Input Validation**: Valider tous les DTOs avec class-validator
-3. **Refactor Processors**: Éliminer la duplication de code
+2. **Refactor Processors**: Éliminer la duplication de code
 
 ### 🟠 High Priority (Do Soon)
-4. **Add SMS Provider Integration**: Intégrer Twilio ou AWS SNS
-8. **Add Webhook Endpoints**: Recevoir les webhooks de delivery
-9. **Add Structured Logging**: Implémenter Winston/Pino
-10. **Add Unit Tests**: Tests unitaires pour les services
-11. **Add Preference Checking**: Vérifier les préférences avant envoi
-12. **Add Sentry Integration**: Tracking des erreurs
+3. **Add SMS Provider Integration**: Intégrer Twilio ou AWS SNS
+4. **Add Webhook Endpoints**: Recevoir les webhooks de delivery
+5. **Add Structured Logging**: Implémenter Winston/Pino
+6. **Add Unit Tests**: Tests unitaires pour les services
+7. **Add Preference Checking**: Vérifier les préférences avant envoi
+8. **Add Sentry Integration**: Tracking des erreurs
 
 ### 🟡 Medium Priority (Do Later)
 13. **Add Push Notifications**: Intégrer FCM/APNs
@@ -243,15 +242,16 @@
 
 ## 🚀 Implementation Roadmap
 
-### Phase 1: Security & Documentation (Week 1-2)
+### Phase 1: Security & Documentation (Week 1-2) ✅ COMPLETED
 - [x] Add Gateway Headers Guard
 - [x] Add Role-Based Access Control
 - [x] Add Swagger Documentation
 - [x] Configure Global Exception Filter
 - [x] Add Standardized Error Codes
 - [x] Add Contextual Error Messages
+- [x] Add Global Validation Pipe
+- [x] Add SendPulse Integration
 - [ ] Add Rate Limiting
-- [ ] Add DTO Validation
 
 ### Phase 2: Code Quality & Testing (Week 3-4)
 - [ ] Refactor Processors (remove duplication)
@@ -270,7 +270,7 @@
 ### Phase 4: Monitoring & Observability (Week 7-8)
 - [ ] Add Sentry Integration
 - [ ] Add Prometheus Metrics
-- [ ] Add Health Checks
+- [ ] Add Health Checks (enhanced)
 - [ ] Add Distributed Tracing
 - [ ] Add Performance Monitoring
 
@@ -298,40 +298,62 @@
 
 ### Example: Gateway Headers Guard
 ```typescript
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Logger, SetMetadata } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Logger, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { NotificationException } from '../common/exceptions/notification.exception';
 
 @Injectable()
 export class GatewayHeadersGuard implements CanActivate {
+  private readonly logger = new Logger(GatewayHeadersGuard.name);
+
   private static readonly HEADER_USER_ID = 'x-user-id';
+  private static readonly HEADER_USERNAME = 'x-user-username';
+  private static readonly HEADER_EMAIL = 'x-user-email';
   private static readonly HEADER_ROLES = 'x-user-roles';
+  private static readonly HEADER_TENANT_ID = 'x-tenant-id';
 
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
-    const requiredRoles = this.reflector.get<string[]>('roles', context.getHandler()) || [];
+    const handler = context.getHandler();
 
+    // Get required roles from decorator (if any)
+    const requiredRoles = this.reflector.get<string[]>('roles', handler) || [];
+
+    // If no roles required, allow access
     if (requiredRoles.length === 0) {
       return true;
     }
 
+    // Get user roles from Gateway headers
     const userRolesHeader = request.headers[GatewayHeadersGuard.HEADER_ROLES] as string;
-    
+
     if (!userRolesHeader) {
-      throw new ForbiddenException('Missing user roles header');
+      this.logger.warn('X-User-Roles header missing from Gateway');
+      throw NotificationException.missingHeaders([GatewayHeadersGuard.HEADER_ROLES]);
     }
 
+    // Parse roles from header (comma-separated)
     const userRoles = userRolesHeader.split(',').map((r: string) => r.trim().toUpperCase());
+
+    // Check if user has at least one of the required roles
     const hasRequiredRole = requiredRoles.some((role: string) => userRoles.includes(role));
 
     if (!hasRequiredRole) {
-      throw new ForbiddenException(`Required role(s) not found. User has: ${userRoles.join(', ')}`);
+      this.logger.warn(
+        `Access denied: User roles [${userRoles.join(', ')}] do not include any required role [${requiredRoles.join(', ')}]`,
+      );
+      throw NotificationException.invalidRoles(requiredRoles, userRoles);
     }
 
+    // Attach user info to request for later use
     request.user = {
       id: request.headers[GatewayHeadersGuard.HEADER_USER_ID],
+      username: request.headers[GatewayHeadersGuard.HEADER_USERNAME],
+      email: request.headers[GatewayHeadersGuard.HEADER_EMAIL],
       roles: userRoles,
+      tenantId: request.headers[GatewayHeadersGuard.HEADER_TENANT_ID],
     };
 
     return true;
@@ -347,39 +369,16 @@ export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 @ApiTags('notifications')
 @UseGuards(GatewayHeadersGuard)
 export class NotificationsController {
-  @Get()
+  @Get('admin')
   @Roles('ADMIN', 'COMPTABLE')
   async adminEndpoint() {
     // Only ADMIN and COMPTABLE can access
   }
 
-  @Get()
+  @Get('public')
   async publicEndpoint() {
     // Everyone can access (no roles required)
   }
-}
-```
-
-### Example: DTO Validation
-```typescript
-import { IsString, IsEmail, IsEnum, IsOptional } from 'class-validator';
-
-export class CreateNotificationDto {
-  @IsString()
-  @IsNotEmpty()
-  userId: string;
-
-  @IsEnum(NotificationType)
-  type: NotificationType;
-
-  @IsEnum(NotificationChannel)
-  channel: NotificationChannel;
-
-  @IsEmail()
-  recipient: string;
-
-  @IsOptional()
-  subject?: string;
 }
 ```
 
