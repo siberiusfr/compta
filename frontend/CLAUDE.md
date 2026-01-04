@@ -10,7 +10,7 @@ Compta is a modern enterprise management application (French: "Comptabilité" = 
 
 ### Running the Application
 ```bash
-pnpm dev              # Start dev server on localhost:5173
+pnpm dev              # Start dev server on localhost:3000
 pnpm dev:host         # Start dev server with network access
 pnpm preview          # Preview production build
 pnpm preview:https    # Preview with HTTPS
@@ -191,5 +191,5 @@ Configured in both `vite.config.ts` and `tsconfig.app.json`:
 
 - This is a **frontend-only** repository; backend services run separately
 - The application is in French (UI text, comments, variable names may be in French)
-- Default port is `5173` for dev server
+- Default port is `3000` for dev server
 - Environment variables must be prefixed with `VITE_` to be exposed to client code

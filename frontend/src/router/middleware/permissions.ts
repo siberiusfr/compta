@@ -1,5 +1,5 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
-import { useAuthStore } from '@stores/index'
+import { useOAuth2AuthStore } from '@/stores/oauth2Auth'
 
 /**
  * Middleware to check user permissions/roles
@@ -17,19 +17,18 @@ export function permissionsMiddleware(
     return next()
   }
 
-  const authStore = useAuthStore()
-  const user = authStore.user
+  const authStore = useOAuth2AuthStore()
+  const userInfo = authStore.getUserInfo()
 
   // User not logged in - this should be handled by the auth guard, but check anyway
-  if (!user) {
+  if (!userInfo) {
     // Don't redirect here to avoid infinite loops - let the auth guard handle it
     return next()
   }
 
   // Check roles
   if (requiredRoles && requiredRoles.length > 0) {
-    const userRoles = user.roles || []
-    const hasRole = requiredRoles.some((role) => userRoles.includes(role))
+    const hasRole = requiredRoles.some((role) => userInfo.roles.includes(role))
     if (!hasRole) {
       console.warn(`Access denied. Required roles: ${requiredRoles.join(', ')}`)
       return next({ name: 'forbidden' })
@@ -40,7 +39,7 @@ export function permissionsMiddleware(
   if (requiredPermissions && requiredPermissions.length > 0) {
     // TODO: Implement permissions check
     // const hasPermissions = requiredPermissions.every(permission =>
-    //   user.permissions?.includes(permission)
+    //   userInfo.permissions?.includes(permission)
     // )
     // if (!hasPermissions) {
     //   return next({ name: 'forbidden' })

@@ -1,4 +1,4 @@
 // Export all stores for easy access
-export { useAuthStore } from '@modules/auth/stores/authStore'
+export { useOAuth2AuthStore } from './oauth2Auth'
 export { useAccountingStore } from '@modules/accounting/stores/accountingStore'
 export { useHRStore } from '@modules/hr/stores/hrStore'

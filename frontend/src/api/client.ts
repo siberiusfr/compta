@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios'
-import type { ApiError } from '../types' // Utilise un chemin relatif ici pour Orval
+import type { ApiError } from '../types'
+import { useOAuth2AuthStore } from '@/stores/oauth2Auth'
 
 const getBaseUrl = () => {
   // Le proxy Vite s'attend à des chemins relatifs commençant par /api.
@@ -16,10 +17,11 @@ export const apiClient: AxiosInstance = axios.create({
   },
 })
 
-// Request interceptor - Add auth token
+// Request interceptor - Add OAuth2 access token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('auth_token')
+    const authStore = useOAuth2AuthStore()
+    const token = authStore.accessToken
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -30,21 +32,38 @@ apiClient.interceptors.request.use(
   }
 )
 
-// Response interceptor - Handle errors
+// Response interceptor - Handle errors and token refresh
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     const apiError: ApiError = {
       message: error.message,
       status: error.response?.status,
       code: error.code,
     }
 
-    // Handle 401 Unauthorized - redirect to login
-    if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+
+    // Handle 401 Unauthorized - try to refresh token
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+
+      try {
+        const authStore = useOAuth2AuthStore()
+        await authStore.refreshSession()
+
+        // Retry the original request with the new token
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${authStore.accessToken}`
+        }
+        return apiClient(originalRequest)
+      } catch (refreshError) {
+        // Refresh failed, redirect to login
+        const authStore = useOAuth2AuthStore()
+        await authStore.logout()
+        window.location.href = '/login'
+        return Promise.reject(refreshError)
+      }
     }
 
     return Promise.reject(apiError)

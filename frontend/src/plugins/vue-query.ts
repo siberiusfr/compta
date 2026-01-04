@@ -17,9 +17,15 @@ export const queryClient = new QueryClient({
       refetchOnReconnect: true,
 
       // Retry une fois en cas d'erreur
-      retry: 1
-    }
-  }
+      retry: (failureCount, error) => {
+        // Ne pas réessayer sur erreur 401 (géré par l'interceptor Axios)
+        if (error instanceof Error && error.message.includes('401')) {
+          return false
+        }
+        return failureCount < 1
+      },
+    },
+  },
 })
 
 export default {

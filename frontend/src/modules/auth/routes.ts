@@ -10,13 +10,4 @@ export const authRoutes: RouteRecordRaw[] = [
       requiresAuth: false,
     },
   },
-  {
-    path: '/register',
-    name: 'register',
-    component: () => import('./views/RegisterView.vue'),
-    meta: {
-      layout: 'auth',
-      requiresAuth: false,
-    },
-  },
 ]

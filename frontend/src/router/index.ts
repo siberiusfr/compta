@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { authRoutes } from '@modules/auth/routes'
 import { accountingRoutes } from '@modules/accounting/routes'
 import { hrRoutes } from '@modules/hr/routes'
+import { useOAuth2AuthStore } from '@/stores/oauth2Auth'
 import {
   loggingMiddleware,
   analyticsMiddleware,
@@ -16,6 +17,14 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     redirect: '/accounting',
+  },
+  {
+    path: '/authorized',
+    name: 'authorized',
+    component: () => import('@/views/AuthorizedView.vue'),
+    meta: {
+      requiresAuth: false,
+    },
   },
   ...authRoutes,
   ...accountingRoutes,
@@ -53,17 +62,29 @@ router.beforeEach(loggingMiddleware)
 router.beforeEach(progressMiddleware)
 
 // Navigation guard for authentication
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+  const authStore = useOAuth2AuthStore()
   const requiresAuth = to.meta.requiresAuth ?? true
-  const isAuthenticated = localStorage.getItem('auth_token')
 
-  if (requiresAuth && !isAuthenticated) {
-    next({ name: 'login' })
-  } else if (!requiresAuth && isAuthenticated && to.name === 'login') {
+  if (requiresAuth) {
+    if (!authStore.isAuthenticated) {
+      // Vérifier si on a un token valide
+      const isAuth = await authStore.checkAuth()
+      if (!isAuth) {
+        // Rediriger vers login avec l'URL de retour
+        next({
+          name: 'login',
+          query: { redirect: to.fullPath }
+        })
+        return
+      }
+    }
+  } else if (to.name === 'login' && authStore.isAuthenticated) {
     next({ name: 'accounting' })
-  } else {
-    next()
+    return
   }
+
+  next()
 })
 
 // Permission/role check
