@@ -728,5 +728,137 @@ LOG_LEVEL=info  # Options: trace, debug, info, warn, error, fatal
 }
 ```
 
+---
+
+## ✅ Implementation Phases Completed
+
+### Phase 1: Security & Documentation ✅ COMPLETED
+- [x] Add Gateway Headers Guard
+- [x] Add Role-Based Access Control (@Roles decorator)
+- [x] Add Swagger Documentation
+- [x] Configure Global Exception Filter
+- [x] Add Standardized Error Codes (NotificationException, ErrorCode enum)
+- [x] Add Contextual Error Messages
+- [x] Add Global Validation Pipe (whitelist, forbidNonWhitelisted, transform)
+- [x] Add SendPulse Integration
+- [x] ~~Add Rate Limiting~~ → Géré par API Gateway
+
+### Phase 2: Code Quality & Logging ✅ COMPLETED
+- [x] Refactor Processors (BaseEmailProcessor pattern)
+- [x] Add Structured Logging (nestjs-pino)
+- [x] ~~Add Input Sanitization~~ → Géré par Gateway + ValidationPipe
+
+---
+
+## ✅ Code Examples (Implemented)
+
+### Gateway Headers Guard
+```typescript
+import { Injectable, CanActivate, ExecutionContext, Logger, SetMetadata } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { NotificationException } from '../common/exceptions/notification.exception';
+
+@Injectable()
+export class GatewayHeadersGuard implements CanActivate {
+  private readonly logger = new Logger(GatewayHeadersGuard.name);
+
+  private static readonly HEADER_USER_ID = 'x-user-id';
+  private static readonly HEADER_USERNAME = 'x-user-username';
+  private static readonly HEADER_EMAIL = 'x-user-email';
+  private static readonly HEADER_ROLES = 'x-user-roles';
+  private static readonly HEADER_TENANT_ID = 'x-tenant-id';
+
+  constructor(private readonly reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    const handler = context.getHandler();
+    const requiredRoles = this.reflector.get<string[]>('roles', handler) || [];
+
+    if (requiredRoles.length === 0) return true;
+
+    const userRolesHeader = request.headers[GatewayHeadersGuard.HEADER_ROLES] as string;
+    if (!userRolesHeader) {
+      throw NotificationException.missingHeaders([GatewayHeadersGuard.HEADER_ROLES]);
+    }
+
+    const userRoles = userRolesHeader.split(',').map((r: string) => r.trim().toUpperCase());
+    const hasRequiredRole = requiredRoles.some((role: string) => userRoles.includes(role));
+
+    if (!hasRequiredRole) {
+      throw NotificationException.invalidRoles(requiredRoles, userRoles);
+    }
+
+    request.user = {
+      id: request.headers[GatewayHeadersGuard.HEADER_USER_ID],
+      username: request.headers[GatewayHeadersGuard.HEADER_USERNAME],
+      email: request.headers[GatewayHeadersGuard.HEADER_EMAIL],
+      roles: userRoles,
+      tenantId: request.headers[GatewayHeadersGuard.HEADER_TENANT_ID],
+    };
+
+    return true;
+  }
+}
+
+export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
+```
+
+### Using the Guard
+```typescript
+@Controller('notifications')
+@ApiTags('notifications')
+@UseGuards(GatewayHeadersGuard)
+export class NotificationsController {
+  @Get('admin')
+  @Roles('ADMIN', 'COMPTABLE')
+  async adminEndpoint() {
+    // Only ADMIN and COMPTABLE can access
+  }
+
+  @Get('public')
+  async publicEndpoint() {
+    // Everyone can access (no roles required)
+  }
+}
+```
+
+### Base Processor with PinoLogger
+```typescript
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
+
+export abstract class BaseEmailProcessor extends WorkerHost {
+  protected readonly logger: PinoLogger;
+  protected templateCache: Map<string, string> = new Map();
+
+  constructor(logger: PinoLogger) {
+    super();
+    this.logger = logger;
+  }
+
+  protected abstract getTemplateFilename(): string;
+  protected abstract getEmailSubject(): string;
+
+  protected compileTemplate(variables: Record<string, string>): string {
+    const mjmlTemplate = this.loadTemplate();
+    // Replace variables and compile MJML to HTML
+  }
+}
+
+// Child class example
+@Processor(QueueNames.EMAIL_VERIFICATION)
+export class EmailVerificationProcessor extends BaseEmailProcessor {
+  constructor(
+    @InjectPinoLogger(EmailVerificationProcessor.name)
+    logger: PinoLogger,
+    private readonly mailerService: MailerService,
+  ) {
+    super(logger);
+  }
+}
+```
+
+---
+
 ### Next Steps
 See [`TASKS.md`](./TASKS.md) for remaining tasks and implementation roadmap.
