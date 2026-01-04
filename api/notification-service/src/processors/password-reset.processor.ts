@@ -1,15 +1,12 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Processor } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
-import mjml from 'mjml';
-import * as fs from 'fs';
-import * as path from 'path';
 import {
   QueueNames,
   PasswordResetRequested,
   safeParsePasswordResetRequested,
 } from '@compta/notification-contracts';
+import { BaseEmailProcessor } from './base-email-processor';
 
 /**
  * Processor BullMQ pour les demandes de reset de mot de passe.
@@ -30,12 +27,23 @@ import {
  * @see {@link PasswordResetRequested} pour le schema du message (defini dans @compta/notification-contracts)
  */
 @Processor(QueueNames.PASSWORD_RESET)
-export class PasswordResetProcessor extends WorkerHost {
-  private readonly logger = new Logger(PasswordResetProcessor.name);
-  private templateCache: string | null = null;
-
+export class PasswordResetProcessor extends BaseEmailProcessor {
   constructor(private readonly mailerService: MailerService) {
     super();
+  }
+
+  /**
+   * Get the template filename for password reset.
+   */
+  protected getTemplateFilename(): string {
+    return 'password-reset.mjml';
+  }
+
+  /**
+   * Get the email subject for password reset.
+   */
+  protected getEmailSubject(): string {
+    return 'Reinitialisation de votre mot de passe - COMPTA';
   }
 
   /**
@@ -66,7 +74,7 @@ export class PasswordResetProcessor extends WorkerHost {
     );
 
     try {
-      // Charger et compiler le template MJML
+      // Compiler le template MJML
       const html = this.compileTemplate({
         username,
         resetLink,
@@ -76,7 +84,7 @@ export class PasswordResetProcessor extends WorkerHost {
       // Envoyer l'email
       const result = await this.mailerService.sendMail({
         to: email,
-        subject: 'Reinitialisation de votre mot de passe - COMPTA',
+        subject: this.getEmailSubject(),
         html,
       });
 
@@ -91,100 +99,13 @@ export class PasswordResetProcessor extends WorkerHost {
         userId,
         email,
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
         `Failed to send password reset email to ${email}: ${error.message}`,
         error.stack,
       );
 
       throw error; // Re-throw pour permettre le retry BullMQ
-    }
-  }
-
-  /**
-   * Compile le template MJML avec les variables fournies.
-   *
-   * @param variables Les variables a injecter dans le template
-   * @returns Le HTML compile
-   */
-  private compileTemplate(variables: {
-    username: string;
-    resetLink: string;
-    expiresAt: string;
-  }): string {
-    // Charger le template depuis le cache ou le fichier
-    let mjmlTemplate = this.loadTemplate();
-
-    // Remplacer les variables
-    mjmlTemplate = mjmlTemplate
-      .replace(/\{\{username\}\}/g, variables.username)
-      .replace(/\{\{resetLink\}\}/g, variables.resetLink)
-      .replace(/\{\{expiresAt\}\}/g, variables.expiresAt);
-
-    // Compiler MJML en HTML
-    const { html, errors } = mjml(mjmlTemplate, {
-      validationLevel: 'soft',
-    });
-
-    if (errors && errors.length > 0) {
-      this.logger.warn(
-        `MJML compilation warnings: ${errors.map((e) => e.message).join(', ')}`,
-      );
-    }
-
-    return html;
-  }
-
-  /**
-   * Charge le template MJML depuis le fichier.
-   * Utilise un cache en memoire pour eviter les lectures repetees.
-   *
-   * @returns Le contenu du template MJML
-   */
-  private loadTemplate(): string {
-    if (this.templateCache) {
-      return this.templateCache;
-    }
-
-    const templatePath = path.resolve(
-      __dirname,
-      '..',
-      'templates',
-      'password-reset.mjml',
-    );
-
-    try {
-      this.templateCache = fs.readFileSync(templatePath, 'utf8');
-      this.logger.log(`Loaded password reset template from ${templatePath}`);
-      return this.templateCache;
-    } catch (error) {
-      this.logger.error(
-        `Failed to load template from ${templatePath}: ${error.message}`,
-      );
-      throw new Error(`Email template not found: ${templatePath}`);
-    }
-  }
-
-  /**
-   * Formate la date d'expiration pour l'affichage dans l'email.
-   *
-   * @param expiresAt La date d'expiration au format ISO 8601
-   * @returns La date formatee en francais
-   */
-  private formatExpirationDate(expiresAt: string): string {
-    try {
-      const date = new Date(expiresAt);
-      return date.toLocaleString('fr-FR', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: 'Africa/Tunis',
-      });
-    } catch {
-      return expiresAt; // Fallback au format original si parsing echoue
     }
   }
 }

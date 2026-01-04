@@ -1,15 +1,12 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Processor } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
-import mjml from 'mjml';
-import * as fs from 'fs';
-import * as path from 'path';
 import {
   QueueNames,
   EmailVerificationRequested,
   safeParseEmailVerificationRequested,
 } from '@compta/notification-contracts';
+import { BaseEmailProcessor } from './base-email-processor';
 
 /**
  * Processor BullMQ pour les demandes de verification d'email.
@@ -30,12 +27,23 @@ import {
  * @see {@link EmailVerificationRequested} pour le schema du message (defini dans @compta/notification-contracts)
  */
 @Processor(QueueNames.EMAIL_VERIFICATION)
-export class EmailVerificationProcessor extends WorkerHost {
-  private readonly logger = new Logger(EmailVerificationProcessor.name);
-  private templateCache: string | null = null;
-
+export class EmailVerificationProcessor extends BaseEmailProcessor {
   constructor(private readonly mailerService: MailerService) {
     super();
+  }
+
+  /**
+   * Get the template filename for email verification.
+   */
+  protected getTemplateFilename(): string {
+    return 'email-verification.mjml';
+  }
+
+  /**
+   * Get the email subject for email verification.
+   */
+  protected getEmailSubject(): string {
+    return 'Verification de votre adresse email - COMPTA';
   }
 
   /**
@@ -68,7 +76,7 @@ export class EmailVerificationProcessor extends WorkerHost {
     );
 
     try {
-      // Charger et compiler le template MJML
+      // Compiler le template MJML
       const html = this.compileTemplate({
         username,
         verificationLink,
@@ -78,7 +86,7 @@ export class EmailVerificationProcessor extends WorkerHost {
       // Envoyer l'email
       const result = await this.mailerService.sendMail({
         to: email,
-        subject: 'Verification de votre adresse email - COMPTA',
+        subject: this.getEmailSubject(),
         html,
       });
 
@@ -93,100 +101,13 @@ export class EmailVerificationProcessor extends WorkerHost {
         userId,
         email,
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
         `Failed to send verification email to ${email}: ${error.message}`,
         error.stack,
       );
 
       throw error; // Re-throw pour permettre le retry BullMQ
-    }
-  }
-
-  /**
-   * Compile le template MJML avec les variables fournies.
-   *
-   * @param variables Les variables a injecter dans le template
-   * @returns Le HTML compile
-   */
-  private compileTemplate(variables: {
-    username: string;
-    verificationLink: string;
-    expiresAt: string;
-  }): string {
-    // Charger le template depuis le cache ou le fichier
-    let mjmlTemplate = this.loadTemplate();
-
-    // Remplacer les variables
-    mjmlTemplate = mjmlTemplate
-      .replace(/\{\{username\}\}/g, variables.username)
-      .replace(/\{\{verificationLink\}\}/g, variables.verificationLink)
-      .replace(/\{\{expiresAt\}\}/g, variables.expiresAt);
-
-    // Compiler MJML en HTML
-    const { html, errors } = mjml(mjmlTemplate, {
-      validationLevel: 'soft',
-    });
-
-    if (errors && errors.length > 0) {
-      this.logger.warn(
-        `MJML compilation warnings: ${errors.map((e) => e.message).join(', ')}`,
-      );
-    }
-
-    return html;
-  }
-
-  /**
-   * Charge le template MJML depuis le fichier.
-   * Utilise un cache en memoire pour eviter les lectures repetees.
-   *
-   * @returns Le contenu du template MJML
-   */
-  private loadTemplate(): string {
-    if (this.templateCache) {
-      return this.templateCache;
-    }
-
-    const templatePath = path.resolve(
-      __dirname,
-      '..',
-      'templates',
-      'email-verification.mjml',
-    );
-
-    try {
-      this.templateCache = fs.readFileSync(templatePath, 'utf8');
-      this.logger.log(`Loaded email verification template from ${templatePath}`);
-      return this.templateCache;
-    } catch (error) {
-      this.logger.error(
-        `Failed to load template from ${templatePath}: ${error.message}`,
-      );
-      throw new Error(`Email template not found: ${templatePath}`);
-    }
-  }
-
-  /**
-   * Formate la date d'expiration pour l'affichage dans l'email.
-   *
-   * @param expiresAt La date d'expiration au format ISO 8601
-   * @returns La date formatee en francais
-   */
-  private formatExpirationDate(expiresAt: string): string {
-    try {
-      const date = new Date(expiresAt);
-      return date.toLocaleString('fr-FR', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: 'Africa/Tunis',
-      });
-    } catch {
-      return expiresAt; // Fallback au format original si parsing echoue
     }
   }
 }

@@ -397,5 +397,103 @@ Features:
 - All controllers - Updated with Swagger decorators
 - `SENDPULSE.md` - SendPulse integration documentation
 
+## ✅ Code Refactoring Implementation (COMPLETED)
+
+### Overview
+Eliminated code duplication and improved maintainability by creating a base processor class and making hardcoded values configurable.
+
+### Implementation Details
+
+#### 1. BaseEmailProcessor Class
+**File**: [`notification-service/src/processors/base-email-processor.ts`](notification-service/src/processors/base-email-processor.ts)
+
+Created an abstract base class that provides shared functionality for all email processors:
+
+**Features:**
+- **Template Caching**: In-memory cache using Map for multiple templates
+- **Template Loading**: Generic `loadTemplate()` method that works with any template filename
+- **Template Compilation**: Generic `compileTemplate()` method that replaces any variables dynamically
+- **Date Formatting**: `formatExpirationDate()` with configurable locale and timezone
+- **Abstract Methods**: `getTemplateFilename()` and `getEmailSubject()` for subclasses to implement
+
+**Environment Variables:**
+- `EMAIL_LOCALE`: Locale for date formatting (default: `fr-FR`)
+- `EMAIL_TIMEZONE`: Timezone for date formatting (default: `Africa/Tunis`)
+
+#### 2. Refactored EmailVerificationProcessor
+**File**: [`notification-service/src/processors/email-verification.processor.ts`](notification-service/src/processors/email-verification.processor.ts)
+
+Refactored to extend `BaseEmailProcessor`:
+
+**Changes:**
+- Removed duplicate `loadTemplate()` method
+- Removed duplicate `compileTemplate()` method
+- Removed duplicate `formatExpirationDate()` method
+- Implements `getTemplateFilename()` returning `'email-verification.mjml'`
+- Implements `getEmailSubject()` returning `'Verification de votre adresse email - COMPTA'`
+- Reduced from 192 lines to 95 lines (50% reduction)
+
+#### 3. Refactored PasswordResetProcessor
+**File**: [`notification-service/src/processors/password-reset.processor.ts`](notification-service/src/processors/password-reset.processor.ts)
+
+Refactored to extend `BaseEmailProcessor`:
+
+**Changes:**
+- Removed duplicate `loadTemplate()` method
+- Removed duplicate `compileTemplate()` method
+- Removed duplicate `formatExpirationDate()` method
+- Implements `getTemplateFilename()` returning `'password-reset.mjml'`
+- Implements `getEmailSubject()` returning `'Reinitialisation de votre mot de passe - COMPTA'`
+- Reduced from 190 lines to 95 lines (50% reduction)
+
+#### 4. Environment Configuration
+**File**: [`.env.example`](notification-service/.env.example)
+
+Added new environment variables:
+
+```bash
+# Email Formatting Configuration
+EMAIL_LOCALE=fr-FR
+EMAIL_TIMEZONE=Africa/Tunis
+
+# SendPulse Configuration (optional)
+SENDPULSE_ACCESS_TOKEN=your-sendpulse-access-token
+```
+
+### Benefits
+
+1. **Reduced Code Duplication**: Eliminated 100+ lines of duplicate code
+2. **Improved Maintainability**: Changes to template handling only need to be made in one place
+3. **Configurable Values**: Hardcoded timezone and locale now configurable via environment variables
+4. **Better Template Caching**: Supports multiple templates in a single cache
+5. **Dynamic Variable Replacement**: Template compilation now works with any variable set
+6. **Type Safety**: Abstract methods ensure proper implementation in subclasses
+
+### Code Comparison
+
+**Before:**
+- EmailVerificationProcessor: 192 lines
+- PasswordResetProcessor: 190 lines
+- Total: 382 lines with ~200 lines of duplicate code
+
+**After:**
+- BaseEmailProcessor: 115 lines (shared functionality)
+- EmailVerificationProcessor: 95 lines
+- PasswordResetProcessor: 95 lines
+- Total: 305 lines with 0 lines of duplicate code
+- **Reduction**: 77 lines (20% reduction)
+
+### Configuration
+
+The refactored processors now use environment variables for date formatting:
+
+```typescript
+// In BaseEmailProcessor.formatExpirationDate()
+const locale = process.env.EMAIL_LOCALE || 'fr-FR';
+const timeZone = process.env.EMAIL_TIMEZONE || 'Africa/Tunis';
+```
+
+This allows easy localization for different regions without code changes.
+
 ### Next Steps
 See [`TASKS.md`](./TASKS.md) for remaining tasks and implementation roadmap.

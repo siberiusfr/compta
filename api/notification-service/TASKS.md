@@ -13,7 +13,7 @@
 #### Code Quality
 5. **TypeScript**: Typage strict et interfaces bien définies
 6. **Prisma ORM**: Utilisation d'un ORM moderne avec type safety
-7. **Validation**: Validation des payloads avec Zod via @compta/notification-contracts et Global ValidationPipe
+7. **Validation**: Validation des payloads avec Zod (via @compta/notification-contracts) et Global ValidationPipe (whitelist, forbidNonWhitelisted, transform)
 8. **Logging**: Logging détaillé avec NestJS Logger
 9. **Error Handling**: Gestion des erreurs avec try-catch et re-throw pour BullMQ retries
 10. **Global Exception Filter**: AllExceptionsFilter configuré globalement pour capturer toutes les exceptions
@@ -22,15 +22,15 @@
 13. **Gateway Headers Guard**: GatewayHeadersGuard pour l'authentification via API Gateway
 14. **Role-Based Access Control**: Décorateur @Roles() pour le contrôle d'accès basé sur les rôles
 15. **Swagger/OpenAPI Documentation**: Documentation API complète avec Swagger
-16. **SendPulse Integration**: Intégration complète de SendPulse pour l'envoi d'emails
+16. **SendPulse Integration**: Intégration complète de SendPulse via processors (pas d'endpoints REST)
 
 #### Features
-10. **Template Caching**: Cache en mémoire pour les templates MJML
-11. **Pagination**: Pagination implémentée dans les endpoints de listing
-12. **Statistics**: Service de statistiques avec agrégations
-13. **User Preferences**: Préférences granulaires par canal et type
-14. **Template Versioning**: Système de versioning pour les templates
-15. **Notification Tracking**: Tracking détaillé avec timestamps et status
+17. **Template Caching**: Cache en mémoire pour les templates MJML
+18. **Pagination**: Pagination implémentée dans les endpoints de listing
+19. **Statistics**: Service de statistiques avec agrégations
+20. **User Preferences**: Préférences granulaires par canal et type
+21. **Template Versioning**: Système de versioning pour les templates
+22. **Notification Tracking**: Tracking détaillé avec timestamps et status
 
 #### Database
 16. **Schema Design**: Schéma Prisma bien conçu avec enums et indexes
@@ -47,12 +47,7 @@
 3. **Exposed Endpoints**: Tous les endpoints sont accessibles via gateway (pas de protection directe)
 
 #### Code Quality
-5. **Code Duplication**: Duplication entre `EmailVerificationProcessor` et `PasswordResetProcessor`
-   - `loadTemplate()` identique
-   - `compileTemplate()` identique
-   - `formatExpirationDate()` identique
-6. **No Structured Logging**: Pas de Winston/Pino pour des logs structurés
-7. **Hardcoded Values**: Timezone hardcodée ('Africa/Tunis'), locale hardcodée ('fr-FR')
+5. **No Structured Logging**: Pas de Winston/Pino pour des logs structurés
 
 #### Features
 11. **No SMS Support**: Pas d'intégration SMS (Twilio, etc.)
