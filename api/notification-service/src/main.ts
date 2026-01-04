@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Set global prefix for all routes
-  app.setGlobalPrefix('notification');
+  app.setGlobalPrefix('notif');
 
   // Enable validation pipes
   app.useGlobalPipes(new ValidationPipe({
@@ -69,7 +69,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('notification/api/docs', app, document);
+  SwaggerModule.setup('notif/api/docs', app, document);
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
@@ -79,12 +79,12 @@ async function bootstrap() {
     ║                                                               ║
     ║   Notification Service API Documentation                      ║
     ║                                                               ║
-    ║   📚 Swagger UI: http://localhost:${port}/notification/api/docs       ║
-    ║   📄 API JSON:   http://localhost:${port}/notification/api/docs-json  ║
+    ║   📚 Swagger UI: http://localhost:${port}/notif/api/docs       ║
+    ║   📄 API JSON:   http://localhost:${port}/notif/api/docs-json  ║
     ║                                                               ║
     ║   ℹ️  Authentication: Handled by Gateway               ║
     ║   ℹ️  Headers: X-User-Id, X-User-Roles, X-Tenant-Id   ║
-    ║   ℹ️  Context: /notification/                             ║
+    ║   ℹ️  Context: /notif/                             ║
     ║                                                               ║
     ╚══════════════════════════════════════════════╝
   `);

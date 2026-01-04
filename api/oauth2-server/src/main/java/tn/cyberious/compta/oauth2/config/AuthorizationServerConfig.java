@@ -110,8 +110,14 @@ public class AuthorizationServerConfig {
       HttpSecurity http, CustomUserDetailsService userDetailsService, CsrfConfig csrfConfig)
       throws Exception {
     http.userDetailsService(userDetailsService)
-        .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-        .formLogin(Customizer.withDefaults())
+        .authorizeHttpRequests(
+            (authorize) ->
+                authorize
+                    .requestMatchers("/login", "/error", "/actuator/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+        .formLogin(form -> form.loginPage("/login").permitAll())
         // Enable CSRF protection with custom token repository
         .csrf(
             csrf ->

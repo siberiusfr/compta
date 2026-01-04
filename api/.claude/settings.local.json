@@ -49,7 +49,8 @@
       "Bash(pnpm install:*)",
       "Bash(mvn install:*)",
       "Bash(cmd /c \"del C:\\\\dev\\\\compta\\\\api\\\\notification-contracts\\\\generated\\\\json-schemas\\\\*Event.schema.json\")",
-      "Bash(cmd /c \"cd /d C:\\\\dev\\\\compta\\\\api\\\\auth-service && mvn clean compile -DskipTests\")"
+      "Bash(cmd /c \"cd /d C:\\\\dev\\\\compta\\\\api\\\\auth-service && mvn clean compile -DskipTests\")",
+      "Bash(cmd /c \"cd /d C:\\\\dev\\\\compta\\\\api\\\\oauth2-server && mvn clean compile -DskipTests\")"
     ]
   }
 }
