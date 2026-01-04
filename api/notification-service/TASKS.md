@@ -8,6 +8,103 @@
 
 ---
 
+## 💡 Recommended Improvements (New)
+
+### 🔴 High Priority - Quick Wins
+
+#### 1. Configuration centralisée avec @nestjs/config
+**Problème**: Variables d'env lues directement avec `process.env` partout
+**Solution**: Utiliser `@nestjs/config` avec validation Zod/Joi
+```bash
+pnpm add @nestjs/config
+```
+**Bénéfices**: Type-safety, validation au démarrage, valeurs par défaut centralisées
+
+#### 2. Health checks améliorés avec @nestjs/terminus
+**Problème**: Health checks basiques sans vérification des dépendances
+**Solution**: Ajouter `@nestjs/terminus` pour vérifier DB, Redis, SMTP
+```bash
+pnpm add @nestjs/terminus
+```
+**Bénéfices**: Monitoring Kubernetes-ready, détection proactive des pannes
+
+#### 3. Graceful Shutdown
+**Problème**: L'application peut perdre des jobs en cours lors d'un redémarrage
+**Solution**: Implémenter `enableShutdownHooks()` et fermer proprement Redis/DB
+**Bénéfices**: Zero-downtime deployments, pas de jobs perdus
+
+#### 4. Dead Letter Queue (DLQ)
+**Problème**: Jobs qui échouent définitivement sont perdus
+**Solution**: Configurer une DLQ dans BullMQ pour les jobs en échec permanent
+**Bénéfices**: Analyse post-mortem, possibilité de replay manuel
+
+#### 5. Retry avec Backoff Exponentiel
+**Problème**: Retry par défaut de BullMQ sans délai intelligent
+**Solution**: Configurer backoff exponentiel pour SMTP/SendPulse
+```typescript
+defaultJobOptions: {
+  attempts: 5,
+  backoff: { type: 'exponential', delay: 1000 }
+}
+```
+**Bénéfices**: Évite de surcharger les providers en cas de panne
+
+### 🟡 Medium Priority - Robustesse
+
+#### 6. Notification Deduplication
+**Problème**: Risque d'envoyer le même email plusieurs fois
+**Solution**: Hash unique basé sur (userId + type + templateId + timestamp window)
+**Bénéfices**: Évite le spam accidentel, meilleure UX
+
+#### 7. Priority Queues
+**Problème**: Toutes les notifications ont la même priorité
+**Solution**: Queues séparées pour URGENT, HIGH, NORMAL, LOW
+**Bénéfices**: Password reset envoyé avant newsletter
+
+#### 8. Template Validation au Chargement
+**Problème**: Erreurs MJML découvertes seulement à l'envoi
+**Solution**: Valider tous les templates au démarrage de l'app
+**Bénéfices**: Fail-fast, évite les erreurs en production
+
+#### 9. SendPulse Webhooks
+**Problème**: Pas de suivi des bounces/complaints SendPulse
+**Solution**: Endpoint webhook pour recevoir les events SendPulse
+**Bénéfices**: Mise à jour automatique du statut, gestion des bounces
+
+#### 10. Docker & Docker Compose
+**Problème**: Pas de containerisation
+**Solution**: Ajouter Dockerfile multi-stage + docker-compose.yml (app + redis + postgres)
+**Bénéfices**: Environnement reproductible, déploiement simplifié
+
+### 🟢 Low Priority - Nice to Have
+
+#### 11. OpenTelemetry Integration
+**Problème**: Pas de tracing distribué
+**Solution**: `@opentelemetry/sdk-node` + `@opentelemetry/auto-instrumentations-node`
+**Bénéfices**: Tracing end-to-end avec Jaeger/Zipkin/Datadog
+
+#### 12. Hot Reload des Templates
+**Problème**: Redémarrage requis pour modifier un template
+**Solution**: Watcher sur le dossier templates/ + invalidation du cache
+**Bénéfices**: Modifications en temps réel sans downtime
+
+#### 13. Email Preview Endpoint
+**Problème**: Pas de moyen de prévisualiser un email
+**Solution**: `GET /templates/:code/preview?variables={...}`
+**Bénéfices**: Debug facile, validation avant envoi
+
+#### 14. Notification History API
+**Problème**: Pas d'API pour récupérer l'historique d'un utilisateur
+**Solution**: `GET /users/:id/notifications` avec pagination
+**Bénéfices**: Self-service pour les utilisateurs
+
+#### 15. GitHub Actions CI/CD
+**Problème**: Pas de pipeline CI/CD
+**Solution**: Workflow pour lint, test, build, deploy
+**Bénéfices**: Qualité garantie, déploiement automatisé
+
+---
+
 ## 📊 Current State
 
 ### ✅ What's Done
