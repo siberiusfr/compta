@@ -495,5 +495,238 @@ const timeZone = process.env.EMAIL_TIMEZONE || 'Africa/Tunis';
 
 This allows easy localization for different regions without code changes.
 
+## ✅ Structured Logging Implementation (COMPLETED)
+
+### Overview
+Implemented **nestjs-pino** for structured logging throughout the notification service, providing native NestJS integration with Pino's high-performance logging.
+
+### Dependencies
+```bash
+pnpm add nestjs-pino pino-http
+# pino-pretty already installed
+```
+
+### Implementation Details
+
+#### 1. LoggerModule Configuration
+**File**: [`src/common/logger/logger.module.ts`](src/common/logger/logger.module.ts)
+
+Created a centralized LoggerModule with full NestJS integration:
+
+**Features:**
+- **Environment-based formatting**: Pretty-printed logs in development (`pino-pretty`), JSON in production
+- **Configurable log levels**: Controlled via `LOG_LEVEL` environment variable
+- **Service name**: All logs tagged with `notification-service`
+- **ISO timestamps**: Standardized timestamp format
+- **Optimized serializers**: Request/response serializers without body logging
+- **Sensitive data redaction**: Automatically redacts authorization, cookie, password, token, accessToken, email
+- **Auto-logging exclusions**: Health/metrics endpoints excluded from auto-logging
+- **Custom log levels**: Based on HTTP status codes (5xx → error, 4xx → warn)
+- **Request tracking**: Automatic requestId and correlationId propagation
+
+**Configuration:**
+```typescript
+import { Module } from '@nestjs/common';
+import { LoggerModule as PinoLoggerModule, Params } from 'nestjs-pino';
+
+const pinoHttpConfig: Params = {
+  pinoHttp: {
+    level: process.env.LOG_LEVEL || 'info',
+    name: 'notification-service',
+    genReqId,           // Generate/propagate request IDs
+    customLogLevel,     // 5xx→error, 4xx→warn, else→info
+    serializers: {
+      req: reqSerializer,  // Optimized, no body
+      res: resSerializer,  // Optimized, no body
+    },
+    redact: {
+      paths: [
+        'req.headers.authorization',
+        'req.headers.cookie',
+        'req.body.password',
+        'req.body.token',
+        'req.body.accessToken',
+        'req.body.email',
+        'res.headers["set-cookie"]',
+      ],
+      remove: true,
+    },
+    autoLogging: {
+      ignore: (req) => ['/health', '/metrics', '/health/redis']
+        .some(path => req.url?.startsWith(path)),
+    },
+    customProps: (req) => ({
+      requestId: req.headers['x-request-id'],
+      correlationId: req.headers['x-correlation-id'],
+    }),
+    transport: isDevelopment ? {
+      target: 'pino-pretty',
+      options: { colorize: true, translateTime: 'SYS:standard', ignore: 'pid,hostname' },
+    } : undefined,
+  },
+};
+
+@Module({
+  imports: [PinoLoggerModule.forRoot(pinoHttpConfig)],
+  exports: [PinoLoggerModule],
+})
+export class LoggerModule {}
+```
+
+#### 2. Application Bootstrap
+**File**: [`src/main.ts`](src/main.ts)
+
+```typescript
+import { Logger } from 'nestjs-pino';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(Logger));  // Route all NestJS logs to Pino
+  // ...
+}
+```
+
+#### 3. Service Injection Pattern
+**File**: [`src/sendpulse/sendpulse.service.ts`](src/sendpulse/sendpulse.service.ts)
+
+```typescript
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
+
+@Injectable()
+export class SendPulseService {
+  constructor(
+    @InjectPinoLogger(SendPulseService.name)
+    private readonly logger: PinoLogger,
+  ) {}
+
+  async sendEmail(emailData: SendPulseEmailRequest) {
+    this.logger.info(
+      { recipients: emailData.to.map(t => t.email) },
+      `Sending email to ${emailData.to.map(t => t.email).join(', ')}`,
+    );
+  }
+}
+```
+
+#### 4. Base Processor Pattern
+**File**: [`src/processors/base-email-processor.ts`](src/processors/base-email-processor.ts)
+
+For abstract classes, the logger is passed via constructor:
+
+```typescript
+import { PinoLogger } from 'nestjs-pino';
+
+export abstract class BaseEmailProcessor extends WorkerHost {
+  protected readonly logger: PinoLogger;
+
+  constructor(logger: PinoLogger) {
+    super();
+    this.logger = logger;
+  }
+}
+```
+
+Child classes inject and pass the logger:
+
+```typescript
+@Processor(QueueNames.EMAIL_VERIFICATION)
+export class EmailVerificationProcessor extends BaseEmailProcessor {
+  constructor(
+    @InjectPinoLogger(EmailVerificationProcessor.name)
+    logger: PinoLogger,
+    private readonly mailerService: MailerService,
+  ) {
+    super(logger);
+  }
+}
+```
+
+#### 5. Exception Filter
+**File**: [`src/filters/all-exceptions.filter.ts`](src/filters/all-exceptions.filter.ts)
+
+Uses NestJS Logger (automatically routed to Pino):
+
+```typescript
+import { Logger } from '@nestjs/common';
+
+@Catch()
+export class AllExceptionsFilter extends BaseExceptionFilter {
+  private readonly logger = new Logger(AllExceptionsFilter.name);
+  // NestJS Logger is routed to Pino via app.useLogger()
+}
+```
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `src/common/logger/logger.module.ts` | **Created** - Full Pino configuration |
+| `src/common/logger/index.ts` | **Created** - Module export |
+| `src/common/logger/pino.config.ts` | **Deprecated** - Kept for reference only |
+| `src/app.module.ts` | Import LoggerModule (first position) |
+| `src/main.ts` | Use Pino Logger, bufferLogs: true |
+| `src/filters/all-exceptions.filter.ts` | Use NestJS Logger (routed to Pino) |
+| `src/sendpulse/sendpulse.service.ts` | Use @InjectPinoLogger |
+| `src/processors/base-email-processor.ts` | Receive PinoLogger via constructor |
+| `src/processors/email-verification.processor.ts` | Inject PinoLogger |
+| `src/processors/password-reset.processor.ts` | Inject PinoLogger |
+| `src/processors/sendpulse-email-verification.processor.ts` | Use @InjectPinoLogger |
+| `src/processors/sendpulse-password-reset.processor.ts` | Use @InjectPinoLogger |
+
+### Benefits
+
+1. **Native NestJS Integration**: Works seamlessly with NestJS dependency injection
+2. **HTTP Request Logging**: Automatic request/response logging via pino-http
+3. **Structured Logs**: JSON format for production, pretty-printed for development
+4. **High Performance**: Pino is one of the fastest Node.js loggers
+5. **Request Tracking**: Automatic requestId/correlationId propagation
+6. **Sensitive Data Protection**: Automatic redaction of secrets and PII
+7. **Log Aggregation Ready**: JSON logs work with ELK, Loki, Datadog, etc.
+8. **Custom Log Levels**: HTTP status-based log levels (5xx→error, 4xx→warn)
+9. **Endpoint Exclusions**: Health checks excluded from logs
+10. **Context Preservation**: Logger context automatically set per service
+
+### Environment Variables
+
+```bash
+# Logging Configuration
+LOG_LEVEL=info  # Options: trace, debug, info, warn, error, fatal
+```
+
+### Log Format Examples
+
+**Development (Pretty):**
+```
+[2026-01-05 01:31:57.328 +0700] WARN (notification-service): SENDPULSE_ACCESS_TOKEN is not configured
+    context: "SendPulseService"
+[2026-01-05 01:31:58.183 +0700] INFO (notification-service): Starting Nest application...
+    context: "NestFactory"
+```
+
+**Production (JSON):**
+```json
+{
+  "level": 30,
+  "time": "2026-01-05T01:31:57.328Z",
+  "name": "notification-service",
+  "context": "SendPulseService",
+  "msg": "SENDPULSE_ACCESS_TOKEN is not configured"
+}
+```
+
+**HTTP Request Log (Production):**
+```json
+{
+  "level": 30,
+  "time": "2026-01-05T01:32:00.000Z",
+  "name": "notification-service",
+  "req": { "id": "abc123", "method": "POST", "url": "/notif/notifications" },
+  "res": { "statusCode": 201 },
+  "responseTime": 45,
+  "requestId": "abc123",
+  "correlationId": "xyz789"
+}
+```
+
 ### Next Steps
 See [`TASKS.md`](./TASKS.md) for remaining tasks and implementation roadmap.

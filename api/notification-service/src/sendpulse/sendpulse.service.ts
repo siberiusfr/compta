@@ -1,4 +1,5 @@
-import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
 
 /**
  * DTOs for SendPulse API requests and responses
@@ -190,11 +191,13 @@ export interface SendPulseAddDomainResponse {
  */
 @Injectable()
 export class SendPulseService {
-  private readonly logger = new Logger(SendPulseService.name);
   private readonly baseUrl = 'https://api.sendpulse.com';
   private readonly accessToken: string;
 
-  constructor() {
+  constructor(
+    @InjectPinoLogger(SendPulseService.name)
+    private readonly logger: PinoLogger,
+  ) {
     this.accessToken = process.env.SENDPULSE_ACCESS_TOKEN || '';
 
     if (!this.accessToken) {
@@ -208,7 +211,7 @@ export class SendPulseService {
   private async request<T>(
     method: 'GET' | 'POST' | 'DELETE',
     endpoint: string,
-    data?: any,
+    data?: unknown,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers: HeadersInit = {
@@ -217,7 +220,7 @@ export class SendPulseService {
     };
 
     try {
-      this.logger.debug(`SendPulse ${method} ${endpoint}`);
+      this.logger.debug({ method, endpoint }, `SendPulse ${method} ${endpoint}`);
 
       let response: Response;
 
@@ -245,8 +248,8 @@ export class SendPulseService {
       if (!response.ok) {
         const errorText = await response.text();
         this.logger.error(
+          { status: response.status, statusText: response.statusText, errorText },
           `SendPulse API error: ${response.status} ${response.statusText}`,
-          errorText,
         );
         throw new InternalServerErrorException(
           `SendPulse API error: ${response.status} ${response.statusText}`,
@@ -258,9 +261,13 @@ export class SendPulseService {
       if (error instanceof InternalServerErrorException) {
         throw error;
       }
-      this.logger.error(`SendPulse request error: ${error.message}`, error.stack);
+      const err = error as Error;
+      this.logger.error(
+        { error: err.message, stack: err.stack },
+        `SendPulse request error: ${err.message}`,
+      );
       throw new InternalServerErrorException(
-        `SendPulse request error: ${error.message}`,
+        `SendPulse request error: ${err.message}`,
       );
     }
   }
@@ -276,7 +283,10 @@ export class SendPulseService {
   async sendEmail(emailData: SendPulseEmailRequest): Promise<SendPulseSendEmailResponse> {
     const request: SendPulseSendEmailRequest = { email: emailData };
 
-    this.logger.log(`Sending email to ${emailData.to.map(t => t.email).join(', ')}`);
+    this.logger.info(
+      { recipients: emailData.to.map((t) => t.email) },
+      `Sending email to ${emailData.to.map((t) => t.email).join(', ')}`,
+    );
 
     return this.request<SendPulseSendEmailResponse>('POST', '/smtp/emails', request);
   }
@@ -456,7 +466,7 @@ export class SendPulseService {
    * @returns Result
    */
   async unsubscribe(emails: SendPulseUnsubscribeRequest[]): Promise<SendPulseUnsubscribeResponse> {
-    this.logger.log(`Unsubscribing ${emails.length} emails`);
+    this.logger.info({ count: emails.length }, `Unsubscribing ${emails.length} emails`);
     return this.request<SendPulseUnsubscribeResponse>('POST', '/smtp/unsubscribe', emails);
   }
 
@@ -469,7 +479,10 @@ export class SendPulseService {
    * @returns Result
    */
   async removeFromUnsubscribed(emails: string[]): Promise<SendPulseUnsubscribeResponse> {
-    this.logger.log(`Removing ${emails.length} emails from unsubscribed list`);
+    this.logger.info(
+      { count: emails.length },
+      `Removing ${emails.length} emails from unsubscribed list`,
+    );
     return this.request<SendPulseUnsubscribeResponse>('DELETE', '/smtp/unsubscribe', emails);
   }
 
@@ -509,7 +522,10 @@ export class SendPulseService {
    * @returns Result (true if unsubscribed)
    */
   async isUnsubscribed(email: string): Promise<{ result: boolean }> {
-    return this.request<{ result: boolean }>('GET', `/smtp/unsubscribe/search?email=${encodeURIComponent(email)}`);
+    return this.request<{ result: boolean }>(
+      'GET',
+      `/smtp/unsubscribe/search?email=${encodeURIComponent(email)}`,
+    );
   }
 
   /**
@@ -531,7 +547,7 @@ export class SendPulseService {
   ): Promise<SendPulseResubscribeResponse> {
     const request: SendPulseResubscribeRequest = { email, sender, lang };
 
-    this.logger.log(`Resubscribing ${email} with sender ${sender}`);
+    this.logger.info({ email, sender }, `Resubscribing ${email} with sender ${sender}`);
     return this.request<SendPulseResubscribeResponse>('POST', '/smtp/resubscribe', request);
   }
 
@@ -565,7 +581,10 @@ export class SendPulseService {
    * @returns Sender domains information
    */
   async getSenderDomains(): Promise<SendPulseSenderDomainsResponse> {
-    return this.request<SendPulseSenderDomainsResponse>('GET', '/v2/email-service/smtp/sender_domains');
+    return this.request<SendPulseSenderDomainsResponse>(
+      'GET',
+      '/v2/email-service/smtp/sender_domains',
+    );
   }
 
   /**
@@ -580,7 +599,7 @@ export class SendPulseService {
   async addSender(email: string, name: string): Promise<SendPulseAddSenderResponse> {
     const request: SendPulseAddSenderRequest = { email, name };
 
-    this.logger.log(`Adding sender: ${email} (${name})`);
+    this.logger.info({ email, name }, `Adding sender: ${email} (${name})`);
     return this.request<SendPulseAddSenderResponse>('POST', '/senders', request);
   }
 
@@ -593,7 +612,7 @@ export class SendPulseService {
    * @returns Result
    */
   async addDomain(domain: string): Promise<SendPulseAddDomainResponse> {
-    this.logger.log(`Adding domain: ${domain}`);
+    this.logger.info({ domain }, `Adding domain: ${domain}`);
     return this.request<SendPulseAddDomainResponse>(
       'POST',
       `/v2/email-service/smtp/sender_domains/${domain}`,

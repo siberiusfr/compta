@@ -1,6 +1,6 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { Logger } from '@nestjs/common';
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
 import { SendPulseService } from '../sendpulse/sendpulse.service';
 import mjml from 'mjml';
 import * as fs from 'fs';
@@ -31,10 +31,13 @@ import { NotificationException } from '../common/exceptions/notification.excepti
  */
 @Processor(QueueNames.EMAIL_VERIFICATION)
 export class SendPulseEmailVerificationProcessor extends WorkerHost {
-  private readonly logger = new Logger(SendPulseEmailVerificationProcessor.name);
   private templateCache: string | null = null;
 
-  constructor(private readonly sendPulseService: SendPulseService) {
+  constructor(
+    @InjectPinoLogger(SendPulseEmailVerificationProcessor.name)
+    private readonly logger: PinoLogger,
+    private readonly sendPulseService: SendPulseService,
+  ) {
     super();
   }
 
@@ -45,26 +48,29 @@ export class SendPulseEmailVerificationProcessor extends WorkerHost {
    * @returns Le resultat de l'envoi d'email
    */
   async process(
-    job: Job<EmailVerificationRequested, any, string>,
-  ): Promise<any> {
+    job: Job<EmailVerificationRequested, unknown, string>,
+  ): Promise<unknown> {
     // Valider le message complet (enveloppe + payload) avec Zod
     const parseResult = safeParseEmailVerificationRequested(job.data);
     if (!parseResult.success) {
       const errorMessage = parseResult.error.message || 'Unknown validation error';
       this.logger.error(
+        { jobId: job.id, error: errorMessage },
         `Invalid job payload for job ${job.id}: ${errorMessage}`,
       );
       throw NotificationException.invalidPayload(String(job.id), errorMessage);
     }
 
     const { eventId, eventType, producer, payload } = parseResult.data;
-    const { email, username, verificationLink, expiresAt, userId, locale } = payload;
+    const { email, username, verificationLink, expiresAt, userId } = payload;
 
     this.logger.debug(
+      { eventId, eventType, producer },
       `Processing ${eventType} (eventId: ${eventId}) from ${producer}`,
     );
 
-    this.logger.log(
+    this.logger.info(
+      { jobId: job.id, username, email, provider: 'sendpulse' },
       `Processing email verification job ${job.id} for user ${username} (${email}) via SendPulse`,
     );
 
@@ -91,7 +97,8 @@ export class SendPulseEmailVerificationProcessor extends WorkerHost {
         },
       );
 
-      this.logger.log(
+      this.logger.info(
+        { jobId: job.id, eventId, messageId: result?.id, email, provider: 'sendpulse' },
         `Successfully sent verification email to ${email} via SendPulse (job ${job.id}, eventId: ${eventId}, messageId: ${result?.id})`,
       );
 
@@ -103,10 +110,11 @@ export class SendPulseEmailVerificationProcessor extends WorkerHost {
         email,
         provider: 'sendpulse',
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as Error;
       this.logger.error(
-        `Failed to send verification email to ${email} via SendPulse: ${error.message}`,
-        error.stack,
+        { jobId: job.id, email, error: err.message, stack: err.stack, provider: 'sendpulse' },
+        `Failed to send verification email to ${email} via SendPulse: ${err.message}`,
       );
 
       throw error; // Re-throw pour permettre le retry BullMQ
@@ -140,6 +148,7 @@ export class SendPulseEmailVerificationProcessor extends WorkerHost {
 
     if (errors && errors.length > 0) {
       this.logger.warn(
+        { errors: errors.map((e) => e.message) },
         `MJML compilation warnings: ${errors.map((e) => e.message).join(', ')}`,
       );
     }
@@ -167,13 +176,18 @@ export class SendPulseEmailVerificationProcessor extends WorkerHost {
 
     try {
       this.templateCache = fs.readFileSync(templatePath, 'utf8');
-      this.logger.log(`Loaded email verification template from ${templatePath}`);
-      return this.templateCache;
-    } catch (error) {
-      this.logger.error(
-        `Failed to load template from ${templatePath}: ${error.message}`,
+      this.logger.info(
+        { templatePath },
+        `Loaded email verification template from ${templatePath}`,
       );
-      throw NotificationException.templateLoadFailed(templatePath, error.message);
+      return this.templateCache;
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(
+        { templatePath, error: err.message },
+        `Failed to load template from ${templatePath}: ${err.message}`,
+      );
+      throw NotificationException.templateLoadFailed(templatePath, err.message);
     }
   }
 

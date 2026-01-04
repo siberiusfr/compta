@@ -1,22 +1,38 @@
 import { WorkerHost } from '@nestjs/bullmq';
-import { Logger } from '@nestjs/common';
 import mjml from 'mjml';
 import * as fs from 'fs';
 import * as path from 'path';
+import { PinoLogger } from 'nestjs-pino';
 
 /**
  * Base processor class for email processors.
  * Provides shared functionality for template loading, compilation, and date formatting.
  *
  * This class eliminates code duplication between EmailVerificationProcessor and PasswordResetProcessor.
+ *
+ * Usage:
+ * Child classes must inject PinoLogger and pass it to the base class:
+ *
+ * @example
+ * ```typescript
+ * @Processor(QueueNames.EMAIL_VERIFICATION)
+ * export class EmailVerificationProcessor extends BaseEmailProcessor {
+ *   constructor(
+ *     @InjectPinoLogger(EmailVerificationProcessor.name)
+ *     logger: PinoLogger,
+ *   ) {
+ *     super(logger);
+ *   }
+ * }
+ * ```
  */
 export abstract class BaseEmailProcessor extends WorkerHost {
-  protected readonly logger: Logger;
+  protected readonly logger: PinoLogger;
   protected templateCache: Map<string, string> = new Map();
 
-  constructor() {
+  constructor(logger: PinoLogger) {
     super();
-    this.logger = new Logger(this.constructor.name);
+    this.logger = logger;
   }
 
   /**
@@ -57,6 +73,7 @@ export abstract class BaseEmailProcessor extends WorkerHost {
 
     if (errors && errors.length > 0) {
       this.logger.warn(
+        { errors: errors.map((e) => e.message) },
         `MJML compilation warnings: ${errors.map((e) => e.message).join(', ')}`,
       );
     }
@@ -88,11 +105,13 @@ export abstract class BaseEmailProcessor extends WorkerHost {
     try {
       const templateContent = fs.readFileSync(templatePath, 'utf8');
       this.templateCache.set(templateFilename, templateContent);
-      this.logger.log(`Loaded email template from ${templatePath}`);
+      this.logger.info({ templatePath }, `Loaded email template from ${templatePath}`);
       return templateContent;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       this.logger.error(
-        `Failed to load template from ${templatePath}: ${error.message}`,
+        { templatePath, error: err.message },
+        `Failed to load template from ${templatePath}: ${err.message}`,
       );
       throw new Error(`Email template not found: ${templatePath}`);
     }

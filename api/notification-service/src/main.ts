@@ -2,10 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { AllExceptionsFilter } from './filters/all-exceptions.filter';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+
+  // Use Pino logger
+  app.useLogger(app.get(Logger));
 
   // Set global prefix for all routes
   app.setGlobalPrefix('notif');
@@ -17,8 +20,7 @@ async function bootstrap() {
     transform: true,
   }));
 
-  // Enable global exception filter
-  app.useGlobalFilters(new AllExceptionsFilter());
+  // Global exception filter is registered via APP_FILTER in app.module.ts
 
   // Enable CORS (for gateway communication)
   app.enableCors({

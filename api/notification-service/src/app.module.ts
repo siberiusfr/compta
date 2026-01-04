@@ -18,6 +18,9 @@ import { QueueNames } from '@compta/notification-contracts';
 // Prisma
 import { PrismaModule } from './database/prisma.module';
 
+// Logger
+import { LoggerModule } from './common/logger';
+
 // SendPulse
 import { SendPulseModule } from './sendpulse/sendpulse.module';
 
@@ -43,6 +46,9 @@ import { GatewayHeadersGuard } from './guards/gateway-headers.guard';
 
 @Module({
   imports: [
+    // Logger Module (must be first for proper initialization)
+    LoggerModule,
+
     // Prisma Database
     PrismaModule,
 

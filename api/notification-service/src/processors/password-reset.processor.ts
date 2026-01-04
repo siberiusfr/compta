@@ -1,6 +1,7 @@
 import { Processor } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { MailerService } from '@nestjs-modules/mailer';
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
 import {
   QueueNames,
   PasswordResetRequested,
@@ -28,8 +29,12 @@ import { BaseEmailProcessor } from './base-email-processor';
  */
 @Processor(QueueNames.PASSWORD_RESET)
 export class PasswordResetProcessor extends BaseEmailProcessor {
-  constructor(private readonly mailerService: MailerService) {
-    super();
+  constructor(
+    @InjectPinoLogger(PasswordResetProcessor.name)
+    logger: PinoLogger,
+    private readonly mailerService: MailerService,
+  ) {
+    super(logger);
   }
 
   /**
@@ -52,24 +57,27 @@ export class PasswordResetProcessor extends BaseEmailProcessor {
    * @param job Le job BullMQ contenant le message avec enveloppe
    * @returns Le resultat de l'envoi d'email
    */
-  async process(job: Job<PasswordResetRequested, any, string>): Promise<any> {
+  async process(job: Job<PasswordResetRequested, unknown, string>): Promise<unknown> {
     // Valider le message complet (enveloppe + payload) avec Zod
     const parseResult = safeParsePasswordResetRequested(job.data);
     if (!parseResult.success) {
       this.logger.error(
+        { jobId: job.id, error: parseResult.error.message },
         `Invalid job payload for job ${job.id}: ${parseResult.error.message}`,
       );
       throw new Error(`Invalid job payload: ${parseResult.error.message}`);
     }
 
     const { eventId, eventType, producer, payload } = parseResult.data;
-    const { email, username, resetLink, expiresAt, userId, locale } = payload;
+    const { email, username, resetLink, expiresAt, userId } = payload;
 
     this.logger.debug(
+      { eventId, eventType, producer },
       `Processing ${eventType} (eventId: ${eventId}) from ${producer}`,
     );
 
-    this.logger.log(
+    this.logger.info(
+      { jobId: job.id, username, email },
       `Processing password reset job ${job.id} for user ${username} (${email})`,
     );
 
@@ -88,7 +96,8 @@ export class PasswordResetProcessor extends BaseEmailProcessor {
         html,
       });
 
-      this.logger.log(
+      this.logger.info(
+        { jobId: job.id, eventId, messageId: result?.messageId, email },
         `Successfully sent password reset email to ${email} (job ${job.id}, eventId: ${eventId}, messageId: ${result?.messageId})`,
       );
 
@@ -99,10 +108,11 @@ export class PasswordResetProcessor extends BaseEmailProcessor {
         userId,
         email,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       this.logger.error(
-        `Failed to send password reset email to ${email}: ${error.message}`,
-        error.stack,
+        { jobId: job.id, email, error: err.message, stack: err.stack },
+        `Failed to send password reset email to ${email}: ${err.message}`,
       );
 
       throw error; // Re-throw pour permettre le retry BullMQ

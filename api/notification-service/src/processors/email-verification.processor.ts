@@ -1,6 +1,7 @@
 import { Processor } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { MailerService } from '@nestjs-modules/mailer';
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
 import {
   QueueNames,
   EmailVerificationRequested,
@@ -28,8 +29,12 @@ import { BaseEmailProcessor } from './base-email-processor';
  */
 @Processor(QueueNames.EMAIL_VERIFICATION)
 export class EmailVerificationProcessor extends BaseEmailProcessor {
-  constructor(private readonly mailerService: MailerService) {
-    super();
+  constructor(
+    @InjectPinoLogger(EmailVerificationProcessor.name)
+    logger: PinoLogger,
+    private readonly mailerService: MailerService,
+  ) {
+    super(logger);
   }
 
   /**
@@ -53,25 +58,28 @@ export class EmailVerificationProcessor extends BaseEmailProcessor {
    * @returns Le resultat de l'envoi d'email
    */
   async process(
-    job: Job<EmailVerificationRequested, any, string>,
-  ): Promise<any> {
+    job: Job<EmailVerificationRequested, unknown, string>,
+  ): Promise<unknown> {
     // Valider le message complet (enveloppe + payload) avec Zod
     const parseResult = safeParseEmailVerificationRequested(job.data);
     if (!parseResult.success) {
       this.logger.error(
+        { jobId: job.id, error: parseResult.error.message },
         `Invalid job payload for job ${job.id}: ${parseResult.error.message}`,
       );
       throw new Error(`Invalid job payload: ${parseResult.error.message}`);
     }
 
     const { eventId, eventType, producer, payload } = parseResult.data;
-    const { email, username, verificationLink, expiresAt, userId, locale } = payload;
+    const { email, username, verificationLink, expiresAt, userId } = payload;
 
     this.logger.debug(
+      { eventId, eventType, producer },
       `Processing ${eventType} (eventId: ${eventId}) from ${producer}`,
     );
 
-    this.logger.log(
+    this.logger.info(
+      { jobId: job.id, username, email },
       `Processing email verification job ${job.id} for user ${username} (${email})`,
     );
 
@@ -90,7 +98,8 @@ export class EmailVerificationProcessor extends BaseEmailProcessor {
         html,
       });
 
-      this.logger.log(
+      this.logger.info(
+        { jobId: job.id, eventId, messageId: result?.messageId, email },
         `Successfully sent verification email to ${email} (job ${job.id}, eventId: ${eventId}, messageId: ${result?.messageId})`,
       );
 
@@ -101,10 +110,11 @@ export class EmailVerificationProcessor extends BaseEmailProcessor {
         userId,
         email,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       this.logger.error(
-        `Failed to send verification email to ${email}: ${error.message}`,
-        error.stack,
+        { jobId: job.id, email, error: err.message, stack: err.stack },
+        `Failed to send verification email to ${email}: ${err.message}`,
       );
 
       throw error; // Re-throw pour permettre le retry BullMQ

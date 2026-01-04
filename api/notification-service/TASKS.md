@@ -47,7 +47,6 @@
 3. **Exposed Endpoints**: Tous les endpoints sont accessibles via gateway (pas de protection directe)
 
 #### Code Quality
-5. **No Structured Logging**: Pas de Winston/Pino pour des logs structurés
 
 #### Features
 11. **No SMS Support**: Pas d'intégration SMS (Twilio, etc.)
