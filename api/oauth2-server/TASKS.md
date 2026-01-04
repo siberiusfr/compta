@@ -18,52 +18,14 @@ This document outlines all the missing components and features needed to make th
 
 ## Bugs & Issues - ✅ ALL FIXED
 
-All 8 critical issues have been fixed.
-
-### Fixed Issues Summary:
-
-| Issue | Description | Fix Applied |
-|-------|-------------|-------------|
-| 1 | `getAllClients()` returned empty list | Now queries `oauth2_registered_client` table directly |
-| 2 | `deleteClient()` threw exception | Now properly deletes client and related records |
-| 3 | Hardcoded gateway secret | Now uses `${GATEWAY_SECRET}` from config |
-| 4 | Hardcoded issuer URL | Now uses `${OAUTH2_ISSUER}` from config |
-| 5 | Hardcoded frontend URL | Now uses `${app.frontend.url}` from config |
-| 6 | TokenBlacklistService in-memory only | Now persists to `oauth2.token_blacklist` table |
-| 7 | TokenBlacklistService not used | Now integrated in `TokenRevocationService` |
-| 8 | Rate limit logic inverted | Fixed logic and window size calculation |
-
-### Configuration Added to `application.yml`:
-
-```yaml
-oauth2:
-  issuer: ${OAUTH2_ISSUER:http://localhost:9000}
-  gateway:
-    secret: ${GATEWAY_SECRET:gateway-secret-change-in-production}
-
-app:
-  frontend:
-    url: ${FRONTEND_URL:http://localhost:3000}
-```
-
-### New Migration Created:
-
-- `V9__create_token_blacklist_table.sql` - Persists revoked token JTIs
+All 8 critical issues have been fixed. See [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md#bug-fixes-applied) for details.
 
 ---
 
-## Medium Priority Tasks - Partially Completed
+## Medium Priority Tasks - ✅ MOSTLY COMPLETED
+| 6 | Implement Token Binding (DPoP) | ❌ **NOT DONE** | Only documented, code not written |
 
-### Completed Tasks:
-1. ✅ Add Rate Limiting
-2. ✅ Configure CORS
-3. ✅ Implement CSRF Protection
-4. ✅ Implement Audit Logging
-5. ✅ Add OAuth2 Specific Metrics
-6. ❌ Implement Token Binding (DPoP) - **NOT IMPLEMENTED**
-7. ✅ Add JTI (JWT ID) for Token Tracking (now persisted to DB)
-8. ✅ Implement Password Reset Flow
-9. ✅ Implement Email Verification
+8 of 9 tasks completed. See [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md#medium-priority-tasks) for implementation details.
 
 ### Remaining Task: Implement Token Binding (DPoP)
 

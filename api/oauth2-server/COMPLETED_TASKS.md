@@ -1211,16 +1211,29 @@ CREATE TABLE oauth2.email_verification_tokens (
 
 All 8 critical bugs have been fixed:
 
-| Issue | Fix |
-|-------|-----|
-| `getAllClients()` empty | Now queries DB directly via JdbcTemplate |
-| `deleteClient()` exception | Now deletes client + related records |
-| Hardcoded gateway secret | Uses `${GATEWAY_SECRET}` from config |
-| Hardcoded issuer URL | Uses `${OAUTH2_ISSUER}` from config |
-| Hardcoded frontend URL | Uses `${app.frontend.url}` from config |
-| TokenBlacklistService in-memory | Persists to `oauth2.token_blacklist` table |
-| TokenBlacklistService unused | Integrated in `TokenRevocationService` |
-| Rate limit logic inverted | Fixed logic and window calculation |
+| # | Issue | Description | Fix Applied |
+|---|-------|-------------|-------------|
+| 1 | `getAllClients()` empty | Method returned empty list | Now queries `oauth2_registered_client` table directly via JdbcTemplate |
+| 2 | `deleteClient()` exception | Method threw exception when deleting | Now properly deletes client and all related records |
+| 3 | Hardcoded gateway secret | Secret was hardcoded in code | Now uses `${GATEWAY_SECRET}` from environment/config |
+| 4 | Hardcoded issuer URL | Issuer URL was hardcoded | Now uses `${OAUTH2_ISSUER}` from environment/config |
+| 5 | Hardcoded frontend URL | Frontend URL was hardcoded | Now uses `${app.frontend.url}` from environment/config |
+| 6 | TokenBlacklistService in-memory | Revoked tokens lost on restart | Now persists to `oauth2.token_blacklist` table |
+| 7 | TokenBlacklistService unused | Service was created but never called | Now integrated in `TokenRevocationService` |
+| 8 | Rate limit logic inverted | Rate limiting was allowing instead of blocking | Fixed logic and window size calculation |
+
+### Configuration Added to `application.yml`:
+
+```yaml
+oauth2:
+  issuer: ${OAUTH2_ISSUER:http://localhost:9000}
+  gateway:
+    secret: ${GATEWAY_SECRET:gateway-secret-change-in-production}
+
+app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:3000}
+```
 
 ### New Files Created:
 - `V9__create_token_blacklist_table.sql` - Token blacklist persistence
