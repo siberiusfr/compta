@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -55,6 +56,7 @@ public class CustomUserDetails implements UserDetails {
     return userRecord.getEnabled();
   }
 
+  @JsonIgnore
   public UsersRecord getUserRecord() {
     return userRecord;
   }

@@ -2,6 +2,7 @@ package tn.cyberious.compta.oauth2.config;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -87,7 +88,7 @@ public class AuthorizationServerConfig {
         Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
     // Configure allowed headers
-    configuration.setAllowedHeaders(Arrays.asList("*"));
+    configuration.setAllowedHeaders(List.of("*"));
 
     // Allow credentials
     configuration.setAllowCredentials(true);
