@@ -1,327 +1,221 @@
-# Notification Service - Remaining Tasks
+# Notification Service - Roadmap
 
-> **Note**: Ce service est TOUJOURS derrière une API Gateway qui gère:
-> - Rate Limiting (par IP, par utilisateur)
-> - Authentication/Authorization
-> - Input Sanitization de base
-> - CORS, SSL/TLS
+> **Architecture**: Ce service est TOUJOURS derrière une API Gateway qui gère Rate Limiting, Auth, Input Sanitization, CORS, SSL/TLS.
+
+> **Completed**: Voir [`TASKS_COMPLETED.md`](./TASKS_COMPLETED.md) pour Phase 1 (Security) et Phase 2 (Logging).
 
 ---
 
-## 💡 Recommended Improvements (New)
+## 🔴 HIGH PRIORITY - Production Ready
 
-### 🔴 High Priority - Quick Wins
+> **Objectif**: Minimum requis pour partir en production
 
-#### 1. Configuration centralisée avec @nestjs/config
-**Problème**: Variables d'env lues directement avec `process.env` partout
-**Solution**: Utiliser `@nestjs/config` avec validation Zod/Joi
-```bash
-pnpm add @nestjs/config
-```
-**Bénéfices**: Type-safety, validation au démarrage, valeurs par défaut centralisées
+### Configuration & Infrastructure
 
-#### 2. Health checks améliorés avec @nestjs/terminus
-**Problème**: Health checks basiques sans vérification des dépendances
-**Solution**: Ajouter `@nestjs/terminus` pour vérifier DB, Redis, SMTP
-```bash
-pnpm add @nestjs/terminus
-```
-**Bénéfices**: Monitoring Kubernetes-ready, détection proactive des pannes
+| Task | Description | Effort |
+|------|-------------|--------|
+| **@nestjs/config** | Configuration centralisée avec validation Zod | 2h |
+| **Graceful Shutdown** | `enableShutdownHooks()` + fermeture propre Redis/DB | 1h |
+| **Docker & Compose** | Dockerfile multi-stage + docker-compose.yml | 2h |
+| **Health Checks** | @nestjs/terminus pour DB, Redis, SMTP | 2h |
 
-#### 3. Graceful Shutdown
-**Problème**: L'application peut perdre des jobs en cours lors d'un redémarrage
-**Solution**: Implémenter `enableShutdownHooks()` et fermer proprement Redis/DB
-**Bénéfices**: Zero-downtime deployments, pas de jobs perdus
+### Queue Robustness
 
-#### 4. Dead Letter Queue (DLQ)
-**Problème**: Jobs qui échouent définitivement sont perdus
-**Solution**: Configurer une DLQ dans BullMQ pour les jobs en échec permanent
-**Bénéfices**: Analyse post-mortem, possibilité de replay manuel
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Backoff Exponentiel** | Retry intelligent avec délai croissant | 30min |
+| **Dead Letter Queue** | DLQ pour jobs en échec permanent | 1h |
+| **Job Timeout** | Timeout configurable par type de job | 30min |
 
-#### 5. Retry avec Backoff Exponentiel
-**Problème**: Retry par défaut de BullMQ sans délai intelligent
-**Solution**: Configurer backoff exponentiel pour SMTP/SendPulse
-```typescript
-defaultJobOptions: {
-  attempts: 5,
-  backoff: { type: 'exponential', delay: 1000 }
-}
-```
-**Bénéfices**: Évite de surcharger les providers en cas de panne
+### Error Tracking
 
-### 🟡 Medium Priority - Robustesse
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Sentry Integration** | Tracking des erreurs avec contexte | 2h |
 
-#### 6. Notification Deduplication
-**Problème**: Risque d'envoyer le même email plusieurs fois
-**Solution**: Hash unique basé sur (userId + type + templateId + timestamp window)
-**Bénéfices**: Évite le spam accidentel, meilleure UX
+### Testing (Minimum)
 
-#### 7. Priority Queues
-**Problème**: Toutes les notifications ont la même priorité
-**Solution**: Queues séparées pour URGENT, HIGH, NORMAL, LOW
-**Bénéfices**: Password reset envoyé avant newsletter
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Unit Tests** | Tests pour services critiques (SendPulse, Processors) | 4h |
 
-#### 8. Template Validation au Chargement
-**Problème**: Erreurs MJML découvertes seulement à l'envoi
-**Solution**: Valider tous les templates au démarrage de l'app
-**Bénéfices**: Fail-fast, évite les erreurs en production
-
-#### 9. SendPulse Webhooks
-**Problème**: Pas de suivi des bounces/complaints SendPulse
-**Solution**: Endpoint webhook pour recevoir les events SendPulse
-**Bénéfices**: Mise à jour automatique du statut, gestion des bounces
-
-#### 10. Docker & Docker Compose
-**Problème**: Pas de containerisation
-**Solution**: Ajouter Dockerfile multi-stage + docker-compose.yml (app + redis + postgres)
-**Bénéfices**: Environnement reproductible, déploiement simplifié
-
-### 🟢 Low Priority - Nice to Have
-
-#### 11. OpenTelemetry Integration
-**Problème**: Pas de tracing distribué
-**Solution**: `@opentelemetry/sdk-node` + `@opentelemetry/auto-instrumentations-node`
-**Bénéfices**: Tracing end-to-end avec Jaeger/Zipkin/Datadog
-
-#### 12. Hot Reload des Templates
-**Problème**: Redémarrage requis pour modifier un template
-**Solution**: Watcher sur le dossier templates/ + invalidation du cache
-**Bénéfices**: Modifications en temps réel sans downtime
-
-#### 13. Email Preview Endpoint
-**Problème**: Pas de moyen de prévisualiser un email
-**Solution**: `GET /templates/:code/preview?variables={...}`
-**Bénéfices**: Debug facile, validation avant envoi
-
-#### 14. Notification History API
-**Problème**: Pas d'API pour récupérer l'historique d'un utilisateur
-**Solution**: `GET /users/:id/notifications` avec pagination
-**Bénéfices**: Self-service pour les utilisateurs
-
-#### 15. GitHub Actions CI/CD
-**Problème**: Pas de pipeline CI/CD
-**Solution**: Workflow pour lint, test, build, deploy
-**Bénéfices**: Qualité garantie, déploiement automatisé
+**Total estimé Phase HIGH**: ~15h
 
 ---
 
-## 📊 Current State
+## 🟡 MEDIUM PRIORITY - Post-Production
 
-### ✅ What's Done
-See [`TASKS_COMPLETED.md`](./TASKS_COMPLETED.md) for completed implementations:
-- Phase 1: Security & Documentation ✅
-- Phase 2: Code Quality & Logging ✅
+> **Objectif**: Stabilité et fonctionnalités essentielles après la mise en prod
 
-### ⚠️ What's Not Good (Points Faibles)
+### Delivery Tracking
 
-#### Features
-1. **No SMS Support**: Pas d'intégration SMS (Twilio, etc.)
-2. **No Push Notifications**: Pas de support pour FCM/APNs
-3. **No Webhook Endpoints**: Pas d'endpoints pour recevoir les webhooks de delivery
-4. **No Preference Checking**: Les préférences utilisateur ne sont pas vérifiées avant envoi
-5. **No Batch Processing**: Pas d'envoi en lot
-6. **No Scheduled Jobs**: Pas de jobs planifiés pour le cleanup automatique
-7. **No Retry Logic Custom**: Retry logic par défaut de BullMQ sans personnalisation
+| Task | Description | Effort |
+|------|-------------|--------|
+| **SendPulse Webhooks** | Endpoint pour bounces/complaints/delivery | 4h |
+| **Delivery Status Updates** | Mise à jour automatique du statut via webhooks | 2h |
+| **Bounce Handling** | Désactiver les emails en bounce | 2h |
 
-#### Monitoring & Observability
-8. **No Metrics**: Pas de métriques Prometheus/Datadog
-9. **No Distributed Tracing**: Pas de tracing distribué
-10. **No Sentry Integration**: Pas de tracking d'erreurs avec Sentry
+### Notification Features
 
-#### Testing
-11. **No Unit Tests**: Pas de tests unitaires
-12. **No E2E Tests**: Pas de tests end-to-end
-13. **No Load Tests**: Pas de tests de charge
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Preference Checking** | Vérifier préférences utilisateur avant envoi | 2h |
+| **Notification Deduplication** | Éviter les doublons (hash unique) | 3h |
+| **Priority Queues** | URGENT > HIGH > NORMAL > LOW | 2h |
 
-#### Performance
-14. **No Connection Pooling**: Pas de configuration du connection pooling Prisma
-15. **No Caching Layer**: Pas de Redis cache pour les données fréquentes
-16. **No Circuit Breaker**: Pas de circuit breaker pour les appels SMTP
+### Monitoring
 
-#### Internationalization
-17. **No i18n Support**: Pas de support multi-langue (hardcoded 'fr-FR')
-18. **No Locale Detection**: Pas de détection de locale utilisateur
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Prometheus Metrics** | Métriques pour Grafana/AlertManager | 4h |
+| **Performance Monitoring** | Temps de réponse, throughput | 2h |
 
----
+### Testing (Complet)
 
-## 📋 Priority Tasks
+| Task | Description | Effort |
+|------|-------------|--------|
+| **E2E Tests** | Tests end-to-end avec Supertest | 4h |
+| **Integration Tests** | Tests avec Testcontainers | 4h |
 
-### 🟠 High Priority (Do Soon)
-1. **Add SMS Provider Integration**: Intégrer Twilio ou AWS SNS
-2. **Add Webhook Endpoints**: Recevoir les webhooks de delivery
-3. **Add Unit Tests**: Tests unitaires pour les services
-4. **Add Preference Checking**: Vérifier les préférences avant envoi
-5. **Add Sentry Integration**: Tracking des erreurs
-
-### 🟡 Medium Priority (Do Later)
-6. **Add Push Notifications**: Intégrer FCM/APNs
-7. **Add Batch Processing**: Envoi en lot
-8. **Add Scheduled Jobs**: Cleanup automatique
-9. **Add E2E Tests**: Tests end-to-end
-10. **Add Caching Layer**: Redis cache
-11. **Add i18n Support**: Support multi-langue
-12. **Add Circuit Breaker**: Circuit breaker pour providers
-13. **Add Prometheus Metrics**: Métriques Prometheus
-
-### 🟢 Low Priority (Nice to Have)
-14. **Add Load Tests**: Tests de charge
-15. **Add A/B Testing**: A/B testing des templates
-16. **Add Campaign Management**: Gestion des campagnes
-17. **Add Admin Dashboard**: Dashboard administrateur
-18. **Add Data Export**: Export CSV/PDF
-19. **Add GDPR Compliance**: Conformité GDPR
+**Total estimé Phase MEDIUM**: ~29h
 
 ---
 
-## 🚀 Implementation Roadmap
+## 🟢 LOW PRIORITY - Améliorations
 
-### Phase 3: Testing
-- [ ] Add Unit Tests
-- [ ] Add E2E Tests
+> **Objectif**: Améliorer l'expérience et les performances
 
-### Phase 4: SMS & Webhooks
-- [ ] Add SMS Provider Integration (Twilio)
-- [ ] Add Webhook Endpoints
-- [ ] Add Delivery Status Updates
-- [ ] Add Bounce Handling
-- [ ] Add Complaint Handling
+### SMS & Push
 
-### Phase 5: Monitoring & Observability
-- [ ] Add Sentry Integration
-- [ ] Add Prometheus Metrics
-- [ ] Add Health Checks (enhanced)
-- [ ] Add Distributed Tracing
-- [ ] Add Performance Monitoring
+| Task | Description | Effort |
+|------|-------------|--------|
+| **SMS Provider** | Intégration Twilio ou AWS SNS | 8h |
+| **Push Notifications** | FCM (Android) + APNs (iOS) | 8h |
+| **Multi-Provider Fallback** | Fallback automatique entre providers | 4h |
 
-### Phase 6: Advanced Features
-- [ ] Add Push Notifications (FCM/APNs)
-- [ ] Add Batch Processing
-- [ ] Add Scheduled Jobs
-- [ ] Add Caching Layer
-- [ ] Add i18n Support
-- [ ] Add Circuit Breaker
-- [ ] Add Retry Policies
+### Performance
 
-### Phase 7: Admin & UX
-- [ ] Add Admin Dashboard
-- [ ] Add Template Management UI
-- [ ] Add Notification Preview
-- [ ] Add A/B Testing
-- [ ] Add Campaign Management
-- [ ] Add Data Export
-- [ ] Add GDPR Compliance
-
----
-
-## ❌ What's Missing (Detailed)
-
-### Validation
-- **Email Validation**: Validation avancée des emails (MX records, etc.)
-- **Phone Validation**: Validation des numéros de téléphone
-
-### Documentation
-- **API Versioning**: Versioning de l'API (/v1, /v2)
-
-### Notification Throttling
-- **Notification Throttling**: Throttling des notifications par utilisateur (éviter le spam)
-
-### SMS & Push Notifications
-- **SMS Provider Integration**: Twilio, AWS SNS, etc.
-- **Push Notifications**: FCM pour Android, APNs pour iOS
-- **In-App Notifications**: WebSocket pour les notifications en temps réel
-- **Multi-Provider Support**: Support de plusieurs providers avec fallback
-
-### Webhooks & Delivery Tracking
-- **Webhook Endpoints**: Endpoints pour recevoir les webhooks des providers
-- **Webhook Signature Verification**: Vérification des signatures webhooks
-- **Delivery Status Updates**: Mise à jour automatique du status via webhooks
-- **Bounce Handling**: Traitement des emails rebondis
-- **Complaint Handling**: Traitement des plaintes (spam reports)
-
-### Batch & Scheduled Operations
-- **Batch Sending**: Envoi en lot de notifications
-- **Scheduled Notifications**: Notifications planifiées avec cron jobs
-- **Automatic Cleanup**: Job planifié pour nettoyer les anciennes notifications
-- **Retry Jobs**: Jobs de retry automatique pour les notifications échouées
-
-### Monitoring & Observability
-- **Prometheus Metrics**: Export des métriques Prometheus
-- **Grafana Dashboards**: Dashboards Grafana pour la visualisation
-- **Distributed Tracing**: Jaeger/Zipkin pour le tracing distribué
-- **Sentry Integration**: Tracking des erreurs avec Sentry
-- **Health Checks**: Health checks détaillés (DB, Redis, SMTP)
-- **Performance Monitoring**: Monitoring des temps de réponse et throughput
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Redis Caching** | Cache pour templates, users fréquents | 4h |
+| **Connection Pooling** | Configuration Prisma pool | 1h |
+| **Circuit Breaker** | Protection contre providers défaillants | 3h |
 
 ### Internationalization
-- **i18n Support**: @nestjs/i18n pour le support multi-langue
-- **Locale Detection**: Détection automatique de la locale
-- **Template Localization**: Templates localisés par langue
-- **Date/Time Formatting**: Formatage selon la locale
 
-### Testing
-- **Unit Tests**: Tests unitaires pour tous les services
-- **E2E Tests**: Tests end-to-end avec Supertest
-- **Integration Tests**: Tests d'intégration avec Testcontainers
-- **Load Tests**: Tests de charge avec k6 ou Artillery
-- **Contract Tests**: Tests de contrat avec @compta/notification-contracts
+| Task | Description | Effort |
+|------|-------------|--------|
+| **i18n Support** | @nestjs/i18n pour multi-langue | 4h |
+| **Template Localization** | Templates par langue | 4h |
 
-### Performance Optimization
-- **Connection Pooling**: Configuration du connection pooling Prisma
-- **Query Optimization**: Optimisation des requêtes N+1
-- **Caching Layer**: Redis cache pour les templates, utilisateurs, etc.
-- **Database Indexes**: Indexes supplémentaires pour les requêtes complexes
-- **Pagination Optimization**: Cursor-based pagination pour les grandes datasets
+### Scheduled Jobs
 
-### Resilience
-- **Circuit Breaker**: Circuit breaker pour les appels SMTP/SMS
-- **Retry Policies**: Politiques de retry personnalisées par type d'erreur
-- **Fallback Providers**: Fallback vers d'autres providers en cas d'échec
-- **Timeout Handling**: Timeouts configurables pour les appels externes
-- **Bulkhead Pattern**: Isolation des ressources pour éviter la cascade failure
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Automatic Cleanup** | Cron job pour supprimer vieilles notifications | 2h |
+| **Retry Jobs** | Retry automatique des jobs en échec | 2h |
+| **Scheduled Notifications** | Envoi différé programmé | 3h |
 
-### Data Management
-- **Data Export**: Export des notifications en CSV/PDF
-- **Data Archival**: Archivage des anciennes notifications
-- **Data Retention Policy**: Politique de rétention des données
-- **GDPR Compliance**: Suppression/export des données utilisateur (GDPR)
-- **Audit Logs**: Logs d'audit pour toutes les opérations sensibles
+### Observability
 
-### User Experience
-- **Notification Preview**: Prévisualisation des notifications avant envoi
-- **Template Preview**: Prévisualisation des templates MJML
-- **A/B Testing**: A/B testing pour les templates
-- **Campaign Management**: Gestion des campagnes de notification
-- **User Segmentation**: Segmentation des utilisateurs pour le targeting
+| Task | Description | Effort |
+|------|-------------|--------|
+| **OpenTelemetry** | Tracing distribué | 4h |
+| **Distributed Tracing** | Jaeger/Zipkin integration | 3h |
 
-### Email-Specific
-- **Email Bounce Handling**: Traitement automatique des bounces
-- **Email Complaint Handling**: Traitement des spam complaints
-- **Unsubscribe Management**: Gestion des désabonnements
-- **Email Tracking**: Tracking des ouvertures et clics
-- **Reply Handling**: Traitement des réponses aux emails
-
-### SMS-Specific
-- **SMS Delivery Status**: Tracking du status de livraison SMS
-- **SMS Opt-out**: Gestion des opt-out SMS
-- **SMS Templates**: Templates SMS avec variables
-
-### Push-Specific
-- **Push Token Management**: Gestion des tokens push
-- **Push Badge Management**: Gestion des badges notifications
-- **Push Sound/Action**: Configuration des sons et actions push
-
-### Admin Features
-- **Admin Dashboard**: Dashboard administrateur pour la gestion
-- **Notification Queue Monitor**: Monitoring des queues en temps réel
-- **Template Management UI**: Interface pour gérer les templates
-- **User Management UI**: Interface pour gérer les utilisateurs
-- **Reports & Analytics**: Rapports et analytics avancés
+**Total estimé Phase LOW**: ~50h
 
 ---
 
-## 🔗 Related Documentation
+## 🔵 NICE TO HAVE - Optionnel
 
-- [TASKS_COMPLETED.md](./TASKS_COMPLETED.md) - Completed tasks documentation
-- [CLAUDE.md](./CLAUDE.md) - AI assistant instructions
-- [README.md](./README.md) - Project README
-- [notification-contracts](../notification-contracts/) - Shared contracts
+> **Objectif**: Features avancées si le temps le permet
+
+### Developer Experience
+
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Email Preview** | `GET /templates/:code/preview` | 2h |
+| **Template Validation** | Valider MJML au démarrage | 1h |
+| **Hot Reload Templates** | Reload sans redémarrage | 2h |
+| **API Versioning** | /v1, /v2 endpoints | 2h |
+
+### User Features
+
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Notification History API** | `GET /users/:id/notifications` | 2h |
+| **Batch Sending** | Envoi en lot de notifications | 4h |
+| **A/B Testing** | Test de templates | 6h |
+| **Campaign Management** | Gestion de campagnes | 8h |
+
+### Admin Features
+
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Admin Dashboard** | UI de gestion | 16h |
+| **Template Management UI** | Interface pour templates | 8h |
+| **Queue Monitor UI** | Monitoring temps réel | 4h |
+
+### Data & Compliance
+
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Data Export** | Export CSV/PDF | 3h |
+| **GDPR Compliance** | Suppression/export données | 4h |
+| **Audit Logs** | Logs d'audit | 3h |
+| **Data Archival** | Archivage automatique | 3h |
+
+### Email Advanced
+
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Email Tracking** | Opens/clicks tracking | 4h |
+| **Unsubscribe Management** | Gestion désabonnements | 3h |
+| **Reply Handling** | Traitement des réponses | 4h |
+
+### Testing Advanced
+
+| Task | Description | Effort |
+|------|-------------|--------|
+| **Load Tests** | Tests de charge k6/Artillery | 4h |
+| **Contract Tests** | Tests avec notification-contracts | 2h |
+
+**Total estimé Phase NICE TO HAVE**: ~85h
+
+---
+
+## 📊 Résumé
+
+| Phase | Priorité | Effort | Status |
+|-------|----------|--------|--------|
+| Phase 1 | Security & Documentation | - | ✅ DONE |
+| Phase 2 | Code Quality & Logging | - | ✅ DONE |
+| **Phase 3** | **HIGH - Production Ready** | **~15h** | ⏳ TODO |
+| Phase 4 | MEDIUM - Post-Production | ~29h | ⏳ TODO |
+| Phase 5 | LOW - Améliorations | ~50h | ⏳ TODO |
+| Phase 6 | NICE TO HAVE - Optionnel | ~85h | ⏳ TODO |
+
+---
+
+## 🚀 Quick Start - Production Checklist
+
+```
+□ @nestjs/config avec validation
+□ Graceful shutdown
+□ Docker + docker-compose
+□ Health checks (terminus)
+□ Backoff exponentiel + DLQ
+□ Sentry integration
+□ Unit tests critiques
+□ Variables d'environnement documentées
+□ README.md mis à jour
+```
+
+---
+
+## 🔗 Documentation
+
+- [TASKS_COMPLETED.md](./TASKS_COMPLETED.md) - Tâches complétées
+- [CLAUDE.md](./CLAUDE.md) - Instructions AI
+- [README.md](./README.md) - Documentation projet

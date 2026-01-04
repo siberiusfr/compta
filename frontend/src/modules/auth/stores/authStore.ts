@@ -5,11 +5,11 @@ import {
   createSocieteUser as apiRegister,
   getCurrentUser,
 } from '@/modules/auth/api/generated/auth-api'
-import type { LoginRequest, CreateUserRequest, Users } from '@/modules/auth/api/generated/auth-api'
+import type { LoginRequest, CreateUserRequest, UserResponse } from '@/modules/auth/api/generated/auth-api'
 import { apiClient } from '@/api/client'
 
 interface AuthState {
-  user: Users | null
+  user: UserResponse | null
   token: string | null
   isAuthenticated: boolean
 }
@@ -80,7 +80,7 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await getCurrentUser()
-        this.user = response as Users
+        this.user = response
         this.isAuthenticated = true
       } catch (error) {
         console.error("Impossible de récupérer l'utilisateur, déconnexion.", error)

@@ -20,14 +20,17 @@ export function permissionsMiddleware(
   const authStore = useAuthStore()
   const user = authStore.user
 
-  // User not logged in
+  // User not logged in - this should be handled by the auth guard, but check anyway
   if (!user) {
-    return next({ name: 'login', query: { redirect: to.fullPath } })
+    // Don't redirect here to avoid infinite loops - let the auth guard handle it
+    return next()
   }
 
   // Check roles
   if (requiredRoles && requiredRoles.length > 0) {
-    if (!requiredRoles.includes(user.role)) {
+    const userRoles = user.roles || []
+    const hasRole = requiredRoles.some((role) => userRoles.includes(role))
+    if (!hasRole) {
       console.warn(`Access denied. Required roles: ${requiredRoles.join(', ')}`)
       return next({ name: 'forbidden' })
     }

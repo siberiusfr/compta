@@ -41,6 +41,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, h } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { LogOutOutline } from '@vicons/ionicons5'
 import type { MenuOption } from 'naive-ui'
 
@@ -61,11 +63,6 @@ const menuOptions: MenuOption[] = [
     label: 'Ressources Humaines',
     key: 'hr',
     icon: renderIcon('👥'),
-  },
-  {
-    label: 'Documents',
-    key: 'documents',
-    icon: renderIcon('📄'),
   },
 ]
 

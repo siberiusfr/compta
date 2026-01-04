@@ -17,10 +17,6 @@ export const ROUTE_NAMES = {
   HR_EMPLOYEES: 'hr-employees',
   HR_PAYROLL: 'hr-payroll',
 
-  // Documents
-  DOCUMENTS: 'documents',
-  DOCUMENTS_UPLOAD: 'documents-upload',
-
   // Errors
   NOT_FOUND: 'not-found',
   FORBIDDEN: 'forbidden',
@@ -32,5 +28,4 @@ export const ROUTE_PATHS = {
   REGISTER: '/register',
   ACCOUNTING: '/accounting',
   HR: '/hr',
-  DOCUMENTS: '/documents',
 } as const

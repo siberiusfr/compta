@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { authRoutes } from '@modules/auth/routes'
 import { accountingRoutes } from '@modules/accounting/routes'
 import { hrRoutes } from '@modules/hr/routes'
-import { documentsRoutes } from '@modules/documents/routes'
 import {
   loggingMiddleware,
   analyticsMiddleware,
@@ -21,7 +20,6 @@ const routes: RouteRecordRaw[] = [
   ...authRoutes,
   ...accountingRoutes,
   ...hrRoutes,
-  ...documentsRoutes,
   {
     path: '/403',
     name: 'forbidden',
