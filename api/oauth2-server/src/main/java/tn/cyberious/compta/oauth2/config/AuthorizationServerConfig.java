@@ -167,7 +167,7 @@ public class AuthorizationServerConfig {
               .scope("write")
               .clientSettings(
                   ClientSettings.builder()
-                      .requireAuthorizationConsent(true)
+                      .requireAuthorizationConsent(false)
                       .requireProofKey(true)
                       .build())
               .tokenSettings(
