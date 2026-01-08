@@ -17,14 +17,15 @@ const settings: UserManagerSettings = {
   // Pas de client_secret car c'est un public client
 
   // Endpoints explicites (optionnel si discovery fonctionne)
+  /*
   metadata: {
     issuer: 'http://localhost:9000',
     authorization_endpoint: 'http://localhost:9000/oauth2/authorize',
     token_endpoint: 'http://localhost:9000/oauth2/token',
     userinfo_endpoint: 'http://localhost:9000/userinfo',
     jwks_uri: 'http://localhost:9000/.well-known/jwks.json',
-    end_session_endpoint: 'http://localhost:9000/logout',
-  },
+    end_session_endpoint: 'http://localhost:9000/connect/logout',
+  },*/
 
   // Storage
   userStore: new WebStorageStateStore({ store: window.localStorage }),

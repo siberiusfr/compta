@@ -162,6 +162,7 @@ public class AuthorizationServerConfig {
               .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
               .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
               .redirectUri("http://localhost:3000/authorized")
+              .postLogoutRedirectUri("http://localhost:3000")
               .scope(OidcScopes.OPENID)
               .scope("read")
               .scope("write")
