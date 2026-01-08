@@ -1,4 +1,5 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 
 import { dashboardRoutes } from '@/modules/dashboard/routes'
 import { notificationsRoutes } from '@/modules/notifications/routes'
@@ -12,22 +13,16 @@ import { authGuard } from './guards'
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/test',
-    name: 'test',
-    component: () => import('@/core/views/TestView.vue'),
-    meta: { title: 'Page de test' }
-  },
-  {
     path: '/login',
     name: 'login',
-    component: () => import('@/core/views/LoginRedirect.vue'),
+    component: () => import('@/core/views/LoginView.vue'),
     meta: { title: 'Connexion' }
   },
   {
     path: '/authorized',
     name: 'authorized',
     component: () => import('@/core/views/AuthorizedCallback.vue'),
-    meta: { title: 'Autorisation', isCallback: true }
+    meta: { title: 'Autorisation' }
   },
   {
     path: '/',
