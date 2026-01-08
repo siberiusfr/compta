@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute, RouterView } from 'vue-router'
-import { NConfigProvider, NMessageProvider, NDialogProvider, NLoadingBarProvider } from 'naive-ui'
-import { themeOverrides } from '@/config/theme'
-import DefaultLayout from '@layouts/DefaultLayout.vue'
-import AuthLayout from '@layouts/AuthLayout.vue'
-
-const route = useRoute()
-
-const layoutComponent = computed(() => {
-  const layout = route.meta.layout || 'default'
-  return layout === 'auth' ? AuthLayout : DefaultLayout
-})
+import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
-  <n-config-provider :theme-overrides="themeOverrides">
-    <n-loading-bar-provider>
-      <n-dialog-provider>
-        <n-message-provider>
-          <component :is="layoutComponent">
-            <router-view />
-          </component>
-        </n-message-provider>
-      </n-dialog-provider>
-    </n-loading-bar-provider>
-  </n-config-provider>
+  <div>
+    <a href="https://vite.dev" target="_blank">
+      <img src="/vite.svg" class="logo" alt="Vite logo" />
+    </a>
+    <a href="https://vuejs.org/" target="_blank">
+      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
+    </a>
+  </div>
+  <HelloWorld msg="Vite + Vue" />
 </template>
 
+<style scoped>
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.vue:hover {
+  filter: drop-shadow(0 0 2em #42b883aa);
+}
+</style>

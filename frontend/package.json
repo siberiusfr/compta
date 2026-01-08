@@ -1,75 +1,22 @@
 {
-  "name": "compta",
+  "name": "frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:host": "vite --host",
-    "build": "vue-tsc && vite build",
-    "build:analyze": "vite build --mode analyze",
-    "build:staging": "vite build --mode staging",
-    "preview": "vite preview",
-    "preview:https": "vite preview --https",
-    "type-check": "vue-tsc --noEmit",
-    "lint": "eslint . --fix",
-    "lint:check": "eslint .",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
-    "test": "vitest",
-    "test:run": "vitest --run",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "test:watch": "vitest --watch",
-    "clean": "rm -rf node_modules dist coverage .vite",
-    "clean:install": "pnpm clean && pnpm install",
-    "prepare": "husky",
-    "check": "pnpm type-check && pnpm lint:check && pnpm format:check && pnpm test:run",
-    "generate:api:auth": "orval --config orval.config.ts --project auth",
-    "generate:api:all": "orval"
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@tanstack/vue-query": "^5.92.1",
-    "@vicons/ionicons5": "^0.13.0",
-    "@vueuse/core": "^14.1.0",
-    "axios": "^1.13.2",
-    "dayjs": "^1.11.19",
-    "lodash-es": "^4.17.22",
-    "naive-ui": "^2.43.2",
-    "oidc-client-ts": "^3.4.1",
-    "pinia": "^3.0.4",
-    "vee-validate": "^4.15.1",
-    "vue": "^3.5.24",
-    "vue-router": "4",
-    "zod": "^4.2.1"
+    "vue": "^3.5.24"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "^5.91.2",
-    "@tanstack/vue-query-devtools": "^6.1.2",
     "@types/node": "^24.10.1",
     "@vitejs/plugin-vue": "^6.0.1",
-    "@vitest/coverage-v8": "^4.0.16",
-    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
-    "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-vue": "^10.6.2",
-    "happy-dom": "^20.0.11",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "orval": "^7.17.0",
-    "prettier": "^3.7.4",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.50.0",
-    "vfonts": "^0.0.3",
     "vite": "^7.2.4",
-    "vitest": "^4.0.16",
     "vue-tsc": "^3.1.4"
-  },
-  "lint-staged": {
-    "*.{js,ts,vue,json,md}": [
-      "prettier --write",
-      "eslint --fix"
-    ]
   }
 }
