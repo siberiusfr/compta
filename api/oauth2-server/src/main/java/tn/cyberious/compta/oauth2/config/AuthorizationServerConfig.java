@@ -37,9 +37,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
+import tn.cyberious.compta.oauth2.security.CustomUserDetails;
 import tn.cyberious.compta.oauth2.security.CustomUserDetailsService;
 
 @Configuration
@@ -142,7 +144,28 @@ public class AuthorizationServerConfig {
   @Bean
   public OAuth2AuthorizationService authorizationService(
       JdbcTemplate jdbcTemplate, RegisteredClientRepository registeredClientRepository) {
-    return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+    JdbcOAuth2AuthorizationService authorizationService =
+        new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+
+    // Create custom ObjectMapper with CustomUserDetails support
+    JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper rowMapper =
+        new JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(registeredClientRepository);
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    ClassLoader classLoader = JdbcOAuth2AuthorizationService.class.getClassLoader();
+    org.springframework.security.jackson2.SecurityJackson2Modules.getModules(classLoader)
+        .forEach(objectMapper::registerModule);
+    objectMapper.registerModule(
+        new org.springframework.security.oauth2.server.authorization.jackson2
+            .OAuth2AuthorizationServerJackson2Module());
+
+    // Add CustomUserDetails mixin
+    objectMapper.addMixIn(CustomUserDetails.class, CustomUserDetailsMixin.class);
+
+    rowMapper.setObjectMapper(objectMapper);
+    authorizationService.setAuthorizationRowMapper(rowMapper);
+
+    return authorizationService;
   }
 
   @Bean
