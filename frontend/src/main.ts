@@ -1,12 +1,16 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { VueQueryPlugin } from '@tanstack/vue-query'
+import router from './router'
+import { useAuthStore } from './stores/authStore'
 import './style.css'
 import App from './App.vue'
 
 const app = createApp(App)
+const pinia = createPinia()
 
-app.use(createPinia())
+app.use(pinia)
+app.use(router)
 app.use(VueQueryPlugin, {
   queryClientConfig: {
     defaultOptions: {
@@ -18,4 +22,8 @@ app.use(VueQueryPlugin, {
   },
 })
 
-app.mount('#app')
+// Initialiser le store d'authentification avant de monter l'app
+const authStore = useAuthStore()
+authStore.initialize().then(() => {
+  app.mount('#app')
+})
