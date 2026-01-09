@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import tn.compta.gateway.config.OAuth2TokenValidator;
+import tn.compta.gateway.config.PublicEndpoints;
 
 /**
  * Filtre pour la validation des tokens JWT RSA issus par le serveur OAuth2. Ce filtre valide les
@@ -96,11 +97,7 @@ public class OAuth2TokenValidationFilter implements GatewayFilter, Ordered {
 
   /** Détérmine si la validation doit être sautée pour certains chemins */
   private boolean shouldSkipValidation(String path) {
-    return path.startsWith("/actuator")
-        || path.startsWith("/swagger")
-        || path.startsWith("/v3/api-docs")
-        || path.startsWith("/public")
-        || path.equals("/favicon.ico");
+    return PublicEndpoints.isPublic(path) || path.equals("/favicon.ico");
   }
 
   @Override

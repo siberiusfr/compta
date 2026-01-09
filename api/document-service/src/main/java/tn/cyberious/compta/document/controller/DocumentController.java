@@ -37,7 +37,7 @@ import tn.cyberious.compta.document.dto.MetadataRequest;
 import tn.cyberious.compta.document.service.DocumentService;
 
 @RestController
-@RequestMapping("/api/documents")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "Documents", description = "Document management endpoints")
 public class DocumentController {

@@ -1,11 +1,8 @@
 package tn.compta.gateway.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -15,8 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Configuration pour la validation des tokens JWT issus par le serveur OAuth2. Utilise Spring
- * Security OAuth2 Resource Server pour la validation.
+ * Configuration pour la validation des tokens JWT issus par le serveur OAuth2. La validation
+ * principale est faite par Spring Security OAuth2 Resource Server via le ReactiveJwtDecoder
+ * configuré dans SecurityConfig. Cette classe fournit des méthodes utilitaires pour la validation
+ * manuelle si nécessaire.
  */
 @Slf4j
 @Configuration
@@ -28,19 +27,13 @@ public class OAuth2TokenValidator {
   @Value("${oauth2.issuer:http://localhost:9000}")
   private String oauth2Issuer;
 
-  @Value("${oauth2.jwks-url:http://localhost:9000/.well-known/jwks.json}")
+  @Value("${oauth2.jwks-url:http://localhost:9000/oauth2/jwks}")
   private String jwksUrl;
 
   @Value("${oauth2.jwks-cache-duration:300000}")
   private Long jwksCacheDuration;
 
   private long lastJwksFetchTime = 0;
-
-  @Bean
-  public JwtDecoder jwtDecoder() {
-    log.info("Configuring JwtDecoder with JWKS URL: {}", jwksUrl);
-    return NimbusJwtDecoder.withJwkSetUri(jwksUrl).build();
-  }
 
   @PostConstruct
   public void init() {
@@ -50,14 +43,14 @@ public class OAuth2TokenValidator {
     log.info("JWKS Cache Duration: {} ms", jwksCacheDuration);
   }
 
-  /** Récupère les clés JWKS depuis le serveur OAuth2 */
-  @Scheduled(fixedRate = 300000) // Refresh every 5 minutes
+  /** Log du rafraîchissement du cache JWKS */
+  @Scheduled(fixedRate = 300000) // Every 5 minutes
   public void refreshJwks() {
-    log.debug("Refreshing JWKS from OAuth2 server...");
+    log.debug("JWKS cache refresh cycle...");
     lastJwksFetchTime = System.currentTimeMillis();
   }
 
-  /** Valide un token JWT RSA */
+  /** Valide un token JWT RSA (validation manuelle pour les filtres) */
   public boolean validateToken(String token) {
     try {
       log.debug("Validating JWT token...");

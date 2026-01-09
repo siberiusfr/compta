@@ -95,6 +95,24 @@ public class FallbackController {
                 "service", "employee-service"));
   }
 
+  /** Fallback for document service. */
+  @RequestMapping(
+      value = "/documents",
+      method = {GET, POST, PUT, DELETE, PATCH})
+  public ResponseEntity<Map<String, Object>> documentServiceFallback() {
+    log.warn("Document service circuit breaker activated - returning fallback response");
+
+    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+        .body(
+            Map.of(
+                "timestamp", Instant.now().toString(),
+                "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "error", "Service Unavailable",
+                "message",
+                    "Le service de documents est temporairement indisponible. Vos fichiers sont en sécurité.",
+                "service", "document-service"));
+  }
+
   /** Generic fallback for any service. */
   @RequestMapping(
       value = "/generic",

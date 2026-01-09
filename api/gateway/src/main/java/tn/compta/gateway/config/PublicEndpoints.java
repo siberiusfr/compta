@@ -19,7 +19,16 @@ public final class PublicEndpoints {
     "/swagger-ui/**",
     "/v3/api-docs/**",
     "/webjars/**",
-    "/fallback/**"
+    "/fallback/**",
+    // API documentation endpoints for each service
+    "/document/v3/api-docs/**",
+    "/document/swagger-ui/**",
+    "/authz/v3/api-docs/**",
+    "/authz/swagger-ui/**",
+    "/invoices/v3/api-docs/**",
+    "/invoices/swagger-ui/**",
+    "/employees/v3/api-docs/**",
+    "/employees/swagger-ui/**"
   };
 
   /** Exact paths that are public (no wildcard matching needed). */
@@ -28,7 +37,20 @@ public final class PublicEndpoints {
 
   /** Path prefixes for filter checks (startsWith matching). */
   public static final List<String> PREFIXES =
-      List.of("/auth/", "/swagger-ui/", "/v3/api-docs", "/webjars/", "/fallback/");
+      List.of(
+          "/auth/",
+          "/swagger-ui/",
+          "/v3/api-docs",
+          "/webjars/",
+          "/fallback/",
+          "/document/v3/api-docs",
+          "/document/swagger-ui",
+          "/authz/v3/api-docs",
+          "/authz/swagger-ui",
+          "/invoices/v3/api-docs",
+          "/invoices/swagger-ui",
+          "/employees/v3/api-docs",
+          "/employees/swagger-ui");
 
   /**
    * Check if a path is a public endpoint. Uses exact match for specific paths, prefix match for

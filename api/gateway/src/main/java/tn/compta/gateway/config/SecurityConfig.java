@@ -1,16 +1,10 @@
 package tn.compta.gateway.config;
 
-import java.nio.charset.StandardCharsets;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -20,9 +14,11 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import tn.compta.gateway.exception.JwtAuthenticationEntryPoint;
 
-/** Security configuration for API Gateway using OAuth2 Resource Server. */
+/** Security configuration for API Gateway using OAuth2 Resource Server with JWKS. */
+@Slf4j
 @Configuration
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
@@ -30,25 +26,22 @@ public class SecurityConfig {
 
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-  @Value("${jwt.secret}")
-  private String jwtSecret;
-
-  @Value("${jwt.issuer:compta-auth}")
-  private String jwtIssuer;
+  @Value("${oauth2.jwks-url:http://localhost:9000/oauth2/jwks}")
+  private String jwksUrl;
 
   @Bean
   public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
     http
-        // ✅ Disable CSRF for stateless JWT API
+        // Disable CSRF for stateless JWT API
         .csrf(ServerHttpSecurity.CsrfSpec::disable)
 
-        // ✅ Enable CORS (uses CorsWebFilter bean)
+        // Enable CORS (uses CorsWebFilter bean)
         .cors(cors -> {})
 
-        // ✅ Stateless session - don't create sessions
+        // Stateless session - don't create sessions
         .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
 
-        // ✅ Authorization rules
+        // Authorization rules
         .authorizeExchange(
             exchanges ->
                 exchanges
@@ -57,7 +50,7 @@ public class SecurityConfig {
                     .anyExchange()
                     .authenticated())
 
-        // ✅ OAuth2 Resource Server with JWT
+        // OAuth2 Resource Server with JWT (RSA via JWKS)
         .oauth2ResourceServer(
             oauth2 ->
                 oauth2
@@ -65,10 +58,10 @@ public class SecurityConfig {
                         jwt ->
                             jwt.jwtDecoder(jwtDecoder())
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                    // ✅ Custom authentication entry point for JWT errors
+                    // Custom authentication entry point for JWT errors
                     .authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
-        // ✅ Exception handling
+        // Exception handling
         .exceptionHandling(
             exceptions -> exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
@@ -77,15 +70,8 @@ public class SecurityConfig {
 
   @Bean
   public ReactiveJwtDecoder jwtDecoder() {
-    byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-    SecretKey secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
-
-    NimbusReactiveJwtDecoder decoder =
-        NimbusReactiveJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build();
-
-    decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(jwtIssuer));
-
-    return decoder;
+    log.info("Configuring JWT decoder with JWKS URL: {}", jwksUrl);
+    return NimbusReactiveJwtDecoder.withJwkSetUri(jwksUrl).build();
   }
 
   @Bean

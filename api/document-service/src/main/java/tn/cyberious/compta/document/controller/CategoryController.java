@@ -25,7 +25,7 @@ import tn.cyberious.compta.document.dto.CategoryResponse;
 import tn.cyberious.compta.document.service.CategoryService;
 
 @RestController
-@RequestMapping("/api/documents/categories")
+@RequestMapping("/api/categories")
 @RequiredArgsConstructor
 @Tag(name = "Categories", description = "Document category management endpoints")
 public class CategoryController {

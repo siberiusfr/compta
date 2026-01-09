@@ -168,6 +168,38 @@ spring:
           metadata:
             response-timeout: 5000
 
+        # ==========================================
+        # Document Service
+        # ==========================================
+        - id: document-service
+          uri: ${DOCUMENT_SERVICE_URL:http://localhost:8085}
+          predicates:
+            - Path=/document/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: documentService
+                fallbackUri: forward:/fallback/documents
+            # ✅ Rate limiting with Redis (15 requests/second, burst of 30)
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 15
+                redis-rate-limiter.burstCapacity: 30
+                key-resolver: "#{@userKeyResolver}"
+            # ✅ Retry strategy for transient errors
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT
+                methods: GET,PUT
+                backoff:
+                  firstBackoff: 10ms
+                  maxBackoff: 50ms
+                  factor: 2
+                  basedOnPreviousValue: false
+          metadata:
+            response-timeout: 30000 # Longer timeout for file uploads
+
 # ✅ CORS Configuration (externalized)
 cors:
   allowed-origins:
@@ -189,7 +221,7 @@ jwt:
 oauth2:
   enabled: ${OAUTH2_TOKEN_VALIDATION_ENABLED:true}
   issuer: ${OAUTH2_ISSUER:http://localhost:9000}
-  jwks-url: ${OAUTH2_JWKS_URL:http://localhost:9000/.well-known/jwks.json}
+  jwks-url: ${OAUTH2_JWKS_URL:http://localhost:9000/oauth2/jwks}
   jwks-cache-duration: ${OAUTH2_JWKS_CACHE_DURATION:300000} # 5 minutes
   validate-signature: ${OAUTH2_VALIDATE_SIGNATURE:true}
   cache-refresh-interval: ${OAUTH2_CACHE_REFRESH_INTERVAL:300000} # 5 minutes
@@ -232,6 +264,11 @@ resilience4j:
         baseConfig: default
         failureRateThreshold: 50
         waitDurationInOpenState: 30s
+      documentService:
+        baseConfig: default
+        failureRateThreshold: 50
+        slowCallDurationThreshold: 30s
+        waitDurationInOpenState: 30s
   timelimiter:
     configs:
       default:
@@ -245,6 +282,8 @@ resilience4j:
         timeoutDuration: 60s
       employeeService:
         timeoutDuration: 10s
+      documentService:
+        timeoutDuration: 60s
 
 # Health check configuration
 health:
@@ -270,6 +309,8 @@ springdoc:
         url: /invoices/v3/api-docs
       - name: Employee Service
         url: /employees/v3/api-docs
+      - name: Document Service
+        url: /document/v3/api-docs
     oauth2:
       use-pkce-with-authorization-code-grant: false
 

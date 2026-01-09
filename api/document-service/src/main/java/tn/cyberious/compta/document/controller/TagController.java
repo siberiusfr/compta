@@ -25,7 +25,7 @@ import tn.cyberious.compta.document.dto.TagResponse;
 import tn.cyberious.compta.document.service.TagService;
 
 @RestController
-@RequestMapping("/api/documents/tags")
+@RequestMapping("/api/tags")
 @RequiredArgsConstructor
 @Tag(name = "Tags", description = "Document tag management endpoints")
 public class TagController {

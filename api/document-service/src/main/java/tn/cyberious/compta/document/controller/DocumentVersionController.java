@@ -30,7 +30,7 @@ import tn.cyberious.compta.document.dto.DocumentVersionUploadRequest;
 import tn.cyberious.compta.document.service.DocumentVersionService;
 
 @RestController
-@RequestMapping("/api/documents/{documentId}/versions")
+@RequestMapping("/api/{documentId}/versions")
 @RequiredArgsConstructor
 @Tag(name = "Document Versions", description = "Document version management endpoints")
 public class DocumentVersionController {
