@@ -118,13 +118,14 @@ public class AuthorizationServerConfig {
                     .permitAll()
                     .anyRequest()
                     .authenticated())
+        .oauth2ResourceServer((resourceServer) -> resourceServer.jwt(Customizer.withDefaults()))
         .formLogin(form -> form.loginPage("/login").permitAll())
         // Enable CSRF protection with custom token repository
         .csrf(
             csrf ->
                 csrf.csrfTokenRepository(csrfConfig.csrfTokenRepository())
-                    // Allow public endpoints
-                    .ignoringRequestMatchers("/login", "/logout", "/error", "/actuator/**"));
+                    // Allow public endpoints and API endpoints (JWT doesn't need CSRF)
+                    .ignoringRequestMatchers("/login", "/logout", "/error", "/actuator/**", "/api/**"));
     return http.build();
   }
 

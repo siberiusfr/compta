@@ -23,12 +23,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class RedisConfig {
 
   /**
-   * Configure un ObjectMapper specifique pour la serialisation Redis/BullMQ.
+   * Configure le RedisTemplate pour les operations Redis generales.
    *
-   * @return ObjectMapper configure pour les dates Java 8+
+   * @param connectionFactory la factory de connexion Redis
+   * @return RedisTemplate configure
    */
   @Bean
-  public ObjectMapper redisObjectMapper() {
+  public RedisTemplate<String, Object> redisTemplate(
+      RedisConnectionFactory connectionFactory) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -36,25 +38,13 @@ public class RedisConfig {
         mapper.getPolymorphicTypeValidator(),
         ObjectMapper.DefaultTyping.NON_FINAL,
         JsonTypeInfo.As.PROPERTY);
-    return mapper;
-  }
 
-  /**
-   * Configure le RedisTemplate pour les operations Redis generales.
-   *
-   * @param connectionFactory la factory de connexion Redis
-   * @param redisObjectMapper l'ObjectMapper pour la serialisation JSON
-   * @return RedisTemplate configure
-   */
-  @Bean
-  public RedisTemplate<String, Object> redisTemplate(
-      RedisConnectionFactory connectionFactory, ObjectMapper redisObjectMapper) {
     RedisTemplate<String, Object> template = new RedisTemplate<>();
     template.setConnectionFactory(connectionFactory);
     template.setKeySerializer(new StringRedisSerializer());
     template.setHashKeySerializer(new StringRedisSerializer());
-    template.setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper));
-    template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper));
+    template.setValueSerializer(new GenericJackson2JsonRedisSerializer(mapper));
+    template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(mapper));
     template.afterPropertiesSet();
     return template;
   }
