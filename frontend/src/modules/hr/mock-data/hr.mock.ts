@@ -1,0 +1,233 @@
+import type { Employee, EmployeeContract, LeaveRequest, PayrollEntry } from '../types/hr.types'
+
+export const mockEmployees: Employee[] = [
+  {
+    id: 'emp-1',
+    firstName: 'Marie',
+    lastName: 'Dupont',
+    fullName: 'Marie Dupont',
+    email: 'marie.dupont@company.fr',
+    phone: '+33 6 12 34 56 78',
+    dateOfBirth: new Date('1985-03-15'),
+    hireDate: new Date('2020-01-15'),
+    department: 'Comptabilite',
+    position: 'Comptable Senior',
+    status: 'active',
+    companyId: 'company-1',
+    companyName: 'Tech Solutions SARL',
+    salary: 45000,
+    contractType: 'cdi',
+    createdAt: new Date('2020-01-15'),
+    updatedAt: new Date('2024-06-01')
+  },
+  {
+    id: 'emp-2',
+    firstName: 'Pierre',
+    lastName: 'Martin',
+    fullName: 'Pierre Martin',
+    email: 'pierre.martin@company.fr',
+    phone: '+33 6 98 76 54 32',
+    hireDate: new Date('2019-06-01'),
+    department: 'Developpement',
+    position: 'Developpeur Senior',
+    managerId: 'emp-5',
+    managerName: 'Sophie Bernard',
+    status: 'active',
+    companyId: 'company-1',
+    companyName: 'Tech Solutions SARL',
+    salary: 52000,
+    contractType: 'cdi',
+    createdAt: new Date('2019-06-01'),
+    updatedAt: new Date('2024-05-15')
+  },
+  {
+    id: 'emp-3',
+    firstName: 'Jean',
+    lastName: 'Durand',
+    fullName: 'Jean Durand',
+    email: 'jean.durand@company.fr',
+    hireDate: new Date('2023-09-01'),
+    department: 'Marketing',
+    position: 'Charge de communication',
+    status: 'active',
+    companyId: 'company-1',
+    companyName: 'Tech Solutions SARL',
+    salary: 35000,
+    contractType: 'cdd',
+    createdAt: new Date('2023-09-01'),
+    updatedAt: new Date('2023-09-01')
+  },
+  {
+    id: 'emp-4',
+    firstName: 'Claire',
+    lastName: 'Leroy',
+    fullName: 'Claire Leroy',
+    email: 'claire.leroy@company.fr',
+    hireDate: new Date('2024-03-01'),
+    department: 'Developpement',
+    position: 'Stagiaire developpeur',
+    managerId: 'emp-2',
+    managerName: 'Pierre Martin',
+    status: 'active',
+    companyId: 'company-1',
+    companyName: 'Tech Solutions SARL',
+    salary: 12000,
+    contractType: 'internship',
+    createdAt: new Date('2024-03-01'),
+    updatedAt: new Date('2024-03-01')
+  },
+  {
+    id: 'emp-5',
+    firstName: 'Sophie',
+    lastName: 'Bernard',
+    fullName: 'Sophie Bernard',
+    email: 'sophie.bernard@company.fr',
+    phone: '+33 6 11 22 33 44',
+    hireDate: new Date('2018-02-01'),
+    department: 'Developpement',
+    position: 'CTO',
+    status: 'onLeave',
+    companyId: 'company-1',
+    companyName: 'Tech Solutions SARL',
+    salary: 75000,
+    contractType: 'cdi',
+    createdAt: new Date('2018-02-01'),
+    updatedAt: new Date('2024-06-15')
+  }
+]
+
+export const mockContracts: EmployeeContract[] = [
+  {
+    id: 'contract-1',
+    employeeId: 'emp-1',
+    type: 'cdi',
+    startDate: new Date('2020-01-15'),
+    salary: 45000,
+    hoursPerWeek: 35,
+    position: 'Comptable Senior',
+    department: 'Comptabilite',
+    signedAt: new Date('2020-01-10'),
+    status: 'active'
+  },
+  {
+    id: 'contract-2',
+    employeeId: 'emp-3',
+    type: 'cdd',
+    startDate: new Date('2023-09-01'),
+    endDate: new Date('2024-08-31'),
+    salary: 35000,
+    hoursPerWeek: 35,
+    position: 'Charge de communication',
+    department: 'Marketing',
+    signedAt: new Date('2023-08-25'),
+    status: 'active'
+  },
+  {
+    id: 'contract-3',
+    employeeId: 'emp-4',
+    type: 'internship',
+    startDate: new Date('2024-03-01'),
+    endDate: new Date('2024-08-31'),
+    salary: 12000,
+    hoursPerWeek: 35,
+    position: 'Stagiaire developpeur',
+    department: 'Developpement',
+    signedAt: new Date('2024-02-20'),
+    status: 'active'
+  }
+]
+
+export const mockLeaveRequests: LeaveRequest[] = [
+  {
+    id: 'leave-1',
+    employeeId: 'emp-5',
+    employeeName: 'Sophie Bernard',
+    type: 'parental',
+    startDate: new Date('2024-06-15'),
+    endDate: new Date('2024-12-15'),
+    days: 130,
+    reason: 'Conge maternite',
+    status: 'approved',
+    approvedBy: 'Admin',
+    approvedAt: new Date('2024-05-20'),
+    createdAt: new Date('2024-05-15')
+  },
+  {
+    id: 'leave-2',
+    employeeId: 'emp-1',
+    employeeName: 'Marie Dupont',
+    type: 'paid',
+    startDate: new Date('2024-07-15'),
+    endDate: new Date('2024-07-26'),
+    days: 10,
+    reason: 'Vacances ete',
+    status: 'pending',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2)
+  },
+  {
+    id: 'leave-3',
+    employeeId: 'emp-2',
+    employeeName: 'Pierre Martin',
+    type: 'sick',
+    startDate: new Date('2024-06-10'),
+    endDate: new Date('2024-06-12'),
+    days: 3,
+    reason: 'Arret maladie',
+    status: 'approved',
+    approvedBy: 'Admin',
+    approvedAt: new Date('2024-06-10'),
+    createdAt: new Date('2024-06-10')
+  },
+  {
+    id: 'leave-4',
+    employeeId: 'emp-3',
+    employeeName: 'Jean Durand',
+    type: 'paid',
+    startDate: new Date('2024-08-01'),
+    endDate: new Date('2024-08-05'),
+    days: 5,
+    status: 'pending',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24)
+  }
+]
+
+export const mockPayrollEntries: PayrollEntry[] = [
+  {
+    id: 'payroll-1',
+    employeeId: 'emp-1',
+    employeeName: 'Marie Dupont',
+    period: '2024-06',
+    grossSalary: 3750,
+    netSalary: 2925,
+    deductions: 550,
+    taxes: 275,
+    status: 'paid',
+    paidAt: new Date('2024-06-28'),
+    createdAt: new Date('2024-06-25')
+  },
+  {
+    id: 'payroll-2',
+    employeeId: 'emp-2',
+    employeeName: 'Pierre Martin',
+    period: '2024-06',
+    grossSalary: 4333,
+    netSalary: 3380,
+    deductions: 650,
+    taxes: 303,
+    status: 'paid',
+    paidAt: new Date('2024-06-28'),
+    createdAt: new Date('2024-06-25')
+  },
+  {
+    id: 'payroll-3',
+    employeeId: 'emp-1',
+    employeeName: 'Marie Dupont',
+    period: '2024-07',
+    grossSalary: 3750,
+    netSalary: 2925,
+    deductions: 550,
+    taxes: 275,
+    status: 'validated',
+    createdAt: new Date('2024-07-25')
+  }
+]

@@ -1,0 +1,145 @@
+import type { Notification, NotificationTemplate, SentNotification, NotificationSettings } from '../types/notifications.types'
+
+export const mockNotifications: Notification[] = [
+  {
+    id: '1',
+    title: 'Nouvelle facture en attente',
+    message: 'La facture FA-2024-0156 de 12,500.00 EUR est en attente de validation.',
+    type: 'warning',
+    priority: 'high',
+    read: false,
+    archived: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 10),
+    sender: 'Systeme Comptable',
+    link: '/documents/invoices/FA-2024-0156',
+    category: 'invoices'
+  },
+  {
+    id: '2',
+    title: 'Contrat expire bientot',
+    message: 'Le contrat de Jean Martin expire dans 30 jours. Pensez a le renouveler.',
+    type: 'info',
+    priority: 'medium',
+    read: false,
+    archived: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60),
+    sender: 'RH',
+    link: '/hr/contracts/123',
+    category: 'hr'
+  },
+  {
+    id: '3',
+    title: 'Paiement recu',
+    message: 'Un paiement de 8,750.00 EUR a ete recu pour la facture FA-2024-0142.',
+    type: 'success',
+    priority: 'low',
+    read: true,
+    archived: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
+    sender: 'Systeme Bancaire',
+    link: '/accounting/payments/456',
+    category: 'payments'
+  },
+  {
+    id: '4',
+    title: 'Erreur de synchronisation',
+    message: 'La synchronisation avec le serveur bancaire a echoue. Veuillez reessayer.',
+    type: 'error',
+    priority: 'urgent',
+    read: false,
+    archived: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
+    sender: 'Systeme',
+    category: 'system'
+  },
+  {
+    id: '5',
+    title: 'Nouvel employe',
+    message: 'Sophie Bernard a rejoint l\'equipe Developpement.',
+    type: 'info',
+    priority: 'low',
+    read: true,
+    archived: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
+    sender: 'RH',
+    link: '/hr/employees/789',
+    category: 'hr'
+  }
+]
+
+export const mockNotificationTemplates: NotificationTemplate[] = [
+  {
+    id: '1',
+    name: 'Rappel de facture',
+    subject: 'Rappel: Facture {{invoice_number}} en attente',
+    body: 'Bonjour {{client_name}},\n\nNous vous rappelons que la facture {{invoice_number}} d\'un montant de {{amount}} EUR est en attente de paiement depuis le {{due_date}}.\n\nMerci de proceder au reglement dans les meilleurs delais.\n\nCordialement,\n{{company_name}}',
+    type: 'warning',
+    variables: ['invoice_number', 'client_name', 'amount', 'due_date', 'company_name'],
+    createdAt: new Date('2024-01-15'),
+    updatedAt: new Date('2024-06-20')
+  },
+  {
+    id: '2',
+    name: 'Bienvenue nouvel employe',
+    subject: 'Bienvenue chez {{company_name}} !',
+    body: 'Bonjour {{employee_name}},\n\nNous sommes ravis de vous accueillir dans notre equipe !\n\nVotre manager {{manager_name}} vous contactera prochainement pour organiser votre integration.\n\nA tres bientot !',
+    type: 'info',
+    variables: ['company_name', 'employee_name', 'manager_name'],
+    createdAt: new Date('2024-02-10'),
+    updatedAt: new Date('2024-02-10')
+  },
+  {
+    id: '3',
+    name: 'Confirmation de paiement',
+    subject: 'Paiement recu - Facture {{invoice_number}}',
+    body: 'Bonjour {{client_name}},\n\nNous confirmons la reception de votre paiement de {{amount}} EUR pour la facture {{invoice_number}}.\n\nMerci pour votre confiance.\n\nCordialement,\n{{company_name}}',
+    type: 'success',
+    variables: ['client_name', 'amount', 'invoice_number', 'company_name'],
+    createdAt: new Date('2024-03-05'),
+    updatedAt: new Date('2024-05-15')
+  }
+]
+
+export const mockSentNotifications: SentNotification[] = [
+  {
+    id: '1',
+    templateId: '1',
+    recipients: ['client@example.com', 'comptabilite@example.com'],
+    subject: 'Rappel: Facture FA-2024-0145 en attente',
+    message: 'Rappel concernant la facture en attente...',
+    sentAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
+    status: 'delivered',
+    readCount: 1
+  },
+  {
+    id: '2',
+    templateId: '3',
+    recipients: ['client2@example.com'],
+    subject: 'Paiement recu - Facture FA-2024-0142',
+    message: 'Confirmation de paiement...',
+    sentAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
+    status: 'delivered',
+    readCount: 1
+  },
+  {
+    id: '3',
+    recipients: ['team@example.com'],
+    subject: 'Reunion mensuelle',
+    message: 'Rappel de la reunion mensuelle demain a 14h.',
+    sentAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
+    status: 'sent',
+    readCount: 5
+  }
+]
+
+export const mockNotificationSettings: NotificationSettings = {
+  emailEnabled: true,
+  pushEnabled: true,
+  smsEnabled: false,
+  categories: {
+    invoices: { email: true, push: true, sms: false },
+    payments: { email: true, push: true, sms: true },
+    hr: { email: true, push: false, sms: false },
+    system: { email: false, push: true, sms: false }
+  }
+}
