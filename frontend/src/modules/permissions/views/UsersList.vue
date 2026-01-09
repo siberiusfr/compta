@@ -12,28 +12,38 @@ import {
   Edit,
   Trash2,
   UserCheck,
-  UserX
+  UserX,
+  Loader2,
+  RefreshCw
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
 const {
   users,
   isLoading,
+  isMutating,
   userCount,
   pendingUsers,
   formatRelativeTime,
   getStatusColor,
   getStatusLabel,
   getInitials,
-  updateUserStatus
+  updateUserStatus,
+  searchQuery,
+  setSearchQuery
 } = usePermissions()
 
-const handleActivate = (userId: string) => {
-  updateUserStatus(userId, 'active')
+const handleActivate = async (userId: string) => {
+  await updateUserStatus(userId, 'active')
 }
 
-const handleDeactivate = (userId: string) => {
-  updateUserStatus(userId, 'inactive')
+const handleDeactivate = async (userId: string) => {
+  await updateUserStatus(userId, 'inactive')
+}
+
+const onSearchInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  setSearchQuery(target.value)
 }
 </script>
 
@@ -63,6 +73,8 @@ const handleDeactivate = (userId: string) => {
         <input
           type="text"
           placeholder="Rechercher un utilisateur..."
+          :value="searchQuery"
+          @input="onSearchInput"
           class="w-full pl-10 pr-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
@@ -71,12 +83,38 @@ const handleDeactivate = (userId: string) => {
       </Button>
     </div>
 
-    <!-- Users List -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
-      Chargement...
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex items-center justify-center py-12">
+      <Loader2 class="h-8 w-8 animate-spin text-muted-foreground" />
+      <span class="ml-3 text-muted-foreground">Chargement des utilisateurs...</span>
     </div>
 
+    <!-- Empty State -->
+    <div v-else-if="users.length === 0" class="text-center py-12">
+      <Users class="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+      <h3 class="text-lg font-medium">Aucun utilisateur</h3>
+      <p class="text-muted-foreground mt-1">
+        Commencez par inviter votre premier utilisateur.
+      </p>
+      <Button class="mt-4">
+        <Plus class="h-4 w-4 mr-2" />
+        Inviter un utilisateur
+      </Button>
+    </div>
+
+    <!-- Users List -->
     <div v-else class="space-y-3">
+      <!-- Mutation Overlay -->
+      <div
+        v-if="isMutating"
+        class="fixed inset-0 bg-background/50 backdrop-blur-sm z-50 flex items-center justify-center"
+      >
+        <div class="flex items-center gap-3 bg-card px-6 py-4 rounded-lg shadow-lg">
+          <RefreshCw class="h-5 w-5 animate-spin" />
+          <span>Operation en cours...</span>
+        </div>
+      </div>
+
       <div
         v-for="user in users"
         :key="user.id"
@@ -131,10 +169,11 @@ const handleDeactivate = (userId: string) => {
           <!-- Actions -->
           <div class="flex items-center gap-1">
             <Button
-              v-if="user.status === 'pending'"
+              v-if="user.status === 'pending' || user.status === 'inactive'"
               variant="ghost"
               size="icon-sm"
               title="Activer"
+              :disabled="isMutating"
               @click="handleActivate(user.id)"
             >
               <UserCheck class="h-4 w-4 text-green-600" />
@@ -144,14 +183,21 @@ const handleDeactivate = (userId: string) => {
               variant="ghost"
               size="icon-sm"
               title="Desactiver"
+              :disabled="isMutating"
               @click="handleDeactivate(user.id)"
             >
               <UserX class="h-4 w-4 text-yellow-600" />
             </Button>
-            <Button variant="ghost" size="icon-sm" title="Modifier">
+            <Button variant="ghost" size="icon-sm" title="Modifier" :disabled="isMutating">
               <Edit class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon-sm" title="Supprimer" class="text-destructive hover:text-destructive">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Supprimer"
+              class="text-destructive hover:text-destructive"
+              :disabled="isMutating"
+            >
               <Trash2 class="h-4 w-4" />
             </Button>
           </div>
