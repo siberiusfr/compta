@@ -11,9 +11,7 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.stereotype.Component;
 
-/**
- * Customizes JWT tokens to include user roles and additional claims.
- */
+/** Customizes JWT tokens to include user roles and additional claims. */
 @Component
 public class JwtTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
 

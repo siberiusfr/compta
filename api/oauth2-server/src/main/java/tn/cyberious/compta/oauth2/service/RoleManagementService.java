@@ -39,26 +39,30 @@ public class RoleManagementService {
   public List<RoleWithUserCountDto> getAllRoles() {
     log.debug("Retrieving all roles with user count");
     var roles = roleRepository.findAll();
-    
+
     return roles.stream()
-        .map(role -> {
-          int userCount = roleRepository.countUsersByRole(role.getId());
-          
-          return RoleWithUserCountDto.builder()
-              .id(role.getId().toString())
-              .name(role.getName())
-              .description(role.getDescription())
-              .createdAt(role.getCreatedAt())
-              .userCount(userCount)
-              .build();
-        })
+        .map(
+            role -> {
+              int userCount = roleRepository.countUsersByRole(role.getId());
+
+              return RoleWithUserCountDto.builder()
+                  .id(role.getId().toString())
+                  .name(role.getName())
+                  .description(role.getDescription())
+                  .createdAt(role.getCreatedAt())
+                  .userCount(userCount)
+                  .build();
+            })
         .toList();
   }
 
   @Transactional(readOnly = true)
   public RoleResponse getRoleById(UUID roleId) {
     log.debug("Retrieving role with id: {}", roleId);
-    var roleRecord = roleRepository.findById(roleId).orElseThrow(() -> new IllegalArgumentException("Role not found with id: " + roleId));
+    var roleRecord =
+        roleRepository
+            .findById(roleId)
+            .orElseThrow(() -> new IllegalArgumentException("Role not found with id: " + roleId));
 
     return toRoleResponse(roleRecord);
   }
@@ -66,7 +70,10 @@ public class RoleManagementService {
   @Transactional(readOnly = true)
   public RoleResponse getRoleByName(String name) {
     log.debug("Retrieving role with name: {}", name);
-    var roleRecord = roleRepository.findByName(name).orElseThrow(() -> new IllegalArgumentException("Role not found with name: " + name));
+    var roleRecord =
+        roleRepository
+            .findByName(name)
+            .orElseThrow(() -> new IllegalArgumentException("Role not found with name: " + name));
 
     return toRoleResponse(roleRecord);
   }
@@ -75,7 +82,10 @@ public class RoleManagementService {
   public RoleResponse updateRole(UUID roleId, UpdateRoleRequest request) {
     log.info("Updating role with id: {}", roleId);
 
-    var existingRole = roleRepository.findById(roleId).orElseThrow(() -> new IllegalArgumentException("Role not found with id: " + roleId));
+    var existingRole =
+        roleRepository
+            .findById(roleId)
+            .orElseThrow(() -> new IllegalArgumentException("Role not found with id: " + roleId));
 
     int updated = roleRepository.update(roleId, request.getDescription());
 
@@ -83,7 +93,10 @@ public class RoleManagementService {
       throw new IllegalArgumentException("Failed to update role with id: " + roleId);
     }
 
-    var updatedRole = roleRepository.findById(roleId).orElseThrow(() -> new IllegalArgumentException("Role not found after update"));
+    var updatedRole =
+        roleRepository
+            .findById(roleId)
+            .orElseThrow(() -> new IllegalArgumentException("Role not found after update"));
 
     log.info("Successfully updated role with id: {}", roleId);
     return toRoleResponse(updatedRole);
@@ -93,7 +106,10 @@ public class RoleManagementService {
   public void deleteRole(UUID roleId) {
     log.info("Deleting role with id: {}", roleId);
 
-    var existingRole = roleRepository.findById(roleId).orElseThrow(() -> new IllegalArgumentException("Role not found with id: " + roleId));
+    var existingRole =
+        roleRepository
+            .findById(roleId)
+            .orElseThrow(() -> new IllegalArgumentException("Role not found with id: " + roleId));
 
     int deletedUsers = roleRepository.deleteUsersByRole(roleId);
     log.info("Removed role from {} users", deletedUsers);
@@ -107,7 +123,8 @@ public class RoleManagementService {
     log.info("Successfully deleted role with id: {}", roleId);
   }
 
-  private RoleResponse toRoleResponse(tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord roleRecord) {
+  private RoleResponse toRoleResponse(
+      tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord roleRecord) {
     return RoleResponse.builder()
         .id(roleRecord.getId().toString())
         .name(roleRecord.getName())

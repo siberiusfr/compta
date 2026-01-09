@@ -24,6 +24,7 @@ import tn.cyberious.compta.contracts.notification.SendPasswordResetEmailPayload;
  *
  * <p>Cette classe publie des jobs compatibles avec BullMQ/NestJS dans Redis. Le format du job
  * respecte la structure d'enveloppe standard definie dans notification-contracts:
+ *
  * <pre>
  * {
  *   "eventId": "uuid",
@@ -79,13 +80,14 @@ public class PasswordResetQueuePublisher {
       String jobId = eventId.toString().replace("-", "").substring(0, 16);
 
       // Creer le message avec enveloppe standard
-      PasswordResetRequested message = new PasswordResetRequested()
-          .withEventId(eventId)
-          .withEventType(EVENT_TYPE)
-          .withEventVersion(EVENT_VERSION)
-          .withOccurredAt(Instant.now())
-          .withProducer(PasswordResetRequested.Producer.OAUTH_2_SERVER)
-          .withPayload(payload);
+      PasswordResetRequested message =
+          new PasswordResetRequested()
+              .withEventId(eventId)
+              .withEventType(EVENT_TYPE)
+              .withEventVersion(EVENT_VERSION)
+              .withOccurredAt(Instant.now())
+              .withProducer(PasswordResetRequested.Producer.OAUTH_2_SERVER)
+              .withPayload(payload);
 
       String queueKey = BULL_PREFIX + ":" + QUEUE_NAME;
 
@@ -213,5 +215,4 @@ public class PasswordResetQueuePublisher {
 
     return opts;
   }
-
 }

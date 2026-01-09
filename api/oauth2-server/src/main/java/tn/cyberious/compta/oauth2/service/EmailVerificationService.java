@@ -1,7 +1,6 @@
 package tn.cyberious.compta.oauth2.service;
 
 import java.net.URI;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -90,14 +89,15 @@ public class EmailVerificationService {
 
     // Build verification link and publish to async queue
     String verificationLink = buildVerificationLink(token);
-    SendVerificationEmailPayload payload = new SendVerificationEmailPayload()
-        .withUserId(UUID.fromString(userId))
-        .withEmail(email)
-        .withUsername(username)
-        .withToken(token)
-        .withVerificationLink(URI.create(verificationLink))
-        .withExpiresAt(expiresAt.toInstant(ZoneOffset.UTC))
-        .withLocale(SendVerificationEmailPayload.Locale.FR);
+    SendVerificationEmailPayload payload =
+        new SendVerificationEmailPayload()
+            .withUserId(UUID.fromString(userId))
+            .withEmail(email)
+            .withUsername(username)
+            .withToken(token)
+            .withVerificationLink(URI.create(verificationLink))
+            .withExpiresAt(expiresAt.toInstant(ZoneOffset.UTC))
+            .withLocale(SendVerificationEmailPayload.Locale.FR);
     emailVerificationQueuePublisher.publishEmailVerificationRequested(payload);
 
     // Log the event

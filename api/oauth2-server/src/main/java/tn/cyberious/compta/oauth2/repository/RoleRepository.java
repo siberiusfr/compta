@@ -19,11 +19,13 @@ public class RoleRepository {
 
   private final DSLContext dsl;
 
-  public Optional<tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord> findById(UUID id) {
+  public Optional<tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord> findById(
+      UUID id) {
     return dsl.selectFrom(Roles.ROLES).where(Roles.ROLES.ID.eq(id)).fetchOptional();
   }
 
-  public Optional<tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord> findByName(String name) {
+  public Optional<tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord> findByName(
+      String name) {
     return dsl.selectFrom(Roles.ROLES).where(Roles.ROLES.NAME.eq(name)).fetchOptional();
   }
 
@@ -35,7 +37,8 @@ public class RoleRepository {
     return dsl.selectFrom(Roles.ROLES).fetch();
   }
 
-  public tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord insert(String name, String description) {
+  public tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord insert(
+      String name, String description) {
     return dsl.insertInto(Roles.ROLES)
         .set(Roles.ROLES.NAME, name)
         .set(Roles.ROLES.DESCRIPTION, description)
@@ -56,12 +59,12 @@ public class RoleRepository {
 
   public int countUsersByRole(UUID roleId) {
     return dsl.fetchCount(
-        dsl.selectFrom(UserRoles.USER_ROLES)
-            .where(UserRoles.USER_ROLES.ROLE_ID.eq(roleId))
-    );
+        dsl.selectFrom(UserRoles.USER_ROLES).where(UserRoles.USER_ROLES.ROLE_ID.eq(roleId)));
   }
 
   public int deleteUsersByRole(UUID roleId) {
-    return dsl.deleteFrom(UserRoles.USER_ROLES).where(UserRoles.USER_ROLES.ROLE_ID.eq(roleId)).execute();
+    return dsl.deleteFrom(UserRoles.USER_ROLES)
+        .where(UserRoles.USER_ROLES.ROLE_ID.eq(roleId))
+        .execute();
   }
 }

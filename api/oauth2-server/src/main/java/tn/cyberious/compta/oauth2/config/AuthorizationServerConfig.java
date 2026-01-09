@@ -125,7 +125,8 @@ public class AuthorizationServerConfig {
             csrf ->
                 csrf.csrfTokenRepository(csrfConfig.csrfTokenRepository())
                     // Allow public endpoints and API endpoints (JWT doesn't need CSRF)
-                    .ignoringRequestMatchers("/login", "/logout", "/error", "/actuator/**", "/api/**"));
+                    .ignoringRequestMatchers(
+                        "/login", "/logout", "/error", "/actuator/**", "/api/**"));
     return http.build();
   }
 

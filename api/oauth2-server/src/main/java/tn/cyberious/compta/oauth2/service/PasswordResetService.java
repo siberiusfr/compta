@@ -89,14 +89,15 @@ public class PasswordResetService {
 
     // Build reset link and publish to async queue
     String resetLink = buildResetLink(token);
-    SendPasswordResetEmailPayload payload = new SendPasswordResetEmailPayload()
-        .withUserId(UUID.fromString(userId))
-        .withEmail(email)
-        .withUsername(username)
-        .withToken(token)
-        .withResetLink(URI.create(resetLink))
-        .withExpiresAt(expiresAt.toInstant(ZoneOffset.UTC))
-        .withLocale(SendPasswordResetEmailPayload.Locale.FR);
+    SendPasswordResetEmailPayload payload =
+        new SendPasswordResetEmailPayload()
+            .withUserId(UUID.fromString(userId))
+            .withEmail(email)
+            .withUsername(username)
+            .withToken(token)
+            .withResetLink(URI.create(resetLink))
+            .withExpiresAt(expiresAt.toInstant(ZoneOffset.UTC))
+            .withLocale(SendPasswordResetEmailPayload.Locale.FR);
     passwordResetQueuePublisher.publishPasswordResetRequested(payload);
 
     // Log the event

@@ -29,8 +29,7 @@ public class RedisConfig {
    * @return RedisTemplate configure
    */
   @Bean
-  public RedisTemplate<String, Object> redisTemplate(
-      RedisConnectionFactory connectionFactory) {
+  public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
