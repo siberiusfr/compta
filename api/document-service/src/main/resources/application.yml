@@ -1,6 +1,6 @@
 spring:
   application:
-    name: "@project.name@"
+    name: '@project.name@'
 
   # Configuration PostgreSQL
   datasource:
@@ -24,6 +24,9 @@ spring:
 # Port spécifique pour ce service
 server:
   port: 8085
+  forward-headers-strategy: framework
+  servlet:
+    context-path: /document
 
 # Configuration S3 (Backblaze B2)
 s3:
