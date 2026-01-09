@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.oauth2.dto.CreateRoleRequest;
 import tn.cyberious.compta.oauth2.dto.RoleResponse;
+import tn.cyberious.compta.oauth2.dto.RoleWithUserCountDto;
 import tn.cyberious.compta.oauth2.dto.UpdateRoleRequest;
-import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 import tn.cyberious.compta.oauth2.repository.RoleRepository;
 
 @Slf4j
@@ -20,7 +20,6 @@ import tn.cyberious.compta.oauth2.repository.RoleRepository;
 public class RoleManagementService {
 
   private final RoleRepository roleRepository;
-  private final org.jooq.DSLContext dsl;
 
   @Transactional
   public RoleResponse createRole(CreateRoleRequest request) {
@@ -37,9 +36,23 @@ public class RoleManagementService {
   }
 
   @Transactional(readOnly = true)
-  public List<RoleResponse> getAllRoles() {
-    log.debug("Retrieving all roles");
-    return roleRepository.findAll().stream().map(this::toRoleResponse).toList();
+  public List<RoleWithUserCountDto> getAllRoles() {
+    log.debug("Retrieving all roles with user count");
+    var roles = roleRepository.findAll();
+    
+    return roles.stream()
+        .map(role -> {
+          int userCount = roleRepository.countUsersByRole(role.getId());
+          
+          return RoleWithUserCountDto.builder()
+              .id(role.getId().toString())
+              .name(role.getName())
+              .description(role.getDescription())
+              .createdAt(role.getCreatedAt())
+              .userCount(userCount)
+              .build();
+        })
+        .toList();
   }
 
   @Transactional(readOnly = true)
@@ -82,7 +95,7 @@ public class RoleManagementService {
 
     var existingRole = roleRepository.findById(roleId).orElseThrow(() -> new IllegalArgumentException("Role not found with id: " + roleId));
 
-    int deletedUsers = dsl.deleteFrom(UserRoles.USER_ROLES).where(UserRoles.USER_ROLES.ROLE_ID.eq(roleId)).execute();
+    int deletedUsers = roleRepository.deleteUsersByRole(roleId);
     log.info("Removed role from {} users", deletedUsers);
 
     int deleted = roleRepository.delete(roleId);

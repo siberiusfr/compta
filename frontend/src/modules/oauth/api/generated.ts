@@ -233,6 +233,14 @@ export interface UserInfoResponse {
   tenantId?: string;
 }
 
+export interface RoleWithUserCountDto {
+  id?: string;
+  name?: string;
+  description?: string;
+  createdAt?: string;
+  userCount?: number;
+}
+
 export interface Link {
   href?: string;
   templated?: boolean;
@@ -1980,7 +1988,7 @@ export const useConfirmEmailVerification = <
  * @summary Get all roles
  */
 export const getAllRoles = (signal?: AbortSignal) => {
-  return customInstance<RoleResponse[]>({
+  return customInstance<RoleWithUserCountDto[]>({
     url: `/api/roles`,
     method: "GET",
     signal,

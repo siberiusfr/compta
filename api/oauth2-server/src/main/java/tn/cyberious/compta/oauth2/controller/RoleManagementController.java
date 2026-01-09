@@ -23,6 +23,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import tn.cyberious.compta.oauth2.dto.CreateRoleRequest;
 import tn.cyberious.compta.oauth2.dto.RoleResponse;
+import tn.cyberious.compta.oauth2.dto.RoleWithUserCountDto;
 import tn.cyberious.compta.oauth2.dto.UpdateRoleRequest;
 import tn.cyberious.compta.oauth2.service.RoleManagementService;
 
@@ -46,7 +47,7 @@ public class RoleManagementController {
   @Operation(summary = "Get all roles", description = "Retrieve all roles")
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping
-  public ResponseEntity<List<RoleResponse>> getAllRoles() {
+  public ResponseEntity<List<RoleWithUserCountDto>> getAllRoles() {
     return ResponseEntity.ok(roleManagementService.getAllRoles());
   }
 

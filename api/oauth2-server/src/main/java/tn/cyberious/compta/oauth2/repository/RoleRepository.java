@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
+import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
 
 @Slf4j
 @Repository
@@ -51,5 +52,16 @@ public class RoleRepository {
 
   public int delete(UUID id) {
     return dsl.deleteFrom(Roles.ROLES).where(Roles.ROLES.ID.eq(id)).execute();
+  }
+
+  public int countUsersByRole(UUID roleId) {
+    return dsl.fetchCount(
+        dsl.selectFrom(UserRoles.USER_ROLES)
+            .where(UserRoles.USER_ROLES.ROLE_ID.eq(roleId))
+    );
+  }
+
+  public int deleteUsersByRole(UUID roleId) {
+    return dsl.deleteFrom(UserRoles.USER_ROLES).where(UserRoles.USER_ROLES.ROLE_ID.eq(roleId)).execute();
   }
 }

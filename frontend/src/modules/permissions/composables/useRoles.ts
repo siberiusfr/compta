@@ -6,18 +6,19 @@ import {
   useDeleteRole,
   getGetAllRolesQueryKey,
   type RoleResponse,
+  type RoleWithUserCountDto,
   type UpdateRoleRequest,
 } from "@/modules/oauth/api/generated";
 import { useToast } from "@/shared/composables";
 import type { Role } from "../types/permissions.types";
 
-function mapRoleResponse(apiRole: RoleResponse): Role {
+function mapRoleResponse(apiRole: RoleWithUserCountDto): Role {
   return {
     id: apiRole.id ?? "",
     name: apiRole.name ?? "",
     description: apiRole.description ?? "",
     permissions: [],
-    userCount: 0,
+    userCount: apiRole.userCount ?? 0,
     isSystem: false,
     createdAt: apiRole.createdAt ? new Date(apiRole.createdAt) : new Date(),
     updatedAt: new Date(),
