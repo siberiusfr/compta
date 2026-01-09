@@ -15,9 +15,24 @@ spring:
     schemas: document
     default-schema: document
 
+  # Configuration upload fichiers
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
 # Port spécifique pour ce service
 server:
   port: 8085
+
+# Configuration S3 (Backblaze B2)
+s3:
+  key: ${S3_KEY:005e4009cd4b4cd0000000001}
+  secret: ${S3_SECRET:K0051uIrys4Co/v5yLIPgfvdZXB5i2M}
+  endpoint: ${S3_ENDPOINT:https://s3.us-east-005.backblazeb2.com}
+  region: ${S3_REGION:us-east-005}
+  bucket: ${S3_BUCKET:compta}
+  folder: ${S3_FOLDER:compta/}
 
 # Configuration Sentry
 sentry:
