@@ -11,7 +11,7 @@ import {
   type UserResponse,
   type CreateUserRequest,
   type UpdateUserRequest,
-} from "@/modules/oauth/api/generated";
+} from "@/modules/oauth/api";
 import { useToast } from "@/shared/composables";
 import type { User, UserStatus } from "../types/permissions.types";
 
@@ -151,7 +151,7 @@ export function useUsers() {
           "L'utilisateur a ete cree avec succes",
         );
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         toast.error("Erreur", `Impossible de creer l'utilisateur: ${error}`);
       },
     },
@@ -167,7 +167,7 @@ export function useUsers() {
           "Les modifications ont ete enregistrees",
         );
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         toast.error("Erreur", `Impossible de modifier l'utilisateur: ${error}`);
       },
     },
@@ -180,7 +180,7 @@ export function useUsers() {
         queryClient.invalidateQueries({ queryKey: getGetAllUsersQueryKey() });
         toast.success("Utilisateur supprime", "L'utilisateur a ete supprime");
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         toast.error(
           "Erreur",
           `Impossible de supprimer l'utilisateur: ${error}`,
@@ -196,7 +196,7 @@ export function useUsers() {
         queryClient.invalidateQueries({ queryKey: getGetAllUsersQueryKey() });
         toast.success("Utilisateur active", "Le compte a ete active");
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         toast.error("Erreur", `Impossible d'activer l'utilisateur: ${error}`);
       },
     },
@@ -209,7 +209,7 @@ export function useUsers() {
         queryClient.invalidateQueries({ queryKey: getGetAllUsersQueryKey() });
         toast.success("Utilisateur desactive", "Le compte a ete desactive");
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         toast.error(
           "Erreur",
           `Impossible de desactiver l'utilisateur: ${error}`,

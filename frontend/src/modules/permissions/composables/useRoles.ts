@@ -8,7 +8,7 @@ import {
   type RoleResponse,
   type RoleWithUserCountDto,
   type UpdateRoleRequest,
-} from "@/modules/oauth/api/generated";
+} from "@/modules/oauth/api";
 import { useToast } from "@/shared/composables";
 import type { Role } from "../types/permissions.types";
 
@@ -70,7 +70,7 @@ export function useRoles() {
         queryClient.invalidateQueries({ queryKey: getGetAllRolesQueryKey() });
         toast.success("Role modifie", "Les modifications ont ete enregistrees");
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         toast.error("Erreur", `Impossible de modifier le role: ${error}`);
       },
     },
@@ -82,7 +82,7 @@ export function useRoles() {
         queryClient.invalidateQueries({ queryKey: getGetAllRolesQueryKey() });
         toast.success("Role supprime", "Le role a ete supprime");
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         toast.error("Erreur", `Impossible de supprimer le role: ${error}`);
       },
     },
