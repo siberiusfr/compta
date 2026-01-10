@@ -26,7 +26,7 @@ export default defineConfig({
     },
     output: {
       client: 'vue-query',
-      mode: 'single', // ou 'single', 'split'
+      mode: 'tags-split', // ou 'single', 'split'
       target: './src/modules/documents/api/generated.ts',
       mock: false,
       clean: true,

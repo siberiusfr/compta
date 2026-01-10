@@ -25,7 +25,6 @@ const {
   formatCurrency,
   formatDate,
   getInvoiceStatusColor,
-  getInvoiceStatusLabel,
 } = useInvoices();
 
 const router = useRouter();

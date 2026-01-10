@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { DocumentResponse, CategoryResponse } from '../api/generated'
+// Types are used for reference but not directly in this store
+// import type { DocumentResponse, CategoryResponse } from '../api'
 
 export interface DocumentFilter {
   categoryId?: number

@@ -14,7 +14,7 @@ import {
   Loader2
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
-import type { DocumentResponse } from '../api/generated'
+import type { DocumentResponse, TagResponse } from '../api'
 
 const {
   documents,
@@ -32,7 +32,7 @@ const quotes = computed(() => {
   return docs.filter(doc =>
     doc.categoryName?.toLowerCase().includes('devis') ||
     doc.categoryName?.toLowerCase().includes('quote') ||
-    doc.tags?.some(tag => tag.name?.toLowerCase().includes('devis'))
+    doc.tags?.some((tag: TagResponse) => tag.name?.toLowerCase().includes('devis'))
   )
 })
 

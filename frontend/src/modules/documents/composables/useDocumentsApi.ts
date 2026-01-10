@@ -24,12 +24,9 @@ import {
   type DocumentResponse,
   type DocumentUpdateRequest,
   type DocumentUploadRequest,
-  type CategoryResponse,
-  type DocumentVersionResponse,
-  type DocumentShareResponse,
   type DocumentShareRequest,
   type SearchGetParams,
-} from '../api/generated'
+} from '../api'
 
 export function useDocumentsApi() {
   const queryClient = useQueryClient()

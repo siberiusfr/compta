@@ -19,7 +19,7 @@ const {
   getInvoiceById,
   updateInvoice,
   calculateItemAmount,
-  calculateItemTax,
+  calculateTotals,
   formatCurrency,
 } = useInvoices();
 
@@ -28,8 +28,8 @@ const invoiceId = route.params.id as string;
 
 const items = ref<InvoiceItem[]>([]);
 const formData = ref({
-  type: "sale" as const,
-  status: "draft" as const,
+  type: "sale" as string,
+  status: "draft" as string,
   customerId: "",
   customerName: "",
   customerEmail: "",
@@ -39,8 +39,8 @@ const formData = ref({
     postalCode: "",
     country: "France",
   },
-  date: "",
-  dueDate: "",
+  date: "" as string,
+  dueDate: "" as string,
   currency: "EUR",
   notes: "",
 });
@@ -65,8 +65,8 @@ onMounted(async () => {
         postalCode: "",
         country: "France",
       },
-      date: invoice.date.toISOString().split("T")[0],
-      dueDate: invoice.dueDate.toISOString().split("T")[0],
+      date: invoice.date?.toISOString().split("T")[0] ?? "",
+      dueDate: invoice.dueDate?.toISOString().split("T")[0] ?? "",
       currency: invoice.currency,
       notes: invoice.notes || "",
     };

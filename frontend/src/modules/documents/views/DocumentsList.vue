@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useDocuments } from '../composables/useDocuments'
-import { useDocument } from '../composables/useDocumentsApi'
 import { Button } from '@/components/ui/button'
 import {
   FileText,
@@ -22,7 +21,7 @@ import {
   Upload
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
-import type { DocumentResponse } from '../api/generated'
+import type { DocumentResponse } from '../api'
 
 const {
   documents,
@@ -35,7 +34,6 @@ const {
   formatDate,
   formatFileSize,
   getStatusColor,
-  getMimeTypeLabel,
   setSearch,
   setFilter,
   clearFilter,
@@ -44,7 +42,6 @@ const {
   openUploadModal,
   selectDocument,
   openShareModal,
-  refetchDocuments,
 } = useDocuments()
 
 const searchInput = ref('')

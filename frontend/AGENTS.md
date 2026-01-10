@@ -353,25 +353,105 @@ pnpm run api:watch      # Regenerer automatiquement a chaque changement
 import { defineConfig } from 'orval'
 
 export default defineConfig({
+  // Mode 'single' - un seul fichier genere
   oauth2: {
     input: {
-      target: './openapi/oauth2.json',  // Spec OpenAPI source
+      target: './openapi/oauth2.json',
     },
     output: {
-      client: 'vue-query',              // Genere des hooks TanStack Query
-      mode: 'single',                   // Un seul fichier genere
+      client: 'vue-query',
+      mode: 'single',                   // Un seul fichier generated.ts
       target: './src/modules/oauth/api/generated.ts',
-      clean: true,                      // Nettoie avant generation
-      prettier: true,                   // Formate le code genere
+      clean: true,
+      prettier: true,
       override: {
         mutator: {
           path: './src/api/axios-instance.ts',
-          name: 'customInstance',       // Instance Axios personnalisee
+          name: 'customInstance',
+        },
+      },
+    },
+  },
+  // Mode 'tags-split' - fichiers separes par tag OpenAPI
+  documents: {
+    input: {
+      target: './openapi/documents.json',
+    },
+    output: {
+      client: 'vue-query',
+      mode: 'tags-split',               // Dossier avec fichiers par tag
+      target: './src/modules/documents/api',
+      clean: true,
+      prettier: true,
+      override: {
+        mutator: {
+          path: './src/api/axios-instance.ts',
+          name: 'customInstance',
         },
       },
     },
   },
 })
+```
+
+### Modes de generation
+
+| Mode | Description | Structure generee |
+|------|-------------|-------------------|
+| `single` | Un seul fichier | `generated.ts` |
+| `tags-split` | Un fichier par tag OpenAPI | `generated/tag-name.ts` |
+| `split` | Fichiers separes (types, hooks) | `generated/*.ts` |
+
+### Structure des fichiers generes
+
+```
+src/modules/
+├── oauth/
+│   └── api/
+│       └── generated.ts              # mode: 'single'
+└── documents/
+    └── api/
+        ├── index.ts                  # Barrel file - re-export tout
+        ├── generated.schemas.ts      # Types et interfaces
+        ├── documents/
+        │   └── documents.ts          # hooks pour le tag 'documents'
+        ├── categories/
+        │   └── categories.ts         # hooks pour le tag 'categories'
+        ├── document-sharing/
+        │   └── document-sharing.ts   # hooks pour le tag 'document-sharing'
+        ├── document-versions/
+        │   └── document-versions.ts  # hooks pour le tag 'document-versions'
+        └── tags/
+            └── tags.ts               # hooks pour le tag 'tags'
+```
+
+**Important:** Avec `tags-split`, vous devez creer un fichier `index.ts` barrel pour re-exporter les hooks et types:
+
+```ts
+// api/index.ts
+export * from './generated.schemas'
+export { useGetById, useUpload, ... } from './documents/documents'
+export { useGetAll2, useCreate1, ... } from './categories/categories'
+// etc.
+```
+
+### Imports selon le mode
+
+```ts
+// Mode 'single' - import depuis le fichier unique
+import { useGetToken, useRefreshToken } from '@/modules/oauth/api/generated'
+
+// Mode 'tags-split' - import depuis l'index.ts (recommande)
+import {
+  useGetById,
+  useUpload,
+  type DocumentResponse
+} from '@/modules/documents/api'
+
+// Mode 'tags-split' - import direct depuis un fichier tag specifique
+import { useGetById } from '@/modules/documents/api/documents/documents'
+import { useGetAll2 } from '@/modules/documents/api/categories/categories'
+import type { DocumentResponse } from '@/modules/documents/api/generated.schemas'
 ```
 
 ### Ajouter un nouveau module API
@@ -388,8 +468,8 @@ export default defineConfig({
     },
     output: {
       client: 'vue-query',
-      mode: 'single',
-      target: './src/modules/new-module/api/generated.ts',
+      mode: 'tags-split',             // Recommande pour les grosses APIs
+      target: './src/modules/new-module/api',
       clean: true,
       prettier: true,
       override: {
@@ -413,43 +493,40 @@ L'instance custom gere automatiquement:
 - File d'attente des requetes pendant le refresh
 - Redirection vers login si refresh echoue
 
+### Utilisation dans les composants
+
 ```ts
-// Utilisation dans les composants - le code genere utilise customInstance
-import { useGetUsers } from '@/modules/users/api/generated'
+// Query - lecture de donnees
+import { useGetDocuments } from '@/modules/documents/api'
 
-const { data, isLoading, error } = useGetUsers()
-```
+const { data, isLoading, error } = useGetDocuments()
 
-### Structure des fichiers generes
+// Mutation - creation/modification
+import { useCreateDocument } from '@/modules/documents/api'
 
-```
-src/modules/
-├── oauth/
-│   └── api/
-│       └── generated.ts    # Hooks et types generes
-├── users/
-│   └── api/
-│       └── generated.ts
-└── accounting/
-    └── api/
-        └── generated.ts
+const { mutate, isPending } = useCreateDocument()
+
+function handleSubmit(formData: CreateDocumentDto) {
+  mutate(
+    { data: formData },
+    {
+      onSuccess: (newDoc) => {
+        console.log('Document cree:', newDoc.id)
+      },
+      onError: (error) => {
+        console.error('Erreur:', error.message)
+      },
+    }
+  )
+}
 ```
 
 ### Types generes
 
 Orval genere automatiquement:
-- **Hooks TanStack Query** (`useGetUsers`, `useCreateUser`, etc.)
+- **Hooks TanStack Query** (`useGetDocuments`, `useCreateDocument`, etc.)
 - **Types TypeScript** pour les requetes et reponses
-- **Fonctions de mutation** avec invalidation de cache
-
-```ts
-// Exemple d'utilisation d'une mutation generee
-import { useCreateUser } from '@/modules/users/api/generated'
-
-const { mutate, isPending } = useCreateUser()
-
-mutate({ data: { name: 'John', email: 'john@example.com' } })
-```
+- **Fonctions de mutation** avec gestion du cache
 
 ---
 

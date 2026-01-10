@@ -2,7 +2,7 @@ import { computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDocumentsStore } from '../stores/documentsStore'
 import { useDocumentsApi } from './useDocumentsApi'
-import type { DocumentResponse } from '../api/generated'
+import type { DocumentResponse } from '../api'
 
 export function useDocuments() {
   const store = useDocumentsStore()
@@ -32,7 +32,6 @@ export function useDocuments() {
     revokeShare,
     setSearchQuery,
     setCategory,
-    clearFilters,
     refetchDocuments,
     formatFileSize,
     formatDate,

@@ -14,7 +14,7 @@ import {
   Loader2
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
-import type { DocumentResponse } from '../api/generated'
+import type { DocumentResponse, TagResponse } from '../api'
 
 const {
   documents,
@@ -32,7 +32,7 @@ const contracts = computed(() => {
   return docs.filter(doc =>
     doc.categoryName?.toLowerCase().includes('contrat') ||
     doc.categoryName?.toLowerCase().includes('contract') ||
-    doc.tags?.some(tag => tag.name?.toLowerCase().includes('contrat'))
+    doc.tags?.some((tag: TagResponse) => tag.name?.toLowerCase().includes('contrat'))
   )
 })
 

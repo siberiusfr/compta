@@ -14,7 +14,7 @@ import {
 import type { InvoiceItem } from "../types/invoices.types";
 
 const router = useRouter();
-const { createInvoice, calculateItemAmount, calculateItemTax, formatCurrency } =
+const { createInvoice, calculateItemAmount, calculateTotals, formatCurrency } =
   useInvoices();
 
 const isSubmitting = ref(false);
@@ -98,8 +98,8 @@ async function handleSubmit() {
       type: formData.value.type,
       status: formData.value.status,
       customerId: formData.value.customerId || "temp-cust",
-      date: new Date(formData.value.date),
-      dueDate: new Date(formData.value.dueDate),
+      date: new Date(formData.value.date!),
+      dueDate: new Date(formData.value.dueDate!),
       items: items.value,
       subtotal: totals.value.subtotal,
       taxTotal: totals.value.taxTotal,

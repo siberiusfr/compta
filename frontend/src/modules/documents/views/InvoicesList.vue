@@ -11,18 +11,15 @@ import {
   Eye,
   Share2,
   MoreHorizontal,
-  Loader2,
-  FileText
+  Loader2
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
-import type { DocumentResponse } from '../api/generated'
+import type { DocumentResponse, TagResponse } from '../api'
 
 const {
   documents,
-  categories,
   isLoading,
   formatDate,
-  formatFileSize,
   getStatusColor,
   openUploadModal,
   selectDocument,
@@ -35,7 +32,7 @@ const invoices = computed(() => {
   return docs.filter(doc =>
     doc.categoryName?.toLowerCase().includes('facture') ||
     doc.categoryName?.toLowerCase().includes('invoice') ||
-    doc.tags?.some(tag => tag.name?.toLowerCase().includes('facture'))
+    doc.tags?.some((tag: TagResponse) => tag.name?.toLowerCase().includes('facture'))
   )
 })
 
