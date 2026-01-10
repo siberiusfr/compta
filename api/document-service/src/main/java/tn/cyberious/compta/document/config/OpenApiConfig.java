@@ -29,7 +29,7 @@ public class OpenApiConfig {
                     "Service de gestion des documents - Upload, versioning, partage et métadonnées. "
                         + "Toutes les requêtes passent via la Gateway.")
                 .contact(new Contact().name("COMPTA Team").email("support@compta.tn")))
-        .servers(List.of(new Server().url("http://localhost:8080/document").description("API Gateway")))
+        .servers(List.of(new Server().url("http://localhost:8080/doc").description("API Gateway")))
         .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
         .components(
             new Components()

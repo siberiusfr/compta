@@ -26,7 +26,7 @@ import tn.cyberious.compta.document.dto.DocumentShareResponse;
 import tn.cyberious.compta.document.service.DocumentShareService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/documents")
 @RequiredArgsConstructor
 @Tag(name = "Document Sharing", description = "Document sharing management endpoints")
 public class DocumentShareController {
