@@ -295,73 +295,59 @@ public class SocietesRecord extends UpdatableRecordImpl<SocietesRecord> {
     }
 
     /**
+     * Setter for <code>authz.societes.societe_comptable_id</code>.
+     */
+    public void setSocieteComptableId(Long value) {
+        set(18, value);
+    }
+
+    /**
+     * Getter for <code>authz.societes.societe_comptable_id</code>.
+     */
+    public Long getSocieteComptableId() {
+        return (Long) get(18);
+    }
+
+    /**
      * Setter for <code>authz.societes.is_active</code>.
      */
     public void setIsActive(Boolean value) {
-        set(18, value);
+        set(19, value);
     }
 
     /**
      * Getter for <code>authz.societes.is_active</code>.
      */
     public Boolean getIsActive() {
-        return (Boolean) get(18);
+        return (Boolean) get(19);
     }
 
     /**
      * Setter for <code>authz.societes.created_at</code>.
      */
     public void setCreatedAt(LocalDateTime value) {
-        set(19, value);
+        set(20, value);
     }
 
     /**
      * Getter for <code>authz.societes.created_at</code>.
      */
     public LocalDateTime getCreatedAt() {
-        return (LocalDateTime) get(19);
+        return (LocalDateTime) get(20);
     }
 
     /**
      * Setter for <code>authz.societes.updated_at</code>.
      */
     public void setUpdatedAt(LocalDateTime value) {
-        set(20, value);
+        set(21, value);
     }
 
     /**
      * Getter for <code>authz.societes.updated_at</code>.
      */
     public LocalDateTime getUpdatedAt() {
-        return (LocalDateTime) get(20);
-    }
-
-    /**
-     * Setter for <code>authz.societes.created_by</code>.
-     */
-    public void setCreatedBy(Long value) {
-        set(21, value);
-    }
-
-    /**
-     * Getter for <code>authz.societes.created_by</code>.
-     */
-    public Long getCreatedBy() {
-        return (Long) get(21);
-    }
-
-    /**
-     * Setter for <code>authz.societes.updated_by</code>.
-     */
-    public void setUpdatedBy(Long value) {
-        set(22, value);
-    }
-
-    /**
-     * Getter for <code>authz.societes.updated_by</code>.
-     */
-    public Long getUpdatedBy() {
-        return (Long) get(22);
+        return (LocalDateTime) get(21);
     }
 
     // -------------------------------------------------------------------------
@@ -387,7 +373,7 @@ public class SocietesRecord extends UpdatableRecordImpl<SocietesRecord> {
     /**
      * Create a detached, initialised SocietesRecord
      */
-    public SocietesRecord(Long id, String raisonSociale, String matriculeFiscale, String codeTva, String codeDouane, String registreCommerce, String formeJuridique, BigDecimal capitalSocial, LocalDate dateCreation, String adresse, String ville, String codePostal, String telephone, String fax, String email, String siteWeb, String activite, String secteur, Boolean isActive, LocalDateTime createdAt, LocalDateTime updatedAt, Long createdBy, Long updatedBy) {
+    public SocietesRecord(Long id, String raisonSociale, String matriculeFiscale, String codeTva, String codeDouane, String registreCommerce, String formeJuridique, BigDecimal capitalSocial, LocalDate dateCreation, String adresse, String ville, String codePostal, String telephone, String fax, String email, String siteWeb, String activite, String secteur, Long societeComptableId, Boolean isActive, LocalDateTime createdAt, LocalDateTime updatedAt) {
         super(Societes.SOCIETES);
 
         setId(id);
@@ -408,11 +394,10 @@ public class SocietesRecord extends UpdatableRecordImpl<SocietesRecord> {
         setSiteWeb(siteWeb);
         setActivite(activite);
         setSecteur(secteur);
+        setSocieteComptableId(societeComptableId);
         setIsActive(isActive);
         setCreatedAt(createdAt);
         setUpdatedAt(updatedAt);
-        setCreatedBy(createdBy);
-        setUpdatedBy(updatedBy);
         resetChangedOnNotNull();
     }
 
@@ -441,11 +426,10 @@ public class SocietesRecord extends UpdatableRecordImpl<SocietesRecord> {
             setSiteWeb(value.getSiteWeb());
             setActivite(value.getActivite());
             setSecteur(value.getSecteur());
+            setSocieteComptableId(value.getSocieteComptableId());
             setIsActive(value.getIsActive());
             setCreatedAt(value.getCreatedAt());
             setUpdatedAt(value.getUpdatedAt());
-            setCreatedBy(value.getCreatedBy());
-            setUpdatedBy(value.getUpdatedBy());
             resetChangedOnNotNull();
         }
     }

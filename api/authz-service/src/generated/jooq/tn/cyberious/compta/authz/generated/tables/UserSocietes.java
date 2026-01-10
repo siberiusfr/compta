@@ -77,14 +77,14 @@ public class UserSocietes extends TableImpl<UserSocietesRecord> {
     public final TableField<UserSocietesRecord, Long> SOCIETE_ID = createField(DSL.name("societe_id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
-     * The column <code>authz.user_societes.is_owner</code>.
+     * The column <code>authz.user_societes.role</code>.
      */
-    public final TableField<UserSocietesRecord, Boolean> IS_OWNER = createField(DSL.name("is_owner"), SQLDataType.BOOLEAN.defaultValue(DSL.field(DSL.raw("false"), SQLDataType.BOOLEAN)), this, "");
+    public final TableField<UserSocietesRecord, String> ROLE = createField(DSL.name("role"), SQLDataType.VARCHAR(50).nullable(false), this, "");
 
     /**
      * The column <code>authz.user_societes.date_debut</code>.
      */
-    public final TableField<UserSocietesRecord, LocalDate> DATE_DEBUT = createField(DSL.name("date_debut"), SQLDataType.LOCALDATE.nullable(false), this, "");
+    public final TableField<UserSocietesRecord, LocalDate> DATE_DEBUT = createField(DSL.name("date_debut"), SQLDataType.LOCALDATE.nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_DATE"), SQLDataType.LOCALDATE)), this, "");
 
     /**
      * The column <code>authz.user_societes.date_fin</code>.
@@ -170,7 +170,7 @@ public class UserSocietes extends TableImpl<UserSocietesRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.IDX_USER_SOCIETES_SOCIETE_ID, Indexes.IDX_USER_SOCIETES_USER_ID);
+        return Arrays.asList(Indexes.IDX_USER_SOC_ROLE, Indexes.IDX_USER_SOC_SOCIETE, Indexes.IDX_USER_SOC_USER);
     }
 
     @Override
@@ -185,7 +185,7 @@ public class UserSocietes extends TableImpl<UserSocietesRecord> {
 
     @Override
     public List<UniqueKey<UserSocietesRecord>> getUniqueKeys() {
-        return Arrays.asList(Keys.USER_SOCIETES_USER_ID_SOCIETE_ID_KEY);
+        return Arrays.asList(Keys.USER_SOCIETES_USER_ID_KEY);
     }
 
     @Override

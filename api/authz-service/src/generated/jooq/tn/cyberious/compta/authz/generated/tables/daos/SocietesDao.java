@@ -345,6 +345,21 @@ public class SocietesDao extends DAOImpl<SocietesRecord, tn.cyberious.compta.aut
     }
 
     /**
+     * Fetch records that have <code>societe_comptable_id BETWEEN lowerInclusive
+     * AND upperInclusive</code>
+     */
+    public List<tn.cyberious.compta.authz.generated.tables.pojos.Societes> fetchRangeOfSocieteComptableId(Long lowerInclusive, Long upperInclusive) {
+        return fetchRange(Societes.SOCIETES.SOCIETE_COMPTABLE_ID, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>societe_comptable_id IN (values)</code>
+     */
+    public List<tn.cyberious.compta.authz.generated.tables.pojos.Societes> fetchBySocieteComptableId(Long... values) {
+        return fetch(Societes.SOCIETES.SOCIETE_COMPTABLE_ID, values);
+    }
+
+    /**
      * Fetch records that have <code>is_active BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
@@ -387,35 +402,5 @@ public class SocietesDao extends DAOImpl<SocietesRecord, tn.cyberious.compta.aut
      */
     public List<tn.cyberious.compta.authz.generated.tables.pojos.Societes> fetchByUpdatedAt(LocalDateTime... values) {
         return fetch(Societes.SOCIETES.UPDATED_AT, values);
-    }
-
-    /**
-     * Fetch records that have <code>created_by BETWEEN lowerInclusive AND
-     * upperInclusive</code>
-     */
-    public List<tn.cyberious.compta.authz.generated.tables.pojos.Societes> fetchRangeOfCreatedBy(Long lowerInclusive, Long upperInclusive) {
-        return fetchRange(Societes.SOCIETES.CREATED_BY, lowerInclusive, upperInclusive);
-    }
-
-    /**
-     * Fetch records that have <code>created_by IN (values)</code>
-     */
-    public List<tn.cyberious.compta.authz.generated.tables.pojos.Societes> fetchByCreatedBy(Long... values) {
-        return fetch(Societes.SOCIETES.CREATED_BY, values);
-    }
-
-    /**
-     * Fetch records that have <code>updated_by BETWEEN lowerInclusive AND
-     * upperInclusive</code>
-     */
-    public List<tn.cyberious.compta.authz.generated.tables.pojos.Societes> fetchRangeOfUpdatedBy(Long lowerInclusive, Long upperInclusive) {
-        return fetchRange(Societes.SOCIETES.UPDATED_BY, lowerInclusive, upperInclusive);
-    }
-
-    /**
-     * Fetch records that have <code>updated_by IN (values)</code>
-     */
-    public List<tn.cyberious.compta.authz.generated.tables.pojos.Societes> fetchByUpdatedBy(Long... values) {
-        return fetch(Societes.SOCIETES.UPDATED_BY, values);
     }
 }

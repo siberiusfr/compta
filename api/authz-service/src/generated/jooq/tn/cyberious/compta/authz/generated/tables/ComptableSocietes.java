@@ -37,6 +37,7 @@ import tn.cyberious.compta.authz.generated.Authz;
 import tn.cyberious.compta.authz.generated.Indexes;
 import tn.cyberious.compta.authz.generated.Keys;
 import tn.cyberious.compta.authz.generated.tables.Societes.SocietesPath;
+import tn.cyberious.compta.authz.generated.tables.UserSocieteComptable.UserSocieteComptablePath;
 import tn.cyberious.compta.authz.generated.tables.records.ComptableSocietesRecord;
 
 
@@ -77,9 +78,24 @@ public class ComptableSocietes extends TableImpl<ComptableSocietesRecord> {
     public final TableField<ComptableSocietesRecord, Long> SOCIETE_ID = createField(DSL.name("societe_id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
+     * The column <code>authz.comptable_societes.can_read</code>.
+     */
+    public final TableField<ComptableSocietesRecord, Boolean> CAN_READ = createField(DSL.name("can_read"), SQLDataType.BOOLEAN.defaultValue(DSL.field(DSL.raw("true"), SQLDataType.BOOLEAN)), this, "");
+
+    /**
+     * The column <code>authz.comptable_societes.can_write</code>.
+     */
+    public final TableField<ComptableSocietesRecord, Boolean> CAN_WRITE = createField(DSL.name("can_write"), SQLDataType.BOOLEAN.defaultValue(DSL.field(DSL.raw("false"), SQLDataType.BOOLEAN)), this, "");
+
+    /**
+     * The column <code>authz.comptable_societes.can_validate</code>.
+     */
+    public final TableField<ComptableSocietesRecord, Boolean> CAN_VALIDATE = createField(DSL.name("can_validate"), SQLDataType.BOOLEAN.defaultValue(DSL.field(DSL.raw("false"), SQLDataType.BOOLEAN)), this, "");
+
+    /**
      * The column <code>authz.comptable_societes.date_debut</code>.
      */
-    public final TableField<ComptableSocietesRecord, LocalDate> DATE_DEBUT = createField(DSL.name("date_debut"), SQLDataType.LOCALDATE.nullable(false), this, "");
+    public final TableField<ComptableSocietesRecord, LocalDate> DATE_DEBUT = createField(DSL.name("date_debut"), SQLDataType.LOCALDATE.nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_DATE"), SQLDataType.LOCALDATE)), this, "");
 
     /**
      * The column <code>authz.comptable_societes.date_fin</code>.
@@ -165,7 +181,7 @@ public class ComptableSocietes extends TableImpl<ComptableSocietesRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.IDX_COMPTABLE_SOCIETES_SOCIETE_ID, Indexes.IDX_COMPTABLE_SOCIETES_USER_ID);
+        return Arrays.asList(Indexes.IDX_COMPTABLE_SOC_ACTIVE, Indexes.IDX_COMPTABLE_SOC_SOCIETE, Indexes.IDX_COMPTABLE_SOC_USER);
     }
 
     @Override
@@ -185,7 +201,7 @@ public class ComptableSocietes extends TableImpl<ComptableSocietesRecord> {
 
     @Override
     public List<ForeignKey<ComptableSocietesRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.COMPTABLE_SOCIETES__COMPTABLE_SOCIETES_SOCIETE_ID_FKEY);
+        return Arrays.asList(Keys.COMPTABLE_SOCIETES__COMPTABLE_SOCIETES_SOCIETE_ID_FKEY, Keys.COMPTABLE_SOCIETES__FK_USER_IS_COMPTABLE);
     }
 
     private transient SocietesPath _societes;
@@ -198,6 +214,19 @@ public class ComptableSocietes extends TableImpl<ComptableSocietesRecord> {
             _societes = new SocietesPath(this, Keys.COMPTABLE_SOCIETES__COMPTABLE_SOCIETES_SOCIETE_ID_FKEY, null);
 
         return _societes;
+    }
+
+    private transient UserSocieteComptablePath _userSocieteComptable;
+
+    /**
+     * Get the implicit join path to the
+     * <code>authz.user_societe_comptable</code> table.
+     */
+    public UserSocieteComptablePath userSocieteComptable() {
+        if (_userSocieteComptable == null)
+            _userSocieteComptable = new UserSocieteComptablePath(this, Keys.COMPTABLE_SOCIETES__FK_USER_IS_COMPTABLE, null);
+
+        return _userSocieteComptable;
     }
 
     @Override

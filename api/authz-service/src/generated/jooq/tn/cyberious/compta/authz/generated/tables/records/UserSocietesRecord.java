@@ -5,6 +5,7 @@ package tn.cyberious.compta.authz.generated.tables.records;
 
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -68,17 +69,19 @@ public class UserSocietesRecord extends UpdatableRecordImpl<UserSocietesRecord> 
     }
 
     /**
-     * Setter for <code>authz.user_societes.is_owner</code>.
+     * Setter for <code>authz.user_societes.role</code>.
      */
-    public void setIsOwner(Boolean value) {
+    public void setRole(String value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>authz.user_societes.is_owner</code>.
+     * Getter for <code>authz.user_societes.role</code>.
      */
-    public Boolean getIsOwner() {
-        return (Boolean) get(3);
+    @NotNull
+    @Size(max = 50)
+    public String getRole() {
+        return (String) get(3);
     }
 
     /**
@@ -91,7 +94,6 @@ public class UserSocietesRecord extends UpdatableRecordImpl<UserSocietesRecord> 
     /**
      * Getter for <code>authz.user_societes.date_debut</code>.
      */
-    @NotNull
     public LocalDate getDateDebut() {
         return (LocalDate) get(4);
     }
@@ -161,13 +163,13 @@ public class UserSocietesRecord extends UpdatableRecordImpl<UserSocietesRecord> 
     /**
      * Create a detached, initialised UserSocietesRecord
      */
-    public UserSocietesRecord(Long id, Long userId, Long societeId, Boolean isOwner, LocalDate dateDebut, LocalDate dateFin, Boolean isActive, LocalDateTime createdAt) {
+    public UserSocietesRecord(Long id, Long userId, Long societeId, String role, LocalDate dateDebut, LocalDate dateFin, Boolean isActive, LocalDateTime createdAt) {
         super(UserSocietes.USER_SOCIETES);
 
         setId(id);
         setUserId(userId);
         setSocieteId(societeId);
-        setIsOwner(isOwner);
+        setRole(role);
         setDateDebut(dateDebut);
         setDateFin(dateFin);
         setIsActive(isActive);
@@ -185,7 +187,7 @@ public class UserSocietesRecord extends UpdatableRecordImpl<UserSocietesRecord> 
             setId(value.getId());
             setUserId(value.getUserId());
             setSocieteId(value.getSocieteId());
-            setIsOwner(value.getIsOwner());
+            setRole(value.getRole());
             setDateDebut(value.getDateDebut());
             setDateFin(value.getDateFin());
             setIsActive(value.getIsActive());

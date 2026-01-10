@@ -105,6 +105,51 @@ public class ComptableSocietesDao extends DAOImpl<ComptableSocietesRecord, tn.cy
     }
 
     /**
+     * Fetch records that have <code>can_read BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<tn.cyberious.compta.authz.generated.tables.pojos.ComptableSocietes> fetchRangeOfCanRead(Boolean lowerInclusive, Boolean upperInclusive) {
+        return fetchRange(ComptableSocietes.COMPTABLE_SOCIETES.CAN_READ, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>can_read IN (values)</code>
+     */
+    public List<tn.cyberious.compta.authz.generated.tables.pojos.ComptableSocietes> fetchByCanRead(Boolean... values) {
+        return fetch(ComptableSocietes.COMPTABLE_SOCIETES.CAN_READ, values);
+    }
+
+    /**
+     * Fetch records that have <code>can_write BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<tn.cyberious.compta.authz.generated.tables.pojos.ComptableSocietes> fetchRangeOfCanWrite(Boolean lowerInclusive, Boolean upperInclusive) {
+        return fetchRange(ComptableSocietes.COMPTABLE_SOCIETES.CAN_WRITE, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>can_write IN (values)</code>
+     */
+    public List<tn.cyberious.compta.authz.generated.tables.pojos.ComptableSocietes> fetchByCanWrite(Boolean... values) {
+        return fetch(ComptableSocietes.COMPTABLE_SOCIETES.CAN_WRITE, values);
+    }
+
+    /**
+     * Fetch records that have <code>can_validate BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<tn.cyberious.compta.authz.generated.tables.pojos.ComptableSocietes> fetchRangeOfCanValidate(Boolean lowerInclusive, Boolean upperInclusive) {
+        return fetchRange(ComptableSocietes.COMPTABLE_SOCIETES.CAN_VALIDATE, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>can_validate IN (values)</code>
+     */
+    public List<tn.cyberious.compta.authz.generated.tables.pojos.ComptableSocietes> fetchByCanValidate(Boolean... values) {
+        return fetch(ComptableSocietes.COMPTABLE_SOCIETES.CAN_VALIDATE, values);
+    }
+
+    /**
      * Fetch records that have <code>date_debut BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */

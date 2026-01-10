@@ -12,8 +12,11 @@ import org.jooq.Table;
 import org.jooq.impl.SchemaImpl;
 
 import tn.cyberious.compta.authz.generated.tables.ComptableSocietes;
-import tn.cyberious.compta.authz.generated.tables.Employees;
+import tn.cyberious.compta.authz.generated.tables.Permissions;
+import tn.cyberious.compta.authz.generated.tables.RolePermissions;
 import tn.cyberious.compta.authz.generated.tables.Societes;
+import tn.cyberious.compta.authz.generated.tables.SocietesComptables;
+import tn.cyberious.compta.authz.generated.tables.UserSocieteComptable;
 import tn.cyberious.compta.authz.generated.tables.UserSocietes;
 
 
@@ -36,14 +39,29 @@ public class Authz extends SchemaImpl {
     public final ComptableSocietes COMPTABLE_SOCIETES = ComptableSocietes.COMPTABLE_SOCIETES;
 
     /**
-     * The table <code>authz.employees</code>.
+     * The table <code>authz.permissions</code>.
      */
-    public final Employees EMPLOYEES = Employees.EMPLOYEES;
+    public final Permissions PERMISSIONS = Permissions.PERMISSIONS;
+
+    /**
+     * The table <code>authz.role_permissions</code>.
+     */
+    public final RolePermissions ROLE_PERMISSIONS = RolePermissions.ROLE_PERMISSIONS;
 
     /**
      * The table <code>authz.societes</code>.
      */
     public final Societes SOCIETES = Societes.SOCIETES;
+
+    /**
+     * The table <code>authz.societes_comptables</code>.
+     */
+    public final SocietesComptables SOCIETES_COMPTABLES = SocietesComptables.SOCIETES_COMPTABLES;
+
+    /**
+     * The table <code>authz.user_societe_comptable</code>.
+     */
+    public final UserSocieteComptable USER_SOCIETE_COMPTABLE = UserSocieteComptable.USER_SOCIETE_COMPTABLE;
 
     /**
      * The table <code>authz.user_societes</code>.
@@ -67,8 +85,11 @@ public class Authz extends SchemaImpl {
     public final List<Table<?>> getTables() {
         return Arrays.asList(
             ComptableSocietes.COMPTABLE_SOCIETES,
-            Employees.EMPLOYEES,
+            Permissions.PERMISSIONS,
+            RolePermissions.ROLE_PERMISSIONS,
             Societes.SOCIETES,
+            SocietesComptables.SOCIETES_COMPTABLES,
+            UserSocieteComptable.USER_SOCIETE_COMPTABLE,
             UserSocietes.USER_SOCIETES
         );
     }

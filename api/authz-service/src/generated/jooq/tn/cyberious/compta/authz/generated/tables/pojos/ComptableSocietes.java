@@ -22,6 +22,9 @@ public class ComptableSocietes implements Serializable {
     private Long id;
     private Long userId;
     private Long societeId;
+    private Boolean canRead;
+    private Boolean canWrite;
+    private Boolean canValidate;
     private LocalDate dateDebut;
     private LocalDate dateFin;
     private Boolean isActive;
@@ -33,6 +36,9 @@ public class ComptableSocietes implements Serializable {
         this.id = value.id;
         this.userId = value.userId;
         this.societeId = value.societeId;
+        this.canRead = value.canRead;
+        this.canWrite = value.canWrite;
+        this.canValidate = value.canValidate;
         this.dateDebut = value.dateDebut;
         this.dateFin = value.dateFin;
         this.isActive = value.isActive;
@@ -43,6 +49,9 @@ public class ComptableSocietes implements Serializable {
         Long id,
         Long userId,
         Long societeId,
+        Boolean canRead,
+        Boolean canWrite,
+        Boolean canValidate,
         LocalDate dateDebut,
         LocalDate dateFin,
         Boolean isActive,
@@ -51,6 +60,9 @@ public class ComptableSocietes implements Serializable {
         this.id = id;
         this.userId = userId;
         this.societeId = societeId;
+        this.canRead = canRead;
+        this.canWrite = canWrite;
+        this.canValidate = canValidate;
         this.dateDebut = dateDebut;
         this.dateFin = dateFin;
         this.isActive = isActive;
@@ -102,9 +114,50 @@ public class ComptableSocietes implements Serializable {
     }
 
     /**
+     * Getter for <code>authz.comptable_societes.can_read</code>.
+     */
+    public Boolean getCanRead() {
+        return this.canRead;
+    }
+
+    /**
+     * Setter for <code>authz.comptable_societes.can_read</code>.
+     */
+    public void setCanRead(Boolean canRead) {
+        this.canRead = canRead;
+    }
+
+    /**
+     * Getter for <code>authz.comptable_societes.can_write</code>.
+     */
+    public Boolean getCanWrite() {
+        return this.canWrite;
+    }
+
+    /**
+     * Setter for <code>authz.comptable_societes.can_write</code>.
+     */
+    public void setCanWrite(Boolean canWrite) {
+        this.canWrite = canWrite;
+    }
+
+    /**
+     * Getter for <code>authz.comptable_societes.can_validate</code>.
+     */
+    public Boolean getCanValidate() {
+        return this.canValidate;
+    }
+
+    /**
+     * Setter for <code>authz.comptable_societes.can_validate</code>.
+     */
+    public void setCanValidate(Boolean canValidate) {
+        this.canValidate = canValidate;
+    }
+
+    /**
      * Getter for <code>authz.comptable_societes.date_debut</code>.
      */
-    @NotNull
     public LocalDate getDateDebut() {
         return this.dateDebut;
     }
@@ -185,6 +238,24 @@ public class ComptableSocietes implements Serializable {
         }
         else if (!this.societeId.equals(other.societeId))
             return false;
+        if (this.canRead == null) {
+            if (other.canRead != null)
+                return false;
+        }
+        else if (!this.canRead.equals(other.canRead))
+            return false;
+        if (this.canWrite == null) {
+            if (other.canWrite != null)
+                return false;
+        }
+        else if (!this.canWrite.equals(other.canWrite))
+            return false;
+        if (this.canValidate == null) {
+            if (other.canValidate != null)
+                return false;
+        }
+        else if (!this.canValidate.equals(other.canValidate))
+            return false;
         if (this.dateDebut == null) {
             if (other.dateDebut != null)
                 return false;
@@ -219,6 +290,9 @@ public class ComptableSocietes implements Serializable {
         result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
         result = prime * result + ((this.userId == null) ? 0 : this.userId.hashCode());
         result = prime * result + ((this.societeId == null) ? 0 : this.societeId.hashCode());
+        result = prime * result + ((this.canRead == null) ? 0 : this.canRead.hashCode());
+        result = prime * result + ((this.canWrite == null) ? 0 : this.canWrite.hashCode());
+        result = prime * result + ((this.canValidate == null) ? 0 : this.canValidate.hashCode());
         result = prime * result + ((this.dateDebut == null) ? 0 : this.dateDebut.hashCode());
         result = prime * result + ((this.dateFin == null) ? 0 : this.dateFin.hashCode());
         result = prime * result + ((this.isActive == null) ? 0 : this.isActive.hashCode());
@@ -233,6 +307,9 @@ public class ComptableSocietes implements Serializable {
         sb.append(id);
         sb.append(", ").append(userId);
         sb.append(", ").append(societeId);
+        sb.append(", ").append(canRead);
+        sb.append(", ").append(canWrite);
+        sb.append(", ").append(canValidate);
         sb.append(", ").append(dateDebut);
         sb.append(", ").append(dateFin);
         sb.append(", ").append(isActive);

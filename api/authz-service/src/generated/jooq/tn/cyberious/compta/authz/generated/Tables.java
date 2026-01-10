@@ -5,8 +5,11 @@ package tn.cyberious.compta.authz.generated;
 
 
 import tn.cyberious.compta.authz.generated.tables.ComptableSocietes;
-import tn.cyberious.compta.authz.generated.tables.Employees;
+import tn.cyberious.compta.authz.generated.tables.Permissions;
+import tn.cyberious.compta.authz.generated.tables.RolePermissions;
 import tn.cyberious.compta.authz.generated.tables.Societes;
+import tn.cyberious.compta.authz.generated.tables.SocietesComptables;
+import tn.cyberious.compta.authz.generated.tables.UserSocieteComptable;
 import tn.cyberious.compta.authz.generated.tables.UserSocietes;
 
 
@@ -22,14 +25,29 @@ public class Tables {
     public static final ComptableSocietes COMPTABLE_SOCIETES = ComptableSocietes.COMPTABLE_SOCIETES;
 
     /**
-     * The table <code>authz.employees</code>.
+     * The table <code>authz.permissions</code>.
      */
-    public static final Employees EMPLOYEES = Employees.EMPLOYEES;
+    public static final Permissions PERMISSIONS = Permissions.PERMISSIONS;
+
+    /**
+     * The table <code>authz.role_permissions</code>.
+     */
+    public static final RolePermissions ROLE_PERMISSIONS = RolePermissions.ROLE_PERMISSIONS;
 
     /**
      * The table <code>authz.societes</code>.
      */
     public static final Societes SOCIETES = Societes.SOCIETES;
+
+    /**
+     * The table <code>authz.societes_comptables</code>.
+     */
+    public static final SocietesComptables SOCIETES_COMPTABLES = SocietesComptables.SOCIETES_COMPTABLES;
+
+    /**
+     * The table <code>authz.user_societe_comptable</code>.
+     */
+    public static final UserSocieteComptable USER_SOCIETE_COMPTABLE = UserSocieteComptable.USER_SOCIETE_COMPTABLE;
 
     /**
      * The table <code>authz.user_societes</code>.

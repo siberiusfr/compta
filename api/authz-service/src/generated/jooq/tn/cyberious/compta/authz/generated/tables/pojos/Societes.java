@@ -39,11 +39,10 @@ public class Societes implements Serializable {
     private String siteWeb;
     private String activite;
     private String secteur;
+    private Long societeComptableId;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long createdBy;
-    private Long updatedBy;
 
     public Societes() {}
 
@@ -66,11 +65,10 @@ public class Societes implements Serializable {
         this.siteWeb = value.siteWeb;
         this.activite = value.activite;
         this.secteur = value.secteur;
+        this.societeComptableId = value.societeComptableId;
         this.isActive = value.isActive;
         this.createdAt = value.createdAt;
         this.updatedAt = value.updatedAt;
-        this.createdBy = value.createdBy;
-        this.updatedBy = value.updatedBy;
     }
 
     public Societes(
@@ -92,11 +90,10 @@ public class Societes implements Serializable {
         String siteWeb,
         String activite,
         String secteur,
+        Long societeComptableId,
         Boolean isActive,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt,
-        Long createdBy,
-        Long updatedBy
+        LocalDateTime updatedAt
     ) {
         this.id = id;
         this.raisonSociale = raisonSociale;
@@ -116,11 +113,10 @@ public class Societes implements Serializable {
         this.siteWeb = siteWeb;
         this.activite = activite;
         this.secteur = secteur;
+        this.societeComptableId = societeComptableId;
         this.isActive = isActive;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.createdBy = createdBy;
-        this.updatedBy = updatedBy;
     }
 
     /**
@@ -393,6 +389,20 @@ public class Societes implements Serializable {
     }
 
     /**
+     * Getter for <code>authz.societes.societe_comptable_id</code>.
+     */
+    public Long getSocieteComptableId() {
+        return this.societeComptableId;
+    }
+
+    /**
+     * Setter for <code>authz.societes.societe_comptable_id</code>.
+     */
+    public void setSocieteComptableId(Long societeComptableId) {
+        this.societeComptableId = societeComptableId;
+    }
+
+    /**
      * Getter for <code>authz.societes.is_active</code>.
      */
     public Boolean getIsActive() {
@@ -432,34 +442,6 @@ public class Societes implements Serializable {
      */
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    /**
-     * Getter for <code>authz.societes.created_by</code>.
-     */
-    public Long getCreatedBy() {
-        return this.createdBy;
-    }
-
-    /**
-     * Setter for <code>authz.societes.created_by</code>.
-     */
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    /**
-     * Getter for <code>authz.societes.updated_by</code>.
-     */
-    public Long getUpdatedBy() {
-        return this.updatedBy;
-    }
-
-    /**
-     * Setter for <code>authz.societes.updated_by</code>.
-     */
-    public void setUpdatedBy(Long updatedBy) {
-        this.updatedBy = updatedBy;
     }
 
     @Override
@@ -579,6 +561,12 @@ public class Societes implements Serializable {
         }
         else if (!this.secteur.equals(other.secteur))
             return false;
+        if (this.societeComptableId == null) {
+            if (other.societeComptableId != null)
+                return false;
+        }
+        else if (!this.societeComptableId.equals(other.societeComptableId))
+            return false;
         if (this.isActive == null) {
             if (other.isActive != null)
                 return false;
@@ -596,18 +584,6 @@ public class Societes implements Serializable {
                 return false;
         }
         else if (!this.updatedAt.equals(other.updatedAt))
-            return false;
-        if (this.createdBy == null) {
-            if (other.createdBy != null)
-                return false;
-        }
-        else if (!this.createdBy.equals(other.createdBy))
-            return false;
-        if (this.updatedBy == null) {
-            if (other.updatedBy != null)
-                return false;
-        }
-        else if (!this.updatedBy.equals(other.updatedBy))
             return false;
         return true;
     }
@@ -634,11 +610,10 @@ public class Societes implements Serializable {
         result = prime * result + ((this.siteWeb == null) ? 0 : this.siteWeb.hashCode());
         result = prime * result + ((this.activite == null) ? 0 : this.activite.hashCode());
         result = prime * result + ((this.secteur == null) ? 0 : this.secteur.hashCode());
+        result = prime * result + ((this.societeComptableId == null) ? 0 : this.societeComptableId.hashCode());
         result = prime * result + ((this.isActive == null) ? 0 : this.isActive.hashCode());
         result = prime * result + ((this.createdAt == null) ? 0 : this.createdAt.hashCode());
         result = prime * result + ((this.updatedAt == null) ? 0 : this.updatedAt.hashCode());
-        result = prime * result + ((this.createdBy == null) ? 0 : this.createdBy.hashCode());
-        result = prime * result + ((this.updatedBy == null) ? 0 : this.updatedBy.hashCode());
         return result;
     }
 
@@ -664,11 +639,10 @@ public class Societes implements Serializable {
         sb.append(", ").append(siteWeb);
         sb.append(", ").append(activite);
         sb.append(", ").append(secteur);
+        sb.append(", ").append(societeComptableId);
         sb.append(", ").append(isActive);
         sb.append(", ").append(createdAt);
         sb.append(", ").append(updatedAt);
-        sb.append(", ").append(createdBy);
-        sb.append(", ").append(updatedBy);
 
         sb.append(")");
         return sb.toString();

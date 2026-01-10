@@ -10,8 +10,11 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
 import tn.cyberious.compta.authz.generated.tables.ComptableSocietes;
-import tn.cyberious.compta.authz.generated.tables.Employees;
+import tn.cyberious.compta.authz.generated.tables.Permissions;
+import tn.cyberious.compta.authz.generated.tables.RolePermissions;
 import tn.cyberious.compta.authz.generated.tables.Societes;
+import tn.cyberious.compta.authz.generated.tables.SocietesComptables;
+import tn.cyberious.compta.authz.generated.tables.UserSocieteComptable;
 import tn.cyberious.compta.authz.generated.tables.UserSocietes;
 
 
@@ -25,12 +28,21 @@ public class Indexes {
     // INDEX definitions
     // -------------------------------------------------------------------------
 
-    public static final Index IDX_COMPTABLE_SOCIETES_SOCIETE_ID = Internal.createIndex(DSL.name("idx_comptable_societes_societe_id"), ComptableSocietes.COMPTABLE_SOCIETES, new OrderField[] { ComptableSocietes.COMPTABLE_SOCIETES.SOCIETE_ID }, false);
-    public static final Index IDX_COMPTABLE_SOCIETES_USER_ID = Internal.createIndex(DSL.name("idx_comptable_societes_user_id"), ComptableSocietes.COMPTABLE_SOCIETES, new OrderField[] { ComptableSocietes.COMPTABLE_SOCIETES.USER_ID }, false);
-    public static final Index IDX_EMPLOYEES_SOCIETE_ID = Internal.createIndex(DSL.name("idx_employees_societe_id"), Employees.EMPLOYEES, new OrderField[] { Employees.EMPLOYEES.SOCIETE_ID }, false);
-    public static final Index IDX_EMPLOYEES_USER_ID = Internal.createIndex(DSL.name("idx_employees_user_id"), Employees.EMPLOYEES, new OrderField[] { Employees.EMPLOYEES.USER_ID }, false);
-    public static final Index IDX_SOCIETES_IS_ACTIVE = Internal.createIndex(DSL.name("idx_societes_is_active"), Societes.SOCIETES, new OrderField[] { Societes.SOCIETES.IS_ACTIVE }, false);
+    public static final Index IDX_COMPTABLE_SOC_ACTIVE = Internal.createIndex(DSL.name("idx_comptable_soc_active"), ComptableSocietes.COMPTABLE_SOCIETES, new OrderField[] { ComptableSocietes.COMPTABLE_SOCIETES.IS_ACTIVE }, false);
+    public static final Index IDX_COMPTABLE_SOC_SOCIETE = Internal.createIndex(DSL.name("idx_comptable_soc_societe"), ComptableSocietes.COMPTABLE_SOCIETES, new OrderField[] { ComptableSocietes.COMPTABLE_SOCIETES.SOCIETE_ID }, false);
+    public static final Index IDX_COMPTABLE_SOC_USER = Internal.createIndex(DSL.name("idx_comptable_soc_user"), ComptableSocietes.COMPTABLE_SOCIETES, new OrderField[] { ComptableSocietes.COMPTABLE_SOCIETES.USER_ID }, false);
+    public static final Index IDX_PERMISSIONS_CODE = Internal.createIndex(DSL.name("idx_permissions_code"), Permissions.PERMISSIONS, new OrderField[] { Permissions.PERMISSIONS.CODE }, false);
+    public static final Index IDX_PERMISSIONS_RESOURCE = Internal.createIndex(DSL.name("idx_permissions_resource"), Permissions.PERMISSIONS, new OrderField[] { Permissions.PERMISSIONS.RESOURCE }, false);
+    public static final Index IDX_ROLE_PERMISSIONS_ROLE = Internal.createIndex(DSL.name("idx_role_permissions_role"), RolePermissions.ROLE_PERMISSIONS, new OrderField[] { RolePermissions.ROLE_PERMISSIONS.ROLE }, false);
+    public static final Index IDX_SOCIETES_ACTIVE = Internal.createIndex(DSL.name("idx_societes_active"), Societes.SOCIETES, new OrderField[] { Societes.SOCIETES.IS_ACTIVE }, false);
+    public static final Index IDX_SOCIETES_COMPTABLE = Internal.createIndex(DSL.name("idx_societes_comptable"), Societes.SOCIETES, new OrderField[] { Societes.SOCIETES.SOCIETE_COMPTABLE_ID }, false);
+    public static final Index IDX_SOCIETES_COMPTABLES_ACTIVE = Internal.createIndex(DSL.name("idx_societes_comptables_active"), SocietesComptables.SOCIETES_COMPTABLES, new OrderField[] { SocietesComptables.SOCIETES_COMPTABLES.IS_ACTIVE }, false);
+    public static final Index IDX_SOCIETES_COMPTABLES_MATRICULE = Internal.createIndex(DSL.name("idx_societes_comptables_matricule"), SocietesComptables.SOCIETES_COMPTABLES, new OrderField[] { SocietesComptables.SOCIETES_COMPTABLES.MATRICULE_FISCALE }, false);
     public static final Index IDX_SOCIETES_MATRICULE = Internal.createIndex(DSL.name("idx_societes_matricule"), Societes.SOCIETES, new OrderField[] { Societes.SOCIETES.MATRICULE_FISCALE }, false);
-    public static final Index IDX_USER_SOCIETES_SOCIETE_ID = Internal.createIndex(DSL.name("idx_user_societes_societe_id"), UserSocietes.USER_SOCIETES, new OrderField[] { UserSocietes.USER_SOCIETES.SOCIETE_ID }, false);
-    public static final Index IDX_USER_SOCIETES_USER_ID = Internal.createIndex(DSL.name("idx_user_societes_user_id"), UserSocietes.USER_SOCIETES, new OrderField[] { UserSocietes.USER_SOCIETES.USER_ID }, false);
+    public static final Index IDX_USER_SC_ROLE = Internal.createIndex(DSL.name("idx_user_sc_role"), UserSocieteComptable.USER_SOCIETE_COMPTABLE, new OrderField[] { UserSocieteComptable.USER_SOCIETE_COMPTABLE.ROLE }, false);
+    public static final Index IDX_USER_SC_SOCIETE = Internal.createIndex(DSL.name("idx_user_sc_societe"), UserSocieteComptable.USER_SOCIETE_COMPTABLE, new OrderField[] { UserSocieteComptable.USER_SOCIETE_COMPTABLE.SOCIETE_COMPTABLE_ID }, false);
+    public static final Index IDX_USER_SC_USER = Internal.createIndex(DSL.name("idx_user_sc_user"), UserSocieteComptable.USER_SOCIETE_COMPTABLE, new OrderField[] { UserSocieteComptable.USER_SOCIETE_COMPTABLE.USER_ID }, false);
+    public static final Index IDX_USER_SOC_ROLE = Internal.createIndex(DSL.name("idx_user_soc_role"), UserSocietes.USER_SOCIETES, new OrderField[] { UserSocietes.USER_SOCIETES.ROLE }, false);
+    public static final Index IDX_USER_SOC_SOCIETE = Internal.createIndex(DSL.name("idx_user_soc_societe"), UserSocietes.USER_SOCIETES, new OrderField[] { UserSocietes.USER_SOCIETES.SOCIETE_ID }, false);
+    public static final Index IDX_USER_SOC_USER = Internal.createIndex(DSL.name("idx_user_soc_user"), UserSocietes.USER_SOCIETES, new OrderField[] { UserSocietes.USER_SOCIETES.USER_ID }, false);
 }

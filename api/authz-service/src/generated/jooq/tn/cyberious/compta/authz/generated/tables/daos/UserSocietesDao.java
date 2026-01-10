@@ -90,6 +90,20 @@ public class UserSocietesDao extends DAOImpl<UserSocietesRecord, tn.cyberious.co
     }
 
     /**
+     * Fetch a unique record that has <code>user_id = value</code>
+     */
+    public tn.cyberious.compta.authz.generated.tables.pojos.UserSocietes fetchOneByUserId(Long value) {
+        return fetchOne(UserSocietes.USER_SOCIETES.USER_ID, value);
+    }
+
+    /**
+     * Fetch a unique record that has <code>user_id = value</code>
+     */
+    public Optional<tn.cyberious.compta.authz.generated.tables.pojos.UserSocietes> fetchOptionalByUserId(Long value) {
+        return fetchOptional(UserSocietes.USER_SOCIETES.USER_ID, value);
+    }
+
+    /**
      * Fetch records that have <code>societe_id BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
@@ -105,18 +119,18 @@ public class UserSocietesDao extends DAOImpl<UserSocietesRecord, tn.cyberious.co
     }
 
     /**
-     * Fetch records that have <code>is_owner BETWEEN lowerInclusive AND
+     * Fetch records that have <code>role BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
-    public List<tn.cyberious.compta.authz.generated.tables.pojos.UserSocietes> fetchRangeOfIsOwner(Boolean lowerInclusive, Boolean upperInclusive) {
-        return fetchRange(UserSocietes.USER_SOCIETES.IS_OWNER, lowerInclusive, upperInclusive);
+    public List<tn.cyberious.compta.authz.generated.tables.pojos.UserSocietes> fetchRangeOfRole(String lowerInclusive, String upperInclusive) {
+        return fetchRange(UserSocietes.USER_SOCIETES.ROLE, lowerInclusive, upperInclusive);
     }
 
     /**
-     * Fetch records that have <code>is_owner IN (values)</code>
+     * Fetch records that have <code>role IN (values)</code>
      */
-    public List<tn.cyberious.compta.authz.generated.tables.pojos.UserSocietes> fetchByIsOwner(Boolean... values) {
-        return fetch(UserSocietes.USER_SOCIETES.IS_OWNER, values);
+    public List<tn.cyberious.compta.authz.generated.tables.pojos.UserSocietes> fetchByRole(String... values) {
+        return fetch(UserSocietes.USER_SOCIETES.ROLE, values);
     }
 
     /**

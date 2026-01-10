@@ -38,7 +38,8 @@ import tn.cyberious.compta.authz.generated.Authz;
 import tn.cyberious.compta.authz.generated.Indexes;
 import tn.cyberious.compta.authz.generated.Keys;
 import tn.cyberious.compta.authz.generated.tables.ComptableSocietes.ComptableSocietesPath;
-import tn.cyberious.compta.authz.generated.tables.Employees.EmployeesPath;
+import tn.cyberious.compta.authz.generated.tables.SocietesComptables.SocietesComptablesPath;
+import tn.cyberious.compta.authz.generated.tables.UserSocieteComptable.UserSocieteComptablePath;
 import tn.cyberious.compta.authz.generated.tables.UserSocietes.UserSocietesPath;
 import tn.cyberious.compta.authz.generated.tables.records.SocietesRecord;
 
@@ -155,6 +156,11 @@ public class Societes extends TableImpl<SocietesRecord> {
     public final TableField<SocietesRecord, String> SECTEUR = createField(DSL.name("secteur"), SQLDataType.VARCHAR(100), this, "");
 
     /**
+     * The column <code>authz.societes.societe_comptable_id</code>.
+     */
+    public final TableField<SocietesRecord, Long> SOCIETE_COMPTABLE_ID = createField(DSL.name("societe_comptable_id"), SQLDataType.BIGINT, this, "");
+
+    /**
      * The column <code>authz.societes.is_active</code>.
      */
     public final TableField<SocietesRecord, Boolean> IS_ACTIVE = createField(DSL.name("is_active"), SQLDataType.BOOLEAN.defaultValue(DSL.field(DSL.raw("true"), SQLDataType.BOOLEAN)), this, "");
@@ -168,16 +174,6 @@ public class Societes extends TableImpl<SocietesRecord> {
      * The column <code>authz.societes.updated_at</code>.
      */
     public final TableField<SocietesRecord, LocalDateTime> UPDATED_AT = createField(DSL.name("updated_at"), SQLDataType.LOCALDATETIME(6).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.LOCALDATETIME)), this, "");
-
-    /**
-     * The column <code>authz.societes.created_by</code>.
-     */
-    public final TableField<SocietesRecord, Long> CREATED_BY = createField(DSL.name("created_by"), SQLDataType.BIGINT, this, "");
-
-    /**
-     * The column <code>authz.societes.updated_by</code>.
-     */
-    public final TableField<SocietesRecord, Long> UPDATED_BY = createField(DSL.name("updated_by"), SQLDataType.BIGINT, this, "");
 
     private Societes(Name alias, Table<SocietesRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
@@ -248,7 +244,7 @@ public class Societes extends TableImpl<SocietesRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.IDX_SOCIETES_IS_ACTIVE, Indexes.IDX_SOCIETES_MATRICULE);
+        return Arrays.asList(Indexes.IDX_SOCIETES_ACTIVE, Indexes.IDX_SOCIETES_COMPTABLE, Indexes.IDX_SOCIETES_MATRICULE);
     }
 
     @Override
@@ -266,6 +262,24 @@ public class Societes extends TableImpl<SocietesRecord> {
         return Arrays.asList(Keys.SOCIETES_MATRICULE_FISCALE_KEY);
     }
 
+    @Override
+    public List<ForeignKey<SocietesRecord, ?>> getReferences() {
+        return Arrays.asList(Keys.SOCIETES__SOCIETES_SOCIETE_COMPTABLE_ID_FKEY);
+    }
+
+    private transient SocietesComptablesPath _societesComptables;
+
+    /**
+     * Get the implicit join path to the <code>authz.societes_comptables</code>
+     * table.
+     */
+    public SocietesComptablesPath societesComptables() {
+        if (_societesComptables == null)
+            _societesComptables = new SocietesComptablesPath(this, Keys.SOCIETES__SOCIETES_SOCIETE_COMPTABLE_ID_FKEY, null);
+
+        return _societesComptables;
+    }
+
     private transient ComptableSocietesPath _comptableSocietes;
 
     /**
@@ -279,19 +293,6 @@ public class Societes extends TableImpl<SocietesRecord> {
         return _comptableSocietes;
     }
 
-    private transient EmployeesPath _employees;
-
-    /**
-     * Get the implicit to-many join path to the <code>authz.employees</code>
-     * table
-     */
-    public EmployeesPath employees() {
-        if (_employees == null)
-            _employees = new EmployeesPath(this, null, Keys.EMPLOYEES__EMPLOYEES_SOCIETE_ID_FKEY.getInverseKey());
-
-        return _employees;
-    }
-
     private transient UserSocietesPath _userSocietes;
 
     /**
@@ -303,6 +304,14 @@ public class Societes extends TableImpl<SocietesRecord> {
             _userSocietes = new UserSocietesPath(this, null, Keys.USER_SOCIETES__USER_SOCIETES_SOCIETE_ID_FKEY.getInverseKey());
 
         return _userSocietes;
+    }
+
+    /**
+     * Get the implicit many-to-many join path to the
+     * <code>authz.user_societe_comptable</code> table
+     */
+    public UserSocieteComptablePath userSocieteComptable() {
+        return comptableSocietes().userSocieteComptable();
     }
 
     @Override

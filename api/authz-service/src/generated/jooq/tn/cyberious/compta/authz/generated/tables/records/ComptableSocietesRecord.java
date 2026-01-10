@@ -68,60 +68,101 @@ public class ComptableSocietesRecord extends UpdatableRecordImpl<ComptableSociet
     }
 
     /**
+     * Setter for <code>authz.comptable_societes.can_read</code>.
+     */
+    public void setCanRead(Boolean value) {
+        set(3, value);
+    }
+
+    /**
+     * Getter for <code>authz.comptable_societes.can_read</code>.
+     */
+    public Boolean getCanRead() {
+        return (Boolean) get(3);
+    }
+
+    /**
+     * Setter for <code>authz.comptable_societes.can_write</code>.
+     */
+    public void setCanWrite(Boolean value) {
+        set(4, value);
+    }
+
+    /**
+     * Getter for <code>authz.comptable_societes.can_write</code>.
+     */
+    public Boolean getCanWrite() {
+        return (Boolean) get(4);
+    }
+
+    /**
+     * Setter for <code>authz.comptable_societes.can_validate</code>.
+     */
+    public void setCanValidate(Boolean value) {
+        set(5, value);
+    }
+
+    /**
+     * Getter for <code>authz.comptable_societes.can_validate</code>.
+     */
+    public Boolean getCanValidate() {
+        return (Boolean) get(5);
+    }
+
+    /**
      * Setter for <code>authz.comptable_societes.date_debut</code>.
      */
     public void setDateDebut(LocalDate value) {
-        set(3, value);
+        set(6, value);
     }
 
     /**
      * Getter for <code>authz.comptable_societes.date_debut</code>.
      */
-    @NotNull
     public LocalDate getDateDebut() {
-        return (LocalDate) get(3);
+        return (LocalDate) get(6);
     }
 
     /**
      * Setter for <code>authz.comptable_societes.date_fin</code>.
      */
     public void setDateFin(LocalDate value) {
-        set(4, value);
+        set(7, value);
     }
 
     /**
      * Getter for <code>authz.comptable_societes.date_fin</code>.
      */
     public LocalDate getDateFin() {
-        return (LocalDate) get(4);
+        return (LocalDate) get(7);
     }
 
     /**
      * Setter for <code>authz.comptable_societes.is_active</code>.
      */
     public void setIsActive(Boolean value) {
-        set(5, value);
+        set(8, value);
     }
 
     /**
      * Getter for <code>authz.comptable_societes.is_active</code>.
      */
     public Boolean getIsActive() {
-        return (Boolean) get(5);
+        return (Boolean) get(8);
     }
 
     /**
      * Setter for <code>authz.comptable_societes.created_at</code>.
      */
     public void setCreatedAt(LocalDateTime value) {
-        set(6, value);
+        set(9, value);
     }
 
     /**
      * Getter for <code>authz.comptable_societes.created_at</code>.
      */
     public LocalDateTime getCreatedAt() {
-        return (LocalDateTime) get(6);
+        return (LocalDateTime) get(9);
     }
 
     // -------------------------------------------------------------------------
@@ -147,12 +188,15 @@ public class ComptableSocietesRecord extends UpdatableRecordImpl<ComptableSociet
     /**
      * Create a detached, initialised ComptableSocietesRecord
      */
-    public ComptableSocietesRecord(Long id, Long userId, Long societeId, LocalDate dateDebut, LocalDate dateFin, Boolean isActive, LocalDateTime createdAt) {
+    public ComptableSocietesRecord(Long id, Long userId, Long societeId, Boolean canRead, Boolean canWrite, Boolean canValidate, LocalDate dateDebut, LocalDate dateFin, Boolean isActive, LocalDateTime createdAt) {
         super(ComptableSocietes.COMPTABLE_SOCIETES);
 
         setId(id);
         setUserId(userId);
         setSocieteId(societeId);
+        setCanRead(canRead);
+        setCanWrite(canWrite);
+        setCanValidate(canValidate);
         setDateDebut(dateDebut);
         setDateFin(dateFin);
         setIsActive(isActive);
@@ -170,6 +214,9 @@ public class ComptableSocietesRecord extends UpdatableRecordImpl<ComptableSociet
             setId(value.getId());
             setUserId(value.getUserId());
             setSocieteId(value.getSocieteId());
+            setCanRead(value.getCanRead());
+            setCanWrite(value.getCanWrite());
+            setCanValidate(value.getCanValidate());
             setDateDebut(value.getDateDebut());
             setDateFin(value.getDateFin());
             setIsActive(value.getIsActive());

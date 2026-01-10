@@ -11,12 +11,18 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
 import tn.cyberious.compta.authz.generated.tables.ComptableSocietes;
-import tn.cyberious.compta.authz.generated.tables.Employees;
+import tn.cyberious.compta.authz.generated.tables.Permissions;
+import tn.cyberious.compta.authz.generated.tables.RolePermissions;
 import tn.cyberious.compta.authz.generated.tables.Societes;
+import tn.cyberious.compta.authz.generated.tables.SocietesComptables;
+import tn.cyberious.compta.authz.generated.tables.UserSocieteComptable;
 import tn.cyberious.compta.authz.generated.tables.UserSocietes;
 import tn.cyberious.compta.authz.generated.tables.records.ComptableSocietesRecord;
-import tn.cyberious.compta.authz.generated.tables.records.EmployeesRecord;
+import tn.cyberious.compta.authz.generated.tables.records.PermissionsRecord;
+import tn.cyberious.compta.authz.generated.tables.records.RolePermissionsRecord;
+import tn.cyberious.compta.authz.generated.tables.records.SocietesComptablesRecord;
 import tn.cyberious.compta.authz.generated.tables.records.SocietesRecord;
+import tn.cyberious.compta.authz.generated.tables.records.UserSocieteComptableRecord;
 import tn.cyberious.compta.authz.generated.tables.records.UserSocietesRecord;
 
 
@@ -33,18 +39,27 @@ public class Keys {
 
     public static final UniqueKey<ComptableSocietesRecord> COMPTABLE_SOCIETES_PKEY = Internal.createUniqueKey(ComptableSocietes.COMPTABLE_SOCIETES, DSL.name("comptable_societes_pkey"), new TableField[] { ComptableSocietes.COMPTABLE_SOCIETES.ID }, true);
     public static final UniqueKey<ComptableSocietesRecord> COMPTABLE_SOCIETES_USER_ID_SOCIETE_ID_KEY = Internal.createUniqueKey(ComptableSocietes.COMPTABLE_SOCIETES, DSL.name("comptable_societes_user_id_societe_id_key"), new TableField[] { ComptableSocietes.COMPTABLE_SOCIETES.USER_ID, ComptableSocietes.COMPTABLE_SOCIETES.SOCIETE_ID }, true);
-    public static final UniqueKey<EmployeesRecord> EMPLOYEES_PKEY = Internal.createUniqueKey(Employees.EMPLOYEES, DSL.name("employees_pkey"), new TableField[] { Employees.EMPLOYEES.ID }, true);
-    public static final UniqueKey<EmployeesRecord> EMPLOYEES_USER_ID_KEY = Internal.createUniqueKey(Employees.EMPLOYEES, DSL.name("employees_user_id_key"), new TableField[] { Employees.EMPLOYEES.USER_ID }, true);
+    public static final UniqueKey<PermissionsRecord> PERMISSIONS_CODE_KEY = Internal.createUniqueKey(Permissions.PERMISSIONS, DSL.name("permissions_code_key"), new TableField[] { Permissions.PERMISSIONS.CODE }, true);
+    public static final UniqueKey<PermissionsRecord> PERMISSIONS_PKEY = Internal.createUniqueKey(Permissions.PERMISSIONS, DSL.name("permissions_pkey"), new TableField[] { Permissions.PERMISSIONS.ID }, true);
+    public static final UniqueKey<RolePermissionsRecord> ROLE_PERMISSIONS_PKEY = Internal.createUniqueKey(RolePermissions.ROLE_PERMISSIONS, DSL.name("role_permissions_pkey"), new TableField[] { RolePermissions.ROLE_PERMISSIONS.ID }, true);
+    public static final UniqueKey<RolePermissionsRecord> ROLE_PERMISSIONS_ROLE_PERMISSION_ID_KEY = Internal.createUniqueKey(RolePermissions.ROLE_PERMISSIONS, DSL.name("role_permissions_role_permission_id_key"), new TableField[] { RolePermissions.ROLE_PERMISSIONS.ROLE, RolePermissions.ROLE_PERMISSIONS.PERMISSION_ID }, true);
     public static final UniqueKey<SocietesRecord> SOCIETES_MATRICULE_FISCALE_KEY = Internal.createUniqueKey(Societes.SOCIETES, DSL.name("societes_matricule_fiscale_key"), new TableField[] { Societes.SOCIETES.MATRICULE_FISCALE }, true);
     public static final UniqueKey<SocietesRecord> SOCIETES_PKEY = Internal.createUniqueKey(Societes.SOCIETES, DSL.name("societes_pkey"), new TableField[] { Societes.SOCIETES.ID }, true);
+    public static final UniqueKey<SocietesComptablesRecord> SOCIETES_COMPTABLES_MATRICULE_FISCALE_KEY = Internal.createUniqueKey(SocietesComptables.SOCIETES_COMPTABLES, DSL.name("societes_comptables_matricule_fiscale_key"), new TableField[] { SocietesComptables.SOCIETES_COMPTABLES.MATRICULE_FISCALE }, true);
+    public static final UniqueKey<SocietesComptablesRecord> SOCIETES_COMPTABLES_PKEY = Internal.createUniqueKey(SocietesComptables.SOCIETES_COMPTABLES, DSL.name("societes_comptables_pkey"), new TableField[] { SocietesComptables.SOCIETES_COMPTABLES.ID }, true);
+    public static final UniqueKey<UserSocieteComptableRecord> USER_SOCIETE_COMPTABLE_PKEY = Internal.createUniqueKey(UserSocieteComptable.USER_SOCIETE_COMPTABLE, DSL.name("user_societe_comptable_pkey"), new TableField[] { UserSocieteComptable.USER_SOCIETE_COMPTABLE.ID }, true);
+    public static final UniqueKey<UserSocieteComptableRecord> USER_SOCIETE_COMPTABLE_USER_ID_KEY = Internal.createUniqueKey(UserSocieteComptable.USER_SOCIETE_COMPTABLE, DSL.name("user_societe_comptable_user_id_key"), new TableField[] { UserSocieteComptable.USER_SOCIETE_COMPTABLE.USER_ID }, true);
     public static final UniqueKey<UserSocietesRecord> USER_SOCIETES_PKEY = Internal.createUniqueKey(UserSocietes.USER_SOCIETES, DSL.name("user_societes_pkey"), new TableField[] { UserSocietes.USER_SOCIETES.ID }, true);
-    public static final UniqueKey<UserSocietesRecord> USER_SOCIETES_USER_ID_SOCIETE_ID_KEY = Internal.createUniqueKey(UserSocietes.USER_SOCIETES, DSL.name("user_societes_user_id_societe_id_key"), new TableField[] { UserSocietes.USER_SOCIETES.USER_ID, UserSocietes.USER_SOCIETES.SOCIETE_ID }, true);
+    public static final UniqueKey<UserSocietesRecord> USER_SOCIETES_USER_ID_KEY = Internal.createUniqueKey(UserSocietes.USER_SOCIETES, DSL.name("user_societes_user_id_key"), new TableField[] { UserSocietes.USER_SOCIETES.USER_ID }, true);
 
     // -------------------------------------------------------------------------
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
     public static final ForeignKey<ComptableSocietesRecord, SocietesRecord> COMPTABLE_SOCIETES__COMPTABLE_SOCIETES_SOCIETE_ID_FKEY = Internal.createForeignKey(ComptableSocietes.COMPTABLE_SOCIETES, DSL.name("comptable_societes_societe_id_fkey"), new TableField[] { ComptableSocietes.COMPTABLE_SOCIETES.SOCIETE_ID }, Keys.SOCIETES_PKEY, new TableField[] { Societes.SOCIETES.ID }, true);
-    public static final ForeignKey<EmployeesRecord, SocietesRecord> EMPLOYEES__EMPLOYEES_SOCIETE_ID_FKEY = Internal.createForeignKey(Employees.EMPLOYEES, DSL.name("employees_societe_id_fkey"), new TableField[] { Employees.EMPLOYEES.SOCIETE_ID }, Keys.SOCIETES_PKEY, new TableField[] { Societes.SOCIETES.ID }, true);
+    public static final ForeignKey<ComptableSocietesRecord, UserSocieteComptableRecord> COMPTABLE_SOCIETES__FK_USER_IS_COMPTABLE = Internal.createForeignKey(ComptableSocietes.COMPTABLE_SOCIETES, DSL.name("fk_user_is_comptable"), new TableField[] { ComptableSocietes.COMPTABLE_SOCIETES.USER_ID }, Keys.USER_SOCIETE_COMPTABLE_USER_ID_KEY, new TableField[] { UserSocieteComptable.USER_SOCIETE_COMPTABLE.USER_ID }, true);
+    public static final ForeignKey<RolePermissionsRecord, PermissionsRecord> ROLE_PERMISSIONS__ROLE_PERMISSIONS_PERMISSION_ID_FKEY = Internal.createForeignKey(RolePermissions.ROLE_PERMISSIONS, DSL.name("role_permissions_permission_id_fkey"), new TableField[] { RolePermissions.ROLE_PERMISSIONS.PERMISSION_ID }, Keys.PERMISSIONS_PKEY, new TableField[] { Permissions.PERMISSIONS.ID }, true);
+    public static final ForeignKey<SocietesRecord, SocietesComptablesRecord> SOCIETES__SOCIETES_SOCIETE_COMPTABLE_ID_FKEY = Internal.createForeignKey(Societes.SOCIETES, DSL.name("societes_societe_comptable_id_fkey"), new TableField[] { Societes.SOCIETES.SOCIETE_COMPTABLE_ID }, Keys.SOCIETES_COMPTABLES_PKEY, new TableField[] { SocietesComptables.SOCIETES_COMPTABLES.ID }, true);
+    public static final ForeignKey<UserSocieteComptableRecord, SocietesComptablesRecord> USER_SOCIETE_COMPTABLE__USER_SOCIETE_COMPTABLE_SOCIETE_COMPTABLE_ID_FKEY = Internal.createForeignKey(UserSocieteComptable.USER_SOCIETE_COMPTABLE, DSL.name("user_societe_comptable_societe_comptable_id_fkey"), new TableField[] { UserSocieteComptable.USER_SOCIETE_COMPTABLE.SOCIETE_COMPTABLE_ID }, Keys.SOCIETES_COMPTABLES_PKEY, new TableField[] { SocietesComptables.SOCIETES_COMPTABLES.ID }, true);
     public static final ForeignKey<UserSocietesRecord, SocietesRecord> USER_SOCIETES__USER_SOCIETES_SOCIETE_ID_FKEY = Internal.createForeignKey(UserSocietes.USER_SOCIETES, DSL.name("user_societes_societe_id_fkey"), new TableField[] { UserSocietes.USER_SOCIETES.SOCIETE_ID }, Keys.SOCIETES_PKEY, new TableField[] { Societes.SOCIETES.ID }, true);
 }

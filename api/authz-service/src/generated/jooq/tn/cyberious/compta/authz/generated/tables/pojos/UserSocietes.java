@@ -5,6 +5,7 @@ package tn.cyberious.compta.authz.generated.tables.pojos;
 
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -22,7 +23,7 @@ public class UserSocietes implements Serializable {
     private Long id;
     private Long userId;
     private Long societeId;
-    private Boolean isOwner;
+    private String role;
     private LocalDate dateDebut;
     private LocalDate dateFin;
     private Boolean isActive;
@@ -34,7 +35,7 @@ public class UserSocietes implements Serializable {
         this.id = value.id;
         this.userId = value.userId;
         this.societeId = value.societeId;
-        this.isOwner = value.isOwner;
+        this.role = value.role;
         this.dateDebut = value.dateDebut;
         this.dateFin = value.dateFin;
         this.isActive = value.isActive;
@@ -45,7 +46,7 @@ public class UserSocietes implements Serializable {
         Long id,
         Long userId,
         Long societeId,
-        Boolean isOwner,
+        String role,
         LocalDate dateDebut,
         LocalDate dateFin,
         Boolean isActive,
@@ -54,7 +55,7 @@ public class UserSocietes implements Serializable {
         this.id = id;
         this.userId = userId;
         this.societeId = societeId;
-        this.isOwner = isOwner;
+        this.role = role;
         this.dateDebut = dateDebut;
         this.dateFin = dateFin;
         this.isActive = isActive;
@@ -106,23 +107,24 @@ public class UserSocietes implements Serializable {
     }
 
     /**
-     * Getter for <code>authz.user_societes.is_owner</code>.
+     * Getter for <code>authz.user_societes.role</code>.
      */
-    public Boolean getIsOwner() {
-        return this.isOwner;
+    @NotNull
+    @Size(max = 50)
+    public String getRole() {
+        return this.role;
     }
 
     /**
-     * Setter for <code>authz.user_societes.is_owner</code>.
+     * Setter for <code>authz.user_societes.role</code>.
      */
-    public void setIsOwner(Boolean isOwner) {
-        this.isOwner = isOwner;
+    public void setRole(String role) {
+        this.role = role;
     }
 
     /**
      * Getter for <code>authz.user_societes.date_debut</code>.
      */
-    @NotNull
     public LocalDate getDateDebut() {
         return this.dateDebut;
     }
@@ -203,11 +205,11 @@ public class UserSocietes implements Serializable {
         }
         else if (!this.societeId.equals(other.societeId))
             return false;
-        if (this.isOwner == null) {
-            if (other.isOwner != null)
+        if (this.role == null) {
+            if (other.role != null)
                 return false;
         }
-        else if (!this.isOwner.equals(other.isOwner))
+        else if (!this.role.equals(other.role))
             return false;
         if (this.dateDebut == null) {
             if (other.dateDebut != null)
@@ -243,7 +245,7 @@ public class UserSocietes implements Serializable {
         result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
         result = prime * result + ((this.userId == null) ? 0 : this.userId.hashCode());
         result = prime * result + ((this.societeId == null) ? 0 : this.societeId.hashCode());
-        result = prime * result + ((this.isOwner == null) ? 0 : this.isOwner.hashCode());
+        result = prime * result + ((this.role == null) ? 0 : this.role.hashCode());
         result = prime * result + ((this.dateDebut == null) ? 0 : this.dateDebut.hashCode());
         result = prime * result + ((this.dateFin == null) ? 0 : this.dateFin.hashCode());
         result = prime * result + ((this.isActive == null) ? 0 : this.isActive.hashCode());
@@ -258,7 +260,7 @@ public class UserSocietes implements Serializable {
         sb.append(id);
         sb.append(", ").append(userId);
         sb.append(", ").append(societeId);
-        sb.append(", ").append(isOwner);
+        sb.append(", ").append(role);
         sb.append(", ").append(dateDebut);
         sb.append(", ").append(dateFin);
         sb.append(", ").append(isActive);
