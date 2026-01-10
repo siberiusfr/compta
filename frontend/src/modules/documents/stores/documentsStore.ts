@@ -1,84 +1,32 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Document, Invoice, Quote, Contract, DocumentFilter } from '../types/documents.types'
-import { mockDocuments, mockInvoices, mockQuotes, mockContracts } from '../mock-data/documents.mock'
+import type { DocumentResponse, CategoryResponse } from '../api/generated'
+
+export interface DocumentFilter {
+  categoryId?: number
+  search?: string
+  uploadedBy?: string
+  tag?: string
+}
 
 export const useDocumentsStore = defineStore('documents', () => {
-  const documents = ref<Document[]>(mockDocuments)
-  const invoices = ref<Invoice[]>(mockInvoices)
-  const quotes = ref<Quote[]>(mockQuotes)
-  const contracts = ref<Contract[]>(mockContracts)
-  const isLoading = ref(false)
+  // UI State
   const filter = ref<DocumentFilter>({})
+  const selectedDocumentId = ref<number | null>(null)
+  const isUploadModalOpen = ref(false)
+  const isDetailModalOpen = ref(false)
+  const isShareModalOpen = ref(false)
 
-  const allDocuments = computed(() => [
-    ...documents.value,
-    ...invoices.value,
-    ...quotes.value,
-    ...contracts.value
-  ])
+  // View mode
+  const viewMode = ref<'grid' | 'list'>('list')
 
-  const pendingInvoices = computed(() =>
-    invoices.value.filter(inv => inv.status === 'pending')
-  )
+  // Computed
+  const hasActiveFilters = computed(() => {
+    return !!(filter.value.categoryId || filter.value.search || filter.value.uploadedBy || filter.value.tag)
+  })
 
-  const pendingQuotes = computed(() =>
-    quotes.value.filter(q => q.status === 'pending')
-  )
-
-  const activeContracts = computed(() =>
-    contracts.value.filter(c => c.status === 'approved')
-  )
-
-  const totalInvoiced = computed(() =>
-    invoices.value.reduce((sum, inv) => sum + inv.totalAmount, 0)
-  )
-
-  const totalPending = computed(() =>
-    pendingInvoices.value.reduce((sum, inv) => sum + inv.totalAmount, 0)
-  )
-
-  async function fetchDocuments() {
-    isLoading.value = true
-    try {
-      await new Promise(resolve => setTimeout(resolve, 300))
-      documents.value = mockDocuments
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  async function fetchInvoices() {
-    isLoading.value = true
-    try {
-      await new Promise(resolve => setTimeout(resolve, 300))
-      invoices.value = mockInvoices
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  async function fetchQuotes() {
-    isLoading.value = true
-    try {
-      await new Promise(resolve => setTimeout(resolve, 300))
-      quotes.value = mockQuotes
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  async function fetchContracts() {
-    isLoading.value = true
-    try {
-      await new Promise(resolve => setTimeout(resolve, 300))
-      contracts.value = mockContracts
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  function setFilter(newFilter: DocumentFilter) {
+  // Actions
+  function setFilter(newFilter: Partial<DocumentFilter>) {
     filter.value = { ...filter.value, ...newFilter }
   }
 
@@ -86,24 +34,70 @@ export const useDocumentsStore = defineStore('documents', () => {
     filter.value = {}
   }
 
+  function setSearch(search: string) {
+    filter.value = { ...filter.value, search: search || undefined }
+  }
+
+  function setCategory(categoryId: number | undefined) {
+    filter.value = { ...filter.value, categoryId }
+  }
+
+  function selectDocument(id: number | null) {
+    selectedDocumentId.value = id
+    if (id) {
+      isDetailModalOpen.value = true
+    }
+  }
+
+  function openUploadModal() {
+    isUploadModalOpen.value = true
+  }
+
+  function closeUploadModal() {
+    isUploadModalOpen.value = false
+  }
+
+  function openShareModal(documentId: number) {
+    selectedDocumentId.value = documentId
+    isShareModalOpen.value = true
+  }
+
+  function closeShareModal() {
+    isShareModalOpen.value = false
+  }
+
+  function closeDetailModal() {
+    isDetailModalOpen.value = false
+    selectedDocumentId.value = null
+  }
+
+  function toggleViewMode() {
+    viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
+  }
+
   return {
-    documents,
-    invoices,
-    quotes,
-    contracts,
-    isLoading,
+    // State
     filter,
-    allDocuments,
-    pendingInvoices,
-    pendingQuotes,
-    activeContracts,
-    totalInvoiced,
-    totalPending,
-    fetchDocuments,
-    fetchInvoices,
-    fetchQuotes,
-    fetchContracts,
+    selectedDocumentId,
+    isUploadModalOpen,
+    isDetailModalOpen,
+    isShareModalOpen,
+    viewMode,
+
+    // Computed
+    hasActiveFilters,
+
+    // Actions
     setFilter,
-    clearFilter
+    clearFilter,
+    setSearch,
+    setCategory,
+    selectDocument,
+    openUploadModal,
+    closeUploadModal,
+    openShareModal,
+    closeShareModal,
+    closeDetailModal,
+    toggleViewMode,
   }
 })

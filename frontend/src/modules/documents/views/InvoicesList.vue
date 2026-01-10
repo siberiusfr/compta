@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useDocuments } from '../composables/useDocuments'
 import { Button } from '@/components/ui/button'
 import {
@@ -8,34 +9,74 @@ import {
   Filter,
   Download,
   Eye,
-  Send,
+  Share2,
   MoreHorizontal,
-  AlertCircle,
-  CheckCircle
+  Loader2,
+  FileText
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
+import type { DocumentResponse } from '../api/generated'
 
 const {
-  invoices,
+  documents,
+  categories,
   isLoading,
-  totalInvoiced,
-  totalPending,
-  formatCurrency,
   formatDate,
-  getStatusColor
+  formatFileSize,
+  getStatusColor,
+  openUploadModal,
+  selectDocument,
 } = useDocuments()
 
-const statusLabels: Record<string, string> = {
-  draft: 'Brouillon',
-  pending: 'En attente',
-  approved: 'Payee',
-  rejected: 'Annulee',
-  archived: 'Archivee'
+// Filter documents by invoice category (assuming category name contains 'facture' or 'invoice')
+const invoices = computed(() => {
+  const docs = documents.value as DocumentResponse[] | undefined
+  if (!docs) return []
+  return docs.filter(doc =>
+    doc.categoryName?.toLowerCase().includes('facture') ||
+    doc.categoryName?.toLowerCase().includes('invoice') ||
+    doc.tags?.some(tag => tag.name?.toLowerCase().includes('facture'))
+  )
+})
+
+// Stats from metadata if available
+const totalInvoiced = computed(() => {
+  return invoices.value.reduce((sum, doc) => {
+    const amount = doc.metadata?.totalAmount ? parseFloat(doc.metadata.totalAmount) : 0
+    return sum + amount
+  }, 0)
+})
+
+const pendingInvoices = computed(() => {
+  return invoices.value.filter(doc =>
+    doc.metadata?.status === 'pending' || !doc.metadata?.paidAt
+  )
+})
+
+const totalPending = computed(() => {
+  return pendingInvoices.value.reduce((sum, doc) => {
+    const amount = doc.metadata?.totalAmount ? parseFloat(doc.metadata.totalAmount) : 0
+    return sum + amount
+  }, 0)
+})
+
+const formatCurrency = (value: number, currency = 'EUR'): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency
+  }).format(value)
 }
 
-const isOverdue = (dueDate: Date, paidAt?: Date) => {
-  if (paidAt) return false
-  return new Date() > new Date(dueDate)
+const isOverdue = (doc: DocumentResponse) => {
+  if (doc.metadata?.paidAt) return false
+  if (!doc.metadata?.dueDate) return false
+  return new Date() > new Date(doc.metadata.dueDate)
+}
+
+async function handleDownload(doc: DocumentResponse) {
+  if (doc.downloadUrl) {
+    window.open(doc.downloadUrl, '_blank')
+  }
 }
 </script>
 
@@ -52,7 +93,7 @@ const isOverdue = (dueDate: Date, paidAt?: Date) => {
           Gerez vos factures clients
         </p>
       </div>
-      <Button>
+      <Button @click="openUploadModal">
         <Plus class="h-4 w-4 mr-2" />
         Nouvelle facture
       </Button>
@@ -89,68 +130,90 @@ const isOverdue = (dueDate: Date, paidAt?: Date) => {
       </Button>
     </div>
 
-    <!-- Invoices List -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex items-center justify-center py-12 text-muted-foreground">
+      <Loader2 class="h-6 w-6 animate-spin mr-2" />
       Chargement...
     </div>
 
+    <!-- Empty State -->
+    <div v-else-if="invoices.length === 0" class="text-center py-12">
+      <Receipt class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+      <p class="text-lg font-medium">Aucune facture</p>
+      <p class="text-muted-foreground mb-4">
+        Ajoutez votre premiere facture
+      </p>
+      <Button @click="openUploadModal">
+        <Plus class="h-4 w-4 mr-2" />
+        Ajouter une facture
+      </Button>
+    </div>
+
+    <!-- Invoices List -->
     <div v-else class="space-y-3">
       <div
-        v-for="invoice in invoices"
-        :key="invoice.id"
+        v-for="doc in invoices"
+        :key="doc.id"
         class="rounded-xl border bg-card p-4 hover:shadow-md transition-shadow"
       >
         <div class="flex items-center gap-4">
           <!-- Icon -->
           <div :class="cn(
             'flex h-12 w-12 items-center justify-center rounded-lg',
-            invoice.paidAt ? 'bg-green-100 dark:bg-green-900/30' : 'bg-yellow-100 dark:bg-yellow-900/30'
+            doc.metadata?.paidAt ? 'bg-green-100 dark:bg-green-900/30' : 'bg-yellow-100 dark:bg-yellow-900/30'
           )">
-            <CheckCircle v-if="invoice.paidAt" class="h-6 w-6 text-green-600 dark:text-green-400" />
-            <AlertCircle v-else-if="isOverdue(invoice.dueDate)" class="h-6 w-6 text-red-600 dark:text-red-400" />
-            <Receipt v-else class="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+            <Receipt :class="cn(
+              'h-6 w-6',
+              doc.metadata?.paidAt ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'
+            )" />
           </div>
 
           <!-- Content -->
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
-              <h3 class="font-semibold">{{ invoice.invoiceNumber }}</h3>
-              <span :class="cn('text-xs px-2 py-1 rounded-full', getStatusColor(invoice.status))">
-                {{ statusLabels[invoice.status] }}
+              <h3 class="font-semibold">{{ doc.title }}</h3>
+              <span :class="cn('text-xs px-2 py-1 rounded-full', getStatusColor(doc.isPublic))">
+                {{ doc.metadata?.paidAt ? 'Payee' : 'En attente' }}
               </span>
               <span
-                v-if="isOverdue(invoice.dueDate, invoice.paidAt)"
+                v-if="isOverdue(doc)"
                 class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
               >
                 En retard
               </span>
             </div>
-            <p class="text-sm text-muted-foreground">{{ invoice.clientName }}</p>
+            <p class="text-sm text-muted-foreground">{{ doc.metadata?.clientName || doc.fileName }}</p>
             <div class="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-              <span>Emise le {{ formatDate(invoice.createdAt) }}</span>
-              <span>Echeance: {{ formatDate(invoice.dueDate) }}</span>
-              <span v-if="invoice.paidAt">Payee le {{ formatDate(invoice.paidAt) }}</span>
+              <span>Emise le {{ formatDate(doc.createdAt) }}</span>
+              <span v-if="doc.metadata?.dueDate">Echeance: {{ formatDate(doc.metadata.dueDate) }}</span>
+              <span v-if="doc.metadata?.paidAt">Payee le {{ formatDate(doc.metadata.paidAt) }}</span>
             </div>
           </div>
 
           <!-- Amount -->
-          <div class="text-right">
-            <p class="text-lg font-bold">{{ formatCurrency(invoice.totalAmount) }}</p>
-            <p class="text-xs text-muted-foreground">
-              HT: {{ formatCurrency(invoice.amount) }}
+          <div v-if="doc.metadata?.totalAmount" class="text-right">
+            <p class="text-lg font-bold">{{ formatCurrency(parseFloat(doc.metadata.totalAmount)) }}</p>
+            <p v-if="doc.metadata?.amount" class="text-xs text-muted-foreground">
+              HT: {{ formatCurrency(parseFloat(doc.metadata.amount)) }}
             </p>
           </div>
 
           <!-- Actions -->
           <div class="flex items-center gap-1">
-            <Button variant="ghost" size="icon-sm" title="Voir">
+            <Button variant="ghost" size="icon-sm" title="Voir" @click="selectDocument(doc.id!)">
               <Eye class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon-sm" title="Telecharger">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Telecharger"
+              :disabled="!doc.downloadUrl"
+              @click="handleDownload(doc)"
+            >
               <Download class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon-sm" title="Envoyer">
-              <Send class="h-4 w-4" />
+            <Button variant="ghost" size="icon-sm" title="Partager">
+              <Share2 class="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon-sm">
               <MoreHorizontal class="h-4 w-4" />
