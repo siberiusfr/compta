@@ -336,6 +336,123 @@ export async function createUser(payload: CreateUserDto): Promise<User> {
 
 ---
 
+## Generation API avec Orval
+
+Orval genere automatiquement des clients API types a partir des specs OpenAPI.
+
+### Commandes
+
+```bash
+pnpm run api:generate   # Generer les clients API
+pnpm run api:watch      # Regenerer automatiquement a chaque changement
+```
+
+### Configuration (orval.config.ts)
+
+```ts
+import { defineConfig } from 'orval'
+
+export default defineConfig({
+  oauth2: {
+    input: {
+      target: './openapi/oauth2.json',  // Spec OpenAPI source
+    },
+    output: {
+      client: 'vue-query',              // Genere des hooks TanStack Query
+      mode: 'single',                   // Un seul fichier genere
+      target: './src/modules/oauth/api/generated.ts',
+      clean: true,                      // Nettoie avant generation
+      prettier: true,                   // Formate le code genere
+      override: {
+        mutator: {
+          path: './src/api/axios-instance.ts',
+          name: 'customInstance',       // Instance Axios personnalisee
+        },
+      },
+    },
+  },
+})
+```
+
+### Ajouter un nouveau module API
+
+1. Placer le fichier OpenAPI JSON dans `./openapi/`
+2. Ajouter une nouvelle entree dans `orval.config.ts`:
+
+```ts
+export default defineConfig({
+  // ... config existante
+  newModule: {
+    input: {
+      target: './openapi/new-module.json',
+    },
+    output: {
+      client: 'vue-query',
+      mode: 'single',
+      target: './src/modules/new-module/api/generated.ts',
+      clean: true,
+      prettier: true,
+      override: {
+        mutator: {
+          path: './src/api/axios-instance.ts',
+          name: 'customInstance',
+        },
+      },
+    },
+  },
+})
+```
+
+3. Executer `pnpm run api:generate`
+
+### Instance Axios Custom (src/api/axios-instance.ts)
+
+L'instance custom gere automatiquement:
+- Injection du token JWT dans les headers
+- Refresh automatique du token sur erreur 401
+- File d'attente des requetes pendant le refresh
+- Redirection vers login si refresh echoue
+
+```ts
+// Utilisation dans les composants - le code genere utilise customInstance
+import { useGetUsers } from '@/modules/users/api/generated'
+
+const { data, isLoading, error } = useGetUsers()
+```
+
+### Structure des fichiers generes
+
+```
+src/modules/
+├── oauth/
+│   └── api/
+│       └── generated.ts    # Hooks et types generes
+├── users/
+│   └── api/
+│       └── generated.ts
+└── accounting/
+    └── api/
+        └── generated.ts
+```
+
+### Types generes
+
+Orval genere automatiquement:
+- **Hooks TanStack Query** (`useGetUsers`, `useCreateUser`, etc.)
+- **Types TypeScript** pour les requetes et reponses
+- **Fonctions de mutation** avec invalidation de cache
+
+```ts
+// Exemple d'utilisation d'une mutation generee
+import { useCreateUser } from '@/modules/users/api/generated'
+
+const { mutate, isPending } = useCreateUser()
+
+mutate({ data: { name: 'John', email: 'john@example.com' } })
+```
+
+---
+
 ## Variables d'Environnement
 
 ```env

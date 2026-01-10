@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **COMPTA Gateway Service** - a Spring Cloud Gateway that handles authentication, routing, resilience, and observability for the COMPTA ERP microservices architecture.
 
-**Tech Stack:** Java 21, Spring Boot 3.2.1, Spring Cloud 2023.0.0, Reactive (WebFlux)
+**Tech Stack:** Java 21, Spring Boot 3.2.1, Spring Cloud 2025.0.1, Reactive (WebFlux)
 
 ## Build Commands
 

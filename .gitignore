@@ -101,7 +101,3 @@ minio-data/
 
 # Redis dump
 dump.rdb
-
-# Application specific
-uploads/
-documents/
