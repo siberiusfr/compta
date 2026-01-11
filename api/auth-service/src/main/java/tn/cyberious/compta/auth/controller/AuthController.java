@@ -33,8 +33,6 @@ public class AuthController {
       @Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
     String ipAddress = getClientIp(request);
     String userAgent = request.getHeader("User-Agent");
-    String userAgent1 = request.getHeader("User-Agent");
-
     AuthResponse response = authService.login(loginRequest, ipAddress, userAgent);
     return ResponseEntity.ok(response);
   }
