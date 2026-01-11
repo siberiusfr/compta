@@ -18,12 +18,20 @@ export {
   create1,
   getCreate1MutationOptions,
   useCreate1,
+  getTree,
   useGetTree,
   getGetTreeQueryKey,
   getGetTreeQueryOptions,
+  getRootCategories,
+  useGetRootCategories,
+  getGetRootCategoriesQueryKey,
+  getGetRootCategoriesQueryOptions,
 } from './gen/categories/categories'
 
 export {
+  update1,
+  getUpdate1MutationOptions,
+  useUpdate1,
   revoke,
   getRevokeMutationOptions,
   useRevoke,

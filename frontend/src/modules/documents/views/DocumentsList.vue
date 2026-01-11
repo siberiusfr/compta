@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useDocuments } from '../composables/useDocuments'
+import { useDocumentsStore } from '../stores/documentsStore'
 import { Button } from '@/components/ui/button'
 import {
   FileText,
@@ -22,6 +24,13 @@ import {
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 import type { DocumentResponse } from '@/api/documents'
+import DocumentUploadModal from '../components/DocumentUploadModal.vue'
+import DocumentDetailModal from '../components/DocumentDetailModal.vue'
+import DocumentShareModal from '../components/DocumentShareModal.vue'
+
+const store = useDocumentsStore()
+const { isUploadModalOpen, isDetailModalOpen, isShareModalOpen, selectedDocumentId } =
+  storeToRefs(store)
 
 const {
   documents,
@@ -82,6 +91,28 @@ async function handleDownload(doc: DocumentResponse) {
 function handleClearFilters() {
   clearFilter()
   searchInput.value = ''
+}
+
+function handleUploadSuccess() {
+  // Documents will be refetched automatically via query invalidation
+}
+
+function handleDetailClose() {
+  store.closeDetailModal()
+}
+
+function handleShareFromDetail(id: number) {
+  store.closeDetailModal()
+  store.openShareModal(id)
+}
+
+async function handleDeleteFromDetail(id: number) {
+  try {
+    await deleteDocument(id)
+    store.closeDetailModal()
+  } catch (error) {
+    console.error('Erreur lors de la suppression:', error)
+  }
 }
 </script>
 
@@ -424,5 +455,26 @@ function handleClearFilters() {
         </div>
       </div>
     </div>
+
+    <!-- Modals -->
+    <DocumentUploadModal
+      :open="isUploadModalOpen"
+      @close="store.closeUploadModal"
+      @success="handleUploadSuccess"
+    />
+
+    <DocumentDetailModal
+      :open="isDetailModalOpen"
+      :document-id="selectedDocumentId"
+      @close="handleDetailClose"
+      @share="handleShareFromDetail"
+      @delete="handleDeleteFromDetail"
+    />
+
+    <DocumentShareModal
+      :open="isShareModalOpen"
+      :document-id="selectedDocumentId"
+      @close="store.closeShareModal"
+    />
   </div>
 </template>

@@ -40,6 +40,33 @@ export const documentsRoutes: RouteRecordRaw[] = [
           requiresAuth: true,
         },
       },
+      {
+        path: 'shared',
+        name: 'documents-shared',
+        component: () => import('./views/SharedWithMe.vue'),
+        meta: {
+          title: 'Partages avec moi',
+          requiresAuth: true,
+        },
+      },
+      {
+        path: 'categories',
+        name: 'documents-categories',
+        component: () => import('./views/CategoriesManager.vue'),
+        meta: {
+          title: 'Categories',
+          requiresAuth: true,
+        },
+      },
+      {
+        path: 'tags',
+        name: 'documents-tags',
+        component: () => import('./views/TagsManager.vue'),
+        meta: {
+          title: 'Tags',
+          requiresAuth: true,
+        },
+      },
     ],
   },
 ]
