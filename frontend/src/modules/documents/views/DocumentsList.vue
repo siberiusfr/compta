@@ -78,6 +78,11 @@ async function handleDownload(doc: DocumentResponse) {
     window.open(doc.downloadUrl, '_blank')
   }
 }
+
+function handleClearFilters() {
+  clearFilter()
+  searchInput.value = ''
+}
 </script>
 
 <template>
@@ -144,7 +149,7 @@ async function handleDownload(doc: DocumentResponse) {
         v-if="hasActiveFilters"
         variant="ghost"
         size="sm"
-        @click="clearFilter(); searchInput = ''"
+        @click="handleClearFilters"
       >
         <X class="h-4 w-4 mr-1" />
         Effacer les filtres
