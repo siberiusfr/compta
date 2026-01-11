@@ -24,6 +24,8 @@ public class DocumentUpdateRequest {
   @Schema(description = "Make document public", example = "true")
   private Boolean isPublic;
 
-  @Schema(description = "Tags to associate with the document", example = "[\"facture\", \"2024\", \"corrigé\"]")
+  @Schema(
+      description = "Tags to associate with the document",
+      example = "[\"facture\", \"2024\", \"corrigé\"]")
   private List<String> tags;
 }

@@ -26,7 +26,8 @@ public class TagService {
     log.info("Creating tag: {}", request.getName());
 
     if (tagRepository.existsByName(request.getName())) {
-      throw new IllegalArgumentException("Tag with name '" + request.getName() + "' already exists");
+      throw new IllegalArgumentException(
+          "Tag with name '" + request.getName() + "' already exists");
     }
 
     Tags tag = new Tags();
@@ -68,7 +69,9 @@ public class TagService {
   @Transactional(readOnly = true)
   public List<TagResponse> search(String query) {
     log.debug("Searching tags: {}", query);
-    return tagRepository.searchByName(query).stream().map(this::toResponse).collect(Collectors.toList());
+    return tagRepository.searchByName(query).stream()
+        .map(this::toResponse)
+        .collect(Collectors.toList());
   }
 
   @Transactional

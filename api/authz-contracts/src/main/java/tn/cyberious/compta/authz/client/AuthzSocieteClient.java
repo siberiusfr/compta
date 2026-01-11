@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import tn.cyberious.compta.authz.dto.SocieteDto;
 
-@FeignClient(name = "authz-service", url = "${authz.service.url:http://localhost:8085}")
+@FeignClient(
+    name = "authz-service",
+    contextId = "authzSocieteClient",
+    url = "${authz.service.url:http://localhost:8085}")
 public interface AuthzSocieteClient {
 
   @GetMapping("/api/societes/{id}")

@@ -46,8 +46,13 @@ public class DocumentVersionController {
   public ResponseEntity<DocumentVersionResponse> uploadVersion(
       @Parameter(description = "Document ID") @PathVariable Long documentId,
       @Parameter(description = "New file version") @RequestPart("file") MultipartFile file,
-      @Parameter(description = "Version metadata") @RequestPart(value = "data", required = false) @Valid DocumentVersionUploadRequest request,
-      @Parameter(description = "User ID", hidden = true) @RequestHeader(value = "X-User-Id", defaultValue = "anonymous") String userId) {
+      @Parameter(description = "Version metadata")
+          @RequestPart(value = "data", required = false)
+          @Valid
+          DocumentVersionUploadRequest request,
+      @Parameter(description = "User ID", hidden = true)
+          @RequestHeader(value = "X-User-Id", defaultValue = "anonymous")
+          String userId) {
     if (request == null) {
       request = new DocumentVersionUploadRequest();
     }
@@ -69,7 +74,9 @@ public class DocumentVersionController {
   }
 
   @GetMapping("/{versionNumber}")
-  @Operation(summary = "Get specific version", description = "Returns details of a specific version")
+  @Operation(
+      summary = "Get specific version",
+      description = "Returns details of a specific version")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Version details"),
     @ApiResponse(responseCode = "404", description = "Document or version not found")
@@ -82,9 +89,14 @@ public class DocumentVersionController {
   }
 
   @GetMapping("/{versionNumber}/download")
-  @Operation(summary = "Download version", description = "Downloads a specific version of the document")
+  @Operation(
+      summary = "Download version",
+      description = "Downloads a specific version of the document")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "File content", content = @Content(schema = @Schema(type = "string", format = "binary"))),
+    @ApiResponse(
+        responseCode = "200",
+        description = "File content",
+        content = @Content(schema = @Schema(type = "string", format = "binary"))),
     @ApiResponse(responseCode = "404", description = "Document or version not found")
   })
   public ResponseEntity<byte[]> downloadVersion(
@@ -102,7 +114,9 @@ public class DocumentVersionController {
   }
 
   @GetMapping("/{versionNumber}/download-url")
-  @Operation(summary = "Get version download URL", description = "Returns a presigned URL for downloading a specific version")
+  @Operation(
+      summary = "Get version download URL",
+      description = "Returns a presigned URL for downloading a specific version")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Download URL"),
     @ApiResponse(responseCode = "404", description = "Document or version not found")

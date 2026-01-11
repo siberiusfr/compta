@@ -16,7 +16,6 @@ import tn.cyberious.compta.document.dto.DocumentSearchRequest;
 import tn.cyberious.compta.document.dto.DocumentUpdateRequest;
 import tn.cyberious.compta.document.dto.DocumentUploadRequest;
 import tn.cyberious.compta.document.dto.TagResponse;
-import tn.cyberious.compta.document.generated.tables.pojos.Categories;
 import tn.cyberious.compta.document.generated.tables.pojos.Documents;
 import tn.cyberious.compta.document.generated.tables.pojos.Tags;
 import tn.cyberious.compta.document.repository.CategoryRepository;
@@ -41,7 +40,8 @@ public class DocumentService {
   private static final Duration PRESIGNED_URL_DURATION = Duration.ofHours(1);
 
   @Transactional
-  public DocumentResponse upload(MultipartFile file, DocumentUploadRequest request, String uploadedBy) {
+  public DocumentResponse upload(
+      MultipartFile file, DocumentUploadRequest request, String uploadedBy) {
     log.info("Uploading document: {} by {}", request.getTitle(), uploadedBy);
 
     if (request.getCategoryId() != null && !categoryRepository.exists(request.getCategoryId())) {
@@ -182,13 +182,15 @@ public class DocumentService {
     log.debug("Searching documents: {}", request);
 
     List<Documents> documents =
-        documentRepository.search(request.getQuery(), request.getCategoryId(), request.getUploadedBy());
+        documentRepository.search(
+            request.getQuery(), request.getCategoryId(), request.getUploadedBy());
 
     if (request.getTag() != null && !request.getTag().isBlank()) {
       List<Long> taggedDocIds = documentTagRepository.findDocumentIdsByTagName(request.getTag());
-      documents = documents.stream()
-          .filter(d -> taggedDocIds.contains(d.getId()))
-          .collect(Collectors.toList());
+      documents =
+          documents.stream()
+              .filter(d -> taggedDocIds.contains(d.getId()))
+              .collect(Collectors.toList());
     }
 
     return documents.stream().map(d -> toResponse(d, false)).collect(Collectors.toList());
@@ -281,15 +283,25 @@ public class DocumentService {
       List<Tags> tags = documentTagRepository.findTagsByDocumentId(document.getId());
       builder.tags(
           tags.stream()
-              .map(t -> TagResponse.builder().id(t.getId()).name(t.getName()).createdAt(t.getCreatedAt()).build())
+              .map(
+                  t ->
+                      TagResponse.builder()
+                          .id(t.getId())
+                          .name(t.getName())
+                          .createdAt(t.getCreatedAt())
+                          .build())
               .collect(Collectors.toList()));
 
       builder.metadata(documentMetadataRepository.findAsMapByDocumentId(document.getId()));
 
       try {
-        builder.downloadUrl(storageService.generatePresignedUrl(document.getFilePath(), PRESIGNED_URL_DURATION));
+        builder.downloadUrl(
+            storageService.generatePresignedUrl(document.getFilePath(), PRESIGNED_URL_DURATION));
       } catch (Exception e) {
-        log.warn("Failed to generate presigned URL for document {}: {}", document.getId(), e.getMessage());
+        log.warn(
+            "Failed to generate presigned URL for document {}: {}",
+            document.getId(),
+            e.getMessage());
       }
     }
 

@@ -11,6 +11,8 @@ import lombok.Data;
 public class MetadataRequest {
 
   @NotEmpty(message = "Metadata must not be empty")
-  @Schema(description = "Key-value pairs of metadata", example = "{\"author\": \"John Doe\", \"department\": \"Finance\"}")
+  @Schema(
+      description = "Key-value pairs of metadata",
+      example = "{\"author\": \"John Doe\", \"department\": \"Finance\"}")
   private Map<String, String> metadata;
 }

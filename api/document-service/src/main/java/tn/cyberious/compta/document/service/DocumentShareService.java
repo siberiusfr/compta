@@ -26,7 +26,8 @@ public class DocumentShareService {
   private final DocumentRepository documentRepository;
 
   @Transactional
-  public DocumentShareResponse share(Long documentId, DocumentShareRequest request, String createdBy) {
+  public DocumentShareResponse share(
+      Long documentId, DocumentShareRequest request, String createdBy) {
     log.info("Sharing document {} with {} by {}", documentId, request.getSharedWith(), createdBy);
 
     Documents document =
@@ -38,7 +39,9 @@ public class DocumentShareService {
       throw new IllegalArgumentException("Cannot share document with its owner");
     }
 
-    if (documentShareRepository.findByDocumentIdAndSharedWith(documentId, request.getSharedWith()).isPresent()) {
+    if (documentShareRepository
+        .findByDocumentIdAndSharedWith(documentId, request.getSharedWith())
+        .isPresent()) {
       throw new IllegalArgumentException("Document is already shared with this user");
     }
 
@@ -105,7 +108,11 @@ public class DocumentShareService {
     return documentShareRepository.findBySharedWith(userId).stream()
         .map(
             s -> {
-              String title = documentRepository.findById(s.getDocumentId()).map(Documents::getTitle).orElse(null);
+              String title =
+                  documentRepository
+                      .findById(s.getDocumentId())
+                      .map(Documents::getTitle)
+                      .orElse(null);
               return toResponse(s, title);
             })
         .collect(Collectors.toList());
@@ -118,7 +125,11 @@ public class DocumentShareService {
     return documentShareRepository.findActiveBySharedWith(userId).stream()
         .map(
             s -> {
-              String title = documentRepository.findById(s.getDocumentId()).map(Documents::getTitle).orElse(null);
+              String title =
+                  documentRepository
+                      .findById(s.getDocumentId())
+                      .map(Documents::getTitle)
+                      .orElse(null);
               return toResponse(s, title);
             })
         .collect(Collectors.toList());

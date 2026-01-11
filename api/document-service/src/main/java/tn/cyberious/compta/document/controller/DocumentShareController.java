@@ -43,7 +43,9 @@ public class DocumentShareController {
   public ResponseEntity<DocumentShareResponse> share(
       @Parameter(description = "Document ID") @PathVariable Long documentId,
       @Valid @RequestBody DocumentShareRequest request,
-      @Parameter(description = "User ID", hidden = true) @RequestHeader(value = "X-User-Id", defaultValue = "anonymous") String userId) {
+      @Parameter(description = "User ID", hidden = true)
+          @RequestHeader(value = "X-User-Id", defaultValue = "anonymous")
+          String userId) {
     DocumentShareResponse response = documentShareService.share(documentId, request, userId);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
@@ -67,7 +69,8 @@ public class DocumentShareController {
     @ApiResponse(responseCode = "204", description = "Share revoked successfully"),
     @ApiResponse(responseCode = "404", description = "Share not found")
   })
-  public ResponseEntity<Void> revoke(@Parameter(description = "Share ID") @PathVariable Long shareId) {
+  public ResponseEntity<Void> revoke(
+      @Parameter(description = "Share ID") @PathVariable Long shareId) {
     documentShareService.revoke(shareId);
     return ResponseEntity.noContent().build();
   }
@@ -85,16 +88,22 @@ public class DocumentShareController {
   }
 
   @GetMapping("/shared-with-me")
-  @Operation(summary = "Get documents shared with me", description = "Returns all documents shared with the current user")
+  @Operation(
+      summary = "Get documents shared with me",
+      description = "Returns all documents shared with the current user")
   @ApiResponse(responseCode = "200", description = "List of shared documents")
   public ResponseEntity<List<DocumentShareResponse>> getSharedWithMe(
-      @Parameter(description = "User ID", hidden = true) @RequestHeader(value = "X-User-Id", defaultValue = "anonymous") String userId) {
+      @Parameter(description = "User ID", hidden = true)
+          @RequestHeader(value = "X-User-Id", defaultValue = "anonymous")
+          String userId) {
     List<DocumentShareResponse> response = documentShareService.getActiveSharesWithUser(userId);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/shared-with/{userId}")
-  @Operation(summary = "Get shares with user", description = "Returns all documents shared with a specific user")
+  @Operation(
+      summary = "Get shares with user",
+      description = "Returns all documents shared with a specific user")
   @ApiResponse(responseCode = "200", description = "List of shares")
   public ResponseEntity<List<DocumentShareResponse>> getSharesWithUser(
       @Parameter(description = "User ID to check") @PathVariable String userId) {
@@ -103,7 +112,9 @@ public class DocumentShareController {
   }
 
   @PostMapping("/shares/cleanup")
-  @Operation(summary = "Cleanup expired shares", description = "Removes all expired document shares")
+  @Operation(
+      summary = "Cleanup expired shares",
+      description = "Removes all expired document shares")
   @ApiResponse(responseCode = "200", description = "Number of cleaned up shares")
   public ResponseEntity<Integer> cleanupExpiredShares() {
     int cleaned = documentShareService.cleanupExpiredShares();

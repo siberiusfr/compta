@@ -1,7 +1,5 @@
 package tn.cyberious.compta.document.repository;
 
-import static tn.cyberious.compta.document.generated.Tables.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
+
+import static tn.cyberious.compta.document.generated.Tables.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,8 @@ public class DocumentMetadataRepository {
   private final DSLContext dsl;
 
   public DocumentMetadata insert(DocumentMetadata metadata) {
-    log.debug("Inserting metadata for document {}: key={}", metadata.getDocumentId(), metadata.getKey());
+    log.debug(
+        "Inserting metadata for document {}: key={}", metadata.getDocumentId(), metadata.getKey());
 
     DocumentMetadataRecord record =
         dsl.insertInto(DOCUMENT_METADATA)
@@ -90,13 +91,15 @@ public class DocumentMetadataRepository {
 
   public Map<String, String> findAsMapByDocumentId(Long documentId) {
     log.debug("Finding metadata map for document: {}", documentId);
-    return dsl.selectFrom(DOCUMENT_METADATA)
+    return dsl
+        .selectFrom(DOCUMENT_METADATA)
         .where(DOCUMENT_METADATA.DOCUMENT_ID.eq(documentId))
         .fetch()
         .stream()
-        .collect(Collectors.toMap(
-            r -> r.get(DOCUMENT_METADATA.KEY),
-            r -> r.get(DOCUMENT_METADATA.VALUE) != null ? r.get(DOCUMENT_METADATA.VALUE) : ""));
+        .collect(
+            Collectors.toMap(
+                r -> r.get(DOCUMENT_METADATA.KEY),
+                r -> r.get(DOCUMENT_METADATA.VALUE) != null ? r.get(DOCUMENT_METADATA.VALUE) : ""));
   }
 
   public Optional<DocumentMetadata> findByDocumentIdAndKey(Long documentId, String key) {

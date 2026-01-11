@@ -18,7 +18,10 @@ public class DocumentShareRequest {
   private String sharedWith;
 
   @Pattern(regexp = "^(READ|WRITE)$", message = "Permission must be READ or WRITE")
-  @Schema(description = "Permission level", example = "READ", allowableValues = {"READ", "WRITE"})
+  @Schema(
+      description = "Permission level",
+      example = "READ",
+      allowableValues = {"READ", "WRITE"})
   private String permission = "READ";
 
   @Schema(description = "Expiration date (null for no expiration)")

@@ -61,13 +61,16 @@ public class TagController {
     @ApiResponse(responseCode = "200", description = "Tag found"),
     @ApiResponse(responseCode = "404", description = "Tag not found")
   })
-  public ResponseEntity<TagResponse> getById(@Parameter(description = "Tag ID") @PathVariable Long id) {
+  public ResponseEntity<TagResponse> getById(
+      @Parameter(description = "Tag ID") @PathVariable Long id) {
     TagResponse response = tagService.getById(id);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping
-  @Operation(summary = "Get all tags", description = "Returns all tags, optionally filtered by search query")
+  @Operation(
+      summary = "Get all tags",
+      description = "Returns all tags, optionally filtered by search query")
   @ApiResponse(responseCode = "200", description = "List of tags")
   public ResponseEntity<List<TagResponse>> getAll(
       @Parameter(description = "Search query") @RequestParam(required = false) String search) {

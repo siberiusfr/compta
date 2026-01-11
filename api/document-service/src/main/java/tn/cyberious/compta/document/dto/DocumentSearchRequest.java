@@ -7,7 +7,9 @@ import lombok.Data;
 @Schema(description = "Search criteria for documents")
 public class DocumentSearchRequest {
 
-  @Schema(description = "Search query (searches in title, description, file name)", example = "facture")
+  @Schema(
+      description = "Search query (searches in title, description, file name)",
+      example = "facture")
   private String query;
 
   @Schema(description = "Filter by category ID", example = "1")

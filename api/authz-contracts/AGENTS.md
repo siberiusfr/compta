@@ -44,7 +44,7 @@ Dans `application.yml` :
 ```yaml
 authz:
   service:
-    url: http://localhost:8085
+    url: ${AUTHZ_SERVICE_URL:http://localhost:8085}
 ```
 
 ### 3. Activation de compta-security-commons
@@ -98,28 +98,109 @@ public class YourService {
 
   public void getUserSociete(Long userId) {
     UserSocietesDto userSociete = userSocietesClient.findActiveByUserId(userId);
-    List<UserSocietesDto> users = userSocietesClient.findActiveBySocieteId(userSociete.societeId());
     SocieteDto societe = userSocietesClient.findSocieteByUserId(userId);
   }
 }
 ```
 
-### AuthzSocieteClient
+### AuthzComptableSocietesClient
 
-Utilisé pour gérer les sociétés clientes.
+Utilisé pour gérer les accès des comptables aux sociétés clientes.
 
 ```java
 @Service
 @RequiredArgsConstructor
 public class YourService {
 
-  private final AuthzSocieteClient societeClient;
+  private final AuthzComptableSocietesClient comptableSocietesClient;
 
-  public void getSocieteInfo(Long societeId) {
-    SocieteDto societe = societeClient.findById(societeId);
-    List<SocieteDto> all = societeClient.findAll();
-    List<SocieteDto> active = societeClient.findAllActive();
-    List<SocieteDto> search = societeClient.search("test");
+  public void checkAccess(Long userId, Long societeId) {
+    Boolean hasAccess = comptableSocietesClient.hasAccess(userId, societeId);
+    Boolean hasWriteAccess = comptableSocietesClient.hasWriteAccess(userId, societeId);
+  }
+
+  public void getComptableAccess(Long userId, Long societeId) {
+    ComptableSocietesDto access = comptableSocietesClient.findByUserIdAndSocieteId(
+      userId,
+      societeId
+    );
+  }
+}
+```
+
+### AuthzSocieteComptableClient
+
+Utilisé pour gérer les utilisateurs du cabinet.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class YourService {
+
+  private final AuthzSocieteComptableClient societeComptableClient;
+
+  public void assignUser(Long userId, Long societeComptableId, String role) {
+    AssignUserToSocieteComptableRequest request = new AssignUserToSocieteComptableRequest(
+      userId,
+      societeComptableId,
+      role
+    );
+    UserSocieteComptableDto assigned = societeComptableClient.assignUser(request);
+  }
+
+  public void updateRole(Long id, String role) {
+    societeComptableClient.updateRole(id, role);
+  }
+}
+```
+
+### AuthzSocieteComptableClient
+
+Utilisé pour gérer les sociétés comptables (cabinets).
+
+```java
+@Service
+@RequiredArgsConstructor
+public class YourService {
+
+  private final AuthzSocieteComptableClient societeComptableClient;
+
+  public void getSocieteInfo(Long societeComptableId) {
+    SocieteComptableDto societe = societeComptableClient.findById(societeComptableId);
+  }
+
+  public void createCabinet(CreateSocieteComptableRequest request) {
+    SocieteComptableDto created = societeComptableClient.create(request);
+  }
+
+  public void searchCabinets(String query) {
+    List<SocieteComptableDto> results = societeComptableClient.search(query);
+  }
+}
+```
+
+### AuthzAccessClient
+
+Utilisé pour vérifier les accès unifiés (comptable ou membre de société).
+
+```java
+@Service
+@RequiredArgsConstructor
+public class YourService {
+
+  private final AuthzAccessClient accessClient;
+
+  public void checkAccess(Long userId, Long societeId) {
+    Boolean hasAccess = accessClient.hasAccess(userId, societeId);
+    Boolean hasWriteAccess = accessClient.hasWriteAccess(userId, societeId);
+  }
+
+  public List<SocieteAccessDto> getAccessibleSocietes(Long userId) {
+    return accessClient.getAccessibleSocietes(userId);
+  }
+
+  public List<String> getUserPermissions(Long userId, Long societeId) {
+    return accessClient.getUserPermissions(userId, societeId);
   }
 }
 ```
@@ -214,6 +295,195 @@ public record UserSocietesDto(
   LocalDate dateFin,
   Boolean isActive,
   LocalDateTime createdAt
+) {}
+```
+
+### ComptableSocietesDto
+
+Accès d'un comptable à une société cliente.
+
+```java
+public record ComptableSocietesDto(
+  Long id,
+  Long userId,
+  Long societeId,
+  Boolean canRead,
+  Boolean canWrite,
+  Boolean canValidate,
+  LocalDate dateDebut,
+  LocalDate dateFin,
+  Boolean isActive,
+  LocalDateTime createdAt
+) {}
+```
+
+### UserSocieteComptableDto
+
+Association entre un utilisateur et une société comptable (cabinet).
+
+```java
+public record UserSocieteComptableDto(
+  Long id,
+  Long userId,
+  Long societeComptableId,
+  String role, // ex: "MANAGER", "COMPTABLE", "ASSISTANT"
+  LocalDate dateDebut,
+  LocalDate dateFin,
+  Boolean isActive,
+  LocalDateTime createdAt
+) {}
+```
+
+### SocieteComptableDto
+
+Représente une société comptable (cabinet).
+
+```java
+public record SocieteComptableDto(
+  Long id,
+  String raisonSociale,
+  String matriculeFiscale,
+  String codeTva,
+  String adresse,
+  String ville,
+  String codePostal,
+  String telephone,
+  String email,
+  String siteWeb,
+  Boolean isActive,
+  LocalDateTime createdAt,
+  LocalDateTime updatedAt
+) {}
+```
+
+### UserAccessDto
+
+Information d'accès unifié d'un utilisateur à une société.
+
+```java
+public record UserAccessDto(
+  Long userId,
+  Long societeId,
+  boolean hasAccess,
+  AccessType accessType, // COMPTABLE, MEMBRE, or NONE
+  String role,
+  Boolean canRead,
+  Boolean canWrite,
+  Boolean canValidate
+) {
+  public enum AccessType {
+    COMPTABLE, // Accès via comptable_societes
+    MEMBRE, // Accès via user_societes (employé de la société)
+    NONE // Pas d'accès
+  }
+
+  public static UserAccessDto noAccess(Long userId, Long societeId) {
+    return UserAccessDto.builder()
+      .userId(userId)
+      .societeId(societeId)
+      .hasAccess(false)
+      .accessType(AccessType.NONE)
+      .build();
+  }
+}
+```
+
+### SocieteAccessDto
+
+Sociète accessible par un utilisateur avec détails d'accès.
+
+```java
+public record SocieteAccessDto(
+  Long societeId,
+  String raisonSociale,
+  String matriculeFiscale,
+  AccessType accessType, // COMPTABLE, MEMBRE, or NONE
+  String role,
+  Boolean canRead,
+  Boolean canWrite,
+  Boolean canValidate
+) {}
+```
+
+## DTOs de Requête
+
+### AssignUserToSocieteComptableRequest
+
+Requête pour assigner un utilisateur à une société comptable.
+
+```java
+public record AssignUserToSocieteComptableRequest(
+  Long userId,
+  Long societeComptableId,
+  String role, // MANAGER, COMPTABLE, ASSISTANT
+  LocalDate dateDebut,
+  LocalDate dateFin
+) {}
+```
+
+### AssignComptableToSocieteRequest
+
+Requête pour assigner un comptable à une société cliente.
+
+```java
+public record AssignComptableToSocieteRequest(
+    Long userId,
+    Long societeId,
+    Boolean canRead = true,
+    Boolean canWrite = true,
+    Boolean canValidate = false,
+    LocalDate dateDebut,
+    LocalDate dateFin
+) {}
+```
+
+### UpdateComptableSocieteAccessRequest
+
+Requête pour mettre à jour les droits d'un comptable sur une société.
+
+```java
+public record UpdateComptableSocieteAccessRequest(
+  Boolean canRead,
+  Boolean canWrite,
+  Boolean canValidate,
+  LocalDate dateFin,
+  Boolean isActive
+) {}
+```
+
+### CreateSocieteComptableRequest
+
+Requête pour créer une nouvelle société comptable.
+
+```java
+public record CreateSocieteComptableRequest(
+  String raisonSociale,
+  String matriculeFiscale,
+  String codeTva,
+  String adresse,
+  String ville,
+  String codePostal,
+  String telephone,
+  String email,
+  String siteWeb
+) {}
+```
+
+### UpdateSocieteComptableRequest
+
+Requête pour mettre à jour une société comptable.
+
+```java
+public record UpdateSocieteComptableRequest(
+  String raisonSociale,
+  String codeTva,
+  String adresse,
+  String ville,
+  String codePostal,
+  String telephone,
+  String email,
+  String siteWeb,
+  Boolean isActive
 ) {}
 ```
 

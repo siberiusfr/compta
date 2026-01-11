@@ -1,13 +1,13 @@
 package tn.cyberious.compta.document.repository;
 
-import static tn.cyberious.compta.document.generated.Tables.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
+
+import static tn.cyberious.compta.document.generated.Tables.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +22,10 @@ public class DocumentVersionRepository {
   private final DSLContext dsl;
 
   public DocumentVersions insert(DocumentVersions version) {
-    log.debug("Inserting document version: document={}, version={}",
-        version.getDocumentId(), version.getVersionNumber());
+    log.debug(
+        "Inserting document version: document={}, version={}",
+        version.getDocumentId(),
+        version.getVersionNumber());
 
     DocumentVersionsRecord record =
         dsl.insertInto(DOCUMENT_VERSIONS)
@@ -59,11 +61,15 @@ public class DocumentVersionRepository {
         .into(DocumentVersions.class);
   }
 
-  public Optional<DocumentVersions> findByDocumentIdAndVersion(Long documentId, Integer versionNumber) {
+  public Optional<DocumentVersions> findByDocumentIdAndVersion(
+      Long documentId, Integer versionNumber) {
     log.debug("Finding document {} version {}", documentId, versionNumber);
     return dsl.selectFrom(DOCUMENT_VERSIONS)
-        .where(DOCUMENT_VERSIONS.DOCUMENT_ID.eq(documentId)
-            .and(DOCUMENT_VERSIONS.VERSION_NUMBER.eq(versionNumber)))
+        .where(
+            DOCUMENT_VERSIONS
+                .DOCUMENT_ID
+                .eq(documentId)
+                .and(DOCUMENT_VERSIONS.VERSION_NUMBER.eq(versionNumber)))
         .fetchOptional()
         .map(record -> record.into(DocumentVersions.class));
   }

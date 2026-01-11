@@ -9,6 +9,8 @@ import lombok.Data;
 public class DocumentVersionUploadRequest {
 
   @Size(max = 500, message = "Change description must not exceed 500 characters")
-  @Schema(description = "Description of changes in this version", example = "Fixed typos and updated figures")
+  @Schema(
+      description = "Description of changes in this version",
+      example = "Fixed typos and updated figures")
   private String changeDescription;
 }

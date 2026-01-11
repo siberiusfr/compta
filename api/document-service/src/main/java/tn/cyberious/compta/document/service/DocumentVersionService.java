@@ -32,7 +32,10 @@ public class DocumentVersionService {
 
   @Transactional
   public DocumentVersionResponse uploadNewVersion(
-      Long documentId, MultipartFile file, DocumentVersionUploadRequest request, String uploadedBy) {
+      Long documentId,
+      MultipartFile file,
+      DocumentVersionUploadRequest request,
+      String uploadedBy) {
     log.info("Uploading new version for document {} by {}", documentId, uploadedBy);
 
     Documents document =
@@ -184,9 +187,11 @@ public class DocumentVersionService {
             .createdAt(version.getCreatedAt());
 
     try {
-      builder.downloadUrl(storageService.generatePresignedUrl(version.getFilePath(), PRESIGNED_URL_DURATION));
+      builder.downloadUrl(
+          storageService.generatePresignedUrl(version.getFilePath(), PRESIGNED_URL_DURATION));
     } catch (Exception e) {
-      log.warn("Failed to generate presigned URL for version {}: {}", version.getId(), e.getMessage());
+      log.warn(
+          "Failed to generate presigned URL for version {}: {}", version.getId(), e.getMessage());
     }
 
     return builder.build();

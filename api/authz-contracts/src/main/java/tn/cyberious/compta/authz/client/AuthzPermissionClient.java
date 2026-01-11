@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import tn.cyberious.compta.authz.dto.PermissionDto;
 import tn.cyberious.compta.authz.dto.RolePermissionDto;
 
-@FeignClient(name = "authz-service", url = "${authz.service.url:http://localhost:8085}")
+@FeignClient(
+    name = "authz-service",
+    contextId = "authzPermissionClient",
+    url = "${authz.service.url:http://localhost:8085}")
 public interface AuthzPermissionClient {
 
   @GetMapping("/api/permissions/{id}")

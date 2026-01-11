@@ -1,7 +1,5 @@
 package tn.cyberious.compta.document.repository;
 
-import static tn.cyberious.compta.document.generated.Tables.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +8,8 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
+
+import static tn.cyberious.compta.document.generated.Tables.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,9 @@ public class DocumentRepository {
             .set(DOCUMENTS.MIME_TYPE, document.getMimeType())
             .set(DOCUMENTS.CATEGORY_ID, document.getCategoryId())
             .set(DOCUMENTS.UPLOADED_BY, document.getUploadedBy())
-            .set(DOCUMENTS.IS_PUBLIC, document.getIsPublic() != null ? document.getIsPublic() : false)
+            .set(
+                DOCUMENTS.IS_PUBLIC,
+                document.getIsPublic() != null ? document.getIsPublic() : false)
             .set(DOCUMENTS.VERSION, 1)
             .set(DOCUMENTS.CHECKSUM, document.getChecksum())
             .set(DOCUMENTS.CREATED_AT, LocalDateTime.now())
@@ -64,8 +66,14 @@ public class DocumentRepository {
     return record != null ? record.into(Documents.class) : null;
   }
 
-  public Documents updateFile(Long id, String fileName, String filePath, Long fileSize,
-                               String mimeType, String checksum, Integer newVersion) {
+  public Documents updateFile(
+      Long id,
+      String fileName,
+      String filePath,
+      Long fileSize,
+      String mimeType,
+      String checksum,
+      Integer newVersion) {
     log.debug("Updating document file: {}", id);
 
     DocumentsRecord record =
@@ -100,7 +108,10 @@ public class DocumentRepository {
 
   public List<Documents> findAll() {
     log.debug("Finding all documents");
-    return dsl.selectFrom(DOCUMENTS).orderBy(DOCUMENTS.CREATED_AT.desc()).fetch().into(Documents.class);
+    return dsl.selectFrom(DOCUMENTS)
+        .orderBy(DOCUMENTS.CREATED_AT.desc())
+        .fetch()
+        .into(Documents.class);
   }
 
   public List<Documents> findByUploadedBy(String uploadedBy) {
@@ -131,16 +142,24 @@ public class DocumentRepository {
   }
 
   public List<Documents> search(String query, Long categoryId, String uploadedBy) {
-    log.debug("Searching documents: query={}, categoryId={}, uploadedBy={}", query, categoryId, uploadedBy);
+    log.debug(
+        "Searching documents: query={}, categoryId={}, uploadedBy={}",
+        query,
+        categoryId,
+        uploadedBy);
 
     Condition condition = DSL.trueCondition();
 
     if (query != null && !query.isBlank()) {
       String searchPattern = "%" + query.toLowerCase() + "%";
-      condition = condition.and(
-          DOCUMENTS.TITLE.lower().like(searchPattern)
-              .or(DOCUMENTS.DESCRIPTION.lower().like(searchPattern))
-              .or(DOCUMENTS.FILE_NAME.lower().like(searchPattern)));
+      condition =
+          condition.and(
+              DOCUMENTS
+                  .TITLE
+                  .lower()
+                  .like(searchPattern)
+                  .or(DOCUMENTS.DESCRIPTION.lower().like(searchPattern))
+                  .or(DOCUMENTS.FILE_NAME.lower().like(searchPattern)));
     }
 
     if (categoryId != null) {

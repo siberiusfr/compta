@@ -28,11 +28,14 @@ public class CategoryService {
     log.info("Creating category: {}", request.getName());
 
     if (categoryRepository.existsByName(request.getName())) {
-      throw new IllegalArgumentException("Category with name '" + request.getName() + "' already exists");
+      throw new IllegalArgumentException(
+          "Category with name '" + request.getName() + "' already exists");
     }
 
-    if (request.getParentCategoryId() != null && !categoryRepository.exists(request.getParentCategoryId())) {
-      throw new ResourceNotFoundException("Parent category not found: " + request.getParentCategoryId());
+    if (request.getParentCategoryId() != null
+        && !categoryRepository.exists(request.getParentCategoryId())) {
+      throw new ResourceNotFoundException(
+          "Parent category not found: " + request.getParentCategoryId());
     }
 
     Categories category = new Categories();
@@ -53,8 +56,10 @@ public class CategoryService {
             .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + id));
 
-    if (!existing.getName().equals(request.getName()) && categoryRepository.existsByName(request.getName())) {
-      throw new IllegalArgumentException("Category with name '" + request.getName() + "' already exists");
+    if (!existing.getName().equals(request.getName())
+        && categoryRepository.existsByName(request.getName())) {
+      throw new IllegalArgumentException(
+          "Category with name '" + request.getName() + "' already exists");
     }
 
     if (request.getParentCategoryId() != null) {
@@ -62,7 +67,8 @@ public class CategoryService {
         throw new IllegalArgumentException("Category cannot be its own parent");
       }
       if (!categoryRepository.exists(request.getParentCategoryId())) {
-        throw new ResourceNotFoundException("Parent category not found: " + request.getParentCategoryId());
+        throw new ResourceNotFoundException(
+            "Parent category not found: " + request.getParentCategoryId());
       }
     }
 
@@ -84,7 +90,8 @@ public class CategoryService {
 
     List<Categories> children = categoryRepository.findByParentId(id);
     if (!children.isEmpty()) {
-      throw new IllegalArgumentException("Cannot delete category with sub-categories. Delete sub-categories first.");
+      throw new IllegalArgumentException(
+          "Cannot delete category with sub-categories. Delete sub-categories first.");
     }
 
     categoryRepository.delete(id);
@@ -101,7 +108,8 @@ public class CategoryService {
 
     List<Categories> children = categoryRepository.findByParentId(id);
     CategoryResponse response = toResponse(category, getParentName(category.getParentCategoryId()));
-    response.setChildren(children.stream().map(c -> toResponse(c, null)).collect(Collectors.toList()));
+    response.setChildren(
+        children.stream().map(c -> toResponse(c, null)).collect(Collectors.toList()));
     return response;
   }
 
@@ -109,13 +117,16 @@ public class CategoryService {
   public List<CategoryResponse> getAll() {
     log.debug("Getting all categories");
     List<Categories> all = categoryRepository.findAll();
-    Map<Long, String> nameMap = all.stream().collect(Collectors.toMap(Categories::getId, Categories::getName));
+    Map<Long, String> nameMap =
+        all.stream().collect(Collectors.toMap(Categories::getId, Categories::getName));
 
     return all.stream()
-        .map(c -> {
-          String parentName = c.getParentCategoryId() != null ? nameMap.get(c.getParentCategoryId()) : null;
-          return toResponse(c, parentName);
-        })
+        .map(
+            c -> {
+              String parentName =
+                  c.getParentCategoryId() != null ? nameMap.get(c.getParentCategoryId()) : null;
+              return toResponse(c, parentName);
+            })
         .collect(Collectors.toList());
   }
 

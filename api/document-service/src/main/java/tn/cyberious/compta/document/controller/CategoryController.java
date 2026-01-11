@@ -59,19 +59,24 @@ public class CategoryController {
   }
 
   @DeleteMapping("/{id}")
-  @Operation(summary = "Delete a category", description = "Deletes a category if it has no sub-categories")
+  @Operation(
+      summary = "Delete a category",
+      description = "Deletes a category if it has no sub-categories")
   @ApiResponses({
     @ApiResponse(responseCode = "204", description = "Category deleted successfully"),
     @ApiResponse(responseCode = "400", description = "Category has sub-categories"),
     @ApiResponse(responseCode = "404", description = "Category not found")
   })
-  public ResponseEntity<Void> delete(@Parameter(description = "Category ID") @PathVariable Long id) {
+  public ResponseEntity<Void> delete(
+      @Parameter(description = "Category ID") @PathVariable Long id) {
     categoryService.delete(id);
     return ResponseEntity.noContent().build();
   }
 
   @GetMapping("/{id}")
-  @Operation(summary = "Get a category by ID", description = "Returns a category with its sub-categories")
+  @Operation(
+      summary = "Get a category by ID",
+      description = "Returns a category with its sub-categories")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Category found"),
     @ApiResponse(responseCode = "404", description = "Category not found")
@@ -91,7 +96,9 @@ public class CategoryController {
   }
 
   @GetMapping("/root")
-  @Operation(summary = "Get root categories", description = "Returns only top-level categories without parents")
+  @Operation(
+      summary = "Get root categories",
+      description = "Returns only top-level categories without parents")
   @ApiResponse(responseCode = "200", description = "List of root categories")
   public ResponseEntity<List<CategoryResponse>> getRootCategories() {
     List<CategoryResponse> response = categoryService.getRootCategories();
@@ -99,7 +106,9 @@ public class CategoryController {
   }
 
   @GetMapping("/tree")
-  @Operation(summary = "Get category tree", description = "Returns the complete category hierarchy as a tree")
+  @Operation(
+      summary = "Get category tree",
+      description = "Returns the complete category hierarchy as a tree")
   @ApiResponse(responseCode = "200", description = "Category tree")
   public ResponseEntity<List<CategoryResponse>> getTree() {
     List<CategoryResponse> response = categoryService.getTree();
