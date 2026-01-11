@@ -5,7 +5,7 @@
  * Service de gestion des documents - Upload, versioning, partage et métadonnées. Toutes les requêtes passent via la Gateway.
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation, useQuery } from "@tanstack/vue-query";
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import type {
   DataTag,
   MutationFunction,
@@ -16,10 +16,10 @@ import type {
   UseMutationReturnType,
   UseQueryOptions,
   UseQueryReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { computed, unref } from "vue";
-import type { MaybeRef } from "vue";
+import { computed, unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
 import type {
   DocumentResponse,
@@ -34,60 +34,49 @@ import type {
   SetMetadata200,
   SetMetadata404,
   UploadBody,
-} from "../generated.schemas";
+} from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Returns document details including tags and metadata
  * @summary Get document by ID
  */
 export const getById = (id: MaybeRef<number>, signal?: AbortSignal) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<DocumentResponse>({
-    url: `/api/documents/${id}`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<DocumentResponse>({ url: `/api/documents/${id}`, method: 'GET', signal })
+}
 
 export const getGetByIdQueryKey = (id?: MaybeRef<number>) => {
-  return ["api", "documents", id] as const;
-};
+  return ['api', 'documents', id] as const
+}
 
 export const getGetByIdQueryOptions = <
   TData = Awaited<ReturnType<typeof getById>>,
   TError = ErrorType<DocumentResponse>,
 >(
   id: MaybeRef<number>,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getById>>, TError, TData>
-    >;
-  },
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getById>>, TError, TData>> }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetByIdQueryKey(id);
+  const queryKey = getGetByIdQueryKey(id)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getById>>> = ({
-    signal,
-  }) => getById(id, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getById>>> = ({ signal }) =>
+    getById(id, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(id)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof getById>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getById>>, TError, TData>
+}
 
-export type GetByIdQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getById>>
->;
-export type GetByIdQueryError = ErrorType<DocumentResponse>;
+export type GetByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getById>>>
+export type GetByIdQueryError = ErrorType<DocumentResponse>
 
 /**
  * @summary Get document by ID
@@ -99,28 +88,19 @@ export function useGetById<
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getById>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getById>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetByIdQueryOptions(id, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetByIdQueryOptions(id, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -129,18 +109,18 @@ export function useGetById<
  */
 export const update = (
   id: MaybeRef<number>,
-  documentUpdateRequest: MaybeRef<DocumentUpdateRequest>,
+  documentUpdateRequest: MaybeRef<DocumentUpdateRequest>
 ) => {
-  id = unref(id);
-  documentUpdateRequest = unref(documentUpdateRequest);
+  id = unref(id)
+  documentUpdateRequest = unref(documentUpdateRequest)
 
   return customInstance<DocumentResponse>({
     url: `/api/documents/${id}`,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     data: documentUpdateRequest,
-  });
-};
+  })
+}
 
 export const getUpdateMutationOptions = <
   TError = ErrorType<DocumentResponse>,
@@ -151,121 +131,98 @@ export const getUpdateMutationOptions = <
     TError,
     { id: number; data: BodyType<DocumentUpdateRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof update>>,
   TError,
   { id: number; data: BodyType<DocumentUpdateRequest> },
   TContext
 > => {
-  const mutationKey = ["update"];
+  const mutationKey = ['update']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof update>>,
     { id: number; data: BodyType<DocumentUpdateRequest> }
   > = (props) => {
-    const { id, data } = props ?? {};
+    const { id, data } = props ?? {}
 
-    return update(id, data);
-  };
+    return update(id, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type UpdateMutationResult = NonNullable<
-  Awaited<ReturnType<typeof update>>
->;
-export type UpdateMutationBody = BodyType<DocumentUpdateRequest>;
-export type UpdateMutationError = ErrorType<DocumentResponse>;
+export type UpdateMutationResult = NonNullable<Awaited<ReturnType<typeof update>>>
+export type UpdateMutationBody = BodyType<DocumentUpdateRequest>
+export type UpdateMutationError = ErrorType<DocumentResponse>
 
 /**
  * @summary Update document metadata
  */
-export const useUpdate = <
-  TError = ErrorType<DocumentResponse>,
-  TContext = unknown,
->(
+export const useUpdate = <TError = ErrorType<DocumentResponse>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof update>>,
       TError,
       { id: number; data: BodyType<DocumentUpdateRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof update>>,
   TError,
   { id: number; data: BodyType<DocumentUpdateRequest> },
   TContext
 > => {
-  const mutationOptions = getUpdateMutationOptions(options);
+  const mutationOptions = getUpdateMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Deletes a document and its file from storage
  * @summary Delete a document
  */
 export const _delete = (id: MaybeRef<number>) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<void>({
-    url: `/api/documents/${id}`,
-    method: "DELETE",
-  });
-};
+  return customInstance<void>({ url: `/api/documents/${id}`, method: 'DELETE' })
+}
 
-export const getDeleteMutationOptions = <
-  TError = ErrorType<void>,
-  TContext = unknown,
->(options?: {
+export const getDeleteMutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof _delete>>,
     TError,
     { id: number },
     TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof _delete>>,
-  TError,
-  { id: number },
-  TContext
-> => {
-  const mutationKey = ["_delete"];
+  >
+}): UseMutationOptions<Awaited<ReturnType<typeof _delete>>, TError, { id: number }, TContext> => {
+  const mutationKey = ['_delete']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof _delete>>,
-    { id: number }
-  > = (props) => {
-    const { id } = props ?? {};
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof _delete>>, { id: number }> = (
+    props
+  ) => {
+    const { id } = props ?? {}
 
-    return _delete(id);
-  };
+    return _delete(id)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type _DeleteMutationResult = NonNullable<
-  Awaited<ReturnType<typeof _delete>>
->;
+export type _DeleteMutationResult = NonNullable<Awaited<ReturnType<typeof _delete>>>
 
-export type _DeleteMutationError = ErrorType<void>;
+export type _DeleteMutationError = ErrorType<void>
 
 /**
  * @summary Delete a document
@@ -277,36 +234,31 @@ export const useDelete = <TError = ErrorType<void>, TContext = unknown>(
       TError,
       { id: number },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
-): UseMutationReturnType<
-  Awaited<ReturnType<typeof _delete>>,
-  TError,
-  { id: number },
-  TContext
-> => {
-  const mutationOptions = getDeleteMutationOptions(options);
+  queryClient?: QueryClient
+): UseMutationReturnType<Awaited<ReturnType<typeof _delete>>, TError, { id: number }, TContext> => {
+  const mutationOptions = getDeleteMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Returns custom metadata for a document
  * @summary Get document metadata
  */
 export const getMetadata = (id: MaybeRef<number>, signal?: AbortSignal) => {
-  id = unref(id);
+  id = unref(id)
 
   return customInstance<GetMetadata200>({
     url: `/api/documents/${id}/metadata`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getGetMetadataQueryKey = (id?: MaybeRef<number>) => {
-  return ["api", "documents", id, "metadata"] as const;
-};
+  return ['api', 'documents', id, 'metadata'] as const
+}
 
 export const getGetMetadataQueryOptions = <
   TData = Awaited<ReturnType<typeof getMetadata>>,
@@ -314,31 +266,26 @@ export const getGetMetadataQueryOptions = <
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getMetadata>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getMetadata>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetMetadataQueryKey(id);
+  const queryKey = getGetMetadataQueryKey(id)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMetadata>>> = ({
-    signal,
-  }) => getMetadata(id, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMetadata>>> = ({ signal }) =>
+    getMetadata(id, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(id)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof getMetadata>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getMetadata>>, TError, TData>
+}
 
-export type GetMetadataQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getMetadata>>
->;
-export type GetMetadataQueryError = ErrorType<GetMetadata404>;
+export type GetMetadataQueryResult = NonNullable<Awaited<ReturnType<typeof getMetadata>>>
+export type GetMetadataQueryError = ErrorType<GetMetadata404>
 
 /**
  * @summary Get document metadata
@@ -350,48 +297,36 @@ export function useGetMetadata<
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getMetadata>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getMetadata>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetMetadataQueryOptions(id, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetMetadataQueryOptions(id, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Sets custom metadata key-value pairs
  * @summary Set document metadata
  */
-export const setMetadata = (
-  id: MaybeRef<number>,
-  metadataRequest: MaybeRef<MetadataRequest>,
-) => {
-  id = unref(id);
-  metadataRequest = unref(metadataRequest);
+export const setMetadata = (id: MaybeRef<number>, metadataRequest: MaybeRef<MetadataRequest>) => {
+  id = unref(id)
+  metadataRequest = unref(metadataRequest)
 
   return customInstance<SetMetadata200>({
     url: `/api/documents/${id}/metadata`,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     data: metadataRequest,
-  });
-};
+  })
+}
 
 export const getSetMetadataMutationOptions = <
   TError = ErrorType<SetMetadata404>,
@@ -402,109 +337,93 @@ export const getSetMetadataMutationOptions = <
     TError,
     { id: number; data: BodyType<MetadataRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof setMetadata>>,
   TError,
   { id: number; data: BodyType<MetadataRequest> },
   TContext
 > => {
-  const mutationKey = ["setMetadata"];
+  const mutationKey = ['setMetadata']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof setMetadata>>,
     { id: number; data: BodyType<MetadataRequest> }
   > = (props) => {
-    const { id, data } = props ?? {};
+    const { id, data } = props ?? {}
 
-    return setMetadata(id, data);
-  };
+    return setMetadata(id, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type SetMetadataMutationResult = NonNullable<
-  Awaited<ReturnType<typeof setMetadata>>
->;
-export type SetMetadataMutationBody = BodyType<MetadataRequest>;
-export type SetMetadataMutationError = ErrorType<SetMetadata404>;
+export type SetMetadataMutationResult = NonNullable<Awaited<ReturnType<typeof setMetadata>>>
+export type SetMetadataMutationBody = BodyType<MetadataRequest>
+export type SetMetadataMutationError = ErrorType<SetMetadata404>
 
 /**
  * @summary Set document metadata
  */
-export const useSetMetadata = <
-  TError = ErrorType<SetMetadata404>,
-  TContext = unknown,
->(
+export const useSetMetadata = <TError = ErrorType<SetMetadata404>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof setMetadata>>,
       TError,
       { id: number; data: BodyType<MetadataRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof setMetadata>>,
   TError,
   { id: number; data: BodyType<MetadataRequest> },
   TContext
 > => {
-  const mutationOptions = getSetMetadataMutationOptions(options);
+  const mutationOptions = getSetMetadataMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Returns all documents
  * @summary Get all documents
  */
 export const getAll1 = (signal?: AbortSignal) => {
-  return customInstance<DocumentResponse[]>({
-    url: `/api/documents`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<DocumentResponse[]>({ url: `/api/documents`, method: 'GET', signal })
+}
 
 export const getGetAll1QueryKey = () => {
-  return ["api", "documents"] as const;
-};
+  return ['api', 'documents'] as const
+}
 
 export const getGetAll1QueryOptions = <
   TData = Awaited<ReturnType<typeof getAll1>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getAll1>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getAll1>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetAll1QueryKey();
+  const queryKey = getGetAll1QueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAll1>>> = ({
-    signal,
-  }) => getAll1(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAll1>>> = ({ signal }) =>
+    getAll1(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getAll1>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type GetAll1QueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAll1>>
->;
-export type GetAll1QueryError = ErrorType<unknown>;
+export type GetAll1QueryResult = NonNullable<Awaited<ReturnType<typeof getAll1>>>
+export type GetAll1QueryError = ErrorType<unknown>
 
 /**
  * @summary Get all documents
@@ -515,51 +434,39 @@ export function useGetAll1<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getAll1>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getAll1>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetAll1QueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetAll1QueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Uploads a new document to the storage
  * @summary Upload a document
  */
-export const upload = (
-  uploadBody: MaybeRef<UploadBody>,
-  signal?: AbortSignal,
-) => {
-  uploadBody = unref(uploadBody);
-  const formData = new FormData();
-  formData.append(`file`, uploadBody.file);
-  formData.append(`data`, JSON.stringify(uploadBody.data));
+export const upload = (uploadBody: MaybeRef<UploadBody>, signal?: AbortSignal) => {
+  uploadBody = unref(uploadBody)
+  const formData = new FormData()
+  formData.append(`file`, uploadBody.file)
+  formData.append(`data`, JSON.stringify(uploadBody.data))
 
   return customInstance<DocumentResponse>({
     url: `/api/documents`,
-    method: "POST",
-    headers: { "Content-Type": "multipart/form-data" },
+    method: 'POST',
+    headers: { 'Content-Type': 'multipart/form-data' },
     data: formData,
     signal,
-  });
-};
+  })
+}
 
 export const getUploadMutationOptions = <
   TError = ErrorType<DocumentResponse>,
@@ -570,87 +477,77 @@ export const getUploadMutationOptions = <
     TError,
     { data: BodyType<UploadBody> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof upload>>,
   TError,
   { data: BodyType<UploadBody> },
   TContext
 > => {
-  const mutationKey = ["upload"];
+  const mutationKey = ['upload']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof upload>>,
     { data: BodyType<UploadBody> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return upload(data);
-  };
+    return upload(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type UploadMutationResult = NonNullable<
-  Awaited<ReturnType<typeof upload>>
->;
-export type UploadMutationBody = BodyType<UploadBody>;
-export type UploadMutationError = ErrorType<DocumentResponse>;
+export type UploadMutationResult = NonNullable<Awaited<ReturnType<typeof upload>>>
+export type UploadMutationBody = BodyType<UploadBody>
+export type UploadMutationError = ErrorType<DocumentResponse>
 
 /**
  * @summary Upload a document
  */
-export const useUpload = <
-  TError = ErrorType<DocumentResponse>,
-  TContext = unknown,
->(
+export const useUpload = <TError = ErrorType<DocumentResponse>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof upload>>,
       TError,
       { data: BodyType<UploadBody> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof upload>>,
   TError,
   { data: BodyType<UploadBody> },
   TContext
 > => {
-  const mutationOptions = getUploadMutationOptions(options);
+  const mutationOptions = getUploadMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Searches documents by query parameters
  * @summary Search documents (GET)
  */
-export const searchGet = (
-  params?: MaybeRef<SearchGetParams>,
-  signal?: AbortSignal,
-) => {
-  params = unref(params);
+export const searchGet = (params?: MaybeRef<SearchGetParams>, signal?: AbortSignal) => {
+  params = unref(params)
 
   return customInstance<DocumentResponse[]>({
     url: `/api/documents/search`,
-    method: "GET",
+    method: 'GET',
     params: unref(params),
     signal,
-  });
-};
+  })
+}
 
 export const getSearchGetQueryKey = (params?: MaybeRef<SearchGetParams>) => {
-  return ["api", "documents", "search", ...(params ? [params] : [])] as const;
-};
+  return ['api', 'documents', 'search', ...(params ? [params] : [])] as const
+}
 
 export const getSearchGetQueryOptions = <
   TData = Awaited<ReturnType<typeof searchGet>>,
@@ -658,30 +555,25 @@ export const getSearchGetQueryOptions = <
 >(
   params?: MaybeRef<SearchGetParams>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof searchGet>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof searchGet>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getSearchGetQueryKey(params);
+  const queryKey = getSearchGetQueryKey(params)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof searchGet>>> = ({
-    signal,
-  }) => searchGet(params, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof searchGet>>> = ({ signal }) =>
+    searchGet(params, signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof searchGet>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type SearchGetQueryResult = NonNullable<
-  Awaited<ReturnType<typeof searchGet>>
->;
-export type SearchGetQueryError = ErrorType<unknown>;
+export type SearchGetQueryResult = NonNullable<Awaited<ReturnType<typeof searchGet>>>
+export type SearchGetQueryError = ErrorType<unknown>
 
 /**
  * @summary Search documents (GET)
@@ -693,28 +585,19 @@ export function useSearchGet<
 >(
   params?: MaybeRef<SearchGetParams>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof searchGet>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof searchGet>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getSearchGetQueryOptions(params, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getSearchGetQueryOptions(params, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -723,18 +606,18 @@ export function useSearchGet<
  */
 export const search = (
   documentSearchRequest: MaybeRef<DocumentSearchRequest>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  documentSearchRequest = unref(documentSearchRequest);
+  documentSearchRequest = unref(documentSearchRequest)
 
   return customInstance<DocumentResponse[]>({
     url: `/api/documents/search`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: documentSearchRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getSearchMutationOptions = <
   TError = ErrorType<unknown>,
@@ -745,39 +628,35 @@ export const getSearchMutationOptions = <
     TError,
     { data: BodyType<DocumentSearchRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof search>>,
   TError,
   { data: BodyType<DocumentSearchRequest> },
   TContext
 > => {
-  const mutationKey = ["search"];
+  const mutationKey = ['search']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof search>>,
     { data: BodyType<DocumentSearchRequest> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return search(data);
-  };
+    return search(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type SearchMutationResult = NonNullable<
-  Awaited<ReturnType<typeof search>>
->;
-export type SearchMutationBody = BodyType<DocumentSearchRequest>;
-export type SearchMutationError = ErrorType<unknown>;
+export type SearchMutationResult = NonNullable<Awaited<ReturnType<typeof search>>>
+export type SearchMutationBody = BodyType<DocumentSearchRequest>
+export type SearchMutationError = ErrorType<unknown>
 
 /**
  * @summary Search documents
@@ -789,37 +668,37 @@ export const useSearch = <TError = ErrorType<unknown>, TContext = unknown>(
       TError,
       { data: BodyType<DocumentSearchRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof search>>,
   TError,
   { data: BodyType<DocumentSearchRequest> },
   TContext
 > => {
-  const mutationOptions = getSearchMutationOptions(options);
+  const mutationOptions = getSearchMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Downloads the document file
  * @summary Download document
  */
 export const download = (id: MaybeRef<number>, signal?: AbortSignal) => {
-  id = unref(id);
+  id = unref(id)
 
   return customInstance<Blob>({
     url: `/api/documents/${id}/download`,
-    method: "GET",
-    responseType: "blob",
+    method: 'GET',
+    responseType: 'blob',
     signal,
-  });
-};
+  })
+}
 
 export const getDownloadQueryKey = (id?: MaybeRef<number>) => {
-  return ["api", "documents", id, "download"] as const;
-};
+  return ['api', 'documents', id, 'download'] as const
+}
 
 export const getDownloadQueryOptions = <
   TData = Awaited<ReturnType<typeof download>>,
@@ -827,31 +706,26 @@ export const getDownloadQueryOptions = <
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof download>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof download>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getDownloadQueryKey(id);
+  const queryKey = getDownloadQueryKey(id)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof download>>> = ({
-    signal,
-  }) => download(id, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof download>>> = ({ signal }) =>
+    download(id, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(id)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof download>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof download>>, TError, TData>
+}
 
-export type DownloadQueryResult = NonNullable<
-  Awaited<ReturnType<typeof download>>
->;
-export type DownloadQueryError = ErrorType<string>;
+export type DownloadQueryResult = NonNullable<Awaited<ReturnType<typeof download>>>
+export type DownloadQueryError = ErrorType<string>
 
 /**
  * @summary Download document
@@ -863,28 +737,19 @@ export function useDownload<
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof download>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof download>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getDownloadQueryOptions(id, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getDownloadQueryOptions(id, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -892,18 +757,18 @@ export function useDownload<
  * @summary Get download URL
  */
 export const getDownloadUrl = (id: MaybeRef<number>, signal?: AbortSignal) => {
-  id = unref(id);
+  id = unref(id)
 
   return customInstance<GetDownloadUrl200>({
     url: `/api/documents/${id}/download-url`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getGetDownloadUrlQueryKey = (id?: MaybeRef<number>) => {
-  return ["api", "documents", id, "download-url"] as const;
-};
+  return ['api', 'documents', id, 'download-url'] as const
+}
 
 export const getGetDownloadUrlQueryOptions = <
   TData = Awaited<ReturnType<typeof getDownloadUrl>>,
@@ -911,35 +776,26 @@ export const getGetDownloadUrlQueryOptions = <
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getDownloadUrl>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getDownloadUrl>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetDownloadUrlQueryKey(id);
+  const queryKey = getGetDownloadUrlQueryKey(id)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDownloadUrl>>> = ({
-    signal,
-  }) => getDownloadUrl(id, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDownloadUrl>>> = ({ signal }) =>
+    getDownloadUrl(id, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(id)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getDownloadUrl>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getDownloadUrl>>, TError, TData>
+}
 
-export type GetDownloadUrlQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getDownloadUrl>>
->;
-export type GetDownloadUrlQueryError = ErrorType<GetDownloadUrl404>;
+export type GetDownloadUrlQueryResult = NonNullable<Awaited<ReturnType<typeof getDownloadUrl>>>
+export type GetDownloadUrlQueryError = ErrorType<GetDownloadUrl404>
 
 /**
  * @summary Get download URL
@@ -951,28 +807,19 @@ export function useGetDownloadUrl<
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getDownloadUrl>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getDownloadUrl>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetDownloadUrlQueryOptions(id, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetDownloadUrlQueryOptions(id, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -980,44 +827,35 @@ export function useGetDownloadUrl<
  * @summary Get public documents
  */
 export const getPublic = (signal?: AbortSignal) => {
-  return customInstance<DocumentResponse[]>({
-    url: `/api/documents/public`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<DocumentResponse[]>({ url: `/api/documents/public`, method: 'GET', signal })
+}
 
 export const getGetPublicQueryKey = () => {
-  return ["api", "documents", "public"] as const;
-};
+  return ['api', 'documents', 'public'] as const
+}
 
 export const getGetPublicQueryOptions = <
   TData = Awaited<ReturnType<typeof getPublic>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getPublic>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublic>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetPublicQueryKey();
+  const queryKey = getGetPublicQueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublic>>> = ({
-    signal,
-  }) => getPublic(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublic>>> = ({ signal }) =>
+    getPublic(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getPublic>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type GetPublicQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getPublic>>
->;
-export type GetPublicQueryError = ErrorType<unknown>;
+export type GetPublicQueryResult = NonNullable<Awaited<ReturnType<typeof getPublic>>>
+export type GetPublicQueryError = ErrorType<unknown>
 
 /**
  * @summary Get public documents
@@ -1028,28 +866,19 @@ export function useGetPublic<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getPublic>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublic>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetPublicQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetPublicQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -1057,44 +886,35 @@ export function useGetPublic<
  * @summary Get my documents
  */
 export const getMyDocuments = (signal?: AbortSignal) => {
-  return customInstance<DocumentResponse[]>({
-    url: `/api/documents/my`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<DocumentResponse[]>({ url: `/api/documents/my`, method: 'GET', signal })
+}
 
 export const getGetMyDocumentsQueryKey = () => {
-  return ["api", "documents", "my"] as const;
-};
+  return ['api', 'documents', 'my'] as const
+}
 
 export const getGetMyDocumentsQueryOptions = <
   TData = Awaited<ReturnType<typeof getMyDocuments>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getMyDocuments>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDocuments>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetMyDocumentsQueryKey();
+  const queryKey = getGetMyDocumentsQueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyDocuments>>> = ({
-    signal,
-  }) => getMyDocuments(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyDocuments>>> = ({ signal }) =>
+    getMyDocuments(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getMyDocuments>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type GetMyDocumentsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getMyDocuments>>
->;
-export type GetMyDocumentsQueryError = ErrorType<unknown>;
+export type GetMyDocumentsQueryResult = NonNullable<Awaited<ReturnType<typeof getMyDocuments>>>
+export type GetMyDocumentsQueryError = ErrorType<unknown>
 
 /**
  * @summary Get my documents
@@ -1105,50 +925,38 @@ export function useGetMyDocuments<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getMyDocuments>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDocuments>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetMyDocumentsQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetMyDocumentsQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Returns all documents in a category
  * @summary Get documents by category
  */
-export const getByCategory = (
-  categoryId: MaybeRef<number>,
-  signal?: AbortSignal,
-) => {
-  categoryId = unref(categoryId);
+export const getByCategory = (categoryId: MaybeRef<number>, signal?: AbortSignal) => {
+  categoryId = unref(categoryId)
 
   return customInstance<DocumentResponse[]>({
     url: `/api/documents/category/${categoryId}`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getGetByCategoryQueryKey = (categoryId?: MaybeRef<number>) => {
-  return ["api", "documents", "category", categoryId] as const;
-};
+  return ['api', 'documents', 'category', categoryId] as const
+}
 
 export const getGetByCategoryQueryOptions = <
   TData = Awaited<ReturnType<typeof getByCategory>>,
@@ -1156,35 +964,26 @@ export const getGetByCategoryQueryOptions = <
 >(
   categoryId: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getByCategory>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getByCategory>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetByCategoryQueryKey(categoryId);
+  const queryKey = getGetByCategoryQueryKey(categoryId)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getByCategory>>> = ({
-    signal,
-  }) => getByCategory(categoryId, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getByCategory>>> = ({ signal }) =>
+    getByCategory(categoryId, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(categoryId)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getByCategory>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getByCategory>>, TError, TData>
+}
 
-export type GetByCategoryQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getByCategory>>
->;
-export type GetByCategoryQueryError = ErrorType<DocumentResponse[]>;
+export type GetByCategoryQueryResult = NonNullable<Awaited<ReturnType<typeof getByCategory>>>
+export type GetByCategoryQueryError = ErrorType<DocumentResponse[]>
 
 /**
  * @summary Get documents by category
@@ -1196,46 +995,31 @@ export function useGetByCategory<
 >(
   categoryId: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getByCategory>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getByCategory>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetByCategoryQueryOptions(categoryId, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetByCategoryQueryOptions(categoryId, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Deletes a specific metadata key
  * @summary Delete metadata key
  */
-export const deleteMetadataKey = (
-  id: MaybeRef<number>,
-  key: MaybeRef<string>,
-) => {
-  id = unref(id);
-  key = unref(key);
+export const deleteMetadataKey = (id: MaybeRef<number>, key: MaybeRef<string>) => {
+  id = unref(id)
+  key = unref(key)
 
-  return customInstance<void>({
-    url: `/api/documents/${id}/metadata/${key}`,
-    method: "DELETE",
-  });
-};
+  return customInstance<void>({ url: `/api/documents/${id}/metadata/${key}`, method: 'DELETE' })
+}
 
 export const getDeleteMetadataKeyMutationOptions = <
   TError = ErrorType<void>,
@@ -1246,63 +1030,58 @@ export const getDeleteMetadataKeyMutationOptions = <
     TError,
     { id: number; key: string },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteMetadataKey>>,
   TError,
   { id: number; key: string },
   TContext
 > => {
-  const mutationKey = ["deleteMetadataKey"];
+  const mutationKey = ['deleteMetadataKey']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteMetadataKey>>,
     { id: number; key: string }
   > = (props) => {
-    const { id, key } = props ?? {};
+    const { id, key } = props ?? {}
 
-    return deleteMetadataKey(id, key);
-  };
+    return deleteMetadataKey(id, key)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
 export type DeleteMetadataKeyMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteMetadataKey>>
->;
+>
 
-export type DeleteMetadataKeyMutationError = ErrorType<void>;
+export type DeleteMetadataKeyMutationError = ErrorType<void>
 
 /**
  * @summary Delete metadata key
  */
-export const useDeleteMetadataKey = <
-  TError = ErrorType<void>,
-  TContext = unknown,
->(
+export const useDeleteMetadataKey = <TError = ErrorType<void>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteMetadataKey>>,
       TError,
       { id: number; key: string },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof deleteMetadataKey>>,
   TError,
   { id: number; key: string },
   TContext
 > => {
-  const mutationOptions = getDeleteMetadataKeyMutationOptions(options);
+  const mutationOptions = getDeleteMetadataKeyMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}

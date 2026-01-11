@@ -5,7 +5,7 @@
  * OAuth2 Authorization Server for Compta microservices. Provides token issuance and user authentication.
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation, useQuery } from "@tanstack/vue-query";
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import type {
   DataTag,
   MutationFunction,
@@ -16,10 +16,10 @@ import type {
   UseMutationReturnType,
   UseQueryOptions,
   UseQueryReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { computed, unref } from "vue";
-import type { MaybeRef } from "vue";
+import { computed, unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
 import type {
   ClientResponse,
@@ -27,31 +27,24 @@ import type {
   GetAllClients200,
   RotateClientSecret200,
   UpdateClientRequest,
-} from "../generated.schemas";
+} from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Retrieve a specific OAuth2 client by its client ID
  * @summary Get OAuth2 client by ID
  */
-export const getClientById = (
-  clientId: MaybeRef<string>,
-  signal?: AbortSignal,
-) => {
-  clientId = unref(clientId);
+export const getClientById = (clientId: MaybeRef<string>, signal?: AbortSignal) => {
+  clientId = unref(clientId)
 
-  return customInstance<ClientResponse>({
-    url: `/api/clients/${clientId}`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<ClientResponse>({ url: `/api/clients/${clientId}`, method: 'GET', signal })
+}
 
 export const getGetClientByIdQueryKey = (clientId?: MaybeRef<string>) => {
-  return ["api", "clients", clientId] as const;
-};
+  return ['api', 'clients', clientId] as const
+}
 
 export const getGetClientByIdQueryOptions = <
   TData = Awaited<ReturnType<typeof getClientById>>,
@@ -59,35 +52,26 @@ export const getGetClientByIdQueryOptions = <
 >(
   clientId: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getClientById>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getClientById>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetClientByIdQueryKey(clientId);
+  const queryKey = getGetClientByIdQueryKey(clientId)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getClientById>>> = ({
-    signal,
-  }) => getClientById(clientId, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getClientById>>> = ({ signal }) =>
+    getClientById(clientId, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(clientId)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getClientById>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getClientById>>, TError, TData>
+}
 
-export type GetClientByIdQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getClientById>>
->;
-export type GetClientByIdQueryError = ErrorType<unknown>;
+export type GetClientByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getClientById>>>
+export type GetClientByIdQueryError = ErrorType<unknown>
 
 /**
  * @summary Get OAuth2 client by ID
@@ -99,28 +83,19 @@ export function useGetClientById<
 >(
   clientId: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getClientById>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getClientById>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetClientByIdQueryOptions(clientId, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetClientByIdQueryOptions(clientId, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -129,18 +104,18 @@ export function useGetClientById<
  */
 export const updateClient = (
   clientId: MaybeRef<string>,
-  updateClientRequest: MaybeRef<UpdateClientRequest>,
+  updateClientRequest: MaybeRef<UpdateClientRequest>
 ) => {
-  clientId = unref(clientId);
-  updateClientRequest = unref(updateClientRequest);
+  clientId = unref(clientId)
+  updateClientRequest = unref(updateClientRequest)
 
   return customInstance<ClientResponse>({
     url: `/api/clients/${clientId}`,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     data: updateClientRequest,
-  });
-};
+  })
+}
 
 export const getUpdateClientMutationOptions = <
   TError = ErrorType<unknown>,
@@ -151,78 +126,68 @@ export const getUpdateClientMutationOptions = <
     TError,
     { clientId: string; data: BodyType<UpdateClientRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateClient>>,
   TError,
   { clientId: string; data: BodyType<UpdateClientRequest> },
   TContext
 > => {
-  const mutationKey = ["updateClient"];
+  const mutationKey = ['updateClient']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateClient>>,
     { clientId: string; data: BodyType<UpdateClientRequest> }
   > = (props) => {
-    const { clientId, data } = props ?? {};
+    const { clientId, data } = props ?? {}
 
-    return updateClient(clientId, data);
-  };
+    return updateClient(clientId, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type UpdateClientMutationResult = NonNullable<
-  Awaited<ReturnType<typeof updateClient>>
->;
-export type UpdateClientMutationBody = BodyType<UpdateClientRequest>;
-export type UpdateClientMutationError = ErrorType<unknown>;
+export type UpdateClientMutationResult = NonNullable<Awaited<ReturnType<typeof updateClient>>>
+export type UpdateClientMutationBody = BodyType<UpdateClientRequest>
+export type UpdateClientMutationError = ErrorType<unknown>
 
 /**
  * @summary Update OAuth2 client
  */
-export const useUpdateClient = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
+export const useUpdateClient = <TError = ErrorType<unknown>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateClient>>,
       TError,
       { clientId: string; data: BodyType<UpdateClientRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof updateClient>>,
   TError,
   { clientId: string; data: BodyType<UpdateClientRequest> },
   TContext
 > => {
-  const mutationOptions = getUpdateClientMutationOptions(options);
+  const mutationOptions = getUpdateClientMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Delete an OAuth2 client
  * @summary Delete OAuth2 client
  */
 export const deleteClient = (clientId: MaybeRef<string>) => {
-  clientId = unref(clientId);
+  clientId = unref(clientId)
 
-  return customInstance<void>({
-    url: `/api/clients/${clientId}`,
-    method: "DELETE",
-  });
-};
+  return customInstance<void>({ url: `/api/clients/${clientId}`, method: 'DELETE' })
+}
 
 export const getDeleteClientMutationOptions = <
   TError = ErrorType<unknown>,
@@ -233,109 +198,93 @@ export const getDeleteClientMutationOptions = <
     TError,
     { clientId: string },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteClient>>,
   TError,
   { clientId: string },
   TContext
 > => {
-  const mutationKey = ["deleteClient"];
+  const mutationKey = ['deleteClient']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteClient>>,
     { clientId: string }
   > = (props) => {
-    const { clientId } = props ?? {};
+    const { clientId } = props ?? {}
 
-    return deleteClient(clientId);
-  };
+    return deleteClient(clientId)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type DeleteClientMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteClient>>
->;
+export type DeleteClientMutationResult = NonNullable<Awaited<ReturnType<typeof deleteClient>>>
 
-export type DeleteClientMutationError = ErrorType<unknown>;
+export type DeleteClientMutationError = ErrorType<unknown>
 
 /**
  * @summary Delete OAuth2 client
  */
-export const useDeleteClient = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
+export const useDeleteClient = <TError = ErrorType<unknown>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteClient>>,
       TError,
       { clientId: string },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof deleteClient>>,
   TError,
   { clientId: string },
   TContext
 > => {
-  const mutationOptions = getDeleteClientMutationOptions(options);
+  const mutationOptions = getDeleteClientMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Retrieve all registered OAuth2 clients
  * @summary Get all OAuth2 clients
  */
 export const getAllClients = (signal?: AbortSignal) => {
-  return customInstance<GetAllClients200>({
-    url: `/api/clients`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<GetAllClients200>({ url: `/api/clients`, method: 'GET', signal })
+}
 
 export const getGetAllClientsQueryKey = () => {
-  return ["api", "clients"] as const;
-};
+  return ['api', 'clients'] as const
+}
 
 export const getGetAllClientsQueryOptions = <
   TData = Awaited<ReturnType<typeof getAllClients>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getAllClients>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllClients>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetAllClientsQueryKey();
+  const queryKey = getGetAllClientsQueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllClients>>> = ({
-    signal,
-  }) => getAllClients(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllClients>>> = ({ signal }) =>
+    getAllClients(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getAllClients>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type GetAllClientsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAllClients>>
->;
-export type GetAllClientsQueryError = ErrorType<unknown>;
+export type GetAllClientsQueryResult = NonNullable<Awaited<ReturnType<typeof getAllClients>>>
+export type GetAllClientsQueryError = ErrorType<unknown>
 
 /**
  * @summary Get all OAuth2 clients
@@ -346,28 +295,19 @@ export function useGetAllClients<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getAllClients>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllClients>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetAllClientsQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetAllClientsQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -376,18 +316,18 @@ export function useGetAllClients<
  */
 export const createClient = (
   createClientRequest: MaybeRef<CreateClientRequest>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  createClientRequest = unref(createClientRequest);
+  createClientRequest = unref(createClientRequest)
 
   return customInstance<ClientResponse>({
     url: `/api/clients`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: createClientRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getCreateClientMutationOptions = <
   TError = ErrorType<unknown>,
@@ -398,82 +338,72 @@ export const getCreateClientMutationOptions = <
     TError,
     { data: BodyType<CreateClientRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof createClient>>,
   TError,
   { data: BodyType<CreateClientRequest> },
   TContext
 > => {
-  const mutationKey = ["createClient"];
+  const mutationKey = ['createClient']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof createClient>>,
     { data: BodyType<CreateClientRequest> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return createClient(data);
-  };
+    return createClient(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type CreateClientMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createClient>>
->;
-export type CreateClientMutationBody = BodyType<CreateClientRequest>;
-export type CreateClientMutationError = ErrorType<unknown>;
+export type CreateClientMutationResult = NonNullable<Awaited<ReturnType<typeof createClient>>>
+export type CreateClientMutationBody = BodyType<CreateClientRequest>
+export type CreateClientMutationError = ErrorType<unknown>
 
 /**
  * @summary Create a new OAuth2 client
  */
-export const useCreateClient = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
+export const useCreateClient = <TError = ErrorType<unknown>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof createClient>>,
       TError,
       { data: BodyType<CreateClientRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof createClient>>,
   TError,
   { data: BodyType<CreateClientRequest> },
   TContext
 > => {
-  const mutationOptions = getCreateClientMutationOptions(options);
+  const mutationOptions = getCreateClientMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Generate a new client secret for an OAuth2 client
  * @summary Rotate client secret
  */
-export const rotateClientSecret = (
-  clientId: MaybeRef<string>,
-  signal?: AbortSignal,
-) => {
-  clientId = unref(clientId);
+export const rotateClientSecret = (clientId: MaybeRef<string>, signal?: AbortSignal) => {
+  clientId = unref(clientId)
 
   return customInstance<RotateClientSecret200>({
     url: `/api/clients/${clientId}/secret`,
-    method: "POST",
+    method: 'POST',
     signal,
-  });
-};
+  })
+}
 
 export const getRotateClientSecretMutationOptions = <
   TError = ErrorType<unknown>,
@@ -484,63 +414,58 @@ export const getRotateClientSecretMutationOptions = <
     TError,
     { clientId: string },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof rotateClientSecret>>,
   TError,
   { clientId: string },
   TContext
 > => {
-  const mutationKey = ["rotateClientSecret"];
+  const mutationKey = ['rotateClientSecret']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof rotateClientSecret>>,
     { clientId: string }
   > = (props) => {
-    const { clientId } = props ?? {};
+    const { clientId } = props ?? {}
 
-    return rotateClientSecret(clientId);
-  };
+    return rotateClientSecret(clientId)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
 export type RotateClientSecretMutationResult = NonNullable<
   Awaited<ReturnType<typeof rotateClientSecret>>
->;
+>
 
-export type RotateClientSecretMutationError = ErrorType<unknown>;
+export type RotateClientSecretMutationError = ErrorType<unknown>
 
 /**
  * @summary Rotate client secret
  */
-export const useRotateClientSecret = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
+export const useRotateClientSecret = <TError = ErrorType<unknown>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof rotateClientSecret>>,
       TError,
       { clientId: string },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof rotateClientSecret>>,
   TError,
   { clientId: string },
   TContext
 > => {
-  const mutationOptions = getRotateClientSecretMutationOptions(options);
+  const mutationOptions = getRotateClientSecretMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}

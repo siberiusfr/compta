@@ -5,24 +5,21 @@
  * OAuth2 Authorization Server for Compta microservices. Provides token issuance and user authentication.
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation } from "@tanstack/vue-query";
+import { useMutation } from '@tanstack/vue-query'
 import type {
   MutationFunction,
   QueryClient,
   UseMutationOptions,
   UseMutationReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { unref } from "vue";
-import type { MaybeRef } from "vue";
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
-import type {
-  IntrospectionRequest,
-  IntrospectionResponse,
-} from "../generated.schemas";
+import type { IntrospectionRequest, IntrospectionResponse } from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Introspect an OAuth2 token to get its metadata and validity status
@@ -30,18 +27,18 @@ import type { ErrorType, BodyType } from "../../../axios-instance";
  */
 export const introspect = (
   introspectionRequest: MaybeRef<IntrospectionRequest>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  introspectionRequest = unref(introspectionRequest);
+  introspectionRequest = unref(introspectionRequest)
 
   return customInstance<IntrospectionResponse>({
     url: `/oauth2/introspect`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: introspectionRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getIntrospectMutationOptions = <
   TError = ErrorType<unknown>,
@@ -52,39 +49,35 @@ export const getIntrospectMutationOptions = <
     TError,
     { data: BodyType<IntrospectionRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof introspect>>,
   TError,
   { data: BodyType<IntrospectionRequest> },
   TContext
 > => {
-  const mutationKey = ["introspect"];
+  const mutationKey = ['introspect']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof introspect>>,
     { data: BodyType<IntrospectionRequest> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return introspect(data);
-  };
+    return introspect(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type IntrospectMutationResult = NonNullable<
-  Awaited<ReturnType<typeof introspect>>
->;
-export type IntrospectMutationBody = BodyType<IntrospectionRequest>;
-export type IntrospectMutationError = ErrorType<unknown>;
+export type IntrospectMutationResult = NonNullable<Awaited<ReturnType<typeof introspect>>>
+export type IntrospectMutationBody = BodyType<IntrospectionRequest>
+export type IntrospectMutationError = ErrorType<unknown>
 
 /**
  * @summary Introspect token
@@ -96,16 +89,16 @@ export const useIntrospect = <TError = ErrorType<unknown>, TContext = unknown>(
       TError,
       { data: BodyType<IntrospectionRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof introspect>>,
   TError,
   { data: BodyType<IntrospectionRequest> },
   TContext
 > => {
-  const mutationOptions = getIntrospectMutationOptions(options);
+  const mutationOptions = getIntrospectMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}

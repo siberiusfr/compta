@@ -4,7 +4,7 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import { useMutation, useQuery } from "@tanstack/vue-query";
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import type {
   DataTag,
   MutationFunction,
@@ -15,38 +15,34 @@ import type {
   UseMutationReturnType,
   UseQueryOptions,
   UseQueryReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { computed, unref } from "vue";
-import type { MaybeRef } from "vue";
+import { computed, unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
 import type {
   CreateSocieteRequest,
   SearchParams,
   SocieteDto,
   UpdateSocieteRequest,
-} from "../generated.schemas";
+} from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Recupere les details d'une societe cliente par son ID
  * @summary Recuperer une societe cliente
  */
 export const findById = (id: MaybeRef<number>, signal?: AbortSignal) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<SocieteDto>({
-    url: `/api/societes/${id}`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<SocieteDto>({ url: `/api/societes/${id}`, method: 'GET', signal })
+}
 
 export const getFindByIdQueryKey = (id?: MaybeRef<number>) => {
-  return ["api", "societes", id] as const;
-};
+  return ['api', 'societes', id] as const
+}
 
 export const getFindByIdQueryOptions = <
   TData = Awaited<ReturnType<typeof findById>>,
@@ -54,31 +50,26 @@ export const getFindByIdQueryOptions = <
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findById>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findById>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindByIdQueryKey(id);
+  const queryKey = getFindByIdQueryKey(id)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof findById>>> = ({
-    signal,
-  }) => findById(id, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findById>>> = ({ signal }) =>
+    findById(id, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(id)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof findById>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findById>>, TError, TData>
+}
 
-export type FindByIdQueryResult = NonNullable<
-  Awaited<ReturnType<typeof findById>>
->;
-export type FindByIdQueryError = ErrorType<SocieteDto>;
+export type FindByIdQueryResult = NonNullable<Awaited<ReturnType<typeof findById>>>
+export type FindByIdQueryError = ErrorType<SocieteDto>
 
 /**
  * @summary Recuperer une societe cliente
@@ -90,28 +81,19 @@ export function useFindById<
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findById>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findById>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindByIdQueryOptions(id, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindByIdQueryOptions(id, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -120,18 +102,18 @@ export function useFindById<
  */
 export const update = (
   id: MaybeRef<number>,
-  updateSocieteRequest: MaybeRef<UpdateSocieteRequest>,
+  updateSocieteRequest: MaybeRef<UpdateSocieteRequest>
 ) => {
-  id = unref(id);
-  updateSocieteRequest = unref(updateSocieteRequest);
+  id = unref(id)
+  updateSocieteRequest = unref(updateSocieteRequest)
 
   return customInstance<SocieteDto>({
     url: `/api/societes/${id}`,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     data: updateSocieteRequest,
-  });
-};
+  })
+}
 
 export const getUpdateMutationOptions = <
   TError = ErrorType<SocieteDto>,
@@ -142,39 +124,35 @@ export const getUpdateMutationOptions = <
     TError,
     { id: number; data: BodyType<UpdateSocieteRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof update>>,
   TError,
   { id: number; data: BodyType<UpdateSocieteRequest> },
   TContext
 > => {
-  const mutationKey = ["update"];
+  const mutationKey = ['update']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof update>>,
     { id: number; data: BodyType<UpdateSocieteRequest> }
   > = (props) => {
-    const { id, data } = props ?? {};
+    const { id, data } = props ?? {}
 
-    return update(id, data);
-  };
+    return update(id, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type UpdateMutationResult = NonNullable<
-  Awaited<ReturnType<typeof update>>
->;
-export type UpdateMutationBody = BodyType<UpdateSocieteRequest>;
-export type UpdateMutationError = ErrorType<SocieteDto>;
+export type UpdateMutationResult = NonNullable<Awaited<ReturnType<typeof update>>>
+export type UpdateMutationBody = BodyType<UpdateSocieteRequest>
+export type UpdateMutationError = ErrorType<SocieteDto>
 
 /**
  * @summary Modifier une societe cliente
@@ -186,71 +164,58 @@ export const useUpdate = <TError = ErrorType<SocieteDto>, TContext = unknown>(
       TError,
       { id: number; data: BodyType<UpdateSocieteRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof update>>,
   TError,
   { id: number; data: BodyType<UpdateSocieteRequest> },
   TContext
 > => {
-  const mutationOptions = getUpdateMutationOptions(options);
+  const mutationOptions = getUpdateMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Supprime une societe cliente
  * @summary Supprimer une societe cliente
  */
 export const _delete = (id: MaybeRef<number>) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<void>({ url: `/api/societes/${id}`, method: "DELETE" });
-};
+  return customInstance<void>({ url: `/api/societes/${id}`, method: 'DELETE' })
+}
 
-export const getDeleteMutationOptions = <
-  TError = ErrorType<void>,
-  TContext = unknown,
->(options?: {
+export const getDeleteMutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof _delete>>,
     TError,
     { id: number },
     TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof _delete>>,
-  TError,
-  { id: number },
-  TContext
-> => {
-  const mutationKey = ["_delete"];
+  >
+}): UseMutationOptions<Awaited<ReturnType<typeof _delete>>, TError, { id: number }, TContext> => {
+  const mutationKey = ['_delete']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof _delete>>,
-    { id: number }
-  > = (props) => {
-    const { id } = props ?? {};
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof _delete>>, { id: number }> = (
+    props
+  ) => {
+    const { id } = props ?? {}
 
-    return _delete(id);
-  };
+    return _delete(id)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type _DeleteMutationResult = NonNullable<
-  Awaited<ReturnType<typeof _delete>>
->;
+export type _DeleteMutationResult = NonNullable<Awaited<ReturnType<typeof _delete>>>
 
-export type _DeleteMutationError = ErrorType<void>;
+export type _DeleteMutationError = ErrorType<void>
 
 /**
  * @summary Supprimer une societe cliente
@@ -262,62 +227,48 @@ export const useDelete = <TError = ErrorType<void>, TContext = unknown>(
       TError,
       { id: number },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
-): UseMutationReturnType<
-  Awaited<ReturnType<typeof _delete>>,
-  TError,
-  { id: number },
-  TContext
-> => {
-  const mutationOptions = getDeleteMutationOptions(options);
+  queryClient?: QueryClient
+): UseMutationReturnType<Awaited<ReturnType<typeof _delete>>, TError, { id: number }, TContext> => {
+  const mutationOptions = getDeleteMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Recupere la liste de toutes les societes clientes
  * @summary Lister toutes les societes clientes
  */
 export const findAll = (signal?: AbortSignal) => {
-  return customInstance<SocieteDto[]>({
-    url: `/api/societes`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<SocieteDto[]>({ url: `/api/societes`, method: 'GET', signal })
+}
 
 export const getFindAllQueryKey = () => {
-  return ["api", "societes"] as const;
-};
+  return ['api', 'societes'] as const
+}
 
 export const getFindAllQueryOptions = <
   TData = Awaited<ReturnType<typeof findAll>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof findAll>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findAll>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindAllQueryKey();
+  const queryKey = getFindAllQueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof findAll>>> = ({
-    signal,
-  }) => findAll(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findAll>>> = ({ signal }) =>
+    findAll(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof findAll>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type FindAllQueryResult = NonNullable<
-  Awaited<ReturnType<typeof findAll>>
->;
-export type FindAllQueryError = ErrorType<unknown>;
+export type FindAllQueryResult = NonNullable<Awaited<ReturnType<typeof findAll>>>
+export type FindAllQueryError = ErrorType<unknown>
 
 /**
  * @summary Lister toutes les societes clientes
@@ -328,28 +279,19 @@ export function useFindAll<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findAll>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findAll>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindAllQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindAllQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -358,18 +300,18 @@ export function useFindAll<
  */
 export const create = (
   createSocieteRequest: MaybeRef<CreateSocieteRequest>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  createSocieteRequest = unref(createSocieteRequest);
+  createSocieteRequest = unref(createSocieteRequest)
 
   return customInstance<SocieteDto>({
     url: `/api/societes`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: createSocieteRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getCreateMutationOptions = <
   TError = ErrorType<SocieteDto>,
@@ -380,39 +322,35 @@ export const getCreateMutationOptions = <
     TError,
     { data: BodyType<CreateSocieteRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof create>>,
   TError,
   { data: BodyType<CreateSocieteRequest> },
   TContext
 > => {
-  const mutationKey = ["create"];
+  const mutationKey = ['create']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof create>>,
     { data: BodyType<CreateSocieteRequest> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return create(data);
-  };
+    return create(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type CreateMutationResult = NonNullable<
-  Awaited<ReturnType<typeof create>>
->;
-export type CreateMutationBody = BodyType<CreateSocieteRequest>;
-export type CreateMutationError = ErrorType<SocieteDto>;
+export type CreateMutationResult = NonNullable<Awaited<ReturnType<typeof create>>>
+export type CreateMutationBody = BodyType<CreateSocieteRequest>
+export type CreateMutationError = ErrorType<SocieteDto>
 
 /**
  * @summary Creer une societe cliente
@@ -424,39 +362,36 @@ export const useCreate = <TError = ErrorType<SocieteDto>, TContext = unknown>(
       TError,
       { data: BodyType<CreateSocieteRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof create>>,
   TError,
   { data: BodyType<CreateSocieteRequest> },
   TContext
 > => {
-  const mutationOptions = getCreateMutationOptions(options);
+  const mutationOptions = getCreateMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Recupere les societes clientes d'un secteur d'activite
  * @summary Lister par secteur
  */
-export const findBySecteur = (
-  secteur: MaybeRef<string>,
-  signal?: AbortSignal,
-) => {
-  secteur = unref(secteur);
+export const findBySecteur = (secteur: MaybeRef<string>, signal?: AbortSignal) => {
+  secteur = unref(secteur)
 
   return customInstance<SocieteDto[]>({
     url: `/api/societes/secteur/${secteur}`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getFindBySecteurQueryKey = (secteur?: MaybeRef<string>) => {
-  return ["api", "societes", "secteur", secteur] as const;
-};
+  return ['api', 'societes', 'secteur', secteur] as const
+}
 
 export const getFindBySecteurQueryOptions = <
   TData = Awaited<ReturnType<typeof findBySecteur>>,
@@ -464,35 +399,26 @@ export const getFindBySecteurQueryOptions = <
 >(
   secteur: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findBySecteur>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findBySecteur>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindBySecteurQueryKey(secteur);
+  const queryKey = getFindBySecteurQueryKey(secteur)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof findBySecteur>>> = ({
-    signal,
-  }) => findBySecteur(secteur, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findBySecteur>>> = ({ signal }) =>
+    findBySecteur(secteur, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(secteur)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof findBySecteur>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findBySecteur>>, TError, TData>
+}
 
-export type FindBySecteurQueryResult = NonNullable<
-  Awaited<ReturnType<typeof findBySecteur>>
->;
-export type FindBySecteurQueryError = ErrorType<unknown>;
+export type FindBySecteurQueryResult = NonNullable<Awaited<ReturnType<typeof findBySecteur>>>
+export type FindBySecteurQueryError = ErrorType<unknown>
 
 /**
  * @summary Lister par secteur
@@ -504,113 +430,82 @@ export function useFindBySecteur<
 >(
   secteur: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findBySecteur>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findBySecteur>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindBySecteurQueryOptions(secteur, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindBySecteurQueryOptions(secteur, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Recherche par raison sociale (recherche partielle)
  * @summary Rechercher des societes clientes
  */
-export const search = (
-  params: MaybeRef<SearchParams>,
-  signal?: AbortSignal,
-) => {
-  params = unref(params);
+export const search = (params: MaybeRef<SearchParams>, signal?: AbortSignal) => {
+  params = unref(params)
 
   return customInstance<SocieteDto[]>({
     url: `/api/societes/search`,
-    method: "GET",
+    method: 'GET',
     params: unref(params),
     signal,
-  });
-};
+  })
+}
 
 export const getSearchQueryKey = (params?: MaybeRef<SearchParams>) => {
-  return ["api", "societes", "search", ...(params ? [params] : [])] as const;
-};
+  return ['api', 'societes', 'search', ...(params ? [params] : [])] as const
+}
 
 export const getSearchQueryOptions = <
   TData = Awaited<ReturnType<typeof search>>,
   TError = ErrorType<unknown>,
 >(
   params: MaybeRef<SearchParams>,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof search>>, TError, TData>
-    >;
-  },
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof search>>, TError, TData>> }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getSearchQueryKey(params);
+  const queryKey = getSearchQueryKey(params)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof search>>> = ({
-    signal,
-  }) => search(params, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof search>>> = ({ signal }) =>
+    search(params, signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof search>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type SearchQueryResult = NonNullable<Awaited<ReturnType<typeof search>>>;
-export type SearchQueryError = ErrorType<unknown>;
+export type SearchQueryResult = NonNullable<Awaited<ReturnType<typeof search>>>
+export type SearchQueryError = ErrorType<unknown>
 
 /**
  * @summary Rechercher des societes clientes
  */
 
-export function useSearch<
-  TData = Awaited<ReturnType<typeof search>>,
-  TError = ErrorType<unknown>,
->(
+export function useSearch<TData = Awaited<ReturnType<typeof search>>, TError = ErrorType<unknown>>(
   params: MaybeRef<SearchParams>,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof search>>, TError, TData>
-    >;
-  },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getSearchQueryOptions(params, options);
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof search>>, TError, TData>> },
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getSearchQueryOptions(params, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -619,22 +514,20 @@ export function useSearch<
  */
 export const findByMatriculeFiscale = (
   matriculeFiscale: MaybeRef<string>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  matriculeFiscale = unref(matriculeFiscale);
+  matriculeFiscale = unref(matriculeFiscale)
 
   return customInstance<SocieteDto>({
     url: `/api/societes/matricule/${matriculeFiscale}`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
-export const getFindByMatriculeFiscaleQueryKey = (
-  matriculeFiscale?: MaybeRef<string>,
-) => {
-  return ["api", "societes", "matricule", matriculeFiscale] as const;
-};
+export const getFindByMatriculeFiscaleQueryKey = (matriculeFiscale?: MaybeRef<string>) => {
+  return ['api', 'societes', 'matricule', matriculeFiscale] as const
+}
 
 export const getFindByMatriculeFiscaleQueryOptions = <
   TData = Awaited<ReturnType<typeof findByMatriculeFiscale>>,
@@ -643,38 +536,29 @@ export const getFindByMatriculeFiscaleQueryOptions = <
   matriculeFiscale: MaybeRef<string>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findByMatriculeFiscale>>,
-        TError,
-        TData
-      >
-    >;
-  },
+      UseQueryOptions<Awaited<ReturnType<typeof findByMatriculeFiscale>>, TError, TData>
+    >
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindByMatriculeFiscaleQueryKey(matriculeFiscale);
+  const queryKey = getFindByMatriculeFiscaleQueryKey(matriculeFiscale)
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof findByMatriculeFiscale>>
-  > = ({ signal }) => findByMatriculeFiscale(matriculeFiscale, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findByMatriculeFiscale>>> = ({ signal }) =>
+    findByMatriculeFiscale(matriculeFiscale, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(matriculeFiscale)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof findByMatriculeFiscale>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findByMatriculeFiscale>>, TError, TData>
+}
 
 export type FindByMatriculeFiscaleQueryResult = NonNullable<
   Awaited<ReturnType<typeof findByMatriculeFiscale>>
->;
-export type FindByMatriculeFiscaleQueryError = ErrorType<SocieteDto>;
+>
+export type FindByMatriculeFiscaleQueryError = ErrorType<SocieteDto>
 
 /**
  * @summary Recuperer par matricule fiscale
@@ -687,34 +571,20 @@ export function useFindByMatriculeFiscale<
   matriculeFiscale: MaybeRef<string>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findByMatriculeFiscale>>,
-        TError,
-        TData
-      >
-    >;
+      UseQueryOptions<Awaited<ReturnType<typeof findByMatriculeFiscale>>, TError, TData>
+    >
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindByMatriculeFiscaleQueryOptions(
-    matriculeFiscale,
-    options,
-  );
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindByMatriculeFiscaleQueryOptions(matriculeFiscale, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -723,22 +593,20 @@ export function useFindByMatriculeFiscale<
  */
 export const findBySocieteComptableId1 = (
   societeComptableId: MaybeRef<number>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  societeComptableId = unref(societeComptableId);
+  societeComptableId = unref(societeComptableId)
 
   return customInstance<SocieteDto[]>({
     url: `/api/societes/cabinet/${societeComptableId}`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
-export const getFindBySocieteComptableId1QueryKey = (
-  societeComptableId?: MaybeRef<number>,
-) => {
-  return ["api", "societes", "cabinet", societeComptableId] as const;
-};
+export const getFindBySocieteComptableId1QueryKey = (societeComptableId?: MaybeRef<number>) => {
+  return ['api', 'societes', 'cabinet', societeComptableId] as const
+}
 
 export const getFindBySocieteComptableId1QueryOptions = <
   TData = Awaited<ReturnType<typeof findBySocieteComptableId1>>,
@@ -747,38 +615,30 @@ export const getFindBySocieteComptableId1QueryOptions = <
   societeComptableId: MaybeRef<number>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findBySocieteComptableId1>>,
-        TError,
-        TData
-      >
-    >;
-  },
+      UseQueryOptions<Awaited<ReturnType<typeof findBySocieteComptableId1>>, TError, TData>
+    >
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindBySocieteComptableId1QueryKey(societeComptableId);
+  const queryKey = getFindBySocieteComptableId1QueryKey(societeComptableId)
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof findBySocieteComptableId1>>
-  > = ({ signal }) => findBySocieteComptableId1(societeComptableId, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findBySocieteComptableId1>>> = ({
+    signal,
+  }) => findBySocieteComptableId1(societeComptableId, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(societeComptableId)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof findBySocieteComptableId1>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findBySocieteComptableId1>>, TError, TData>
+}
 
 export type FindBySocieteComptableId1QueryResult = NonNullable<
   Awaited<ReturnType<typeof findBySocieteComptableId1>>
->;
-export type FindBySocieteComptableId1QueryError = ErrorType<unknown>;
+>
+export type FindBySocieteComptableId1QueryError = ErrorType<unknown>
 
 /**
  * @summary Lister par cabinet comptable
@@ -791,34 +651,20 @@ export function useFindBySocieteComptableId1<
   societeComptableId: MaybeRef<number>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findBySocieteComptableId1>>,
-        TError,
-        TData
-      >
-    >;
+      UseQueryOptions<Awaited<ReturnType<typeof findBySocieteComptableId1>>, TError, TData>
+    >
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindBySocieteComptableId1QueryOptions(
-    societeComptableId,
-    options,
-  );
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindBySocieteComptableId1QueryOptions(societeComptableId, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -827,22 +673,22 @@ export function useFindBySocieteComptableId1<
  */
 export const findActiveBySocieteComptableId1 = (
   societeComptableId: MaybeRef<number>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  societeComptableId = unref(societeComptableId);
+  societeComptableId = unref(societeComptableId)
 
   return customInstance<SocieteDto[]>({
     url: `/api/societes/cabinet/${societeComptableId}/active`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getFindActiveBySocieteComptableId1QueryKey = (
-  societeComptableId?: MaybeRef<number>,
+  societeComptableId?: MaybeRef<number>
 ) => {
-  return ["api", "societes", "cabinet", societeComptableId, "active"] as const;
-};
+  return ['api', 'societes', 'cabinet', societeComptableId, 'active'] as const
+}
 
 export const getFindActiveBySocieteComptableId1QueryOptions = <
   TData = Awaited<ReturnType<typeof findActiveBySocieteComptableId1>>,
@@ -851,40 +697,30 @@ export const getFindActiveBySocieteComptableId1QueryOptions = <
   societeComptableId: MaybeRef<number>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findActiveBySocieteComptableId1>>,
-        TError,
-        TData
-      >
-    >;
-  },
+      UseQueryOptions<Awaited<ReturnType<typeof findActiveBySocieteComptableId1>>, TError, TData>
+    >
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey =
-    getFindActiveBySocieteComptableId1QueryKey(societeComptableId);
+  const queryKey = getFindActiveBySocieteComptableId1QueryKey(societeComptableId)
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof findActiveBySocieteComptableId1>>
-  > = ({ signal }) =>
-    findActiveBySocieteComptableId1(societeComptableId, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findActiveBySocieteComptableId1>>> = ({
+    signal,
+  }) => findActiveBySocieteComptableId1(societeComptableId, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(societeComptableId)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof findActiveBySocieteComptableId1>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findActiveBySocieteComptableId1>>, TError, TData>
+}
 
 export type FindActiveBySocieteComptableId1QueryResult = NonNullable<
   Awaited<ReturnType<typeof findActiveBySocieteComptableId1>>
->;
-export type FindActiveBySocieteComptableId1QueryError = ErrorType<unknown>;
+>
+export type FindActiveBySocieteComptableId1QueryError = ErrorType<unknown>
 
 /**
  * @summary Lister les actives par cabinet comptable
@@ -897,34 +733,20 @@ export function useFindActiveBySocieteComptableId1<
   societeComptableId: MaybeRef<number>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findActiveBySocieteComptableId1>>,
-        TError,
-        TData
-      >
-    >;
+      UseQueryOptions<Awaited<ReturnType<typeof findActiveBySocieteComptableId1>>, TError, TData>
+    >
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindActiveBySocieteComptableId1QueryOptions(
-    societeComptableId,
-    options,
-  );
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindActiveBySocieteComptableId1QueryOptions(societeComptableId, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -932,44 +754,35 @@ export function useFindActiveBySocieteComptableId1<
  * @summary Lister les societes clientes actives
  */
 export const findAllActive = (signal?: AbortSignal) => {
-  return customInstance<SocieteDto[]>({
-    url: `/api/societes/active`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<SocieteDto[]>({ url: `/api/societes/active`, method: 'GET', signal })
+}
 
 export const getFindAllActiveQueryKey = () => {
-  return ["api", "societes", "active"] as const;
-};
+  return ['api', 'societes', 'active'] as const
+}
 
 export const getFindAllActiveQueryOptions = <
   TData = Awaited<ReturnType<typeof findAllActive>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof findAllActive>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findAllActive>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindAllActiveQueryKey();
+  const queryKey = getFindAllActiveQueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof findAllActive>>> = ({
-    signal,
-  }) => findAllActive(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findAllActive>>> = ({ signal }) =>
+    findAllActive(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof findAllActive>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type FindAllActiveQueryResult = NonNullable<
-  Awaited<ReturnType<typeof findAllActive>>
->;
-export type FindAllActiveQueryError = ErrorType<unknown>;
+export type FindAllActiveQueryResult = NonNullable<Awaited<ReturnType<typeof findAllActive>>>
+export type FindAllActiveQueryError = ErrorType<unknown>
 
 /**
  * @summary Lister les societes clientes actives
@@ -980,26 +793,17 @@ export function useFindAllActive<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findAllActive>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findAllActive>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindAllActiveQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindAllActiveQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }

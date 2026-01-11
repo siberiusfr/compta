@@ -14,64 +14,64 @@ export interface DocumentUpdateRequest {
    * @minLength 0
    * @maxLength 255
    */
-  title?: string;
+  title?: string
   /**
    * Document description
    * @minLength 0
    * @maxLength 2000
    */
-  description?: string;
+  description?: string
   /** Category ID */
-  categoryId?: number;
+  categoryId?: number
   /** Make document public */
-  isPublic?: boolean;
+  isPublic?: boolean
   /** Tags to associate with the document */
-  tags?: string[];
+  tags?: string[]
 }
 
 /**
  * Custom metadata
  */
-export type DocumentResponseMetadata = { [key: string]: string };
+export type DocumentResponseMetadata = { [key: string]: string }
 
 /**
  * Document response
  */
 export interface DocumentResponse {
   /** Document ID */
-  id?: number;
+  id?: number
   /** Document title */
-  title?: string;
+  title?: string
   /** Document description */
-  description?: string;
+  description?: string
   /** Original file name */
-  fileName?: string;
+  fileName?: string
   /** File size in bytes */
-  fileSize?: number;
+  fileSize?: number
   /** MIME type */
-  mimeType?: string;
+  mimeType?: string
   /** Category ID */
-  categoryId?: number;
+  categoryId?: number
   /** Category name */
-  categoryName?: string;
+  categoryName?: string
   /** Uploaded by user ID */
-  uploadedBy?: string;
+  uploadedBy?: string
   /** Is document public */
-  isPublic?: boolean;
+  isPublic?: boolean
   /** Current version number */
-  version?: number;
+  version?: number
   /** File checksum (SHA-256) */
-  checksum?: string;
+  checksum?: string
   /** Associated tags */
-  tags?: TagResponse[];
+  tags?: TagResponse[]
   /** Custom metadata */
-  metadata?: DocumentResponseMetadata;
+  metadata?: DocumentResponseMetadata
   /** Download URL (presigned) */
-  downloadUrl?: string;
+  downloadUrl?: string
   /** Creation timestamp */
-  createdAt?: string;
+  createdAt?: string
   /** Last update timestamp */
-  updatedAt?: string;
+  updatedAt?: string
 }
 
 /**
@@ -79,24 +79,24 @@ export interface DocumentResponse {
  */
 export interface TagResponse {
   /** Tag ID */
-  id?: number;
+  id?: number
   /** Tag name */
-  name?: string;
+  name?: string
   /** Creation timestamp */
-  createdAt?: string;
+  createdAt?: string
 }
 
 /**
  * Key-value pairs of metadata
  */
-export type MetadataRequestMetadata = { [key: string]: string };
+export type MetadataRequestMetadata = { [key: string]: string }
 
 /**
  * Request for setting document metadata
  */
 export interface MetadataRequest {
   /** Key-value pairs of metadata */
-  metadata: MetadataRequestMetadata;
+  metadata: MetadataRequestMetadata
 }
 
 /**
@@ -104,13 +104,13 @@ export interface MetadataRequest {
  * @pattern ^(READ|WRITE)$
  */
 export type DocumentShareRequestPermission =
-  (typeof DocumentShareRequestPermission)[keyof typeof DocumentShareRequestPermission];
+  (typeof DocumentShareRequestPermission)[keyof typeof DocumentShareRequestPermission]
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const DocumentShareRequestPermission = {
-  READ: "READ",
-  WRITE: "WRITE",
-} as const;
+  READ: 'READ',
+  WRITE: 'WRITE',
+} as const
 
 /**
  * Request for sharing a document
@@ -121,14 +121,14 @@ export interface DocumentShareRequest {
    * @minLength 0
    * @maxLength 100
    */
-  sharedWith: string;
+  sharedWith: string
   /**
    * Permission level
    * @pattern ^(READ|WRITE)$
    */
-  permission?: DocumentShareRequestPermission;
+  permission?: DocumentShareRequestPermission
   /** Expiration date (null for no expiration) */
-  expiresAt?: string;
+  expiresAt?: string
 }
 
 /**
@@ -136,23 +136,23 @@ export interface DocumentShareRequest {
  */
 export interface DocumentShareResponse {
   /** Share ID */
-  id?: number;
+  id?: number
   /** Document ID */
-  documentId?: number;
+  documentId?: number
   /** Document title */
-  documentTitle?: string;
+  documentTitle?: string
   /** Shared with user ID */
-  sharedWith?: string;
+  sharedWith?: string
   /** Permission level */
-  permission?: string;
+  permission?: string
   /** Expiration date */
-  expiresAt?: string;
+  expiresAt?: string
   /** Is share still active */
-  isActive?: boolean;
+  isActive?: boolean
   /** Created by user ID */
-  createdBy?: string;
+  createdBy?: string
   /** Creation timestamp */
-  createdAt?: string;
+  createdAt?: string
 }
 
 /**
@@ -164,15 +164,15 @@ export interface CategoryRequest {
    * @minLength 0
    * @maxLength 100
    */
-  name: string;
+  name: string
   /**
    * Category description
    * @minLength 0
    * @maxLength 500
    */
-  description?: string;
+  description?: string
   /** Parent category ID for hierarchical structure */
-  parentCategoryId?: number;
+  parentCategoryId?: number
 }
 
 /**
@@ -180,21 +180,21 @@ export interface CategoryRequest {
  */
 export interface CategoryResponse {
   /** Category ID */
-  id?: number;
+  id?: number
   /** Category name */
-  name?: string;
+  name?: string
   /** Category description */
-  description?: string;
+  description?: string
   /** Parent category ID */
-  parentCategoryId?: number;
+  parentCategoryId?: number
   /** Parent category name */
-  parentCategoryName?: string;
+  parentCategoryName?: string
   /** Sub-categories */
-  children?: unknown[];
+  children?: unknown[]
   /** Creation timestamp */
-  createdAt?: string;
+  createdAt?: string
   /** Last update timestamp */
-  updatedAt?: string;
+  updatedAt?: string
 }
 
 /**
@@ -206,7 +206,7 @@ export interface TagRequest {
    * @minLength 0
    * @maxLength 50
    */
-  name: string;
+  name: string
 }
 
 /**
@@ -218,19 +218,19 @@ export interface DocumentUploadRequest {
    * @minLength 0
    * @maxLength 255
    */
-  title: string;
+  title: string
   /**
    * Document description
    * @minLength 0
    * @maxLength 2000
    */
-  description?: string;
+  description?: string
   /** Category ID */
-  categoryId?: number;
+  categoryId?: number
   /** Make document public */
-  isPublic?: boolean;
+  isPublic?: boolean
   /** Tags to associate with the document */
-  tags?: string[];
+  tags?: string[]
 }
 
 /**
@@ -242,7 +242,7 @@ export interface DocumentVersionUploadRequest {
    * @minLength 0
    * @maxLength 500
    */
-  changeDescription?: string;
+  changeDescription?: string
 }
 
 /**
@@ -250,25 +250,25 @@ export interface DocumentVersionUploadRequest {
  */
 export interface DocumentVersionResponse {
   /** Version ID */
-  id?: number;
+  id?: number
   /** Document ID */
-  documentId?: number;
+  documentId?: number
   /** Version number */
-  versionNumber?: number;
+  versionNumber?: number
   /** File name */
-  fileName?: string;
+  fileName?: string
   /** File size in bytes */
-  fileSize?: number;
+  fileSize?: number
   /** Uploaded by user ID */
-  uploadedBy?: string;
+  uploadedBy?: string
   /** Description of changes */
-  changeDescription?: string;
+  changeDescription?: string
   /** File checksum (SHA-256) */
-  checksum?: string;
+  checksum?: string
   /** Download URL (presigned) */
-  downloadUrl?: string;
+  downloadUrl?: string
   /** Creation timestamp */
-  createdAt?: string;
+  createdAt?: string
 }
 
 /**
@@ -276,131 +276,131 @@ export interface DocumentVersionResponse {
  */
 export interface DocumentSearchRequest {
   /** Search query (searches in title, description, file name) */
-  query?: string;
+  query?: string
   /** Filter by category ID */
-  categoryId?: number;
+  categoryId?: number
   /** Filter by uploader user ID */
-  uploadedBy?: string;
+  uploadedBy?: string
   /** Filter by tag name */
-  tag?: string;
+  tag?: string
 }
 
-export type GetMetadata200 = { [key: string]: string };
+export type GetMetadata200 = { [key: string]: string }
 
-export type GetMetadata404 = { [key: string]: string };
+export type GetMetadata404 = { [key: string]: string }
 
-export type SetMetadata200 = { [key: string]: string };
+export type SetMetadata200 = { [key: string]: string }
 
-export type SetMetadata404 = { [key: string]: string };
+export type SetMetadata404 = { [key: string]: string }
 
 export type GetAllParams = {
   /**
    * Search query
    */
-  search?: string;
-};
+  search?: string
+}
 
 export type UploadBody = {
   /** File to upload */
-  file: Blob;
-  data: DocumentUploadRequest;
-};
+  file: Blob
+  data: DocumentUploadRequest
+}
 
 export type UploadVersionBody = {
   /** New file version */
-  file: Blob;
-  data?: DocumentVersionUploadRequest;
-};
+  file: Blob
+  data?: DocumentVersionUploadRequest
+}
 
 export type SearchGetParams = {
   /**
    * Search query
    */
-  query?: string;
+  query?: string
   /**
    * Category ID
    */
-  categoryId?: number;
+  categoryId?: number
   /**
    * Uploader user ID
    */
-  uploadedBy?: string;
+  uploadedBy?: string
   /**
    * Tag name
    */
-  tag?: string;
-};
+  tag?: string
+}
 
 /**
  * Category response
  */
 export type GetAll2200Item = {
   /** Category ID */
-  id?: number;
+  id?: number
   /** Category name */
-  name?: string;
+  name?: string
   /** Category description */
-  description?: string;
+  description?: string
   /** Parent category ID */
-  parentCategoryId?: number;
+  parentCategoryId?: number
   /** Parent category name */
-  parentCategoryName?: string;
+  parentCategoryName?: string
   /** Sub-categories */
-  children?: unknown[];
+  children?: unknown[]
   /** Creation timestamp */
-  createdAt?: string;
+  createdAt?: string
   /** Last update timestamp */
-  updatedAt?: string;
-};
+  updatedAt?: string
+}
 
-export type GetDownloadUrl200 = { [key: string]: string };
+export type GetDownloadUrl200 = { [key: string]: string }
 
-export type GetDownloadUrl404 = { [key: string]: string };
+export type GetDownloadUrl404 = { [key: string]: string }
 
-export type GetVersionDownloadUrl200 = { [key: string]: string };
+export type GetVersionDownloadUrl200 = { [key: string]: string }
 
-export type GetVersionDownloadUrl404 = { [key: string]: string };
+export type GetVersionDownloadUrl404 = { [key: string]: string }
 
 /**
  * Category response
  */
 export type GetTree200Item = {
   /** Category ID */
-  id?: number;
+  id?: number
   /** Category name */
-  name?: string;
+  name?: string
   /** Category description */
-  description?: string;
+  description?: string
   /** Parent category ID */
-  parentCategoryId?: number;
+  parentCategoryId?: number
   /** Parent category name */
-  parentCategoryName?: string;
+  parentCategoryName?: string
   /** Sub-categories */
-  children?: unknown[];
+  children?: unknown[]
   /** Creation timestamp */
-  createdAt?: string;
+  createdAt?: string
   /** Last update timestamp */
-  updatedAt?: string;
-};
+  updatedAt?: string
+}
 
 /**
  * Category response
  */
 export type GetRootCategories200Item = {
   /** Category ID */
-  id?: number;
+  id?: number
   /** Category name */
-  name?: string;
+  name?: string
   /** Category description */
-  description?: string;
+  description?: string
   /** Parent category ID */
-  parentCategoryId?: number;
+  parentCategoryId?: number
   /** Parent category name */
-  parentCategoryName?: string;
+  parentCategoryName?: string
   /** Sub-categories */
-  children?: unknown[];
+  children?: unknown[]
   /** Creation timestamp */
-  createdAt?: string;
+  createdAt?: string
   /** Last update timestamp */
-  updatedAt?: string;
-};
+  updatedAt?: string
+}

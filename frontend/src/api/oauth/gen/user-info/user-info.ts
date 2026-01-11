@@ -5,7 +5,7 @@
  * OAuth2 Authorization Server for Compta microservices. Provides token issuance and user authentication.
  * OpenAPI spec version: 1.0.0
  */
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery } from '@tanstack/vue-query'
 import type {
   DataTag,
   QueryClient,
@@ -13,58 +13,49 @@ import type {
   QueryKey,
   UseQueryOptions,
   UseQueryReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { unref } from "vue";
+import { unref } from 'vue'
 
-import type { UserInfoResponse } from "../generated.schemas";
+import type { UserInfoResponse } from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType } from '../../../axios-instance'
 
 /**
  * Returns claims about the authenticated user
  * @summary Get user info
  */
 export const getUserInfo = (signal?: AbortSignal) => {
-  return customInstance<UserInfoResponse>({
-    url: `/userinfo`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<UserInfoResponse>({ url: `/userinfo`, method: 'GET', signal })
+}
 
 export const getGetUserInfoQueryKey = () => {
-  return ["userinfo"] as const;
-};
+  return ['userinfo'] as const
+}
 
 export const getGetUserInfoQueryOptions = <
   TData = Awaited<ReturnType<typeof getUserInfo>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getUserInfo>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserInfo>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetUserInfoQueryKey();
+  const queryKey = getGetUserInfoQueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserInfo>>> = ({
-    signal,
-  }) => getUserInfo(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserInfo>>> = ({ signal }) =>
+    getUserInfo(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getUserInfo>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type GetUserInfoQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getUserInfo>>
->;
-export type GetUserInfoQueryError = ErrorType<unknown>;
+export type GetUserInfoQueryResult = NonNullable<Awaited<ReturnType<typeof getUserInfo>>>
+export type GetUserInfoQueryError = ErrorType<unknown>
 
 /**
  * @summary Get user info
@@ -75,26 +66,17 @@ export function useGetUserInfo<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getUserInfo>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserInfo>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetUserInfoQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetUserInfoQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }

@@ -5,7 +5,7 @@
  * OAuth2 Authorization Server for Compta microservices. Provides token issuance and user authentication.
  * OpenAPI spec version: 1.0.0
  */
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery } from '@tanstack/vue-query'
 import type {
   DataTag,
   QueryClient,
@@ -13,9 +13,9 @@ import type {
   QueryKey,
   UseQueryOptions,
   UseQueryReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { unref } from "vue";
+import { unref } from 'vue'
 
 import type {
   Health200One,
@@ -24,10 +24,10 @@ import type {
   Links200One,
   Links200Three,
   Links200Two,
-} from "../generated.schemas";
+} from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType } from '../../../axios-instance'
 
 /**
  * @summary Actuator root web endpoint
@@ -35,72 +35,54 @@ import type { ErrorType } from "../../../axios-instance";
 export const links = (signal?: AbortSignal) => {
   return customInstance<Links200One | Links200Two | Links200Three>({
     url: `/actuator`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getLinksQueryKey = () => {
-  return ["actuator"] as const;
-};
+  return ['actuator'] as const
+}
 
 export const getLinksQueryOptions = <
   TData = Awaited<ReturnType<typeof links>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof links>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof links>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getLinksQueryKey();
+  const queryKey = getLinksQueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof links>>> = ({
-    signal,
-  }) => links(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof links>>> = ({ signal }) => links(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof links>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type LinksQueryResult = NonNullable<Awaited<ReturnType<typeof links>>>;
-export type LinksQueryError = ErrorType<unknown>;
+export type LinksQueryResult = NonNullable<Awaited<ReturnType<typeof links>>>
+export type LinksQueryError = ErrorType<unknown>
 
 /**
  * @summary Actuator root web endpoint
  */
 
-export function useLinks<
-  TData = Awaited<ReturnType<typeof links>>,
-  TError = ErrorType<unknown>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof links>>, TError, TData>
-    >;
-  },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getLinksQueryOptions(options);
+export function useLinks<TData = Awaited<ReturnType<typeof links>>, TError = ErrorType<unknown>>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof links>>, TError, TData>> },
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getLinksQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -109,70 +91,52 @@ export function useLinks<
 export const health = (signal?: AbortSignal) => {
   return customInstance<Health200One | Health200Two | Health200Three>({
     url: `/actuator/health`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getHealthQueryKey = () => {
-  return ["actuator", "health"] as const;
-};
+  return ['actuator', 'health'] as const
+}
 
 export const getHealthQueryOptions = <
   TData = Awaited<ReturnType<typeof health>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof health>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof health>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getHealthQueryKey();
+  const queryKey = getHealthQueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof health>>> = ({
-    signal,
-  }) => health(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof health>>> = ({ signal }) => health(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof health>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type HealthQueryResult = NonNullable<Awaited<ReturnType<typeof health>>>;
-export type HealthQueryError = ErrorType<unknown>;
+export type HealthQueryResult = NonNullable<Awaited<ReturnType<typeof health>>>
+export type HealthQueryError = ErrorType<unknown>
 
 /**
  * @summary Actuator web endpoint 'health'
  */
 
-export function useHealth<
-  TData = Awaited<ReturnType<typeof health>>,
-  TError = ErrorType<unknown>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof health>>, TError, TData>
-    >;
-  },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getHealthQueryOptions(options);
+export function useHealth<TData = Awaited<ReturnType<typeof health>>, TError = ErrorType<unknown>>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof health>>, TError, TData>> },
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getHealthQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }

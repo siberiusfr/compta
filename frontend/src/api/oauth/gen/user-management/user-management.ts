@@ -5,7 +5,7 @@
  * OAuth2 Authorization Server for Compta microservices. Provides token issuance and user authentication.
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation, useQuery } from "@tanstack/vue-query";
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import type {
   DataTag,
   MutationFunction,
@@ -16,10 +16,10 @@ import type {
   UseMutationReturnType,
   UseQueryOptions,
   UseQueryReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { computed, unref } from "vue";
-import type { MaybeRef } from "vue";
+import { computed, unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
 import type {
   AssignRolesBody,
@@ -27,28 +27,24 @@ import type {
   CreateUserRequest,
   UpdateUserRequest,
   UserResponse,
-} from "../generated.schemas";
+} from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Retrieve a specific user by ID
  * @summary Get user by ID
  */
 export const getUserById = (id: MaybeRef<string>, signal?: AbortSignal) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<UserResponse>({
-    url: `/api/users/${id}`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<UserResponse>({ url: `/api/users/${id}`, method: 'GET', signal })
+}
 
 export const getGetUserByIdQueryKey = (id?: MaybeRef<string>) => {
-  return ["api", "users", id] as const;
-};
+  return ['api', 'users', id] as const
+}
 
 export const getGetUserByIdQueryOptions = <
   TData = Awaited<ReturnType<typeof getUserById>>,
@@ -56,31 +52,26 @@ export const getGetUserByIdQueryOptions = <
 >(
   id: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetUserByIdQueryKey(id);
+  const queryKey = getGetUserByIdQueryKey(id)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserById>>> = ({
-    signal,
-  }) => getUserById(id, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserById>>> = ({ signal }) =>
+    getUserById(id, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(id)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>
+}
 
-export type GetUserByIdQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getUserById>>
->;
-export type GetUserByIdQueryError = ErrorType<unknown>;
+export type GetUserByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getUserById>>>
+export type GetUserByIdQueryError = ErrorType<unknown>
 
 /**
  * @summary Get user by ID
@@ -92,28 +83,19 @@ export function useGetUserById<
 >(
   id: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetUserByIdQueryOptions(id, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetUserByIdQueryOptions(id, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -122,18 +104,18 @@ export function useGetUserById<
  */
 export const updateUser = (
   id: MaybeRef<string>,
-  updateUserRequest: MaybeRef<UpdateUserRequest>,
+  updateUserRequest: MaybeRef<UpdateUserRequest>
 ) => {
-  id = unref(id);
-  updateUserRequest = unref(updateUserRequest);
+  id = unref(id)
+  updateUserRequest = unref(updateUserRequest)
 
   return customInstance<UserResponse>({
     url: `/api/users/${id}`,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     data: updateUserRequest,
-  });
-};
+  })
+}
 
 export const getUpdateUserMutationOptions = <
   TError = ErrorType<unknown>,
@@ -144,39 +126,35 @@ export const getUpdateUserMutationOptions = <
     TError,
     { id: string; data: BodyType<UpdateUserRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateUser>>,
   TError,
   { id: string; data: BodyType<UpdateUserRequest> },
   TContext
 > => {
-  const mutationKey = ["updateUser"];
+  const mutationKey = ['updateUser']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateUser>>,
     { id: string; data: BodyType<UpdateUserRequest> }
   > = (props) => {
-    const { id, data } = props ?? {};
+    const { id, data } = props ?? {}
 
-    return updateUser(id, data);
-  };
+    return updateUser(id, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type UpdateUserMutationResult = NonNullable<
-  Awaited<ReturnType<typeof updateUser>>
->;
-export type UpdateUserMutationBody = BodyType<UpdateUserRequest>;
-export type UpdateUserMutationError = ErrorType<unknown>;
+export type UpdateUserMutationResult = NonNullable<Awaited<ReturnType<typeof updateUser>>>
+export type UpdateUserMutationBody = BodyType<UpdateUserRequest>
+export type UpdateUserMutationError = ErrorType<unknown>
 
 /**
  * @summary Update user
@@ -188,28 +166,28 @@ export const useUpdateUser = <TError = ErrorType<unknown>, TContext = unknown>(
       TError,
       { id: string; data: BodyType<UpdateUserRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof updateUser>>,
   TError,
   { id: string; data: BodyType<UpdateUserRequest> },
   TContext
 > => {
-  const mutationOptions = getUpdateUserMutationOptions(options);
+  const mutationOptions = getUpdateUserMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Delete a user
  * @summary Delete user
  */
 export const deleteUser = (id: MaybeRef<string>) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<void>({ url: `/api/users/${id}`, method: "DELETE" });
-};
+  return customInstance<void>({ url: `/api/users/${id}`, method: 'DELETE' })
+}
 
 export const getDeleteUserMutationOptions = <
   TError = ErrorType<unknown>,
@@ -220,39 +198,34 @@ export const getDeleteUserMutationOptions = <
     TError,
     { id: string },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteUser>>,
   TError,
   { id: string },
   TContext
 > => {
-  const mutationKey = ["deleteUser"];
+  const mutationKey = ['deleteUser']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deleteUser>>,
-    { id: string }
-  > = (props) => {
-    const { id } = props ?? {};
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteUser>>, { id: string }> = (
+    props
+  ) => {
+    const { id } = props ?? {}
 
-    return deleteUser(id);
-  };
+    return deleteUser(id)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type DeleteUserMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteUser>>
->;
+export type DeleteUserMutationResult = NonNullable<Awaited<ReturnType<typeof deleteUser>>>
 
-export type DeleteUserMutationError = ErrorType<unknown>;
+export type DeleteUserMutationError = ErrorType<unknown>
 
 /**
  * @summary Delete user
@@ -264,62 +237,53 @@ export const useDeleteUser = <TError = ErrorType<unknown>, TContext = unknown>(
       TError,
       { id: string },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof deleteUser>>,
   TError,
   { id: string },
   TContext
 > => {
-  const mutationOptions = getDeleteUserMutationOptions(options);
+  const mutationOptions = getDeleteUserMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Retrieve all users
  * @summary Get all users
  */
 export const getAllUsers = (signal?: AbortSignal) => {
-  return customInstance<UserResponse[]>({
-    url: `/api/users`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<UserResponse[]>({ url: `/api/users`, method: 'GET', signal })
+}
 
 export const getGetAllUsersQueryKey = () => {
-  return ["api", "users"] as const;
-};
+  return ['api', 'users'] as const
+}
 
 export const getGetAllUsersQueryOptions = <
   TData = Awaited<ReturnType<typeof getAllUsers>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getAllUsers>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllUsers>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetAllUsersQueryKey();
+  const queryKey = getGetAllUsersQueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllUsers>>> = ({
-    signal,
-  }) => getAllUsers(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllUsers>>> = ({ signal }) =>
+    getAllUsers(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getAllUsers>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type GetAllUsersQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAllUsers>>
->;
-export type GetAllUsersQueryError = ErrorType<unknown>;
+export type GetAllUsersQueryResult = NonNullable<Awaited<ReturnType<typeof getAllUsers>>>
+export type GetAllUsersQueryError = ErrorType<unknown>
 
 /**
  * @summary Get all users
@@ -330,28 +294,19 @@ export function useGetAllUsers<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getAllUsers>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllUsers>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetAllUsersQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetAllUsersQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -360,18 +315,18 @@ export function useGetAllUsers<
  */
 export const createUser = (
   createUserRequest: MaybeRef<CreateUserRequest>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  createUserRequest = unref(createUserRequest);
+  createUserRequest = unref(createUserRequest)
 
   return customInstance<UserResponse>({
     url: `/api/users`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: createUserRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getCreateUserMutationOptions = <
   TError = ErrorType<unknown>,
@@ -382,39 +337,35 @@ export const getCreateUserMutationOptions = <
     TError,
     { data: BodyType<CreateUserRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof createUser>>,
   TError,
   { data: BodyType<CreateUserRequest> },
   TContext
 > => {
-  const mutationKey = ["createUser"];
+  const mutationKey = ['createUser']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof createUser>>,
     { data: BodyType<CreateUserRequest> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return createUser(data);
-  };
+    return createUser(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type CreateUserMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createUser>>
->;
-export type CreateUserMutationBody = BodyType<CreateUserRequest>;
-export type CreateUserMutationError = ErrorType<unknown>;
+export type CreateUserMutationResult = NonNullable<Awaited<ReturnType<typeof createUser>>>
+export type CreateUserMutationBody = BodyType<CreateUserRequest>
+export type CreateUserMutationError = ErrorType<unknown>
 
 /**
  * @summary Create a new user
@@ -426,36 +377,32 @@ export const useCreateUser = <TError = ErrorType<unknown>, TContext = unknown>(
       TError,
       { data: BodyType<CreateUserRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof createUser>>,
   TError,
   { data: BodyType<CreateUserRequest> },
   TContext
 > => {
-  const mutationOptions = getCreateUserMutationOptions(options);
+  const mutationOptions = getCreateUserMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Retrieve all roles for a user
  * @summary Get user roles
  */
 export const getUserRoles = (id: MaybeRef<string>, signal?: AbortSignal) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<string[]>({
-    url: `/api/users/${id}/roles`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<string[]>({ url: `/api/users/${id}/roles`, method: 'GET', signal })
+}
 
 export const getGetUserRolesQueryKey = (id?: MaybeRef<string>) => {
-  return ["api", "users", id, "roles"] as const;
-};
+  return ['api', 'users', id, 'roles'] as const
+}
 
 export const getGetUserRolesQueryOptions = <
   TData = Awaited<ReturnType<typeof getUserRoles>>,
@@ -463,31 +410,26 @@ export const getGetUserRolesQueryOptions = <
 >(
   id: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getUserRoles>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserRoles>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetUserRolesQueryKey(id);
+  const queryKey = getGetUserRolesQueryKey(id)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserRoles>>> = ({
-    signal,
-  }) => getUserRoles(id, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserRoles>>> = ({ signal }) =>
+    getUserRoles(id, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(id)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof getUserRoles>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getUserRoles>>, TError, TData>
+}
 
-export type GetUserRolesQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getUserRoles>>
->;
-export type GetUserRolesQueryError = ErrorType<unknown>;
+export type GetUserRolesQueryResult = NonNullable<Awaited<ReturnType<typeof getUserRoles>>>
+export type GetUserRolesQueryError = ErrorType<unknown>
 
 /**
  * @summary Get user roles
@@ -499,28 +441,19 @@ export function useGetUserRoles<
 >(
   id: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getUserRoles>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserRoles>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetUserRolesQueryOptions(id, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetUserRolesQueryOptions(id, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -530,19 +463,19 @@ export function useGetUserRoles<
 export const assignRoles = (
   id: MaybeRef<string>,
   assignRolesBody: MaybeRef<AssignRolesBody>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  id = unref(id);
-  assignRolesBody = unref(assignRolesBody);
+  id = unref(id)
+  assignRolesBody = unref(assignRolesBody)
 
   return customInstance<void>({
     url: `/api/users/${id}/roles`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: assignRolesBody,
     signal,
-  });
-};
+  })
+}
 
 export const getAssignRolesMutationOptions = <
   TError = ErrorType<unknown>,
@@ -553,39 +486,35 @@ export const getAssignRolesMutationOptions = <
     TError,
     { id: string; data: BodyType<AssignRolesBody> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof assignRoles>>,
   TError,
   { id: string; data: BodyType<AssignRolesBody> },
   TContext
 > => {
-  const mutationKey = ["assignRoles"];
+  const mutationKey = ['assignRoles']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof assignRoles>>,
     { id: string; data: BodyType<AssignRolesBody> }
   > = (props) => {
-    const { id, data } = props ?? {};
+    const { id, data } = props ?? {}
 
-    return assignRoles(id, data);
-  };
+    return assignRoles(id, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type AssignRolesMutationResult = NonNullable<
-  Awaited<ReturnType<typeof assignRoles>>
->;
-export type AssignRolesMutationBody = BodyType<AssignRolesBody>;
-export type AssignRolesMutationError = ErrorType<unknown>;
+export type AssignRolesMutationResult = NonNullable<Awaited<ReturnType<typeof assignRoles>>>
+export type AssignRolesMutationBody = BodyType<AssignRolesBody>
+export type AssignRolesMutationError = ErrorType<unknown>
 
 /**
  * @summary Assign roles to user
@@ -597,19 +526,19 @@ export const useAssignRoles = <TError = ErrorType<unknown>, TContext = unknown>(
       TError,
       { id: string; data: BodyType<AssignRolesBody> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof assignRoles>>,
   TError,
   { id: string; data: BodyType<AssignRolesBody> },
   TContext
 > => {
-  const mutationOptions = getAssignRolesMutationOptions(options);
+  const mutationOptions = getAssignRolesMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Change password for a user
  * @summary Change user password
@@ -617,19 +546,19 @@ export const useAssignRoles = <TError = ErrorType<unknown>, TContext = unknown>(
 export const changePassword = (
   id: MaybeRef<string>,
   changePasswordRequest: MaybeRef<ChangePasswordRequest>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  id = unref(id);
-  changePasswordRequest = unref(changePasswordRequest);
+  id = unref(id)
+  changePasswordRequest = unref(changePasswordRequest)
 
   return customInstance<void>({
     url: `/api/users/${id}/password`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: changePasswordRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getChangePasswordMutationOptions = <
   TError = ErrorType<unknown>,
@@ -640,78 +569,68 @@ export const getChangePasswordMutationOptions = <
     TError,
     { id: string; data: BodyType<ChangePasswordRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof changePassword>>,
   TError,
   { id: string; data: BodyType<ChangePasswordRequest> },
   TContext
 > => {
-  const mutationKey = ["changePassword"];
+  const mutationKey = ['changePassword']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof changePassword>>,
     { id: string; data: BodyType<ChangePasswordRequest> }
   > = (props) => {
-    const { id, data } = props ?? {};
+    const { id, data } = props ?? {}
 
-    return changePassword(id, data);
-  };
+    return changePassword(id, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type ChangePasswordMutationResult = NonNullable<
-  Awaited<ReturnType<typeof changePassword>>
->;
-export type ChangePasswordMutationBody = BodyType<ChangePasswordRequest>;
-export type ChangePasswordMutationError = ErrorType<unknown>;
+export type ChangePasswordMutationResult = NonNullable<Awaited<ReturnType<typeof changePassword>>>
+export type ChangePasswordMutationBody = BodyType<ChangePasswordRequest>
+export type ChangePasswordMutationError = ErrorType<unknown>
 
 /**
  * @summary Change user password
  */
-export const useChangePassword = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
+export const useChangePassword = <TError = ErrorType<unknown>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof changePassword>>,
       TError,
       { id: string; data: BodyType<ChangePasswordRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof changePassword>>,
   TError,
   { id: string; data: BodyType<ChangePasswordRequest> },
   TContext
 > => {
-  const mutationOptions = getChangePasswordMutationOptions(options);
+  const mutationOptions = getChangePasswordMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Enable a user account
  * @summary Enable user
  */
 export const enableUser = (id: MaybeRef<string>) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<void>({
-    url: `/api/users/${id}/enable`,
-    method: "PATCH",
-  });
-};
+  return customInstance<void>({ url: `/api/users/${id}/enable`, method: 'PATCH' })
+}
 
 export const getEnableUserMutationOptions = <
   TError = ErrorType<unknown>,
@@ -722,39 +641,34 @@ export const getEnableUserMutationOptions = <
     TError,
     { id: string },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof enableUser>>,
   TError,
   { id: string },
   TContext
 > => {
-  const mutationKey = ["enableUser"];
+  const mutationKey = ['enableUser']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof enableUser>>,
-    { id: string }
-  > = (props) => {
-    const { id } = props ?? {};
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof enableUser>>, { id: string }> = (
+    props
+  ) => {
+    const { id } = props ?? {}
 
-    return enableUser(id);
-  };
+    return enableUser(id)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type EnableUserMutationResult = NonNullable<
-  Awaited<ReturnType<typeof enableUser>>
->;
+export type EnableUserMutationResult = NonNullable<Awaited<ReturnType<typeof enableUser>>>
 
-export type EnableUserMutationError = ErrorType<unknown>;
+export type EnableUserMutationError = ErrorType<unknown>
 
 /**
  * @summary Enable user
@@ -766,31 +680,28 @@ export const useEnableUser = <TError = ErrorType<unknown>, TContext = unknown>(
       TError,
       { id: string },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof enableUser>>,
   TError,
   { id: string },
   TContext
 > => {
-  const mutationOptions = getEnableUserMutationOptions(options);
+  const mutationOptions = getEnableUserMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Disable a user account
  * @summary Disable user
  */
 export const disableUser = (id: MaybeRef<string>) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<void>({
-    url: `/api/users/${id}/disable`,
-    method: "PATCH",
-  });
-};
+  return customInstance<void>({ url: `/api/users/${id}/disable`, method: 'PATCH' })
+}
 
 export const getDisableUserMutationOptions = <
   TError = ErrorType<unknown>,
@@ -801,39 +712,34 @@ export const getDisableUserMutationOptions = <
     TError,
     { id: string },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof disableUser>>,
   TError,
   { id: string },
   TContext
 > => {
-  const mutationKey = ["disableUser"];
+  const mutationKey = ['disableUser']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof disableUser>>,
-    { id: string }
-  > = (props) => {
-    const { id } = props ?? {};
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof disableUser>>, { id: string }> = (
+    props
+  ) => {
+    const { id } = props ?? {}
 
-    return disableUser(id);
-  };
+    return disableUser(id)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type DisableUserMutationResult = NonNullable<
-  Awaited<ReturnType<typeof disableUser>>
->;
+export type DisableUserMutationResult = NonNullable<Awaited<ReturnType<typeof disableUser>>>
 
-export type DisableUserMutationError = ErrorType<unknown>;
+export type DisableUserMutationError = ErrorType<unknown>
 
 /**
  * @summary Disable user
@@ -845,32 +751,29 @@ export const useDisableUser = <TError = ErrorType<unknown>, TContext = unknown>(
       TError,
       { id: string },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof disableUser>>,
   TError,
   { id: string },
   TContext
 > => {
-  const mutationOptions = getDisableUserMutationOptions(options);
+  const mutationOptions = getDisableUserMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Remove a specific role from a user
  * @summary Remove role from user
  */
 export const removeRole = (id: MaybeRef<string>, roleId: MaybeRef<string>) => {
-  id = unref(id);
-  roleId = unref(roleId);
+  id = unref(id)
+  roleId = unref(roleId)
 
-  return customInstance<void>({
-    url: `/api/users/${id}/roles/${roleId}`,
-    method: "DELETE",
-  });
-};
+  return customInstance<void>({ url: `/api/users/${id}/roles/${roleId}`, method: 'DELETE' })
+}
 
 export const getRemoveRoleMutationOptions = <
   TError = ErrorType<unknown>,
@@ -881,39 +784,35 @@ export const getRemoveRoleMutationOptions = <
     TError,
     { id: string; roleId: string },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof removeRole>>,
   TError,
   { id: string; roleId: string },
   TContext
 > => {
-  const mutationKey = ["removeRole"];
+  const mutationKey = ['removeRole']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof removeRole>>,
     { id: string; roleId: string }
   > = (props) => {
-    const { id, roleId } = props ?? {};
+    const { id, roleId } = props ?? {}
 
-    return removeRole(id, roleId);
-  };
+    return removeRole(id, roleId)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type RemoveRoleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof removeRole>>
->;
+export type RemoveRoleMutationResult = NonNullable<Awaited<ReturnType<typeof removeRole>>>
 
-export type RemoveRoleMutationError = ErrorType<unknown>;
+export type RemoveRoleMutationError = ErrorType<unknown>
 
 /**
  * @summary Remove role from user
@@ -925,16 +824,16 @@ export const useRemoveRole = <TError = ErrorType<unknown>, TContext = unknown>(
       TError,
       { id: string; roleId: string },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof removeRole>>,
   TError,
   { id: string; roleId: string },
   TContext
 > => {
-  const mutationOptions = getRemoveRoleMutationOptions(options);
+  const mutationOptions = getRemoveRoleMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}

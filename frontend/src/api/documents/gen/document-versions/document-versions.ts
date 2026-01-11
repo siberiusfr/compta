@@ -5,7 +5,7 @@
  * Service de gestion des documents - Upload, versioning, partage et métadonnées. Toutes les requêtes passent via la Gateway.
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation, useQuery } from "@tanstack/vue-query";
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import type {
   DataTag,
   MutationFunction,
@@ -16,41 +16,38 @@ import type {
   UseMutationReturnType,
   UseQueryOptions,
   UseQueryReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { computed, unref } from "vue";
-import type { MaybeRef } from "vue";
+import { computed, unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
 import type {
   DocumentVersionResponse,
   GetVersionDownloadUrl200,
   GetVersionDownloadUrl404,
   UploadVersionBody,
-} from "../generated.schemas";
+} from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Returns all versions of a document
  * @summary Get all versions
  */
-export const getVersions = (
-  documentId: MaybeRef<number>,
-  signal?: AbortSignal,
-) => {
-  documentId = unref(documentId);
+export const getVersions = (documentId: MaybeRef<number>, signal?: AbortSignal) => {
+  documentId = unref(documentId)
 
   return customInstance<DocumentVersionResponse[]>({
     url: `/api/documents/${documentId}/versions`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getGetVersionsQueryKey = (documentId?: MaybeRef<number>) => {
-  return ["api", "documents", documentId, "versions"] as const;
-};
+  return ['api', 'documents', documentId, 'versions'] as const
+}
 
 export const getGetVersionsQueryOptions = <
   TData = Awaited<ReturnType<typeof getVersions>>,
@@ -58,31 +55,26 @@ export const getGetVersionsQueryOptions = <
 >(
   documentId: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getVersions>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersions>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetVersionsQueryKey(documentId);
+  const queryKey = getGetVersionsQueryKey(documentId)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVersions>>> = ({
-    signal,
-  }) => getVersions(documentId, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVersions>>> = ({ signal }) =>
+    getVersions(documentId, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(documentId)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof getVersions>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getVersions>>, TError, TData>
+}
 
-export type GetVersionsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getVersions>>
->;
-export type GetVersionsQueryError = ErrorType<DocumentVersionResponse[]>;
+export type GetVersionsQueryResult = NonNullable<Awaited<ReturnType<typeof getVersions>>>
+export type GetVersionsQueryError = ErrorType<DocumentVersionResponse[]>
 
 /**
  * @summary Get all versions
@@ -94,28 +86,19 @@ export function useGetVersions<
 >(
   documentId: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getVersions>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersions>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetVersionsQueryOptions(documentId, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetVersionsQueryOptions(documentId, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -125,24 +108,24 @@ export function useGetVersions<
 export const uploadVersion = (
   documentId: MaybeRef<number>,
   uploadVersionBody: MaybeRef<UploadVersionBody>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  documentId = unref(documentId);
-  uploadVersionBody = unref(uploadVersionBody);
-  const formData = new FormData();
-  formData.append(`file`, uploadVersionBody.file);
+  documentId = unref(documentId)
+  uploadVersionBody = unref(uploadVersionBody)
+  const formData = new FormData()
+  formData.append(`file`, uploadVersionBody.file)
   if (uploadVersionBody.data !== undefined) {
-    formData.append(`data`, JSON.stringify(uploadVersionBody.data));
+    formData.append(`data`, JSON.stringify(uploadVersionBody.data))
   }
 
   return customInstance<DocumentVersionResponse>({
     url: `/api/documents/${documentId}/versions`,
-    method: "POST",
-    headers: { "Content-Type": "multipart/form-data" },
+    method: 'POST',
+    headers: { 'Content-Type': 'multipart/form-data' },
     data: formData,
     signal,
-  });
-};
+  })
+}
 
 export const getUploadVersionMutationOptions = <
   TError = ErrorType<DocumentVersionResponse>,
@@ -153,66 +136,59 @@ export const getUploadVersionMutationOptions = <
     TError,
     { documentId: number; data: BodyType<UploadVersionBody> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof uploadVersion>>,
   TError,
   { documentId: number; data: BodyType<UploadVersionBody> },
   TContext
 > => {
-  const mutationKey = ["uploadVersion"];
+  const mutationKey = ['uploadVersion']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof uploadVersion>>,
     { documentId: number; data: BodyType<UploadVersionBody> }
   > = (props) => {
-    const { documentId, data } = props ?? {};
+    const { documentId, data } = props ?? {}
 
-    return uploadVersion(documentId, data);
-  };
+    return uploadVersion(documentId, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type UploadVersionMutationResult = NonNullable<
-  Awaited<ReturnType<typeof uploadVersion>>
->;
-export type UploadVersionMutationBody = BodyType<UploadVersionBody>;
-export type UploadVersionMutationError = ErrorType<DocumentVersionResponse>;
+export type UploadVersionMutationResult = NonNullable<Awaited<ReturnType<typeof uploadVersion>>>
+export type UploadVersionMutationBody = BodyType<UploadVersionBody>
+export type UploadVersionMutationError = ErrorType<DocumentVersionResponse>
 
 /**
  * @summary Upload new version
  */
-export const useUploadVersion = <
-  TError = ErrorType<DocumentVersionResponse>,
-  TContext = unknown,
->(
+export const useUploadVersion = <TError = ErrorType<DocumentVersionResponse>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof uploadVersion>>,
       TError,
       { documentId: number; data: BodyType<UploadVersionBody> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof uploadVersion>>,
   TError,
   { documentId: number; data: BodyType<UploadVersionBody> },
   TContext
 > => {
-  const mutationOptions = getUploadVersionMutationOptions(options);
+  const mutationOptions = getUploadVersionMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Returns details of a specific version
  * @summary Get specific version
@@ -220,24 +196,24 @@ export const useUploadVersion = <
 export const getVersion = (
   documentId: MaybeRef<number>,
   versionNumber: MaybeRef<number>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  documentId = unref(documentId);
-  versionNumber = unref(versionNumber);
+  documentId = unref(documentId)
+  versionNumber = unref(versionNumber)
 
   return customInstance<DocumentVersionResponse>({
     url: `/api/documents/${documentId}/versions/${versionNumber}`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getGetVersionQueryKey = (
   documentId?: MaybeRef<number>,
-  versionNumber?: MaybeRef<number>,
+  versionNumber?: MaybeRef<number>
 ) => {
-  return ["api", "documents", documentId, "versions", versionNumber] as const;
-};
+  return ['api', 'documents', documentId, 'versions', versionNumber] as const
+}
 
 export const getGetVersionQueryOptions = <
   TData = Awaited<ReturnType<typeof getVersion>>,
@@ -246,31 +222,26 @@ export const getGetVersionQueryOptions = <
   documentId: MaybeRef<number>,
   versionNumber: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getVersion>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersion>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetVersionQueryKey(documentId, versionNumber);
+  const queryKey = getGetVersionQueryKey(documentId, versionNumber)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVersion>>> = ({
-    signal,
-  }) => getVersion(documentId, versionNumber, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVersion>>> = ({ signal }) =>
+    getVersion(documentId, versionNumber, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!(unref(documentId) && unref(versionNumber))),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof getVersion>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getVersion>>, TError, TData>
+}
 
-export type GetVersionQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getVersion>>
->;
-export type GetVersionQueryError = ErrorType<DocumentVersionResponse>;
+export type GetVersionQueryResult = NonNullable<Awaited<ReturnType<typeof getVersion>>>
+export type GetVersionQueryError = ErrorType<DocumentVersionResponse>
 
 /**
  * @summary Get specific version
@@ -283,32 +254,19 @@ export function useGetVersion<
   documentId: MaybeRef<number>,
   versionNumber: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getVersion>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersion>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetVersionQueryOptions(
-    documentId,
-    versionNumber,
-    options,
-  );
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetVersionQueryOptions(documentId, versionNumber, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -318,32 +276,25 @@ export function useGetVersion<
 export const downloadVersion = (
   documentId: MaybeRef<number>,
   versionNumber: MaybeRef<number>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  documentId = unref(documentId);
-  versionNumber = unref(versionNumber);
+  documentId = unref(documentId)
+  versionNumber = unref(versionNumber)
 
   return customInstance<Blob>({
     url: `/api/documents/${documentId}/versions/${versionNumber}/download`,
-    method: "GET",
-    responseType: "blob",
+    method: 'GET',
+    responseType: 'blob',
     signal,
-  });
-};
+  })
+}
 
 export const getDownloadVersionQueryKey = (
   documentId?: MaybeRef<number>,
-  versionNumber?: MaybeRef<number>,
+  versionNumber?: MaybeRef<number>
 ) => {
-  return [
-    "api",
-    "documents",
-    documentId,
-    "versions",
-    versionNumber,
-    "download",
-  ] as const;
-};
+  return ['api', 'documents', documentId, 'versions', versionNumber, 'download'] as const
+}
 
 export const getDownloadVersionQueryOptions = <
   TData = Awaited<ReturnType<typeof downloadVersion>>,
@@ -352,39 +303,26 @@ export const getDownloadVersionQueryOptions = <
   documentId: MaybeRef<number>,
   versionNumber: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof downloadVersion>>,
-        TError,
-        TData
-      >
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadVersion>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getDownloadVersionQueryKey(documentId, versionNumber);
+  const queryKey = getDownloadVersionQueryKey(documentId, versionNumber)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadVersion>>> = ({
-    signal,
-  }) => downloadVersion(documentId, versionNumber, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadVersion>>> = ({ signal }) =>
+    downloadVersion(documentId, versionNumber, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!(unref(documentId) && unref(versionNumber))),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof downloadVersion>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof downloadVersion>>, TError, TData>
+}
 
-export type DownloadVersionQueryResult = NonNullable<
-  Awaited<ReturnType<typeof downloadVersion>>
->;
-export type DownloadVersionQueryError = ErrorType<string>;
+export type DownloadVersionQueryResult = NonNullable<Awaited<ReturnType<typeof downloadVersion>>>
+export type DownloadVersionQueryError = ErrorType<string>
 
 /**
  * @summary Download version
@@ -397,36 +335,19 @@ export function useDownloadVersion<
   documentId: MaybeRef<number>,
   versionNumber: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof downloadVersion>>,
-        TError,
-        TData
-      >
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadVersion>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getDownloadVersionQueryOptions(
-    documentId,
-    versionNumber,
-    options,
-  );
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getDownloadVersionQueryOptions(documentId, versionNumber, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -436,31 +357,24 @@ export function useDownloadVersion<
 export const getVersionDownloadUrl = (
   documentId: MaybeRef<number>,
   versionNumber: MaybeRef<number>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  documentId = unref(documentId);
-  versionNumber = unref(versionNumber);
+  documentId = unref(documentId)
+  versionNumber = unref(versionNumber)
 
   return customInstance<GetVersionDownloadUrl200>({
     url: `/api/documents/${documentId}/versions/${versionNumber}/download-url`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getGetVersionDownloadUrlQueryKey = (
   documentId?: MaybeRef<number>,
-  versionNumber?: MaybeRef<number>,
+  versionNumber?: MaybeRef<number>
 ) => {
-  return [
-    "api",
-    "documents",
-    documentId,
-    "versions",
-    versionNumber,
-    "download-url",
-  ] as const;
-};
+  return ['api', 'documents', documentId, 'versions', versionNumber, 'download-url'] as const
+}
 
 export const getGetVersionDownloadUrlQueryOptions = <
   TData = Awaited<ReturnType<typeof getVersionDownloadUrl>>,
@@ -470,39 +384,29 @@ export const getGetVersionDownloadUrlQueryOptions = <
   versionNumber: MaybeRef<number>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getVersionDownloadUrl>>,
-        TError,
-        TData
-      >
-    >;
-  },
+      UseQueryOptions<Awaited<ReturnType<typeof getVersionDownloadUrl>>, TError, TData>
+    >
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetVersionDownloadUrlQueryKey(documentId, versionNumber);
+  const queryKey = getGetVersionDownloadUrlQueryKey(documentId, versionNumber)
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getVersionDownloadUrl>>
-  > = ({ signal }) => getVersionDownloadUrl(documentId, versionNumber, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVersionDownloadUrl>>> = ({ signal }) =>
+    getVersionDownloadUrl(documentId, versionNumber, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!(unref(documentId) && unref(versionNumber))),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getVersionDownloadUrl>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getVersionDownloadUrl>>, TError, TData>
+}
 
 export type GetVersionDownloadUrlQueryResult = NonNullable<
   Awaited<ReturnType<typeof getVersionDownloadUrl>>
->;
-export type GetVersionDownloadUrlQueryError =
-  ErrorType<GetVersionDownloadUrl404>;
+>
+export type GetVersionDownloadUrlQueryError = ErrorType<GetVersionDownloadUrl404>
 
 /**
  * @summary Get version download URL
@@ -516,33 +420,18 @@ export function useGetVersionDownloadUrl<
   versionNumber: MaybeRef<number>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getVersionDownloadUrl>>,
-        TError,
-        TData
-      >
-    >;
+      UseQueryOptions<Awaited<ReturnType<typeof getVersionDownloadUrl>>, TError, TData>
+    >
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetVersionDownloadUrlQueryOptions(
-    documentId,
-    versionNumber,
-    options,
-  );
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetVersionDownloadUrlQueryOptions(documentId, versionNumber, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }

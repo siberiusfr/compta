@@ -9,21 +9,21 @@
  */
 export interface UserSocietesDto {
   /** Identifiant unique */
-  id?: number;
+  id?: number
   /** ID de l'utilisateur */
-  userId?: number;
+  userId?: number
   /** ID de la societe cliente */
-  societeId?: number;
+  societeId?: number
   /** Rôle dans la societe */
-  role?: string;
+  role?: string
   /** Date de debut d'affectation */
-  dateDebut?: string;
+  dateDebut?: string
   /** Date de fin d'affectation (null si toujours actif) */
-  dateFin?: string;
+  dateFin?: string
   /** Statut actif */
-  isActive?: boolean;
+  isActive?: boolean
   /** Date de creation */
-  createdAt?: string;
+  createdAt?: string
 }
 
 /**
@@ -31,21 +31,21 @@ export interface UserSocietesDto {
  */
 export interface UserSocieteComptableDto {
   /** Identifiant unique */
-  id?: number;
+  id?: number
   /** ID de l'utilisateur */
-  userId?: number;
+  userId?: number
   /** ID de la societe comptable */
-  societeComptableId?: number;
+  societeComptableId?: number
   /** Rôle dans le cabinet */
-  role?: string;
+  role?: string
   /** Date de debut d'affectation */
-  dateDebut?: string;
+  dateDebut?: string
   /** Date de fin d'affectation (null si toujours actif) */
-  dateFin?: string;
+  dateFin?: string
   /** Statut actif */
-  isActive?: boolean;
+  isActive?: boolean
   /** Date de creation */
-  createdAt?: string;
+  createdAt?: string
 }
 
 /**
@@ -57,93 +57,93 @@ export interface UpdateSocieteRequest {
    * @minLength 0
    * @maxLength 255
    */
-  raisonSociale?: string;
+  raisonSociale?: string
   /**
    * Code TVA
    * @minLength 0
    * @maxLength 20
    */
-  codeTva?: string;
+  codeTva?: string
   /**
    * Code douane
    * @minLength 0
    * @maxLength 20
    */
-  codeDouane?: string;
+  codeDouane?: string
   /**
    * Numero registre commerce
    * @minLength 0
    * @maxLength 50
    */
-  registreCommerce?: string;
+  registreCommerce?: string
   /**
    * Forme juridique
    * @minLength 0
    * @maxLength 100
    */
-  formeJuridique?: string;
+  formeJuridique?: string
   /** Capital social */
-  capitalSocial?: number;
+  capitalSocial?: number
   /** Date de creation de la societe */
-  dateCreation?: string;
+  dateCreation?: string
   /**
    * Adresse
    * @minLength 0
    * @maxLength 255
    */
-  adresse?: string;
+  adresse?: string
   /**
    * Ville
    * @minLength 0
    * @maxLength 100
    */
-  ville?: string;
+  ville?: string
   /**
    * Code postal
    * @minLength 0
    * @maxLength 10
    */
-  codePostal?: string;
+  codePostal?: string
   /**
    * Telephone
    * @minLength 0
    * @maxLength 20
    */
-  telephone?: string;
+  telephone?: string
   /**
    * Fax
    * @minLength 0
    * @maxLength 20
    */
-  fax?: string;
+  fax?: string
   /**
    * Email
    * @minLength 0
    * @maxLength 255
    */
-  email?: string;
+  email?: string
   /**
    * Site web
    * @minLength 0
    * @maxLength 255
    */
-  siteWeb?: string;
+  siteWeb?: string
   /**
    * Activite principale
    * @minLength 0
    * @maxLength 255
    */
-  activite?: string;
+  activite?: string
   /**
    * Secteur d'activite
    * @minLength 0
    * @maxLength 100
    */
-  secteur?: string;
+  secteur?: string
   /** ID de la societe comptable gerant cette societe */
-  societeComptableId?: number;
+  societeComptableId?: number
   /** Statut actif */
-  isActive?: boolean;
+  isActive?: boolean
 }
 
 /**
@@ -151,49 +151,49 @@ export interface UpdateSocieteRequest {
  */
 export interface SocieteDto {
   /** Identifiant unique */
-  id?: number;
+  id?: number
   /** Raison sociale */
-  raisonSociale?: string;
+  raisonSociale?: string
   /** Matricule fiscale (13 caracteres) */
-  matriculeFiscale?: string;
+  matriculeFiscale?: string
   /** Code TVA */
-  codeTva?: string;
+  codeTva?: string
   /** Code douane */
-  codeDouane?: string;
+  codeDouane?: string
   /** Numero registre commerce */
-  registreCommerce?: string;
+  registreCommerce?: string
   /** Forme juridique */
-  formeJuridique?: string;
+  formeJuridique?: string
   /** Capital social */
-  capitalSocial?: number;
+  capitalSocial?: number
   /** Date de creation de la societe */
-  dateCreation?: string;
+  dateCreation?: string
   /** Adresse */
-  adresse?: string;
+  adresse?: string
   /** Ville */
-  ville?: string;
+  ville?: string
   /** Code postal */
-  codePostal?: string;
+  codePostal?: string
   /** Telephone */
-  telephone?: string;
+  telephone?: string
   /** Fax */
-  fax?: string;
+  fax?: string
   /** Email */
-  email?: string;
+  email?: string
   /** Site web */
-  siteWeb?: string;
+  siteWeb?: string
   /** Activite principale */
-  activite?: string;
+  activite?: string
   /** Secteur d'activite */
-  secteur?: string;
+  secteur?: string
   /** ID de la societe comptable gerant cette societe */
-  societeComptableId?: number;
+  societeComptableId?: number
   /** Statut actif */
-  isActive?: boolean;
+  isActive?: boolean
   /** Date de creation */
-  createdAt?: string;
+  createdAt?: string
   /** Date de mise a jour */
-  updatedAt?: string;
+  updatedAt?: string
 }
 
 /**
@@ -205,51 +205,51 @@ export interface UpdateSocieteComptableRequest {
    * @minLength 0
    * @maxLength 255
    */
-  raisonSociale?: string;
+  raisonSociale?: string
   /**
    * Code TVA
    * @minLength 0
    * @maxLength 20
    */
-  codeTva?: string;
+  codeTva?: string
   /**
    * Adresse
    * @minLength 0
    * @maxLength 255
    */
-  adresse?: string;
+  adresse?: string
   /**
    * Ville
    * @minLength 0
    * @maxLength 100
    */
-  ville?: string;
+  ville?: string
   /**
    * Code postal
    * @minLength 0
    * @maxLength 10
    */
-  codePostal?: string;
+  codePostal?: string
   /**
    * Telephone
    * @minLength 0
    * @maxLength 20
    */
-  telephone?: string;
+  telephone?: string
   /**
    * Email
    * @minLength 0
    * @maxLength 255
    */
-  email?: string;
+  email?: string
   /**
    * Site web
    * @minLength 0
    * @maxLength 255
    */
-  siteWeb?: string;
+  siteWeb?: string
   /** Statut actif */
-  isActive?: boolean;
+  isActive?: boolean
 }
 
 /**
@@ -257,31 +257,31 @@ export interface UpdateSocieteComptableRequest {
  */
 export interface SocieteComptableDto {
   /** Identifiant unique */
-  id?: number;
+  id?: number
   /** Raison sociale */
-  raisonSociale?: string;
+  raisonSociale?: string
   /** Matricule fiscale (13 caracteres) */
-  matriculeFiscale?: string;
+  matriculeFiscale?: string
   /** Code TVA */
-  codeTva?: string;
+  codeTva?: string
   /** Adresse */
-  adresse?: string;
+  adresse?: string
   /** Ville */
-  ville?: string;
+  ville?: string
   /** Code postal */
-  codePostal?: string;
+  codePostal?: string
   /** Telephone */
-  telephone?: string;
+  telephone?: string
   /** Email */
-  email?: string;
+  email?: string
   /** Site web */
-  siteWeb?: string;
+  siteWeb?: string
   /** Statut actif */
-  isActive?: boolean;
+  isActive?: boolean
   /** Date de creation */
-  createdAt?: string;
+  createdAt?: string
   /** Date de mise a jour */
-  updatedAt?: string;
+  updatedAt?: string
 }
 
 /**
@@ -289,17 +289,17 @@ export interface SocieteComptableDto {
  */
 export interface PermissionDto {
   /** Identifiant unique */
-  id?: number;
+  id?: number
   /** Code unique de la permission */
-  code?: string;
+  code?: string
   /** Ressource concernee */
-  resource?: string;
+  resource?: string
   /** Action autorisee */
-  action?: string;
+  action?: string
   /** Description de la permission */
-  description?: string;
+  description?: string
   /** Date de creation */
-  createdAt?: string;
+  createdAt?: string
 }
 
 /**
@@ -307,15 +307,15 @@ export interface PermissionDto {
  */
 export interface UpdateComptableSocieteAccessRequest {
   /** Droit de lecture */
-  canRead?: boolean;
+  canRead?: boolean
   /** Droit d'ecriture */
-  canWrite?: boolean;
+  canWrite?: boolean
   /** Droit de validation */
-  canValidate?: boolean;
+  canValidate?: boolean
   /** Date de fin d'acces (null si permanent) */
-  dateFin?: string;
+  dateFin?: string
   /** Statut actif */
-  isActive?: boolean;
+  isActive?: boolean
 }
 
 /**
@@ -323,25 +323,25 @@ export interface UpdateComptableSocieteAccessRequest {
  */
 export interface ComptableSocietesDto {
   /** Identifiant unique */
-  id?: number;
+  id?: number
   /** ID de l'utilisateur comptable */
-  userId?: number;
+  userId?: number
   /** ID de la societe cliente */
-  societeId?: number;
+  societeId?: number
   /** Droit de lecture */
-  canRead?: boolean;
+  canRead?: boolean
   /** Droit d'ecriture */
-  canWrite?: boolean;
+  canWrite?: boolean
   /** Droit de validation */
-  canValidate?: boolean;
+  canValidate?: boolean
   /** Date de debut d'acces */
-  dateDebut?: string;
+  dateDebut?: string
   /** Date de fin d'acces (null si permanent) */
-  dateFin?: string;
+  dateFin?: string
   /** Statut actif */
-  isActive?: boolean;
+  isActive?: boolean
   /** Date de creation */
-  createdAt?: string;
+  createdAt?: string
 }
 
 /**
@@ -349,18 +349,18 @@ export interface ComptableSocietesDto {
  */
 export interface AssignUserToSocieteRequest {
   /** ID de l'utilisateur */
-  userId: number;
+  userId: number
   /** ID de la societe cliente */
-  societeId: number;
+  societeId: number
   /**
    * Rôle dans la societe (MANAGER, FINANCE, VIEWER)
    * @minLength 1
    */
-  role: string;
+  role: string
   /** Date de debut d'affectation (par defaut: aujourd'hui) */
-  dateDebut?: string;
+  dateDebut?: string
   /** Date de fin d'affectation (null si permanent) */
-  dateFin?: string;
+  dateFin?: string
 }
 
 /**
@@ -368,18 +368,18 @@ export interface AssignUserToSocieteRequest {
  */
 export interface AssignUserToSocieteComptableRequest {
   /** ID de l'utilisateur */
-  userId: number;
+  userId: number
   /** ID de la societe comptable */
-  societeComptableId: number;
+  societeComptableId: number
   /**
    * Rôle dans le cabinet (MANAGER, COMPTABLE, ASSISTANT)
    * @minLength 1
    */
-  role: string;
+  role: string
   /** Date de debut d'affectation (par defaut: aujourd'hui) */
-  dateDebut?: string;
+  dateDebut?: string
   /** Date de fin d'affectation (null si permanent) */
-  dateFin?: string;
+  dateFin?: string
 }
 
 /**
@@ -391,97 +391,97 @@ export interface CreateSocieteRequest {
    * @minLength 0
    * @maxLength 255
    */
-  raisonSociale: string;
+  raisonSociale: string
   /**
    * Matricule fiscale (13 caracteres)
    * @minLength 13
    * @maxLength 13
    */
-  matriculeFiscale: string;
+  matriculeFiscale: string
   /**
    * Code TVA
    * @minLength 0
    * @maxLength 20
    */
-  codeTva?: string;
+  codeTva?: string
   /**
    * Code douane
    * @minLength 0
    * @maxLength 20
    */
-  codeDouane?: string;
+  codeDouane?: string
   /**
    * Numero registre commerce
    * @minLength 0
    * @maxLength 50
    */
-  registreCommerce?: string;
+  registreCommerce?: string
   /**
    * Forme juridique
    * @minLength 0
    * @maxLength 100
    */
-  formeJuridique?: string;
+  formeJuridique?: string
   /** Capital social */
-  capitalSocial?: number;
+  capitalSocial?: number
   /** Date de creation de la societe */
-  dateCreation?: string;
+  dateCreation?: string
   /**
    * Adresse
    * @minLength 0
    * @maxLength 255
    */
-  adresse?: string;
+  adresse?: string
   /**
    * Ville
    * @minLength 0
    * @maxLength 100
    */
-  ville?: string;
+  ville?: string
   /**
    * Code postal
    * @minLength 0
    * @maxLength 10
    */
-  codePostal?: string;
+  codePostal?: string
   /**
    * Telephone
    * @minLength 0
    * @maxLength 20
    */
-  telephone?: string;
+  telephone?: string
   /**
    * Fax
    * @minLength 0
    * @maxLength 20
    */
-  fax?: string;
+  fax?: string
   /**
    * Email
    * @minLength 0
    * @maxLength 255
    */
-  email?: string;
+  email?: string
   /**
    * Site web
    * @minLength 0
    * @maxLength 255
    */
-  siteWeb?: string;
+  siteWeb?: string
   /**
    * Activite principale
    * @minLength 0
    * @maxLength 255
    */
-  activite?: string;
+  activite?: string
   /**
    * Secteur d'activite
    * @minLength 0
    * @maxLength 100
    */
-  secteur?: string;
+  secteur?: string
   /** ID de la societe comptable gerant cette societe */
-  societeComptableId?: number;
+  societeComptableId?: number
 }
 
 /**
@@ -493,55 +493,55 @@ export interface CreateSocieteComptableRequest {
    * @minLength 0
    * @maxLength 255
    */
-  raisonSociale: string;
+  raisonSociale: string
   /**
    * Matricule fiscale (13 caracteres)
    * @minLength 13
    * @maxLength 13
    */
-  matriculeFiscale: string;
+  matriculeFiscale: string
   /**
    * Code TVA
    * @minLength 0
    * @maxLength 20
    */
-  codeTva?: string;
+  codeTva?: string
   /**
    * Adresse
    * @minLength 0
    * @maxLength 255
    */
-  adresse?: string;
+  adresse?: string
   /**
    * Ville
    * @minLength 0
    * @maxLength 100
    */
-  ville?: string;
+  ville?: string
   /**
    * Code postal
    * @minLength 0
    * @maxLength 10
    */
-  codePostal?: string;
+  codePostal?: string
   /**
    * Telephone
    * @minLength 0
    * @maxLength 20
    */
-  telephone?: string;
+  telephone?: string
   /**
    * Email
    * @minLength 0
    * @maxLength 255
    */
-  email?: string;
+  email?: string
   /**
    * Site web
    * @minLength 0
    * @maxLength 255
    */
-  siteWeb?: string;
+  siteWeb?: string
 }
 
 /**
@@ -553,21 +553,21 @@ export interface CreatePermissionRequest {
    * @minLength 0
    * @maxLength 100
    */
-  code: string;
+  code: string
   /**
    * Ressource concernee
    * @minLength 0
    * @maxLength 50
    */
-  resource: string;
+  resource: string
   /**
    * Action autorisee
    * @minLength 0
    * @maxLength 50
    */
-  action: string;
+  action: string
   /** Description de la permission */
-  description?: string;
+  description?: string
 }
 
 /**
@@ -578,9 +578,9 @@ export interface AssignPermissionToRoleRequest {
    * Nom du rôle
    * @minLength 1
    */
-  role: string;
+  role: string
   /** ID de la permission */
-  permissionId: number;
+  permissionId: number
 }
 
 /**
@@ -588,13 +588,13 @@ export interface AssignPermissionToRoleRequest {
  */
 export interface RolePermissionDto {
   /** Identifiant unique */
-  id?: number;
+  id?: number
   /** Nom du rôle */
-  role?: string;
+  role?: string
   /** ID de la permission */
-  permissionId?: number;
+  permissionId?: number
   /** Date de creation */
-  createdAt?: string;
+  createdAt?: string
 }
 
 /**
@@ -602,104 +602,104 @@ export interface RolePermissionDto {
  */
 export interface AssignComptableToSocieteRequest {
   /** ID de l'utilisateur comptable */
-  userId: number;
+  userId: number
   /** ID de la societe cliente */
-  societeId: number;
+  societeId: number
   /** Droit de lecture */
-  canRead?: boolean;
+  canRead?: boolean
   /** Droit d'ecriture */
-  canWrite?: boolean;
+  canWrite?: boolean
   /** Droit de validation */
-  canValidate?: boolean;
+  canValidate?: boolean
   /** Date de debut d'acces (par defaut: aujourd'hui) */
-  dateDebut?: string;
+  dateDebut?: string
   /** Date de fin d'acces (null si permanent) */
-  dateFin?: string;
+  dateFin?: string
 }
 
 export type UpdateRoleParams = {
   /**
    * Nouveau rôle (MANAGER, FINANCE, VIEWER)
    */
-  role: string;
-};
+  role: string
+}
 
 export type UpdateRole1Params = {
   /**
    * Nouveau rôle (MANAGER, COMPTABLE, ASSISTANT)
    */
-  role: string;
-};
+  role: string
+}
 
 export type SearchParams = {
   /**
    * Terme de recherche
    */
-  q: string;
-};
+  q: string
+}
 
 export type Search1Params = {
   /**
    * Terme de recherche
    */
-  q: string;
-};
+  q: string
+}
 
 export type HasPermissionParams = {
   /**
    * Nom du rôle
    */
-  role: string;
+  role: string
   /**
    * Code de la permission
    */
-  permissionCode: string;
-};
+  permissionCode: string
+}
 
 export type HasPermissionOnResourceParams = {
   /**
    * Nom du rôle
    */
-  role: string;
+  role: string
   /**
    * Nom de la ressource
    */
-  resource: string;
+  resource: string
   /**
    * Nom de l'action
    */
-  action: string;
-};
+  action: string
+}
 
 export type HasWriteAccessParams = {
   /**
    * ID de l'utilisateur
    */
-  userId: number;
+  userId: number
   /**
    * ID de la societe
    */
-  societeId: number;
-};
+  societeId: number
+}
 
 export type HasValidateAccessParams = {
   /**
    * ID de l'utilisateur
    */
-  userId: number;
+  userId: number
   /**
    * ID de la societe
    */
-  societeId: number;
-};
+  societeId: number
+}
 
 export type HasAccessParams = {
   /**
    * ID de l'utilisateur
    */
-  userId: number;
+  userId: number
   /**
    * ID de la societe
    */
-  societeId: number;
-};
+  societeId: number
+}

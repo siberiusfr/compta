@@ -5,7 +5,7 @@
  * Service de gestion des documents - Upload, versioning, partage et métadonnées. Toutes les requêtes passent via la Gateway.
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation, useQuery } from "@tanstack/vue-query";
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import type {
   DataTag,
   MutationFunction,
@@ -16,123 +16,94 @@ import type {
   UseMutationReturnType,
   UseQueryOptions,
   UseQueryReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { computed, unref } from "vue";
-import type { MaybeRef } from "vue";
+import { computed, unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
-import type {
-  GetAllParams,
-  TagRequest,
-  TagResponse,
-} from "../generated.schemas";
+import type { GetAllParams, TagRequest, TagResponse } from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Returns all tags, optionally filtered by search query
  * @summary Get all tags
  */
-export const getAll = (
-  params?: MaybeRef<GetAllParams>,
-  signal?: AbortSignal,
-) => {
-  params = unref(params);
+export const getAll = (params?: MaybeRef<GetAllParams>, signal?: AbortSignal) => {
+  params = unref(params)
 
   return customInstance<TagResponse[]>({
     url: `/api/tags`,
-    method: "GET",
+    method: 'GET',
     params: unref(params),
     signal,
-  });
-};
+  })
+}
 
 export const getGetAllQueryKey = (params?: MaybeRef<GetAllParams>) => {
-  return ["api", "tags", ...(params ? [params] : [])] as const;
-};
+  return ['api', 'tags', ...(params ? [params] : [])] as const
+}
 
 export const getGetAllQueryOptions = <
   TData = Awaited<ReturnType<typeof getAll>>,
   TError = ErrorType<unknown>,
 >(
   params?: MaybeRef<GetAllParams>,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getAll>>, TError, TData>
-    >;
-  },
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getAll>>, TError, TData>> }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetAllQueryKey(params);
+  const queryKey = getGetAllQueryKey(params)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAll>>> = ({
-    signal,
-  }) => getAll(params, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAll>>> = ({ signal }) =>
+    getAll(params, signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getAll>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type GetAllQueryResult = NonNullable<Awaited<ReturnType<typeof getAll>>>;
-export type GetAllQueryError = ErrorType<unknown>;
+export type GetAllQueryResult = NonNullable<Awaited<ReturnType<typeof getAll>>>
+export type GetAllQueryError = ErrorType<unknown>
 
 /**
  * @summary Get all tags
  */
 
-export function useGetAll<
-  TData = Awaited<ReturnType<typeof getAll>>,
-  TError = ErrorType<unknown>,
->(
+export function useGetAll<TData = Awaited<ReturnType<typeof getAll>>, TError = ErrorType<unknown>>(
   params?: MaybeRef<GetAllParams>,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getAll>>, TError, TData>
-    >;
-  },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetAllQueryOptions(params, options);
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getAll>>, TError, TData>> },
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetAllQueryOptions(params, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Creates a new document tag
  * @summary Create a new tag
  */
-export const create = (
-  tagRequest: MaybeRef<TagRequest>,
-  signal?: AbortSignal,
-) => {
-  tagRequest = unref(tagRequest);
+export const create = (tagRequest: MaybeRef<TagRequest>, signal?: AbortSignal) => {
+  tagRequest = unref(tagRequest)
 
   return customInstance<TagResponse>({
     url: `/api/tags`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: tagRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getCreateMutationOptions = <
   TError = ErrorType<TagResponse>,
@@ -143,39 +114,35 @@ export const getCreateMutationOptions = <
     TError,
     { data: BodyType<TagRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof create>>,
   TError,
   { data: BodyType<TagRequest> },
   TContext
 > => {
-  const mutationKey = ["create"];
+  const mutationKey = ['create']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof create>>,
     { data: BodyType<TagRequest> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return create(data);
-  };
+    return create(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type CreateMutationResult = NonNullable<
-  Awaited<ReturnType<typeof create>>
->;
-export type CreateMutationBody = BodyType<TagRequest>;
-export type CreateMutationError = ErrorType<TagResponse>;
+export type CreateMutationResult = NonNullable<Awaited<ReturnType<typeof create>>>
+export type CreateMutationBody = BodyType<TagRequest>
+export type CreateMutationError = ErrorType<TagResponse>
 
 /**
  * @summary Create a new tag
@@ -187,36 +154,32 @@ export const useCreate = <TError = ErrorType<TagResponse>, TContext = unknown>(
       TError,
       { data: BodyType<TagRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof create>>,
   TError,
   { data: BodyType<TagRequest> },
   TContext
 > => {
-  const mutationOptions = getCreateMutationOptions(options);
+  const mutationOptions = getCreateMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Returns a tag by its ID
  * @summary Get a tag by ID
  */
 export const getById2 = (id: MaybeRef<number>, signal?: AbortSignal) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<TagResponse>({
-    url: `/api/tags/${id}`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<TagResponse>({ url: `/api/tags/${id}`, method: 'GET', signal })
+}
 
 export const getGetById2QueryKey = (id?: MaybeRef<number>) => {
-  return ["api", "tags", id] as const;
-};
+  return ['api', 'tags', id] as const
+}
 
 export const getGetById2QueryOptions = <
   TData = Awaited<ReturnType<typeof getById2>>,
@@ -224,31 +187,26 @@ export const getGetById2QueryOptions = <
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getById2>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getById2>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetById2QueryKey(id);
+  const queryKey = getGetById2QueryKey(id)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getById2>>> = ({
-    signal,
-  }) => getById2(id, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getById2>>> = ({ signal }) =>
+    getById2(id, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(id)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof getById2>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getById2>>, TError, TData>
+}
 
-export type GetById2QueryResult = NonNullable<
-  Awaited<ReturnType<typeof getById2>>
->;
-export type GetById2QueryError = ErrorType<TagResponse>;
+export type GetById2QueryResult = NonNullable<Awaited<ReturnType<typeof getById2>>>
+export type GetById2QueryError = ErrorType<TagResponse>
 
 /**
  * @summary Get a tag by ID
@@ -260,28 +218,19 @@ export function useGetById2<
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getById2>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getById2>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetById2QueryOptions(id, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetById2QueryOptions(id, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -289,53 +238,40 @@ export function useGetById2<
  * @summary Delete a tag
  */
 export const delete2 = (id: MaybeRef<number>) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<void>({ url: `/api/tags/${id}`, method: "DELETE" });
-};
+  return customInstance<void>({ url: `/api/tags/${id}`, method: 'DELETE' })
+}
 
-export const getDelete2MutationOptions = <
-  TError = ErrorType<void>,
-  TContext = unknown,
->(options?: {
+export const getDelete2MutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof delete2>>,
     TError,
     { id: number },
     TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof delete2>>,
-  TError,
-  { id: number },
-  TContext
-> => {
-  const mutationKey = ["delete2"];
+  >
+}): UseMutationOptions<Awaited<ReturnType<typeof delete2>>, TError, { id: number }, TContext> => {
+  const mutationKey = ['delete2']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof delete2>>,
-    { id: number }
-  > = (props) => {
-    const { id } = props ?? {};
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof delete2>>, { id: number }> = (
+    props
+  ) => {
+    const { id } = props ?? {}
 
-    return delete2(id);
-  };
+    return delete2(id)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type Delete2MutationResult = NonNullable<
-  Awaited<ReturnType<typeof delete2>>
->;
+export type Delete2MutationResult = NonNullable<Awaited<ReturnType<typeof delete2>>>
 
-export type Delete2MutationError = ErrorType<void>;
+export type Delete2MutationError = ErrorType<void>
 
 /**
  * @summary Delete a tag
@@ -347,16 +283,11 @@ export const useDelete2 = <TError = ErrorType<void>, TContext = unknown>(
       TError,
       { id: number },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
-): UseMutationReturnType<
-  Awaited<ReturnType<typeof delete2>>,
-  TError,
-  { id: number },
-  TContext
-> => {
-  const mutationOptions = getDelete2MutationOptions(options);
+  queryClient?: QueryClient
+): UseMutationReturnType<Awaited<ReturnType<typeof delete2>>, TError, { id: number }, TContext> => {
+  const mutationOptions = getDelete2MutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}

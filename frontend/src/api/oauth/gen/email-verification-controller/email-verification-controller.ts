@@ -5,24 +5,21 @@
  * OAuth2 Authorization Server for Compta microservices. Provides token issuance and user authentication.
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation } from "@tanstack/vue-query";
+import { useMutation } from '@tanstack/vue-query'
 import type {
   MutationFunction,
   QueryClient,
   UseMutationOptions,
   UseMutationReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { unref } from "vue";
-import type { MaybeRef } from "vue";
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
-import type {
-  ConfirmEmailVerificationParams,
-  EmailVerificationRequest,
-} from "../generated.schemas";
+import type { ConfirmEmailVerificationParams, EmailVerificationRequest } from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Sends a verification email to the user's email address
@@ -30,18 +27,18 @@ import type { ErrorType, BodyType } from "../../../axios-instance";
  */
 export const initiateEmailVerification = (
   emailVerificationRequest: MaybeRef<EmailVerificationRequest>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  emailVerificationRequest = unref(emailVerificationRequest);
+  emailVerificationRequest = unref(emailVerificationRequest)
 
   return customInstance<string>({
     url: `/api/users/email/verify`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: emailVerificationRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getInitiateEmailVerificationMutationOptions = <
   TError = ErrorType<string>,
@@ -52,84 +49,78 @@ export const getInitiateEmailVerificationMutationOptions = <
     TError,
     { data: BodyType<EmailVerificationRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof initiateEmailVerification>>,
   TError,
   { data: BodyType<EmailVerificationRequest> },
   TContext
 > => {
-  const mutationKey = ["initiateEmailVerification"];
+  const mutationKey = ['initiateEmailVerification']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof initiateEmailVerification>>,
     { data: BodyType<EmailVerificationRequest> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return initiateEmailVerification(data);
-  };
+    return initiateEmailVerification(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
 export type InitiateEmailVerificationMutationResult = NonNullable<
   Awaited<ReturnType<typeof initiateEmailVerification>>
->;
-export type InitiateEmailVerificationMutationBody =
-  BodyType<EmailVerificationRequest>;
-export type InitiateEmailVerificationMutationError = ErrorType<string>;
+>
+export type InitiateEmailVerificationMutationBody = BodyType<EmailVerificationRequest>
+export type InitiateEmailVerificationMutationError = ErrorType<string>
 
 /**
  * @summary Initiate email verification
  */
-export const useInitiateEmailVerification = <
-  TError = ErrorType<string>,
-  TContext = unknown,
->(
+export const useInitiateEmailVerification = <TError = ErrorType<string>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof initiateEmailVerification>>,
       TError,
       { data: BodyType<EmailVerificationRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof initiateEmailVerification>>,
   TError,
   { data: BodyType<EmailVerificationRequest> },
   TContext
 > => {
-  const mutationOptions = getInitiateEmailVerificationMutationOptions(options);
+  const mutationOptions = getInitiateEmailVerificationMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Verifies the user's email address using a valid verification token
  * @summary Confirm email verification
  */
 export const confirmEmailVerification = (
   params: MaybeRef<ConfirmEmailVerificationParams>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  params = unref(params);
+  params = unref(params)
 
   return customInstance<string>({
     url: `/api/users/email/verify/confirm`,
-    method: "POST",
+    method: 'POST',
     params: unref(params),
     signal,
-  });
-};
+  })
+}
 
 export const getConfirmEmailVerificationMutationOptions = <
   TError = ErrorType<string>,
@@ -140,63 +131,58 @@ export const getConfirmEmailVerificationMutationOptions = <
     TError,
     { params: ConfirmEmailVerificationParams },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof confirmEmailVerification>>,
   TError,
   { params: ConfirmEmailVerificationParams },
   TContext
 > => {
-  const mutationKey = ["confirmEmailVerification"];
+  const mutationKey = ['confirmEmailVerification']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof confirmEmailVerification>>,
     { params: ConfirmEmailVerificationParams }
   > = (props) => {
-    const { params } = props ?? {};
+    const { params } = props ?? {}
 
-    return confirmEmailVerification(params);
-  };
+    return confirmEmailVerification(params)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
 export type ConfirmEmailVerificationMutationResult = NonNullable<
   Awaited<ReturnType<typeof confirmEmailVerification>>
->;
+>
 
-export type ConfirmEmailVerificationMutationError = ErrorType<string>;
+export type ConfirmEmailVerificationMutationError = ErrorType<string>
 
 /**
  * @summary Confirm email verification
  */
-export const useConfirmEmailVerification = <
-  TError = ErrorType<string>,
-  TContext = unknown,
->(
+export const useConfirmEmailVerification = <TError = ErrorType<string>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof confirmEmailVerification>>,
       TError,
       { params: ConfirmEmailVerificationParams },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof confirmEmailVerification>>,
   TError,
   { params: ConfirmEmailVerificationParams },
   TContext
 > => {
-  const mutationOptions = getConfirmEmailVerificationMutationOptions(options);
+  const mutationOptions = getConfirmEmailVerificationMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}

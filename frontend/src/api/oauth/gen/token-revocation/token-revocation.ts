@@ -5,40 +5,37 @@
  * OAuth2 Authorization Server for Compta microservices. Provides token issuance and user authentication.
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation } from "@tanstack/vue-query";
+import { useMutation } from '@tanstack/vue-query'
 import type {
   MutationFunction,
   QueryClient,
   UseMutationOptions,
   UseMutationReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { unref } from "vue";
-import type { MaybeRef } from "vue";
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
-import type { RevocationRequest } from "../generated.schemas";
+import type { RevocationRequest } from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Revoke an OAuth2 token. The token will be invalidated immediately.
  * @summary Revoke token
  */
-export const revoke = (
-  revocationRequest: MaybeRef<RevocationRequest>,
-  signal?: AbortSignal,
-) => {
-  revocationRequest = unref(revocationRequest);
+export const revoke = (revocationRequest: MaybeRef<RevocationRequest>, signal?: AbortSignal) => {
+  revocationRequest = unref(revocationRequest)
 
   return customInstance<void>({
     url: `/oauth2/revoke`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: revocationRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getRevokeMutationOptions = <
   TError = ErrorType<unknown>,
@@ -49,39 +46,35 @@ export const getRevokeMutationOptions = <
     TError,
     { data: BodyType<RevocationRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof revoke>>,
   TError,
   { data: BodyType<RevocationRequest> },
   TContext
 > => {
-  const mutationKey = ["revoke"];
+  const mutationKey = ['revoke']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof revoke>>,
     { data: BodyType<RevocationRequest> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return revoke(data);
-  };
+    return revoke(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type RevokeMutationResult = NonNullable<
-  Awaited<ReturnType<typeof revoke>>
->;
-export type RevokeMutationBody = BodyType<RevocationRequest>;
-export type RevokeMutationError = ErrorType<unknown>;
+export type RevokeMutationResult = NonNullable<Awaited<ReturnType<typeof revoke>>>
+export type RevokeMutationBody = BodyType<RevocationRequest>
+export type RevokeMutationError = ErrorType<unknown>
 
 /**
  * @summary Revoke token
@@ -93,16 +86,16 @@ export const useRevoke = <TError = ErrorType<unknown>, TContext = unknown>(
       TError,
       { data: BodyType<RevocationRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof revoke>>,
   TError,
   { data: BodyType<RevocationRequest> },
   TContext
 > => {
-  const mutationOptions = getRevokeMutationOptions(options);
+  const mutationOptions = getRevokeMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}

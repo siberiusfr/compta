@@ -5,7 +5,7 @@
  * Service de gestion des documents - Upload, versioning, partage et métadonnées. Toutes les requêtes passent via la Gateway.
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation, useQuery } from "@tanstack/vue-query";
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import type {
   DataTag,
   MutationFunction,
@@ -16,18 +16,15 @@ import type {
   UseMutationReturnType,
   UseQueryOptions,
   UseQueryReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { computed, unref } from "vue";
-import type { MaybeRef } from "vue";
+import { computed, unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
-import type {
-  DocumentShareRequest,
-  DocumentShareResponse,
-} from "../generated.schemas";
+import type { DocumentShareRequest, DocumentShareResponse } from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Updates share permission or expiration
@@ -35,18 +32,18 @@ import type { ErrorType, BodyType } from "../../../axios-instance";
  */
 export const update1 = (
   shareId: MaybeRef<number>,
-  documentShareRequest: MaybeRef<DocumentShareRequest>,
+  documentShareRequest: MaybeRef<DocumentShareRequest>
 ) => {
-  shareId = unref(shareId);
-  documentShareRequest = unref(documentShareRequest);
+  shareId = unref(shareId)
+  documentShareRequest = unref(documentShareRequest)
 
   return customInstance<DocumentShareResponse>({
     url: `/api/documents/shares/${shareId}`,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     data: documentShareRequest,
-  });
-};
+  })
+}
 
 export const getUpdate1MutationOptions = <
   TError = ErrorType<DocumentShareResponse>,
@@ -57,121 +54,103 @@ export const getUpdate1MutationOptions = <
     TError,
     { shareId: number; data: BodyType<DocumentShareRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof update1>>,
   TError,
   { shareId: number; data: BodyType<DocumentShareRequest> },
   TContext
 > => {
-  const mutationKey = ["update1"];
+  const mutationKey = ['update1']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof update1>>,
     { shareId: number; data: BodyType<DocumentShareRequest> }
   > = (props) => {
-    const { shareId, data } = props ?? {};
+    const { shareId, data } = props ?? {}
 
-    return update1(shareId, data);
-  };
+    return update1(shareId, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type Update1MutationResult = NonNullable<
-  Awaited<ReturnType<typeof update1>>
->;
-export type Update1MutationBody = BodyType<DocumentShareRequest>;
-export type Update1MutationError = ErrorType<DocumentShareResponse>;
+export type Update1MutationResult = NonNullable<Awaited<ReturnType<typeof update1>>>
+export type Update1MutationBody = BodyType<DocumentShareRequest>
+export type Update1MutationError = ErrorType<DocumentShareResponse>
 
 /**
  * @summary Update a share
  */
-export const useUpdate1 = <
-  TError = ErrorType<DocumentShareResponse>,
-  TContext = unknown,
->(
+export const useUpdate1 = <TError = ErrorType<DocumentShareResponse>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof update1>>,
       TError,
       { shareId: number; data: BodyType<DocumentShareRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof update1>>,
   TError,
   { shareId: number; data: BodyType<DocumentShareRequest> },
   TContext
 > => {
-  const mutationOptions = getUpdate1MutationOptions(options);
+  const mutationOptions = getUpdate1MutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Revokes document sharing
  * @summary Revoke a share
  */
 export const revoke = (shareId: MaybeRef<number>) => {
-  shareId = unref(shareId);
+  shareId = unref(shareId)
 
-  return customInstance<void>({
-    url: `/api/documents/shares/${shareId}`,
-    method: "DELETE",
-  });
-};
+  return customInstance<void>({ url: `/api/documents/shares/${shareId}`, method: 'DELETE' })
+}
 
-export const getRevokeMutationOptions = <
-  TError = ErrorType<void>,
-  TContext = unknown,
->(options?: {
+export const getRevokeMutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof revoke>>,
     TError,
     { shareId: number },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof revoke>>,
   TError,
   { shareId: number },
   TContext
 > => {
-  const mutationKey = ["revoke"];
+  const mutationKey = ['revoke']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof revoke>>,
-    { shareId: number }
-  > = (props) => {
-    const { shareId } = props ?? {};
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof revoke>>, { shareId: number }> = (
+    props
+  ) => {
+    const { shareId } = props ?? {}
 
-    return revoke(shareId);
-  };
+    return revoke(shareId)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type RevokeMutationResult = NonNullable<
-  Awaited<ReturnType<typeof revoke>>
->;
+export type RevokeMutationResult = NonNullable<Awaited<ReturnType<typeof revoke>>>
 
-export type RevokeMutationError = ErrorType<void>;
+export type RevokeMutationError = ErrorType<void>
 
 /**
  * @summary Revoke a share
@@ -183,41 +162,36 @@ export const useRevoke = <TError = ErrorType<void>, TContext = unknown>(
       TError,
       { shareId: number },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof revoke>>,
   TError,
   { shareId: number },
   TContext
 > => {
-  const mutationOptions = getRevokeMutationOptions(options);
+  const mutationOptions = getRevokeMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Returns all shares for a document
  * @summary Get document shares
  */
-export const getSharesByDocument = (
-  documentId: MaybeRef<number>,
-  signal?: AbortSignal,
-) => {
-  documentId = unref(documentId);
+export const getSharesByDocument = (documentId: MaybeRef<number>, signal?: AbortSignal) => {
+  documentId = unref(documentId)
 
   return customInstance<DocumentShareResponse[]>({
     url: `/api/documents/${documentId}/shares`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
-export const getGetSharesByDocumentQueryKey = (
-  documentId?: MaybeRef<number>,
-) => {
-  return ["api", "documents", documentId, "shares"] as const;
-};
+export const getGetSharesByDocumentQueryKey = (documentId?: MaybeRef<number>) => {
+  return ['api', 'documents', documentId, 'shares'] as const
+}
 
 export const getGetSharesByDocumentQueryOptions = <
   TData = Awaited<ReturnType<typeof getSharesByDocument>>,
@@ -225,39 +199,28 @@ export const getGetSharesByDocumentQueryOptions = <
 >(
   documentId: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSharesByDocument>>,
-        TError,
-        TData
-      >
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharesByDocument>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetSharesByDocumentQueryKey(documentId);
+  const queryKey = getGetSharesByDocumentQueryKey(documentId)
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getSharesByDocument>>
-  > = ({ signal }) => getSharesByDocument(documentId, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSharesByDocument>>> = ({ signal }) =>
+    getSharesByDocument(documentId, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(documentId)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getSharesByDocument>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getSharesByDocument>>, TError, TData>
+}
 
 export type GetSharesByDocumentQueryResult = NonNullable<
   Awaited<ReturnType<typeof getSharesByDocument>>
->;
-export type GetSharesByDocumentQueryError = ErrorType<DocumentShareResponse[]>;
+>
+export type GetSharesByDocumentQueryError = ErrorType<DocumentShareResponse[]>
 
 /**
  * @summary Get document shares
@@ -269,32 +232,19 @@ export function useGetSharesByDocument<
 >(
   documentId: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSharesByDocument>>,
-        TError,
-        TData
-      >
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharesByDocument>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetSharesByDocumentQueryOptions(documentId, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetSharesByDocumentQueryOptions(documentId, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -304,19 +254,19 @@ export function useGetSharesByDocument<
 export const share = (
   documentId: MaybeRef<number>,
   documentShareRequest: MaybeRef<DocumentShareRequest>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  documentId = unref(documentId);
-  documentShareRequest = unref(documentShareRequest);
+  documentId = unref(documentId)
+  documentShareRequest = unref(documentShareRequest)
 
   return customInstance<DocumentShareResponse>({
     url: `/api/documents/${documentId}/shares`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: documentShareRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getShareMutationOptions = <
   TError = ErrorType<DocumentShareResponse>,
@@ -327,77 +277,66 @@ export const getShareMutationOptions = <
     TError,
     { documentId: number; data: BodyType<DocumentShareRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof share>>,
   TError,
   { documentId: number; data: BodyType<DocumentShareRequest> },
   TContext
 > => {
-  const mutationKey = ["share"];
+  const mutationKey = ['share']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof share>>,
     { documentId: number; data: BodyType<DocumentShareRequest> }
   > = (props) => {
-    const { documentId, data } = props ?? {};
+    const { documentId, data } = props ?? {}
 
-    return share(documentId, data);
-  };
+    return share(documentId, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
-export type ShareMutationResult = NonNullable<
-  Awaited<ReturnType<typeof share>>
->;
-export type ShareMutationBody = BodyType<DocumentShareRequest>;
-export type ShareMutationError = ErrorType<DocumentShareResponse>;
+export type ShareMutationResult = NonNullable<Awaited<ReturnType<typeof share>>>
+export type ShareMutationBody = BodyType<DocumentShareRequest>
+export type ShareMutationError = ErrorType<DocumentShareResponse>
 
 /**
  * @summary Share a document
  */
-export const useShare = <
-  TError = ErrorType<DocumentShareResponse>,
-  TContext = unknown,
->(
+export const useShare = <TError = ErrorType<DocumentShareResponse>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof share>>,
       TError,
       { documentId: number; data: BodyType<DocumentShareRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof share>>,
   TError,
   { documentId: number; data: BodyType<DocumentShareRequest> },
   TContext
 > => {
-  const mutationOptions = getShareMutationOptions(options);
+  const mutationOptions = getShareMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Removes all expired document shares
  * @summary Cleanup expired shares
  */
 export const cleanupExpiredShares = (signal?: AbortSignal) => {
-  return customInstance<number>({
-    url: `/api/documents/shares/cleanup`,
-    method: "POST",
-    signal,
-  });
-};
+  return customInstance<number>({ url: `/api/documents/shares/cleanup`, method: 'POST', signal })
+}
 
 export const getCleanupExpiredSharesMutationOptions = <
   TError = ErrorType<unknown>,
@@ -408,84 +347,76 @@ export const getCleanupExpiredSharesMutationOptions = <
     TError,
     void,
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof cleanupExpiredShares>>,
   TError,
   void,
   TContext
 > => {
-  const mutationKey = ["cleanupExpiredShares"];
+  const mutationKey = ['cleanupExpiredShares']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof cleanupExpiredShares>>,
     void
   > = () => {
-    return cleanupExpiredShares();
-  };
+    return cleanupExpiredShares()
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
 export type CleanupExpiredSharesMutationResult = NonNullable<
   Awaited<ReturnType<typeof cleanupExpiredShares>>
->;
+>
 
-export type CleanupExpiredSharesMutationError = ErrorType<unknown>;
+export type CleanupExpiredSharesMutationError = ErrorType<unknown>
 
 /**
  * @summary Cleanup expired shares
  */
-export const useCleanupExpiredShares = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
+export const useCleanupExpiredShares = <TError = ErrorType<unknown>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof cleanupExpiredShares>>,
       TError,
       void,
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof cleanupExpiredShares>>,
   TError,
   void,
   TContext
 > => {
-  const mutationOptions = getCleanupExpiredSharesMutationOptions(options);
+  const mutationOptions = getCleanupExpiredSharesMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Returns all documents shared with a specific user
  * @summary Get shares with user
  */
-export const getSharesWithUser = (
-  userId: MaybeRef<string>,
-  signal?: AbortSignal,
-) => {
-  userId = unref(userId);
+export const getSharesWithUser = (userId: MaybeRef<string>, signal?: AbortSignal) => {
+  userId = unref(userId)
 
   return customInstance<DocumentShareResponse[]>({
     url: `/api/documents/shared-with/${userId}`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getGetSharesWithUserQueryKey = (userId?: MaybeRef<string>) => {
-  return ["api", "documents", "shared-with", userId] as const;
-};
+  return ['api', 'documents', 'shared-with', userId] as const
+}
 
 export const getGetSharesWithUserQueryOptions = <
   TData = Awaited<ReturnType<typeof getSharesWithUser>>,
@@ -493,39 +424,28 @@ export const getGetSharesWithUserQueryOptions = <
 >(
   userId: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSharesWithUser>>,
-        TError,
-        TData
-      >
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharesWithUser>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetSharesWithUserQueryKey(userId);
+  const queryKey = getGetSharesWithUserQueryKey(userId)
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getSharesWithUser>>
-  > = ({ signal }) => getSharesWithUser(userId, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSharesWithUser>>> = ({ signal }) =>
+    getSharesWithUser(userId, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(userId)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getSharesWithUser>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof getSharesWithUser>>, TError, TData>
+}
 
 export type GetSharesWithUserQueryResult = NonNullable<
   Awaited<ReturnType<typeof getSharesWithUser>>
->;
-export type GetSharesWithUserQueryError = ErrorType<unknown>;
+>
+export type GetSharesWithUserQueryError = ErrorType<unknown>
 
 /**
  * @summary Get shares with user
@@ -537,32 +457,19 @@ export function useGetSharesWithUser<
 >(
   userId: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSharesWithUser>>,
-        TError,
-        TData
-      >
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharesWithUser>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetSharesWithUserQueryOptions(userId, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetSharesWithUserQueryOptions(userId, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -572,42 +479,37 @@ export function useGetSharesWithUser<
 export const getSharedWithMe = (signal?: AbortSignal) => {
   return customInstance<DocumentShareResponse[]>({
     url: `/api/documents/shared-with-me`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getGetSharedWithMeQueryKey = () => {
-  return ["api", "documents", "shared-with-me"] as const;
-};
+  return ['api', 'documents', 'shared-with-me'] as const
+}
 
 export const getGetSharedWithMeQueryOptions = <
   TData = Awaited<ReturnType<typeof getSharedWithMe>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getSharedWithMe>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharedWithMe>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getGetSharedWithMeQueryKey();
+  const queryKey = getGetSharedWithMeQueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSharedWithMe>>> = ({
-    signal,
-  }) => getSharedWithMe(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSharedWithMe>>> = ({ signal }) =>
+    getSharedWithMe(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getSharedWithMe>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type GetSharedWithMeQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getSharedWithMe>>
->;
-export type GetSharedWithMeQueryError = ErrorType<unknown>;
+export type GetSharedWithMeQueryResult = NonNullable<Awaited<ReturnType<typeof getSharedWithMe>>>
+export type GetSharedWithMeQueryError = ErrorType<unknown>
 
 /**
  * @summary Get documents shared with me
@@ -618,30 +520,17 @@ export function useGetSharedWithMe<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSharedWithMe>>,
-        TError,
-        TData
-      >
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getSharedWithMe>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetSharedWithMeQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetSharedWithMeQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }

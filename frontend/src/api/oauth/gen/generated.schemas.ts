@@ -10,29 +10,29 @@ export interface UpdateUserRequest {
    * @minLength 0
    * @maxLength 100
    */
-  firstName?: string;
+  firstName?: string
   /**
    * @minLength 0
    * @maxLength 100
    */
-  lastName?: string;
-  email?: string;
-  roles?: string[];
+  lastName?: string
+  email?: string
+  roles?: string[]
 }
 
 export interface UserResponse {
-  id?: string;
-  username?: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  enabled?: boolean;
-  accountNonExpired?: boolean;
-  accountNonLocked?: boolean;
-  credentialsNonExpired?: boolean;
-  roles?: string[];
-  createdAt?: string;
-  updatedAt?: string;
+  id?: string
+  username?: string
+  email?: string
+  firstName?: string
+  lastName?: string
+  enabled?: boolean
+  accountNonExpired?: boolean
+  accountNonLocked?: boolean
+  credentialsNonExpired?: boolean
+  roles?: string[]
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface UpdateRoleRequest {
@@ -40,77 +40,77 @@ export interface UpdateRoleRequest {
    * @minLength 0
    * @maxLength 255
    */
-  description?: string;
+  description?: string
 }
 
 export interface RoleResponse {
-  id?: string;
-  name?: string;
-  description?: string;
-  createdAt?: string;
+  id?: string
+  name?: string
+  description?: string
+  createdAt?: string
 }
 
 export interface UpdateClientRequest {
-  clientSecret?: string;
+  clientSecret?: string
   /** @minLength 1 */
-  clientName: string;
-  clientAuthenticationMethods?: string[];
-  authorizationGrantTypes?: string[];
-  redirectUris?: string[];
-  postLogoutRedirectUris?: string[];
-  scopes?: string[];
-  requireAuthorizationConsent?: boolean;
-  requireProofKey?: boolean;
-  reuseRefreshTokens?: boolean;
-  accessTokenTimeToLive?: string;
-  authorizationCodeTimeToLive?: string;
-  refreshTokenTimeToLive?: string;
+  clientName: string
+  clientAuthenticationMethods?: string[]
+  authorizationGrantTypes?: string[]
+  redirectUris?: string[]
+  postLogoutRedirectUris?: string[]
+  scopes?: string[]
+  requireAuthorizationConsent?: boolean
+  requireProofKey?: boolean
+  reuseRefreshTokens?: boolean
+  accessTokenTimeToLive?: string
+  authorizationCodeTimeToLive?: string
+  refreshTokenTimeToLive?: string
 }
 
 export interface ClientResponse {
-  id?: string;
-  clientId?: string;
-  clientIdIssuedAt?: string;
-  clientName?: string;
-  clientAuthenticationMethods?: string[];
-  authorizationGrantTypes?: string[];
-  redirectUris?: string[];
-  postLogoutRedirectUris?: string[];
-  scopes?: string[];
-  requireAuthorizationConsent?: boolean;
-  requireProofKey?: boolean;
-  reuseRefreshTokens?: boolean;
-  accessTokenTimeToLiveSeconds?: number;
-  authorizationCodeTimeToLiveSeconds?: number;
-  refreshTokenTimeToLiveSeconds?: number;
-  clientSecretExpiresAt?: string;
+  id?: string
+  clientId?: string
+  clientIdIssuedAt?: string
+  clientName?: string
+  clientAuthenticationMethods?: string[]
+  authorizationGrantTypes?: string[]
+  redirectUris?: string[]
+  postLogoutRedirectUris?: string[]
+  scopes?: string[]
+  requireAuthorizationConsent?: boolean
+  requireProofKey?: boolean
+  reuseRefreshTokens?: boolean
+  accessTokenTimeToLiveSeconds?: number
+  authorizationCodeTimeToLiveSeconds?: number
+  refreshTokenTimeToLiveSeconds?: number
+  clientSecretExpiresAt?: string
 }
 
 export interface RevocationRequest {
   /** @minLength 1 */
-  token: string;
-  tokenTypeHint?: string;
+  token: string
+  tokenTypeHint?: string
 }
 
 export interface IntrospectionRequest {
   /** @minLength 1 */
-  token: string;
-  tokenTypeHint?: string;
+  token: string
+  tokenTypeHint?: string
 }
 
 export interface IntrospectionResponse {
-  active?: boolean;
-  clientId?: string;
-  tokenType?: string;
-  exp?: string;
-  iat?: string;
-  sub?: string;
-  aud?: string;
-  iss?: string;
-  scope?: string[];
-  username?: string;
-  email?: string;
-  roles?: string[];
+  active?: boolean
+  clientId?: string
+  tokenType?: string
+  exp?: string
+  iat?: string
+  sub?: string
+  aud?: string
+  iss?: string
+  scope?: string[]
+  username?: string
+  email?: string
+  roles?: string[]
 }
 
 export interface CreateUserRequest {
@@ -118,40 +118,40 @@ export interface CreateUserRequest {
    * @minLength 3
    * @maxLength 50
    */
-  username: string;
+  username: string
   /**
    * @minLength 8
    * @maxLength 100
    */
-  password: string;
+  password: string
   /** @minLength 1 */
-  email: string;
+  email: string
   /**
    * @minLength 0
    * @maxLength 100
    */
-  firstName?: string;
+  firstName?: string
   /**
    * @minLength 0
    * @maxLength 100
    */
-  lastName?: string;
-  roles?: string[];
+  lastName?: string
+  roles?: string[]
 }
 
 export interface ChangePasswordRequest {
   /** @minLength 1 */
-  currentPassword: string;
+  currentPassword: string
   /**
    * @minLength 8
    * @maxLength 100
    */
-  newPassword: string;
+  newPassword: string
 }
 
 export interface PasswordResetRequest {
   /** @minLength 1 */
-  email: string;
+  email: string
 }
 
 export interface PasswordResetConfirmRequest {
@@ -159,17 +159,17 @@ export interface PasswordResetConfirmRequest {
    * @minLength 36
    * @maxLength 36
    */
-  token: string;
+  token: string
   /**
    * @minLength 8
    * @maxLength 100
    */
-  password: string;
+  password: string
 }
 
 export interface EmailVerificationRequest {
   /** @minLength 1 */
-  email: string;
+  email: string
 }
 
 export interface CreateRoleRequest {
@@ -177,78 +177,78 @@ export interface CreateRoleRequest {
    * @minLength 2
    * @maxLength 50
    */
-  name: string;
+  name: string
   /**
    * @minLength 0
    * @maxLength 255
    */
-  description?: string;
+  description?: string
 }
 
 export interface CreateClientRequest {
   /** @minLength 1 */
-  clientId: string;
-  clientSecret?: string;
+  clientId: string
+  clientSecret?: string
   /** @minLength 1 */
-  clientName: string;
-  clientAuthenticationMethods: string[];
-  authorizationGrantTypes: string[];
-  redirectUris: string[];
-  postLogoutRedirectUris?: string[];
-  scopes: string[];
-  requireAuthorizationConsent?: boolean;
-  requireProofKey?: boolean;
-  reuseRefreshTokens?: boolean;
-  accessTokenTimeToLive?: string;
-  authorizationCodeTimeToLive?: string;
-  refreshTokenTimeToLive?: string;
+  clientName: string
+  clientAuthenticationMethods: string[]
+  authorizationGrantTypes: string[]
+  redirectUris: string[]
+  postLogoutRedirectUris?: string[]
+  scopes: string[]
+  requireAuthorizationConsent?: boolean
+  requireProofKey?: boolean
+  reuseRefreshTokens?: boolean
+  accessTokenTimeToLive?: string
+  authorizationCodeTimeToLive?: string
+  refreshTokenTimeToLive?: string
 }
 
 export interface UserInfoResponse {
-  sub?: string;
-  name?: string;
-  givenName?: string;
-  familyName?: string;
-  email?: string;
-  emailVerified?: boolean;
-  roles?: string[];
-  tenantId?: string;
+  sub?: string
+  name?: string
+  givenName?: string
+  familyName?: string
+  email?: string
+  emailVerified?: boolean
+  roles?: string[]
+  tenantId?: string
 }
 
 export interface RoleWithUserCountDto {
-  id?: string;
-  name?: string;
-  description?: string;
-  createdAt?: string;
-  userCount?: number;
+  id?: string
+  name?: string
+  description?: string
+  createdAt?: string
+  userCount?: number
 }
 
 export interface Link {
-  href?: string;
-  templated?: boolean;
+  href?: string
+  templated?: boolean
 }
 
-export type AssignRolesBody = { [key: string]: string[] };
+export type AssignRolesBody = { [key: string]: string[] }
 
 export type ConfirmEmailVerificationParams = {
   /**
    * The verification token from the email
    */
-  token: string;
-};
+  token: string
+}
 
-export type GetAllClients200 = { [key: string]: unknown };
+export type GetAllClients200 = { [key: string]: unknown }
 
-export type RotateClientSecret200 = { [key: string]: string };
+export type RotateClientSecret200 = { [key: string]: string }
 
-export type Links200One = { [key: string]: { [key: string]: Link } };
+export type Links200One = { [key: string]: { [key: string]: Link } }
 
-export type Links200Two = { [key: string]: { [key: string]: Link } };
+export type Links200Two = { [key: string]: { [key: string]: Link } }
 
-export type Links200Three = { [key: string]: { [key: string]: Link } };
+export type Links200Three = { [key: string]: { [key: string]: Link } }
 
-export type Health200One = { [key: string]: unknown };
+export type Health200One = { [key: string]: unknown }
 
-export type Health200Two = { [key: string]: unknown };
+export type Health200Two = { [key: string]: unknown }
 
-export type Health200Three = { [key: string]: unknown };
+export type Health200Three = { [key: string]: unknown }

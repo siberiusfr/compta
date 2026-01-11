@@ -4,7 +4,7 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import { useMutation, useQuery } from "@tanstack/vue-query";
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import type {
   DataTag,
   MutationFunction,
@@ -15,10 +15,10 @@ import type {
   UseMutationReturnType,
   UseQueryOptions,
   UseQueryReturnType,
-} from "@tanstack/vue-query";
+} from '@tanstack/vue-query'
 
-import { computed, unref } from "vue";
-import type { MaybeRef } from "vue";
+import { computed, unref } from 'vue'
+import type { MaybeRef } from 'vue'
 
 import type {
   AssignPermissionToRoleRequest,
@@ -27,10 +27,10 @@ import type {
   HasPermissionParams,
   PermissionDto,
   RolePermissionDto,
-} from "../generated.schemas";
+} from '../generated.schemas'
 
-import { customInstance } from "../../../axios-instance";
-import type { ErrorType, BodyType } from "../../../axios-instance";
+import { customInstance } from '../../../axios-instance'
+import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
  * Met a jour la description d'une permission
@@ -38,18 +38,18 @@ import type { ErrorType, BodyType } from "../../../axios-instance";
  */
 export const updateDescription = (
   id: MaybeRef<number>,
-  updateDescriptionBody: MaybeRef<string>,
+  updateDescriptionBody: MaybeRef<string>
 ) => {
-  id = unref(id);
-  updateDescriptionBody = unref(updateDescriptionBody);
+  id = unref(id)
+  updateDescriptionBody = unref(updateDescriptionBody)
 
   return customInstance<PermissionDto>({
     url: `/api/permissions/${id}/description`,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     data: updateDescriptionBody,
-  });
-};
+  })
+}
 
 export const getUpdateDescriptionMutationOptions = <
   TError = ErrorType<PermissionDto>,
@@ -60,109 +60,95 @@ export const getUpdateDescriptionMutationOptions = <
     TError,
     { id: number; data: BodyType<string> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateDescription>>,
   TError,
   { id: number; data: BodyType<string> },
   TContext
 > => {
-  const mutationKey = ["updateDescription"];
+  const mutationKey = ['updateDescription']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateDescription>>,
     { id: number; data: BodyType<string> }
   > = (props) => {
-    const { id, data } = props ?? {};
+    const { id, data } = props ?? {}
 
-    return updateDescription(id, data);
-  };
+    return updateDescription(id, data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
 export type UpdateDescriptionMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateDescription>>
->;
-export type UpdateDescriptionMutationBody = BodyType<string>;
-export type UpdateDescriptionMutationError = ErrorType<PermissionDto>;
+>
+export type UpdateDescriptionMutationBody = BodyType<string>
+export type UpdateDescriptionMutationError = ErrorType<PermissionDto>
 
 /**
  * @summary Modifier la description
  */
-export const useUpdateDescription = <
-  TError = ErrorType<PermissionDto>,
-  TContext = unknown,
->(
+export const useUpdateDescription = <TError = ErrorType<PermissionDto>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateDescription>>,
       TError,
       { id: number; data: BodyType<string> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof updateDescription>>,
   TError,
   { id: number; data: BodyType<string> },
   TContext
 > => {
-  const mutationOptions = getUpdateDescriptionMutationOptions(options);
+  const mutationOptions = getUpdateDescriptionMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Recupere la liste de toutes les permissions
  * @summary Lister toutes les permissions
  */
 export const findAll2 = (signal?: AbortSignal) => {
-  return customInstance<PermissionDto[]>({
-    url: `/api/permissions`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<PermissionDto[]>({ url: `/api/permissions`, method: 'GET', signal })
+}
 
 export const getFindAll2QueryKey = () => {
-  return ["api", "permissions"] as const;
-};
+  return ['api', 'permissions'] as const
+}
 
 export const getFindAll2QueryOptions = <
   TData = Awaited<ReturnType<typeof findAll2>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof findAll2>>, TError, TData>
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findAll2>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindAll2QueryKey();
+  const queryKey = getFindAll2QueryKey()
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof findAll2>>> = ({
-    signal,
-  }) => findAll2(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findAll2>>> = ({ signal }) =>
+    findAll2(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof findAll2>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type FindAll2QueryResult = NonNullable<
-  Awaited<ReturnType<typeof findAll2>>
->;
-export type FindAll2QueryError = ErrorType<unknown>;
+export type FindAll2QueryResult = NonNullable<Awaited<ReturnType<typeof findAll2>>>
+export type FindAll2QueryError = ErrorType<unknown>
 
 /**
  * @summary Lister toutes les permissions
@@ -173,28 +159,19 @@ export function useFindAll2<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findAll2>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findAll2>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindAll2QueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindAll2QueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -203,18 +180,18 @@ export function useFindAll2<
  */
 export const createPermission = (
   createPermissionRequest: MaybeRef<CreatePermissionRequest>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  createPermissionRequest = unref(createPermissionRequest);
+  createPermissionRequest = unref(createPermissionRequest)
 
   return customInstance<PermissionDto>({
     url: `/api/permissions`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: createPermissionRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getCreatePermissionMutationOptions = <
   TError = ErrorType<PermissionDto>,
@@ -225,84 +202,79 @@ export const getCreatePermissionMutationOptions = <
     TError,
     { data: BodyType<CreatePermissionRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof createPermission>>,
   TError,
   { data: BodyType<CreatePermissionRequest> },
   TContext
 > => {
-  const mutationKey = ["createPermission"];
+  const mutationKey = ['createPermission']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof createPermission>>,
     { data: BodyType<CreatePermissionRequest> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return createPermission(data);
-  };
+    return createPermission(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
 export type CreatePermissionMutationResult = NonNullable<
   Awaited<ReturnType<typeof createPermission>>
->;
-export type CreatePermissionMutationBody = BodyType<CreatePermissionRequest>;
-export type CreatePermissionMutationError = ErrorType<PermissionDto>;
+>
+export type CreatePermissionMutationBody = BodyType<CreatePermissionRequest>
+export type CreatePermissionMutationError = ErrorType<PermissionDto>
 
 /**
  * @summary Creer une permission
  */
-export const useCreatePermission = <
-  TError = ErrorType<PermissionDto>,
-  TContext = unknown,
->(
+export const useCreatePermission = <TError = ErrorType<PermissionDto>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof createPermission>>,
       TError,
       { data: BodyType<CreatePermissionRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof createPermission>>,
   TError,
   { data: BodyType<CreatePermissionRequest> },
   TContext
 > => {
-  const mutationOptions = getCreatePermissionMutationOptions(options);
+  const mutationOptions = getCreatePermissionMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Associe une permission a un rôle
  * @summary Assigner une permission a un rôle
  */
 export const assignPermissionToRole = (
   assignPermissionToRoleRequest: MaybeRef<AssignPermissionToRoleRequest>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  assignPermissionToRoleRequest = unref(assignPermissionToRoleRequest);
+  assignPermissionToRoleRequest = unref(assignPermissionToRoleRequest)
 
   return customInstance<RolePermissionDto>({
     url: `/api/permissions/role-assignment`,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     data: assignPermissionToRoleRequest,
     signal,
-  });
-};
+  })
+}
 
 export const getAssignPermissionToRoleMutationOptions = <
   TError = ErrorType<RolePermissionDto>,
@@ -313,40 +285,37 @@ export const getAssignPermissionToRoleMutationOptions = <
     TError,
     { data: BodyType<AssignPermissionToRoleRequest> },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof assignPermissionToRole>>,
   TError,
   { data: BodyType<AssignPermissionToRoleRequest> },
   TContext
 > => {
-  const mutationKey = ["assignPermissionToRole"];
+  const mutationKey = ['assignPermissionToRole']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof assignPermissionToRole>>,
     { data: BodyType<AssignPermissionToRoleRequest> }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data } = props ?? {}
 
-    return assignPermissionToRole(data);
-  };
+    return assignPermissionToRole(data)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
 export type AssignPermissionToRoleMutationResult = NonNullable<
   Awaited<ReturnType<typeof assignPermissionToRole>>
->;
-export type AssignPermissionToRoleMutationBody =
-  BodyType<AssignPermissionToRoleRequest>;
-export type AssignPermissionToRoleMutationError = ErrorType<RolePermissionDto>;
+>
+export type AssignPermissionToRoleMutationBody = BodyType<AssignPermissionToRoleRequest>
+export type AssignPermissionToRoleMutationError = ErrorType<RolePermissionDto>
 
 /**
  * @summary Assigner une permission a un rôle
@@ -361,36 +330,32 @@ export const useAssignPermissionToRole = <
       TError,
       { data: BodyType<AssignPermissionToRoleRequest> },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof assignPermissionToRole>>,
   TError,
   { data: BodyType<AssignPermissionToRoleRequest> },
   TContext
 > => {
-  const mutationOptions = getAssignPermissionToRoleMutationOptions(options);
+  const mutationOptions = getAssignPermissionToRoleMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Recupere une permission par son ID
  * @summary Recuperer une permission
  */
 export const findById5 = (id: MaybeRef<number>, signal?: AbortSignal) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<PermissionDto>({
-    url: `/api/permissions/${id}`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<PermissionDto>({ url: `/api/permissions/${id}`, method: 'GET', signal })
+}
 
 export const getFindById5QueryKey = (id?: MaybeRef<number>) => {
-  return ["api", "permissions", id] as const;
-};
+  return ['api', 'permissions', id] as const
+}
 
 export const getFindById5QueryOptions = <
   TData = Awaited<ReturnType<typeof findById5>>,
@@ -398,31 +363,26 @@ export const getFindById5QueryOptions = <
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findById5>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findById5>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindById5QueryKey(id);
+  const queryKey = getFindById5QueryKey(id)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof findById5>>> = ({
-    signal,
-  }) => findById5(id, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findById5>>> = ({ signal }) =>
+    findById5(id, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(id)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof findById5>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findById5>>, TError, TData>
+}
 
-export type FindById5QueryResult = NonNullable<
-  Awaited<ReturnType<typeof findById5>>
->;
-export type FindById5QueryError = ErrorType<PermissionDto>;
+export type FindById5QueryResult = NonNullable<Awaited<ReturnType<typeof findById5>>>
+export type FindById5QueryError = ErrorType<PermissionDto>
 
 /**
  * @summary Recuperer une permission
@@ -434,28 +394,19 @@ export function useFindById5<
 >(
   id: MaybeRef<number>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findById5>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findById5>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindById5QueryOptions(id, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindById5QueryOptions(id, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -463,13 +414,10 @@ export function useFindById5<
  * @summary Supprimer une permission
  */
 export const deletePermission = (id: MaybeRef<number>) => {
-  id = unref(id);
+  id = unref(id)
 
-  return customInstance<void>({
-    url: `/api/permissions/${id}`,
-    method: "DELETE",
-  });
-};
+  return customInstance<void>({ url: `/api/permissions/${id}`, method: 'DELETE' })
+}
 
 export const getDeletePermissionMutationOptions = <
   TError = ErrorType<void>,
@@ -480,113 +428,97 @@ export const getDeletePermissionMutationOptions = <
     TError,
     { id: number },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deletePermission>>,
   TError,
   { id: number },
   TContext
 > => {
-  const mutationKey = ["deletePermission"];
+  const mutationKey = ['deletePermission']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deletePermission>>,
     { id: number }
   > = (props) => {
-    const { id } = props ?? {};
+    const { id } = props ?? {}
 
-    return deletePermission(id);
-  };
+    return deletePermission(id)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
 export type DeletePermissionMutationResult = NonNullable<
   Awaited<ReturnType<typeof deletePermission>>
->;
+>
 
-export type DeletePermissionMutationError = ErrorType<void>;
+export type DeletePermissionMutationError = ErrorType<void>
 
 /**
  * @summary Supprimer une permission
  */
-export const useDeletePermission = <
-  TError = ErrorType<void>,
-  TContext = unknown,
->(
+export const useDeletePermission = <TError = ErrorType<void>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deletePermission>>,
       TError,
       { id: number },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof deletePermission>>,
   TError,
   { id: number },
   TContext
 > => {
-  const mutationOptions = getDeletePermissionMutationOptions(options);
+  const mutationOptions = getDeletePermissionMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
 /**
  * Recupere la liste des rôles ayant des permissions
  * @summary Lister les rôles
  */
 export const findDistinctRoles = (signal?: AbortSignal) => {
-  return customInstance<string[]>({
-    url: `/api/permissions/roles`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<string[]>({ url: `/api/permissions/roles`, method: 'GET', signal })
+}
 
 export const getFindDistinctRolesQueryKey = () => {
-  return ["api", "permissions", "roles"] as const;
-};
+  return ['api', 'permissions', 'roles'] as const
+}
 
 export const getFindDistinctRolesQueryOptions = <
   TData = Awaited<ReturnType<typeof findDistinctRoles>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof findDistinctRoles>>,
-      TError,
-      TData
-    >
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findDistinctRoles>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindDistinctRolesQueryKey();
+  const queryKey = getFindDistinctRolesQueryKey()
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof findDistinctRoles>>
-  > = ({ signal }) => findDistinctRoles(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findDistinctRoles>>> = ({ signal }) =>
+    findDistinctRoles(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof findDistinctRoles>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
 export type FindDistinctRolesQueryResult = NonNullable<
   Awaited<ReturnType<typeof findDistinctRoles>>
->;
-export type FindDistinctRolesQueryError = ErrorType<unknown>;
+>
+export type FindDistinctRolesQueryError = ErrorType<unknown>
 
 /**
  * @summary Lister les rôles
@@ -597,54 +529,38 @@ export function useFindDistinctRoles<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findDistinctRoles>>,
-        TError,
-        TData
-      >
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findDistinctRoles>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindDistinctRolesQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindDistinctRolesQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Recupere toutes les permissions associees a un rôle
  * @summary Lister les permissions d'un rôle
  */
-export const findPermissionsByRole = (
-  role: MaybeRef<string>,
-  signal?: AbortSignal,
-) => {
-  role = unref(role);
+export const findPermissionsByRole = (role: MaybeRef<string>, signal?: AbortSignal) => {
+  role = unref(role)
 
   return customInstance<PermissionDto[]>({
     url: `/api/permissions/role/${role}`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getFindPermissionsByRoleQueryKey = (role?: MaybeRef<string>) => {
-  return ["api", "permissions", "role", role] as const;
-};
+  return ['api', 'permissions', 'role', role] as const
+}
 
 export const getFindPermissionsByRoleQueryOptions = <
   TData = Awaited<ReturnType<typeof findPermissionsByRole>>,
@@ -653,38 +569,29 @@ export const getFindPermissionsByRoleQueryOptions = <
   role: MaybeRef<string>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findPermissionsByRole>>,
-        TError,
-        TData
-      >
-    >;
-  },
+      UseQueryOptions<Awaited<ReturnType<typeof findPermissionsByRole>>, TError, TData>
+    >
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindPermissionsByRoleQueryKey(role);
+  const queryKey = getFindPermissionsByRoleQueryKey(role)
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof findPermissionsByRole>>
-  > = ({ signal }) => findPermissionsByRole(role, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findPermissionsByRole>>> = ({ signal }) =>
+    findPermissionsByRole(role, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(role)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof findPermissionsByRole>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findPermissionsByRole>>, TError, TData>
+}
 
 export type FindPermissionsByRoleQueryResult = NonNullable<
   Awaited<ReturnType<typeof findPermissionsByRole>>
->;
-export type FindPermissionsByRoleQueryError = ErrorType<unknown>;
+>
+export type FindPermissionsByRoleQueryError = ErrorType<unknown>
 
 /**
  * @summary Lister les permissions d'un rôle
@@ -697,55 +604,39 @@ export function useFindPermissionsByRole<
   role: MaybeRef<string>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findPermissionsByRole>>,
-        TError,
-        TData
-      >
-    >;
+      UseQueryOptions<Awaited<ReturnType<typeof findPermissionsByRole>>, TError, TData>
+    >
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindPermissionsByRoleQueryOptions(role, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindPermissionsByRoleQueryOptions(role, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Recupere les assignations role-permission d'un rôle
  * @summary Lister les assignations d'un rôle
  */
-export const findRolePermissionsByRole = (
-  role: MaybeRef<string>,
-  signal?: AbortSignal,
-) => {
-  role = unref(role);
+export const findRolePermissionsByRole = (role: MaybeRef<string>, signal?: AbortSignal) => {
+  role = unref(role)
 
   return customInstance<RolePermissionDto[]>({
     url: `/api/permissions/role/${role}/assignments`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
-export const getFindRolePermissionsByRoleQueryKey = (
-  role?: MaybeRef<string>,
-) => {
-  return ["api", "permissions", "role", role, "assignments"] as const;
-};
+export const getFindRolePermissionsByRoleQueryKey = (role?: MaybeRef<string>) => {
+  return ['api', 'permissions', 'role', role, 'assignments'] as const
+}
 
 export const getFindRolePermissionsByRoleQueryOptions = <
   TData = Awaited<ReturnType<typeof findRolePermissionsByRole>>,
@@ -754,38 +645,30 @@ export const getFindRolePermissionsByRoleQueryOptions = <
   role: MaybeRef<string>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findRolePermissionsByRole>>,
-        TError,
-        TData
-      >
-    >;
-  },
+      UseQueryOptions<Awaited<ReturnType<typeof findRolePermissionsByRole>>, TError, TData>
+    >
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindRolePermissionsByRoleQueryKey(role);
+  const queryKey = getFindRolePermissionsByRoleQueryKey(role)
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof findRolePermissionsByRole>>
-  > = ({ signal }) => findRolePermissionsByRole(role, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findRolePermissionsByRole>>> = ({
+    signal,
+  }) => findRolePermissionsByRole(role, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(role)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof findRolePermissionsByRole>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findRolePermissionsByRole>>, TError, TData>
+}
 
 export type FindRolePermissionsByRoleQueryResult = NonNullable<
   Awaited<ReturnType<typeof findRolePermissionsByRole>>
->;
-export type FindRolePermissionsByRoleQueryError = ErrorType<unknown>;
+>
+export type FindRolePermissionsByRoleQueryError = ErrorType<unknown>
 
 /**
  * @summary Lister les assignations d'un rôle
@@ -798,31 +681,20 @@ export function useFindRolePermissionsByRole<
   role: MaybeRef<string>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findRolePermissionsByRole>>,
-        TError,
-        TData
-      >
-    >;
+      UseQueryOptions<Awaited<ReturnType<typeof findRolePermissionsByRole>>, TError, TData>
+    >
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindRolePermissionsByRoleQueryOptions(role, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindRolePermissionsByRoleQueryOptions(role, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -830,48 +702,37 @@ export function useFindRolePermissionsByRole<
  * @summary Lister les ressources
  */
 export const findDistinctResources = (signal?: AbortSignal) => {
-  return customInstance<string[]>({
-    url: `/api/permissions/resources`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<string[]>({ url: `/api/permissions/resources`, method: 'GET', signal })
+}
 
 export const getFindDistinctResourcesQueryKey = () => {
-  return ["api", "permissions", "resources"] as const;
-};
+  return ['api', 'permissions', 'resources'] as const
+}
 
 export const getFindDistinctResourcesQueryOptions = <
   TData = Awaited<ReturnType<typeof findDistinctResources>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof findDistinctResources>>,
-      TError,
-      TData
-    >
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findDistinctResources>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindDistinctResourcesQueryKey();
+  const queryKey = getFindDistinctResourcesQueryKey()
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof findDistinctResources>>
-  > = ({ signal }) => findDistinctResources(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findDistinctResources>>> = ({ signal }) =>
+    findDistinctResources(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof findDistinctResources>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
 export type FindDistinctResourcesQueryResult = NonNullable<
   Awaited<ReturnType<typeof findDistinctResources>>
->;
-export type FindDistinctResourcesQueryError = ErrorType<unknown>;
+>
+export type FindDistinctResourcesQueryError = ErrorType<unknown>
 
 /**
  * @summary Lister les ressources
@@ -883,53 +744,39 @@ export function useFindDistinctResources<
 >(
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findDistinctResources>>,
-        TError,
-        TData
-      >
-    >;
+      UseQueryOptions<Awaited<ReturnType<typeof findDistinctResources>>, TError, TData>
+    >
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindDistinctResourcesQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindDistinctResourcesQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Recupere les permissions d'une ressource
  * @summary Lister par ressource
  */
-export const findByResource = (
-  resource: MaybeRef<string>,
-  signal?: AbortSignal,
-) => {
-  resource = unref(resource);
+export const findByResource = (resource: MaybeRef<string>, signal?: AbortSignal) => {
+  resource = unref(resource)
 
   return customInstance<PermissionDto[]>({
     url: `/api/permissions/resource/${resource}`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getFindByResourceQueryKey = (resource?: MaybeRef<string>) => {
-  return ["api", "permissions", "resource", resource] as const;
-};
+  return ['api', 'permissions', 'resource', resource] as const
+}
 
 export const getFindByResourceQueryOptions = <
   TData = Awaited<ReturnType<typeof findByResource>>,
@@ -937,35 +784,26 @@ export const getFindByResourceQueryOptions = <
 >(
   resource: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findByResource>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findByResource>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindByResourceQueryKey(resource);
+  const queryKey = getFindByResourceQueryKey(resource)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof findByResource>>> = ({
-    signal,
-  }) => findByResource(resource, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findByResource>>> = ({ signal }) =>
+    findByResource(resource, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(resource)),
     ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof findByResource>>,
-    TError,
-    TData
-  >;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findByResource>>, TError, TData>
+}
 
-export type FindByResourceQueryResult = NonNullable<
-  Awaited<ReturnType<typeof findByResource>>
->;
-export type FindByResourceQueryError = ErrorType<unknown>;
+export type FindByResourceQueryResult = NonNullable<Awaited<ReturnType<typeof findByResource>>>
+export type FindByResourceQueryError = ErrorType<unknown>
 
 /**
  * @summary Lister par ressource
@@ -977,28 +815,19 @@ export function useFindByResource<
 >(
   resource: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findByResource>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findByResource>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindByResourceQueryOptions(resource, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindByResourceQueryOptions(resource, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -1006,18 +835,18 @@ export function useFindByResource<
  * @summary Recuperer par code
  */
 export const findByCode = (code: MaybeRef<string>, signal?: AbortSignal) => {
-  code = unref(code);
+  code = unref(code)
 
   return customInstance<PermissionDto>({
     url: `/api/permissions/code/${code}`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getFindByCodeQueryKey = (code?: MaybeRef<string>) => {
-  return ["api", "permissions", "code", code] as const;
-};
+  return ['api', 'permissions', 'code', code] as const
+}
 
 export const getFindByCodeQueryOptions = <
   TData = Awaited<ReturnType<typeof findByCode>>,
@@ -1025,31 +854,26 @@ export const getFindByCodeQueryOptions = <
 >(
   code: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findByCode>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findByCode>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindByCodeQueryKey(code);
+  const queryKey = getFindByCodeQueryKey(code)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof findByCode>>> = ({
-    signal,
-  }) => findByCode(code, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findByCode>>> = ({ signal }) =>
+    findByCode(code, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(code)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof findByCode>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findByCode>>, TError, TData>
+}
 
-export type FindByCodeQueryResult = NonNullable<
-  Awaited<ReturnType<typeof findByCode>>
->;
-export type FindByCodeQueryError = ErrorType<PermissionDto>;
+export type FindByCodeQueryResult = NonNullable<Awaited<ReturnType<typeof findByCode>>>
+export type FindByCodeQueryError = ErrorType<PermissionDto>
 
 /**
  * @summary Recuperer par code
@@ -1061,53 +885,39 @@ export function useFindByCode<
 >(
   code: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findByCode>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findByCode>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindByCodeQueryOptions(code, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindByCodeQueryOptions(code, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Verifie si un rôle possede une permission
  * @summary Verifier une permission
  */
-export const hasPermission = (
-  params: MaybeRef<HasPermissionParams>,
-  signal?: AbortSignal,
-) => {
-  params = unref(params);
+export const hasPermission = (params: MaybeRef<HasPermissionParams>, signal?: AbortSignal) => {
+  params = unref(params)
 
   return customInstance<boolean>({
     url: `/api/permissions/check`,
-    method: "GET",
+    method: 'GET',
     params: unref(params),
     signal,
-  });
-};
+  })
+}
 
-export const getHasPermissionQueryKey = (
-  params?: MaybeRef<HasPermissionParams>,
-) => {
-  return ["api", "permissions", "check", ...(params ? [params] : [])] as const;
-};
+export const getHasPermissionQueryKey = (params?: MaybeRef<HasPermissionParams>) => {
+  return ['api', 'permissions', 'check', ...(params ? [params] : [])] as const
+}
 
 export const getHasPermissionQueryOptions = <
   TData = Awaited<ReturnType<typeof hasPermission>>,
@@ -1115,30 +925,25 @@ export const getHasPermissionQueryOptions = <
 >(
   params: MaybeRef<HasPermissionParams>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof hasPermission>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof hasPermission>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getHasPermissionQueryKey(params);
+  const queryKey = getHasPermissionQueryKey(params)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof hasPermission>>> = ({
-    signal,
-  }) => hasPermission(params, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof hasPermission>>> = ({ signal }) =>
+    hasPermission(params, signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof hasPermission>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
-export type HasPermissionQueryResult = NonNullable<
-  Awaited<ReturnType<typeof hasPermission>>
->;
-export type HasPermissionQueryError = ErrorType<unknown>;
+export type HasPermissionQueryResult = NonNullable<Awaited<ReturnType<typeof hasPermission>>>
+export type HasPermissionQueryError = ErrorType<unknown>
 
 /**
  * @summary Verifier une permission
@@ -1150,28 +955,19 @@ export function useHasPermission<
 >(
   params: MaybeRef<HasPermissionParams>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof hasPermission>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof hasPermission>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getHasPermissionQueryOptions(params, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getHasPermissionQueryOptions(params, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -1180,29 +976,23 @@ export function useHasPermission<
  */
 export const hasPermissionOnResource = (
   params: MaybeRef<HasPermissionOnResourceParams>,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
-  params = unref(params);
+  params = unref(params)
 
   return customInstance<boolean>({
     url: `/api/permissions/check/resource`,
-    method: "GET",
+    method: 'GET',
     params: unref(params),
     signal,
-  });
-};
+  })
+}
 
 export const getHasPermissionOnResourceQueryKey = (
-  params?: MaybeRef<HasPermissionOnResourceParams>,
+  params?: MaybeRef<HasPermissionOnResourceParams>
 ) => {
-  return [
-    "api",
-    "permissions",
-    "check",
-    "resource",
-    ...(params ? [params] : []),
-  ] as const;
-};
+  return ['api', 'permissions', 'check', 'resource', ...(params ? [params] : [])] as const
+}
 
 export const getHasPermissionOnResourceQueryOptions = <
   TData = Awaited<ReturnType<typeof hasPermissionOnResource>>,
@@ -1211,33 +1001,29 @@ export const getHasPermissionOnResourceQueryOptions = <
   params: MaybeRef<HasPermissionOnResourceParams>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof hasPermissionOnResource>>,
-        TError,
-        TData
-      >
-    >;
-  },
+      UseQueryOptions<Awaited<ReturnType<typeof hasPermissionOnResource>>, TError, TData>
+    >
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getHasPermissionOnResourceQueryKey(params);
+  const queryKey = getHasPermissionOnResourceQueryKey(params)
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof hasPermissionOnResource>>
-  > = ({ signal }) => hasPermissionOnResource(params, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof hasPermissionOnResource>>> = ({
+    signal,
+  }) => hasPermissionOnResource(params, signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof hasPermissionOnResource>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
 export type HasPermissionOnResourceQueryResult = NonNullable<
   Awaited<ReturnType<typeof hasPermissionOnResource>>
->;
-export type HasPermissionOnResourceQueryError = ErrorType<unknown>;
+>
+export type HasPermissionOnResourceQueryError = ErrorType<unknown>
 
 /**
  * @summary Verifier l'acces ressource
@@ -1250,31 +1036,20 @@ export function useHasPermissionOnResource<
   params: MaybeRef<HasPermissionOnResourceParams>,
   options?: {
     query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof hasPermissionOnResource>>,
-        TError,
-        TData
-      >
-    >;
+      UseQueryOptions<Awaited<ReturnType<typeof hasPermissionOnResource>>, TError, TData>
+    >
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getHasPermissionOnResourceQueryOptions(params, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getHasPermissionOnResourceQueryOptions(params, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -1282,48 +1057,37 @@ export function useHasPermissionOnResource<
  * @summary Lister les actions
  */
 export const findDistinctActions = (signal?: AbortSignal) => {
-  return customInstance<string[]>({
-    url: `/api/permissions/actions`,
-    method: "GET",
-    signal,
-  });
-};
+  return customInstance<string[]>({ url: `/api/permissions/actions`, method: 'GET', signal })
+}
 
 export const getFindDistinctActionsQueryKey = () => {
-  return ["api", "permissions", "actions"] as const;
-};
+  return ['api', 'permissions', 'actions'] as const
+}
 
 export const getFindDistinctActionsQueryOptions = <
   TData = Awaited<ReturnType<typeof findDistinctActions>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: Partial<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof findDistinctActions>>,
-      TError,
-      TData
-    >
-  >;
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findDistinctActions>>, TError, TData>>
 }) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindDistinctActionsQueryKey();
+  const queryKey = getFindDistinctActionsQueryKey()
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof findDistinctActions>>
-  > = ({ signal }) => findDistinctActions(signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findDistinctActions>>> = ({ signal }) =>
+    findDistinctActions(signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof findDistinctActions>>,
     TError,
     TData
-  >;
-};
+  >
+}
 
 export type FindDistinctActionsQueryResult = NonNullable<
   Awaited<ReturnType<typeof findDistinctActions>>
->;
-export type FindDistinctActionsQueryError = ErrorType<unknown>;
+>
+export type FindDistinctActionsQueryError = ErrorType<unknown>
 
 /**
  * @summary Lister les actions
@@ -1334,54 +1098,38 @@ export function useFindDistinctActions<
   TError = ErrorType<unknown>,
 >(
   options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof findDistinctActions>>,
-        TError,
-        TData
-      >
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findDistinctActions>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindDistinctActionsQueryOptions(options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindDistinctActionsQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
  * Recupere les permissions d'une action
  * @summary Lister par action
  */
-export const findByAction = (
-  action: MaybeRef<string>,
-  signal?: AbortSignal,
-) => {
-  action = unref(action);
+export const findByAction = (action: MaybeRef<string>, signal?: AbortSignal) => {
+  action = unref(action)
 
   return customInstance<PermissionDto[]>({
     url: `/api/permissions/action/${action}`,
-    method: "GET",
+    method: 'GET',
     signal,
-  });
-};
+  })
+}
 
 export const getFindByActionQueryKey = (action?: MaybeRef<string>) => {
-  return ["api", "permissions", "action", action] as const;
-};
+  return ['api', 'permissions', 'action', action] as const
+}
 
 export const getFindByActionQueryOptions = <
   TData = Awaited<ReturnType<typeof findByAction>>,
@@ -1389,31 +1137,26 @@ export const getFindByActionQueryOptions = <
 >(
   action: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findByAction>>, TError, TData>
-    >;
-  },
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findByAction>>, TError, TData>>
+  }
 ) => {
-  const { query: queryOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {}
 
-  const queryKey = getFindByActionQueryKey(action);
+  const queryKey = getFindByActionQueryKey(action)
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof findByAction>>> = ({
-    signal,
-  }) => findByAction(action, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof findByAction>>> = ({ signal }) =>
+    findByAction(action, signal)
 
   return {
     queryKey,
     queryFn,
     enabled: computed(() => !!unref(action)),
     ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof findByAction>>, TError, TData>;
-};
+  } as UseQueryOptions<Awaited<ReturnType<typeof findByAction>>, TError, TData>
+}
 
-export type FindByActionQueryResult = NonNullable<
-  Awaited<ReturnType<typeof findByAction>>
->;
-export type FindByActionQueryError = ErrorType<unknown>;
+export type FindByActionQueryResult = NonNullable<Awaited<ReturnType<typeof findByAction>>>
+export type FindByActionQueryError = ErrorType<unknown>
 
 /**
  * @summary Lister par action
@@ -1425,28 +1168,19 @@ export function useFindByAction<
 >(
   action: MaybeRef<string>,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof findByAction>>, TError, TData>
-    >;
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof findByAction>>, TError, TData>>
   },
-  queryClient?: QueryClient,
-): UseQueryReturnType<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFindByActionQueryOptions(action, options);
+  queryClient?: QueryClient
+): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getFindByActionQueryOptions(action, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
 
-  query.queryKey = unref(queryOptions).queryKey as DataTag<
-    QueryKey,
-    TData,
-    TError
-  >;
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>
 
-  return query;
+  return query
 }
 
 /**
@@ -1455,16 +1189,16 @@ export function useFindByAction<
  */
 export const revokePermissionFromRole = (
   role: MaybeRef<string>,
-  permissionId: MaybeRef<number>,
+  permissionId: MaybeRef<number>
 ) => {
-  role = unref(role);
-  permissionId = unref(permissionId);
+  role = unref(role)
+  permissionId = unref(permissionId)
 
   return customInstance<void>({
     url: `/api/permissions/role/${role}/permission/${permissionId}`,
-    method: "DELETE",
-  });
-};
+    method: 'DELETE',
+  })
+}
 
 export const getRevokePermissionFromRoleMutationOptions = <
   TError = ErrorType<void>,
@@ -1475,63 +1209,58 @@ export const getRevokePermissionFromRoleMutationOptions = <
     TError,
     { role: string; permissionId: number },
     TContext
-  >;
+  >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof revokePermissionFromRole>>,
   TError,
   { role: string; permissionId: number },
   TContext
 > => {
-  const mutationKey = ["revokePermissionFromRole"];
+  const mutationKey = ['revokePermissionFromRole']
   const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
+    : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof revokePermissionFromRole>>,
     { role: string; permissionId: number }
   > = (props) => {
-    const { role, permissionId } = props ?? {};
+    const { role, permissionId } = props ?? {}
 
-    return revokePermissionFromRole(role, permissionId);
-  };
+    return revokePermissionFromRole(role, permissionId)
+  }
 
-  return { mutationFn, ...mutationOptions };
-};
+  return { mutationFn, ...mutationOptions }
+}
 
 export type RevokePermissionFromRoleMutationResult = NonNullable<
   Awaited<ReturnType<typeof revokePermissionFromRole>>
->;
+>
 
-export type RevokePermissionFromRoleMutationError = ErrorType<void>;
+export type RevokePermissionFromRoleMutationError = ErrorType<void>
 
 /**
  * @summary Revoquer une permission
  */
-export const useRevokePermissionFromRole = <
-  TError = ErrorType<void>,
-  TContext = unknown,
->(
+export const useRevokePermissionFromRole = <TError = ErrorType<void>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof revokePermissionFromRole>>,
       TError,
       { role: string; permissionId: number },
       TContext
-    >;
+    >
   },
-  queryClient?: QueryClient,
+  queryClient?: QueryClient
 ): UseMutationReturnType<
   Awaited<ReturnType<typeof revokePermissionFromRole>>,
   TError,
   { role: string; permissionId: number },
   TContext
 > => {
-  const mutationOptions = getRevokePermissionFromRoleMutationOptions(options);
+  const mutationOptions = getRevokePermissionFromRoleMutationOptions(options)
 
-  return useMutation(mutationOptions, queryClient);
-};
+  return useMutation(mutationOptions, queryClient)
+}
