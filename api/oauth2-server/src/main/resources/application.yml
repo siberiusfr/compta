@@ -38,8 +38,8 @@ logging:
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
 
 # SpringDoc OpenAPI Configuration
 springdoc:
@@ -63,7 +63,7 @@ oauth2:
   key:
     rotation:
       enabled: true
-      schedule: "0 0 2 * * *" # Daily at 2 AM
+      schedule: '0 0 2 * * *' # Daily at 2 AM
       key-lifetime-days: 90
       grace-period-days: 7
       retention-days: 30

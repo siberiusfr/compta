@@ -4,10 +4,7 @@
   "description": "Contrats Zod et types TypeScript pour la communication asynchrone entre services COMPTA via Redis/BullMQ",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "generated"
-  ],
+  "files": ["dist", "generated"],
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist",
@@ -19,14 +16,7 @@
     "build:all": "npm run build && npm run generate:schemas",
     "prepare": "npm run build:all"
   },
-  "keywords": [
-    "compta",
-    "notification",
-    "contracts",
-    "zod",
-    "bullmq",
-    "json-schema"
-  ],
+  "keywords": ["compta", "notification", "contracts", "zod", "bullmq", "json-schema"],
   "author": "COMPTA Team",
   "license": "UNLICENSED",
   "dependencies": {

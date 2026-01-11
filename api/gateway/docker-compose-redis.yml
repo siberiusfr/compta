@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   # ==========================================
@@ -9,7 +9,7 @@ services:
     container_name: compta-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       # Persistance des données (optionnel en dev)
       - redis-data:/data
@@ -18,7 +18,7 @@ services:
       --appendonly yes
       --appendfsync everysec
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 3s
       retries: 3
@@ -35,7 +35,7 @@ services:
     container_name: compta-redis-commander
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - '8081:8081'
     environment:
       - REDIS_HOSTS=local:redis:6379
     depends_on:
