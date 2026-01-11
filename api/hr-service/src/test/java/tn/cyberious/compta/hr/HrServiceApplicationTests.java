@@ -1,7 +1,6 @@
 package tn.cyberious.compta.hr;
 
 import org.junit.jupiter.api.Test;
-
 import tn.cyberious.compta.test.AbstractIntegrationTest;
 
 class HrServiceApplicationTests extends AbstractIntegrationTest {

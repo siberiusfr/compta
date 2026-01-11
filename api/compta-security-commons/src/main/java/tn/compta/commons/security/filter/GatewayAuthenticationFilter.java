@@ -1,18 +1,16 @@
 package tn.compta.commons.security.filter;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.filter.OncePerRequestFilter;
 import tn.compta.commons.security.context.SecurityContext;
 import tn.compta.commons.security.context.SecurityContextHolder;
 import tn.compta.commons.security.exception.UnauthorizedException;

@@ -1,9 +1,8 @@
 package tn.cyberious.compta.document.dto;
 
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import lombok.Data;
 
 @Data

@@ -2,7 +2,8 @@ package tn.compta.commons.security.config;
 
 import java.util.Arrays;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -14,9 +15,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import tn.compta.commons.security.aspect.SecurityAspect;
 import tn.compta.commons.security.filter.GatewayAuthenticationFilter;
 import tn.compta.commons.security.interceptor.PermissionCheckInterceptor;

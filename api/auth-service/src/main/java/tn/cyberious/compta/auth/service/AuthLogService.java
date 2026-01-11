@@ -2,11 +2,9 @@ package tn.cyberious.compta.auth.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import tn.cyberious.compta.auth.dto.AuthLogResponse;
 import tn.cyberious.compta.auth.generated.tables.pojos.AuthLogs;
 import tn.cyberious.compta.auth.repository.AuthLogRepository;

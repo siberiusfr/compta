@@ -1,13 +1,11 @@
 package tn.cyberious.compta.authz.config;
 
+import feign.Logger;
+import feign.RequestInterceptor;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import feign.Logger;
-import feign.RequestInterceptor;
 import tn.compta.commons.security.context.SecurityContextHolder;
 import tn.compta.commons.security.model.UserPermission;
 

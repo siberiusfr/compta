@@ -1,12 +1,10 @@
 package tn.cyberious.compta.authz.service;
 
 import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tn.cyberious.compta.authz.dto.ComptableSocietesDto;
 import tn.cyberious.compta.authz.dto.SocieteDto;
 import tn.cyberious.compta.authz.dto.request.AssignComptableToSocieteRequest;

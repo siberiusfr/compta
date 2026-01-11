@@ -3,13 +3,11 @@ package tn.cyberious.compta.document.service;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.document.dto.DocumentVersionResponse;
 import tn.cyberious.compta.document.dto.DocumentVersionUploadRequest;
 import tn.cyberious.compta.document.generated.tables.pojos.DocumentVersions;

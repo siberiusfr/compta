@@ -1,13 +1,11 @@
 package tn.cyberious.compta.oauth2.metrics;
 
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.stereotype.Component;
-
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.MeterBinder;
+import java.util.concurrent.TimeUnit;
+import org.springframework.stereotype.Component;
 
 /**
  * Custom metrics for OAuth2 operations. Tracks token issuance, revocation, authentication events,

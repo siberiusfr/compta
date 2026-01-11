@@ -1,11 +1,9 @@
 package tn.cyberious.compta.authz.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Acces d'un comptable a une societe cliente")
 public record ComptableSocietesDto(

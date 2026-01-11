@@ -1,9 +1,8 @@
 package tn.cyberious.compta.document.dto;
 
-import java.util.Map;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import java.util.Map;
 import lombok.Data;
 
 @Data

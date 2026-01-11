@@ -2,7 +2,6 @@ package tn.compta.commons.security.model;
 
 import java.io.Serial;
 import java.io.Serializable;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

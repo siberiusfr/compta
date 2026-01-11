@@ -5,7 +5,6 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-
 import tn.compta.commons.security.annotation.AuthenticatedUser;
 import tn.compta.commons.security.context.SecurityContextHolder;
 import tn.compta.commons.security.exception.UnauthorizedException;

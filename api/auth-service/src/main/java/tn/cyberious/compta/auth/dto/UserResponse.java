@@ -2,7 +2,6 @@ package tn.cyberious.compta.auth.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.Builder;
 import lombok.Data;
 

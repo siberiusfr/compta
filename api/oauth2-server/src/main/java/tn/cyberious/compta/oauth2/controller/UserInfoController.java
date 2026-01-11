@@ -1,7 +1,10 @@
 package tn.cyberious.compta.oauth2.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,11 +12,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import tn.cyberious.compta.oauth2.dto.UserInfoResponse;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;

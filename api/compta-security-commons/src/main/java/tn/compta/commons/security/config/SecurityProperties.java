@@ -1,9 +1,8 @@
 package tn.compta.commons.security.config;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-
-import lombok.Data;
 
 /**
  * Configuration properties for Compta Security Commons.

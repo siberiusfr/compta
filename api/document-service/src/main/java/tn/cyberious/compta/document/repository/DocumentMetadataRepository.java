@@ -1,18 +1,16 @@
 package tn.cyberious.compta.document.repository;
 
+import static tn.cyberious.compta.document.generated.Tables.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.jooq.DSLContext;
-import org.springframework.stereotype.Repository;
-
-import static tn.cyberious.compta.document.generated.Tables.*;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.DSLContext;
+import org.springframework.stereotype.Repository;
 import tn.cyberious.compta.document.generated.tables.pojos.DocumentMetadata;
 import tn.cyberious.compta.document.generated.tables.records.DocumentMetadataRecord;
 

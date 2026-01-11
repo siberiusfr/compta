@@ -1,16 +1,14 @@
 package tn.compta.commons.security.resolver;
 
-import java.util.List;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.core.MethodParameter;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.core.MethodParameter;
 import tn.compta.commons.security.annotation.AuthenticatedUser;
 import tn.compta.commons.security.context.SecurityContext;
 import tn.compta.commons.security.context.SecurityContextHolder;

@@ -2,12 +2,10 @@ package tn.cyberious.compta.document.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tn.cyberious.compta.document.dto.TagRequest;
 import tn.cyberious.compta.document.dto.TagResponse;
 import tn.cyberious.compta.document.generated.tables.pojos.Tags;

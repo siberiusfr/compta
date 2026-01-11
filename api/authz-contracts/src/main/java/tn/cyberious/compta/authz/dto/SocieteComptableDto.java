@@ -1,10 +1,8 @@
 package tn.cyberious.compta.authz.dto;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 
 @Schema(description = "Societe comptable (cabinet)")
 public record SocieteComptableDto(

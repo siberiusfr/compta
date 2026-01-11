@@ -2,7 +2,8 @@ package tn.cyberious.compta.auth.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -10,9 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.auth.dto.AuthResponse;
 import tn.cyberious.compta.auth.dto.LoginRequest;
 import tn.cyberious.compta.auth.dto.UserResponse;

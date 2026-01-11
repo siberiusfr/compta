@@ -1,11 +1,10 @@
 package tn.compta.commons.security.interceptor;
 
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.HandlerInterceptor;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerInterceptor;
 import tn.compta.commons.security.annotation.Public;
 import tn.compta.commons.security.annotation.RequireRole;
 import tn.compta.commons.security.context.SecurityContextHolder;

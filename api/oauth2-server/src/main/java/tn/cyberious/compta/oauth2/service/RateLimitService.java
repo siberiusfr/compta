@@ -2,11 +2,9 @@ package tn.cyberious.compta.oauth2.service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.oauth2.config.RateLimitConfig.RateLimit;
 
 /**

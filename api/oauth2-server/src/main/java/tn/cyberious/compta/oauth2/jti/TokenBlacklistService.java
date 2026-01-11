@@ -1,5 +1,6 @@
 package tn.cyberious.compta.oauth2.jti;
 
+import com.nimbusds.jwt.SignedJWT;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -8,15 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.nimbusds.jwt.SignedJWT;
 
 /**
  * Service for managing token blacklisting using JTI (JWT ID).

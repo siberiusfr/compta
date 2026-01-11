@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# IDE
+.vscode
+.idea
+
+# Logs
+*.log
+
+# Cache
+.cache
+*.tsbuildinfo
+
+# Prisma
+**/prisma/migrations/**
+**/prisma/**/migration.sql
+
+# SQL généré
+**/target/**

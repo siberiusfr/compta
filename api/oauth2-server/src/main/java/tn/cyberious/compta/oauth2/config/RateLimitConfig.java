@@ -2,7 +2,7 @@ package tn.cyberious.compta.oauth2.config;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import lombok.extern.slf4j.Slf4j;
 import tn.cyberious.compta.oauth2.filter.RateLimitFilter;
 import tn.cyberious.compta.oauth2.metrics.OAuth2Metrics;
 

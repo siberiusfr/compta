@@ -1,10 +1,8 @@
 package tn.cyberious.compta.hr.service;
 
 import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import tn.cyberious.compta.authz.client.AuthzAccessClient;
 import tn.cyberious.compta.authz.client.AuthzComptableSocietesClient;
 import tn.cyberious.compta.authz.client.AuthzPermissionClient;
