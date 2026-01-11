@@ -1,6 +1,5 @@
 package tn.cyberious.compta.authz.config;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -64,7 +63,9 @@ public class AuthzFeignConfig {
         if (user.getPermissions() != null && !user.getPermissions().isEmpty()) {
           template.header(
               HEADER_PERMISSIONS,
-              user.getPermissions().stream().map(UserPermission::getPermission).collect(Collectors.joining(",")));
+              user.getPermissions().stream()
+                  .map(UserPermission::getPermission)
+                  .collect(Collectors.joining(",")));
         }
       }
       if (context != null && context.getRequestId() != null) {
