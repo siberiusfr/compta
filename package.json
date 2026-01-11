@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky"
+    "prepare": "husky",
+    "format:api-java": "cd api && (mvnw.cmd spotless:apply || ./mvnw spotless:apply)"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,7 @@
       "prettier --write"
     ],
     "api/src/**/*.java": [
-      "cd api && ./mvnw spotless:apply -DspotlessFiles=$0"
+      "pnpm run format:api-java"
     ],
     "api/**/*.sql": [
       "cd api && prettier --write"
