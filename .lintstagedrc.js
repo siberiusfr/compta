@@ -24,7 +24,4 @@ module.exports = {
   
   'api/**/*.sql': (files) => 
     `prettier --write ${files.join(' ')}`,
-  
-  'api/**/*.{xml,yml,yaml}': (files) => 
-    `prettier --write ${files.join(' ')}`
 };
