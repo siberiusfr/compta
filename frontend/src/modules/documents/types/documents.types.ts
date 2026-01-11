@@ -14,7 +14,7 @@ export type {
   TagRequest,
   MetadataRequest,
   DocumentShareRequestPermission,
-} from '../api'
+} from "@/api/documents"
 
 // UI-specific types
 export type ViewMode = 'grid' | 'list'

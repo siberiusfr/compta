@@ -8,7 +8,7 @@ export default defineConfig({
     output: {
       client: 'vue-query',
       mode: 'tags-split', // ou 'single', 'split'
-      target: './src/modules/oauth/api/generated.ts',
+      target: './src/api/oauth/gen/generated.ts',
       mock: false,
       clean: true,
       prettier: true,
@@ -27,7 +27,7 @@ export default defineConfig({
     output: {
       client: 'vue-query',
       mode: 'tags-split', // ou 'single', 'split'
-      target: './src/modules/documents/api/generated.ts',
+      target: './src/api/documents/gen/generated.ts',
       mock: false,
       clean: true,
       prettier: true,

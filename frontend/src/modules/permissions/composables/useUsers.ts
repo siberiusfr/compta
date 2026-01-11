@@ -11,7 +11,7 @@ import {
   type UserResponse,
   type CreateUserRequest,
   type UpdateUserRequest,
-} from "@/modules/oauth/api";
+} from "@/api/oauth";
 import { useToast } from "@/shared/composables";
 import type { User, UserStatus } from "../types/permissions.types";
 

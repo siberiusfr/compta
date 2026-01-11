@@ -14,7 +14,7 @@ import {
   Loader2
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
-import type { DocumentResponse, TagResponse } from '../api'
+import type { DocumentResponse, TagResponse } from "@/api/documents"
 
 const {
   documents,

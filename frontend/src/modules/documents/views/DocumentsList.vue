@@ -21,7 +21,7 @@ import {
   Upload
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
-import type { DocumentResponse } from '../api'
+import type { DocumentResponse } from "@/api/documents"
 
 const {
   documents,

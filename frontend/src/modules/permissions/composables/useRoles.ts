@@ -8,7 +8,7 @@ import {
   type RoleResponse,
   type RoleWithUserCountDto,
   type UpdateRoleRequest,
-} from "@/modules/oauth/api";
+} from "@/api/oauth";
 import { useToast } from "@/shared/composables";
 import type { Role } from "../types/permissions.types";
 

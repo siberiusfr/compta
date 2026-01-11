@@ -2,7 +2,7 @@ import { computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDocumentsStore } from '../stores/documentsStore'
 import { useDocumentsApi } from './useDocumentsApi'
-import type { DocumentResponse } from '../api'
+import type { DocumentResponse } from "@/api/documents"
 
 export function useDocuments() {
   const store = useDocumentsStore()

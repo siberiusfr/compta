@@ -26,7 +26,7 @@ import {
   type DocumentUploadRequest,
   type DocumentShareRequest,
   type SearchGetParams,
-} from '../api'
+} from "@/api/documents"
 
 export function useDocumentsApi() {
   const queryClient = useQueryClient()
