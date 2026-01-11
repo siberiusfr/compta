@@ -1,0 +1,23 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# Generated files
+src/api/generated
+*.gen.ts
+
+# IDE
+.vscode
+.idea
+
+# Logs
+*.log
+
+# Cache
+.cache
+*.tsbuildinfo
