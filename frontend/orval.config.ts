@@ -39,4 +39,23 @@ export default defineConfig({
       },
     },
   },
+  authz: {
+    input: {
+      target: './openapi/authz.json',
+    },
+    output: {
+      client: 'vue-query',
+      mode: 'tags-split', // ou 'single', 'split'
+      target: './src/api/authz/gen/generated.ts',
+      mock: false,
+      clean: true,
+      prettier: true,
+      override: {
+        mutator: {
+          path: './src/api/axios-instance.ts',
+          name: 'customInstance',
+        },
+      },
+    },
+  },
 });

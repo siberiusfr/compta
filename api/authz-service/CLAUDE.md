@@ -1,496 +1,345 @@
-# CLAUDE.md
+# CLAUDE.md - authz-service
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Ce fichier fournit des instructions à Claude Code pour travailler avec le code de ce service.
 
-## Project Overview
+## Apercu du Service
 
-This is the **auth-service** microservice, part of a larger multi-service accounting application (Compta API). It handles authentication, authorization, and user management for the entire system.
+Le **authz-service** est le microservice de gestion des autorisations de l'application COMPTA. Il gère :
+- Les sociétés comptables (cabinets)
+- Les sociétés clientes
+- Les affectations d'utilisateurs aux cabinets et sociétés
+- Les accès des comptables aux sociétés clientes
+- Les permissions granulaires par rôle
 
-**Technology Stack:**
+**Stack Technique:**
 - Spring Boot 3.5.8 (Java 21)
-- PostgreSQL with dedicated `auth` schema
-- jOOQ for type-safe SQL queries
-- JWT (via jjwt) for authentication
-- Flyway for database migrations
-- Spring Security for authentication/authorization
+- PostgreSQL avec schéma `authz`
+- jOOQ pour les requêtes SQL type-safe
+- Flyway pour les migrations
+- Swagger/OpenAPI pour la documentation
 
-**Port:** 8083
+**Port:** 8082
+**Context Path:** `/authz`
 
-## Commands
+## Commandes
 
-### Build and Run
+### Build et Exécution
 ```bash
-# Build the service (from auth-service directory)
+# Build le service (depuis le répertoire authz-service)
 mvn clean install
 
-# Run the service
+# Exécuter le service
 mvn spring-boot:run
 
-# Build entire project (from parent api directory)
+# Build tout le projet (depuis le parent api)
 cd .. && mvn clean install
 ```
 
-### Database
-
-**Database migrations are automatic** - Flyway runs on startup and applies migrations from `src/main/resources/db/migration/`.
-
+### Base de données
 ```bash
-# Regenerate jOOQ classes after schema changes
+# Régénérer les classes jOOQ après modification du schéma
 mvn clean generate-sources
-
-# This runs the jooq-codegen-maven plugin which:
-# - Connects to the PostgreSQL database
-# - Reads the 'auth' schema structure
-# - Generates Java classes in src/main/java/tn/cyberious/compta/auth/generated/
 ```
 
-### Testing
+### Tests
 ```bash
-# Run all tests
+# Exécuter tous les tests
 mvn test
 
-# Run specific test
-mvn test -Dtest=AuthServiceApplicationTests
-
-# Run with coverage report (JaCoCo)
-mvn test jacoco:report
-# Report available at: target/site/jacoco/index.html
+# Exécuter un test spécifique
+mvn test -Dtest=AuthzServiceApplicationTests
 ```
 
 ## Architecture
 
-### Multi-Service Context
+### Schéma de base de données: `authz`
 
-This service is part of a **microservices architecture** with schema-based isolation:
+Le service possède 7 tables principales:
 
-| Service | Schema | Port | Purpose |
-|---------|--------|------|---------|
-| auth-service | `auth` | 8083 | Authentication & user management |
-| accounting-service | `accounting` | 8082 | Accounting operations |
-| hr-service | `hr` | 8084 | Human resources |
-| document-service | `document` | 8085 | Document management |
-| notification-service | `notification` | 8086 | Notifications |
-| migration-service | - | 8081 | Migration status (read-only) |
+| Table | Description |
+|-------|-------------|
+| `societes_comptables` | Cabinets comptables |
+| `societes` | Sociétés clientes |
+| `user_societe_comptable` | Utilisateurs des cabinets (MANAGER, COMPTABLE, ASSISTANT) |
+| `comptable_societes` | Accès des comptables aux sociétés clientes (lecture/écriture/validation) |
+| `user_societes` | Utilisateurs des sociétés clientes (MANAGER, FINANCE, VIEWER) |
+| `permissions` | Permissions granulaires (resource + action) |
+| `role_permissions` | Association rôle → permissions |
 
-**All services share the same PostgreSQL database but use different schemas for data isolation.**
-
-### Dependency Architecture
-
-```
-auth-service
-  └── compta-commons (shared module)
-       ├── Spring Boot starters (web, jooq, validation, actuator)
-       ├── PostgreSQL + Flyway
-       ├── Jackson configuration
-       ├── MapStruct
-       ├── OpenAPI/Swagger
-       └── Testcontainers for integration tests
-```
-
-The `compta-commons` module provides shared configurations and dependencies. Any service-specific configuration overrides the commons defaults.
-
-### Database Schema: `auth`
-
-The service owns the `auth` PostgreSQL schema with these core tables:
-
-**User Management:**
-- `users` - User accounts (username, email, password, status)
-- `roles` - System roles (ADMIN, COMPTABLE, SOCIETE, EMPLOYEE)
-- `user_roles` - Many-to-many relationship between users and roles
-
-**Company Management:**
-- `societes` - Companies (raison_sociale, matricule_fiscale, etc.)
-- `comptable_societes` - Comptable-to-company assignments (one comptable manages many companies)
-- `user_societes` - User-to-company assignments (SOCIETE role users can own multiple companies)
-- `employees` - Employee-to-company assignments (one employee belongs to ONE company)
-
-**Security & Audit:**
-- `refresh_tokens` - JWT refresh tokens
-- `auth_logs` - Authentication audit trail (login attempts, success/failure)
-
-**Key Design Principles:**
-- Role-based access control with 4 roles: ADMIN, COMPTABLE, SOCIETE, EMPLOYEE
-- Each user can have multiple roles
-- COMPTABLEs can manage multiple companies
-- SOCIETE users can own multiple companies
-- EMPLOYEEs belong to exactly one company
-- Account locking after 5 failed login attempts
-
-### jOOQ Generated Code
-
-The `src/main/java/tn/cyberious/compta/auth/generated/` directory contains **generated code** from the database schema:
+### Hiérarchie des entités
 
 ```
-auth/generated/
-├── Tables.java              # Table constants
-├── Keys.java                # Foreign key definitions
-├── Indexes.java             # Index definitions
-├── tables/
-│   ├── Users.java           # Table class
-│   ├── Roles.java
-│   ├── UserRoles.java
-│   ├── Societes.java
-│   ├── Employees.java
-│   └── ...
-├── tables/records/          # Record classes (database rows)
-│   ├── UsersRecord.java
-│   └── ...
-├── tables/pojos/            # POJO classes (data transfer)
-│   ├── Users.java
-│   └── ...
-└── tables/daos/             # DAO classes (basic CRUD)
-    ├── UsersDao.java
-    └── ...
+Cabinet Comptable (societes_comptables)
+├── Utilisateurs du cabinet (user_societe_comptable)
+│   ├── MANAGER (unique par cabinet)
+│   ├── COMPTABLE
+│   └── ASSISTANT
+└── Sociétés clientes gérées (societes)
+    ├── Accès comptables (comptable_societes)
+    │   └── can_read, can_write, can_validate
+    └── Utilisateurs de la société (user_societes)
+        ├── MANAGER (unique par société)
+        ├── FINANCE
+        └── VIEWER
 ```
 
-**IMPORTANT:** Never edit generated code manually. To modify the schema:
-1. Create a new Flyway migration (e.g., `V2__add_new_column.sql`)
-2. Run `mvn clean generate-sources` to regenerate jOOQ classes
+### Contraintes métier importantes
 
-### Code Structure
+1. **Un seul MANAGER actif par cabinet/société** - Contrainte GIST dans PostgreSQL
+2. **Un utilisateur appartient à UN SEUL cabinet** - Colonne `user_id` UNIQUE dans `user_societe_comptable`
+3. **Un utilisateur appartient à UNE SEULE société cliente** - Colonne `user_id` UNIQUE dans `user_societes`
+4. **Accès avec plage de dates** - `date_debut` et `date_fin` pour gérer les accès temporaires
+
+## Structure du Code
 
 ```
-src/main/java/tn/cyberious/compta/
-├── AuthServiceApplication.java         # Main entry point
-├── config/
-│   ├── SecurityConfig.java            # Spring Security configuration
-│   └── JwtProperties.java             # JWT settings (@ConfigurationProperties)
-├── controller/
-│   ├── AuthController.java            # Auth: login, refresh, logout, profile, password
-│   ├── UserController.java            # User CRUD and role management
-│   ├── SocieteController.java         # Societe CRUD and associations
-│   ├── UserManagementController.java  # User/company creation
-│   └── AuthLogController.java         # Authentication audit logs
-├── service/
-│   ├── AuthService.java               # Login, logout, token refresh, profile, password
-│   ├── UserManagementService.java     # User/societe CRUD, roles, associations
-│   └── AuthLogService.java            # Auth logs querying
-├── repository/                         # jOOQ-based data access
-│   ├── UserRepository.java
-│   ├── RoleRepository.java
-│   ├── UserRoleRepository.java
+src/main/java/tn/cyberious/compta/authz/
+├── AuthzServiceApplication.java      # Point d'entrée
+├── config/                           # Configuration Spring
+├── controller/                       # Contrôleurs REST
+│   ├── SocieteComptableController.java
+│   ├── SocieteController.java
+│   ├── UserSocieteComptableController.java
+│   ├── ComptableSocietesController.java
+│   ├── UserSocietesController.java
+│   └── PermissionController.java
+├── service/                          # Logique métier
+│   ├── SocieteComptableService.java
+│   ├── SocieteService.java
+│   ├── UserSocieteComptableService.java
+│   ├── ComptableSocietesService.java
+│   ├── UserSocietesService.java
+│   └── PermissionService.java
+├── repository/                       # Accès données (jOOQ)
+│   ├── SocieteComptableRepository.java
 │   ├── SocieteRepository.java
-│   ├── EmployeeRepository.java
-│   ├── ComptableSocieteRepository.java
-│   ├── UserSocieteRepository.java
-│   ├── RefreshTokenRepository.java
-│   └── AuthLogRepository.java
-├── security/
-│   ├── CustomUserDetails.java         # UserDetails implementation
-│   ├── CustomUserDetailsService.java  # Loads users from database
-│   ├── JwtAuthenticationFilter.java   # JWT filter for requests
-│   └── JwtAuthenticationEntryPoint.java
-├── util/
-│   └── JwtTokenUtil.java              # JWT generation/validation
-├── dto/                               # Request/response objects
-│   ├── LoginRequest.java
-│   ├── AuthResponse.java
-│   ├── CreateUserRequest.java
-│   ├── UpdateUserRequest.java
-│   ├── ChangePasswordRequest.java
-│   ├── UserResponse.java
-│   ├── CreateSocieteRequest.java
-│   ├── UpdateSocieteRequest.java
-│   ├── CreateEmployeeRequest.java
-│   ├── AssignRoleRequest.java
-│   ├── ComptableSocieteRequest.java
-│   ├── UserSocieteRequest.java
-│   └── AuthLogResponse.java
+│   ├── UserSocieteComptableRepository.java
+│   ├── ComptableSocietesRepository.java
+│   ├── UserSocietesRepository.java
+│   ├── PermissionRepository.java
+│   └── RolePermissionRepository.java
+├── dto/                              # Objets de transfert
+│   ├── SocieteComptableDto.java
+│   ├── SocieteDto.java
+│   ├── UserSocieteComptableDto.java
+│   ├── ComptableSocietesDto.java
+│   ├── UserSocietesDto.java
+│   ├── PermissionDto.java
+│   ├── RolePermissionDto.java
+│   └── request/                      # DTOs de requête
+│       ├── CreateSocieteComptableRequest.java
+│       ├── UpdateSocieteComptableRequest.java
+│       ├── CreateSocieteRequest.java
+│       ├── UpdateSocieteRequest.java
+│       ├── AssignUserToSocieteComptableRequest.java
+│       ├── AssignComptableToSocieteRequest.java
+│       ├── UpdateComptableSocieteAccessRequest.java
+│       ├── AssignUserToSocieteRequest.java
+│       ├── CreatePermissionRequest.java
+│       └── AssignPermissionToRoleRequest.java
 └── enums/
-    └── Role.java                      # Role enum with string mapping
+    ├── CabinetRole.java              # MANAGER, COMPTABLE, ASSISTANT
+    └── SocieteRole.java              # MANAGER, FINANCE, VIEWER
 ```
 
-### Repository Pattern
+## Endpoints API
 
-Repositories use jOOQ's DSLContext for type-safe SQL queries. Example pattern from UserRepository.java:
+### Sociétés Comptables (`/api/societes-comptables`)
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/` | Créer un cabinet comptable |
+| PUT | `/{id}` | Modifier un cabinet |
+| DELETE | `/{id}` | Supprimer un cabinet |
+| GET | `/{id}` | Récupérer par ID |
+| GET | `/matricule/{matriculeFiscale}` | Récupérer par matricule |
+| GET | `/` | Lister tous |
+| GET | `/active` | Lister les actifs |
+| GET | `/search?q=` | Rechercher par raison sociale |
+
+### Sociétés Clientes (`/api/societes`)
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/` | Créer une société cliente |
+| PUT | `/{id}` | Modifier une société |
+| DELETE | `/{id}` | Supprimer une société |
+| GET | `/{id}` | Récupérer par ID |
+| GET | `/matricule/{matriculeFiscale}` | Récupérer par matricule |
+| GET | `/` | Lister toutes |
+| GET | `/active` | Lister les actives |
+| GET | `/cabinet/{societeComptableId}` | Lister par cabinet |
+| GET | `/search?q=` | Rechercher par raison sociale |
+| GET | `/secteur/{secteur}` | Lister par secteur |
+
+### Utilisateurs Cabinet (`/api/user-societe-comptable`)
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/` | Assigner un utilisateur à un cabinet |
+| PUT | `/{id}/role?role=` | Modifier le rôle |
+| PUT | `/{id}/deactivate` | Désactiver |
+| DELETE | `/{id}` | Supprimer |
+| GET | `/{id}` | Récupérer par ID |
+| GET | `/user/{userId}` | Récupérer par utilisateur |
+| GET | `/cabinet/{societeComptableId}` | Lister par cabinet |
+| GET | `/cabinet/{societeComptableId}/manager` | Récupérer le manager |
+
+### Accès Comptables (`/api/comptable-societes`)
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/` | Donner accès à un comptable |
+| PUT | `/{id}` | Modifier les droits |
+| DELETE | `/user/{userId}/societe/{societeId}` | Révoquer l'accès |
+| GET | `/user/{userId}` | Lister les accès d'un comptable |
+| GET | `/user/{userId}/societes` | Lister les sociétés accessibles |
+| GET | `/check/access?userId=&societeId=` | Vérifier l'accès |
+| GET | `/check/write?userId=&societeId=` | Vérifier droit écriture |
+| GET | `/check/validate?userId=&societeId=` | Vérifier droit validation |
+
+### Utilisateurs Société (`/api/user-societes`)
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/` | Assigner un utilisateur à une société |
+| PUT | `/{id}/role?role=` | Modifier le rôle |
+| PUT | `/{id}/deactivate` | Désactiver |
+| DELETE | `/{id}` | Supprimer |
+| GET | `/user/{userId}` | Récupérer par utilisateur |
+| GET | `/societe/{societeId}` | Lister par société |
+| GET | `/societe/{societeId}/manager` | Récupérer le manager |
+| GET | `/user/{userId}/societe` | Récupérer la société de l'utilisateur |
+
+### Permissions (`/api/permissions`)
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/` | Créer une permission |
+| DELETE | `/{id}` | Supprimer une permission |
+| GET | `/{id}` | Récupérer par ID |
+| GET | `/code/{code}` | Récupérer par code |
+| GET | `/` | Lister toutes |
+| GET | `/resource/{resource}` | Lister par ressource |
+| GET | `/resources` | Lister les ressources distinctes |
+| GET | `/actions` | Lister les actions distinctes |
+| POST | `/role-assignment` | Assigner permission à un rôle |
+| DELETE | `/role/{role}/permission/{permissionId}` | Révoquer |
+| GET | `/role/{role}` | Lister les permissions d'un rôle |
+| GET | `/roles` | Lister les rôles |
+| GET | `/check?role=&permissionCode=` | Vérifier permission |
+| GET | `/check/resource?role=&resource=&action=` | Vérifier accès ressource |
+
+## Patterns de Code
+
+### Repository (jOOQ)
 
 ```java
 @Repository
 @RequiredArgsConstructor
-public class UserRepository {
+public class SocieteComptableRepository {
     private final DSLContext dsl;
 
-    public Optional<Users> findByUsername(String username) {
-        return dsl.selectFrom(USERS)
-                .where(USERS.USERNAME.eq(username))
+    public Optional<SocietesComptables> findById(Long id) {
+        return dsl.selectFrom(SOCIETES_COMPTABLES)
+                .where(SOCIETES_COMPTABLES.ID.eq(id))
                 .fetchOptional()
-                .map(record -> record.into(Users.class));
+                .map(r -> r.into(SocietesComptables.class));
+    }
+
+    public boolean hasActiveAccess(Long userId, Long societeId) {
+        return dsl.fetchExists(
+                dsl.selectOne()
+                        .from(COMPTABLE_SOCIETES)
+                        .where(COMPTABLE_SOCIETES.USER_ID.eq(userId))
+                        .and(COMPTABLE_SOCIETES.SOCIETE_ID.eq(societeId))
+                        .and(COMPTABLE_SOCIETES.IS_ACTIVE.eq(true))
+                        .and(COMPTABLE_SOCIETES.DATE_FIN.isNull()
+                                .or(COMPTABLE_SOCIETES.DATE_FIN.ge(LocalDate.now()))));
     }
 }
 ```
 
-- Use static imports from `tn.cyberious.compta.auth.generated.Tables.*`
-- Repositories return POJOs (from `tables.pojos` package), not Records
-- Follow existing patterns for consistency
+### Service
 
-### API Endpoints
+```java
+@Service
+@RequiredArgsConstructor
+public class ComptableSocietesService {
+    private final ComptableSocietesRepository comptableSocietesRepository;
 
-The service exposes comprehensive REST APIs organized by domain:
+    @Transactional(readOnly = true)
+    public boolean hasAccess(Long userId, Long societeId) {
+        return comptableSocietesRepository.hasActiveAccess(userId, societeId);
+    }
+}
+```
 
-#### Authentication (`AuthController`)
-- `POST /api/auth/login` - Login (public)
-- `POST /api/auth/refresh` - Refresh token (public)
-- `POST /api/auth/logout` - Logout (authenticated)
-- `GET /api/auth/me` - Get current user profile (authenticated)
-- `PUT /api/auth/me` - Update current user profile (authenticated)
-- `PUT /api/auth/password` - Change password (authenticated)
+### Controller (avec Swagger)
 
-#### User Management (`UserController`)
-- `GET /api/users` - List all users (ADMIN, COMPTABLE)
-- `GET /api/users/{id}` - Get user by ID (ADMIN, COMPTABLE)
-- `PUT /api/users/{id}` - Update user (ADMIN)
-- `DELETE /api/users/{id}` - Delete user (ADMIN)
-- `PUT /api/users/{id}/activate` - Activate user (ADMIN)
-- `PUT /api/users/{id}/deactivate` - Deactivate user (ADMIN)
-- `PUT /api/users/{id}/unlock` - Unlock user account (ADMIN)
+```java
+@RestController
+@RequestMapping("/api/comptable-societes")
+@RequiredArgsConstructor
+@Tag(name = "Accès Comptables", description = "Gestion des accès")
+public class ComptableSocietesController {
 
-#### Role Management (`UserController`)
-- `GET /api/users/{id}/roles` - Get user roles (ADMIN, COMPTABLE)
-- `POST /api/users/{id}/roles` - Assign role to user (ADMIN)
-- `DELETE /api/users/{id}/roles/{roleId}` - Remove role from user (ADMIN)
-
-#### User Creation (`UserManagementController`)
-- `POST /api/users/comptable` - Create comptable (ADMIN)
-- `POST /api/users/societe` - Create societe user (ADMIN, COMPTABLE)
-- `POST /api/users/employee` - Create employee user (ADMIN, COMPTABLE, SOCIETE)
-
-#### Company Management (`SocieteController`)
-- `GET /api/societes` - List all companies (ADMIN, COMPTABLE)
-- `GET /api/societes/{id}` - Get company by ID (ADMIN, COMPTABLE, SOCIETE)
-- `POST /api/societes` - Create company (ADMIN, COMPTABLE)
-- `PUT /api/societes/{id}` - Update company (ADMIN, COMPTABLE)
-- `DELETE /api/societes/{id}` - Delete company (ADMIN)
-- `GET /api/societes/{id}/users` - Get company users (ADMIN, COMPTABLE, SOCIETE)
-- `GET /api/societes/{id}/employees` - Get company employees (ADMIN, COMPTABLE, SOCIETE)
-- `GET /api/societes/user/{userId}` - Get user's companies (ADMIN, COMPTABLE, SOCIETE)
-
-#### Associations (`SocieteController`)
-- `POST /api/societes/comptable-assignment` - Assign comptable to company (ADMIN)
-- `DELETE /api/societes/comptable-assignment/{userId}/{societeId}` - Remove comptable (ADMIN)
-- `POST /api/societes/user-assignment` - Assign user to company (ADMIN, COMPTABLE)
-- `DELETE /api/societes/user-assignment/{userId}/{societeId}` - Remove user (ADMIN, COMPTABLE)
-- `POST /api/employees` - Create employee association (ADMIN, COMPTABLE, SOCIETE)
-
-#### Audit Logs (`AuthLogController`)
-- `GET /api/auth/logs` - Get all auth logs (ADMIN)
-- `GET /api/auth/logs/user/{userId}` - Get user auth logs (ADMIN, COMPTABLE)
-- `GET /api/auth/logs/action/{action}` - Get logs by action (ADMIN)
-
-**Public endpoints (no auth required):**
-- `POST /api/auth/login`
-- `POST /api/auth/refresh`
-- `/actuator/**`
-- `/v3/api-docs/**`, `/swagger-ui/**`
-
-**JWT Configuration:**
-- Access token expiry: 24 hours (configurable via `JWT_EXPIRATION`)
-- Refresh token expiry: 7 days (configurable via `JWT_REFRESH_EXPIRATION`)
-- Secret key: Set via `JWT_SECRET` environment variable (default provided for dev)
-- Header format: `Authorization: Bearer <token>`
-
-**Swagger UI:** Available at `http://localhost:8083/swagger-ui.html` when service is running
-
-### Authentication Flow
-
-1. **Login** (`POST /api/auth/login`):
-   - Validates username/password via Spring Security AuthenticationManager
-   - Generates access token + refresh token
-   - Saves refresh token to database
-   - Logs auth event to `auth_logs`
-   - Resets failed login attempts on success
-   - Increments failed attempts and locks account after 5 failures
-
-2. **Token Refresh** (`POST /api/auth/refresh`):
-   - Validates refresh token exists in database and not expired
-   - Generates new access token (refresh token remains same)
-   - Returns updated AuthResponse
-
-3. **Logout** (`POST /api/auth/logout`):
-   - Deletes refresh token from database
-   - Logs logout event to `auth_logs`
-   - Client should discard access token
-
-4. **Protected Requests**:
-   - JwtAuthenticationFilter extracts JWT from Authorization header
-   - Validates token signature and expiration
-   - Loads user details and sets SecurityContext
-   - Spring Security enforces role-based access per SecurityConfig
-
-5. **Password Change** (`PUT /api/auth/password`):
-   - Verifies current password
-   - Updates password with new hashed value
-   - Deletes all refresh tokens (forces re-login on all devices)
-   - Logs password change event
-
-### Parent POM Configuration
-
-The parent `pom.xml` (at `../pom.xml`) defines:
-- **Java 21** requirement
-- Centralized dependency versions (MapStruct, Lombok, jOOQ, etc.)
-- **jOOQ code generation plugin** configuration - each service overrides:
-  - `jooq.generator.db.schema` - schema name (e.g., "auth")
-  - `jooq.generator.target.package` - generated code package
-- **JaCoCo** for test coverage
-- **OpenRewrite** for Spring Boot upgrades
-
-### Database Migrations with Flyway
-
-**Migration files location:** `src/main/resources/db/migration/`
-
-**Naming convention:** `V{version}__{description}.sql`
-- Example: `V1__init_authz_schema.sql` (initial schema)
-- Example: `V2__add_password_expiry.sql` (new feature)
-
-**Key principles:**
-- Each migration must start with `CREATE SCHEMA IF NOT EXISTS auth;`
-- Always prefix table names with schema: `auth.users`, `auth.roles`, etc.
-- Use idempotent statements: `IF NOT EXISTS`, `IF EXISTS`
-- Migrations run automatically on service startup
-- **Never modify an applied migration** - create a new one to fix issues
-- Avoid cross-schema foreign keys for service independence
-
-**Migration workflow:**
-1. Create `VX__description.sql` in `src/main/resources/db/migration/`
-2. Restart service (migration applies automatically)
-3. Run `mvn clean generate-sources` to regenerate jOOQ classes
-4. Use new schema elements in code
+    @GetMapping("/check/access")
+    @Operation(summary = "Vérifier l'accès")
+    public ResponseEntity<Boolean> hasAccess(
+            @RequestParam Long userId,
+            @RequestParam Long societeId) {
+        return ResponseEntity.ok(service.hasAccess(userId, societeId));
+    }
+}
+```
 
 ## Configuration
 
-### Environment Variables
+### application.yml
 
-```bash
-# Database (defaults for local development)
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/compta
-SPRING_DATASOURCE_USERNAME=postgres
-SPRING_DATASOURCE_PASSWORD=password
+```yaml
+spring:
+  application:
+    name: authz-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/compta
+  flyway:
+    enabled: true
+    schemas: authz
+    default-schema: authz
 
-# JWT Configuration
-JWT_SECRET=your-secret-key-here  # Use strong key in production
-JWT_EXPIRATION=86400000          # 24 hours in milliseconds
-JWT_REFRESH_EXPIRATION=604800000 # 7 days in milliseconds
+server:
+  port: 8082
+  servlet:
+    context-path: /authz
 
-# Server
-SERVER_PORT=8083
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
 ```
 
-### Application Properties
+## Documentation Swagger
 
-Primary configuration: `src/main/resources/application.yml`
+Accessible à: `http://localhost:8082/authz/swagger-ui.html`
 
-Inherits base configuration from `compta-commons/src/main/resources/application.yml` and overrides:
-- `spring.flyway.enabled=true`
-- `spring.flyway.schemas=auth`
-- `spring.flyway.default-schema=auth`
-- `server.port=8083`
+## Cas d'utilisation typiques
 
-## Development Guidelines
+### Créer un nouveau cabinet avec son manager
 
-### Adding a New Feature
+1. `POST /api/societes-comptables` - Créer le cabinet
+2. `POST /api/user-societe-comptable` - Assigner l'utilisateur comme MANAGER
 
-1. **Database changes**: Create new Flyway migration
-2. **Regenerate jOOQ**: `mvn clean generate-sources`
-3. **Add/modify repositories**: Use jOOQ DSLContext for queries
-4. **Add/modify services**: Business logic layer
-5. **Add DTOs**: Create request/response DTOs in `dto/` package
-6. **Add/modify controllers**: REST endpoints with `@PreAuthorize` annotations
-7. **Update SecurityConfig**: Add endpoint patterns to `.requestMatchers()` with appropriate roles
-8. **Test**: Write integration tests extending `AbstractIntegrationTest` from compta-commons
+### Donner accès à un comptable sur plusieurs sociétés
 
-### Service Layer Patterns
+1. Vérifier que l'utilisateur est bien dans `user_societe_comptable`
+2. Pour chaque société: `POST /api/comptable-societes` avec les droits appropriés
 
-**UserManagementService** handles all user and company CRUD operations:
-- User creation with role assignment
-- User CRUD operations (list, get, update, delete, activate/deactivate, unlock)
-- Role management (assign, remove)
-- Company CRUD operations
-- Association management (comptable-societe, user-societe, employee)
+### Vérifier les autorisations avant une action
 
-**AuthService** handles authentication and profile management:
-- Login with JWT generation
-- Token refresh
-- Logout with token invalidation
-- Current user profile (get, update)
-- Password change with token revocation
+1. `GET /api/comptable-societes/check/write?userId=X&societeId=Y`
+2. Si `false`, refuser l'action
 
-**AuthLogService** provides audit log querying:
-- Query all logs (with limit)
-- Query by user ID
-- Query by action type
+### Lister les sociétés accessibles à un comptable
 
-### Repository Patterns
-
-All repositories follow the same pattern with jOOQ:
-```java
-// Basic CRUD
-insert(Entity) -> Entity
-update(Entity) -> Entity
-delete(Long id) -> boolean
-findById(Long id) -> Optional<Entity>
-findAll() -> List<Entity>
-exists(Long id) -> boolean
-
-// Custom queries
-findBySomeField(value) -> Optional<Entity> or List<Entity>
-```
-
-**Association repositories** (ComptableSocieteRepository, UserSocieteRepository):
-```java
-assignX(userId, societeId, ...) -> void
-removeX(userId, societeId) -> void
-findUsersBySocieteId(Long societeId) -> List<Users>
-findSocietesByUserId(Long userId) -> List<Societes>
-```
-
-### Working with jOOQ
-
-```java
-// Import generated table constants
-import static tn.cyberious.compta.auth.generated.Tables.*;
-
-// Use DSLContext for queries
-@RequiredArgsConstructor
-public class ExampleRepository {
-    private final DSLContext dsl;
-
-    public List<Users> findActiveUsers() {
-        return dsl.selectFrom(USERS)
-                .where(USERS.IS_ACTIVE.eq(true))
-                .fetch()
-                .into(Users.class);  // Convert to POJO
-    }
-}
-```
-
-### Testing
-
-Tests use **Testcontainers** to spin up a real PostgreSQL database. Base test class provided by `compta-commons`:
-
-```java
-@SpringBootTest
-@Testcontainers
-class MyIntegrationTest extends AbstractIntegrationTest {
-    // Test with real database
-}
-```
-
-## Common Issues
-
-### jOOQ classes not found
-**Solution:** Run `mvn clean generate-sources`
-
-### Migration checksum mismatch
-**Cause:** Modified an already-applied migration
-**Solution (dev):** Delete row from `auth.flyway_schema_history` and restart
-**Solution (prod):** Create new corrective migration (V3__fix_issue.sql)
-
-### "Table does not exist" error
-**Cause:** Schema not prefixed or Flyway not enabled
-**Solution:** Always use `auth.table_name` in migrations, verify `spring.flyway.enabled=true`
-
-### Account locked during testing
-**Cause:** 5+ failed login attempts
-**Solution:** Reset via SQL:
-```sql
-UPDATE auth.users SET is_locked = false, failed_login_attempts = 0 WHERE username = 'testuser';
-```
+1. `GET /api/comptable-societes/user/{userId}/societes`
