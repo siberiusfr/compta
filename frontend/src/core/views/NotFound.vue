@@ -28,7 +28,10 @@ const goHome = () => {
       </p>
 
       <div class="flex items-center justify-center gap-4">
-        <Button variant="outline" @click="goBack">
+        <Button
+          variant="outline"
+          @click="goBack"
+        >
           <ArrowLeft class="h-4 w-4 mr-2" />
           Retour
         </Button>

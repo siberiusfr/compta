@@ -24,20 +24,24 @@ const { isOpen, options, handleConfirm, handleCancel } = useConfirm()
         <div class="relative bg-background rounded-xl border shadow-xl max-w-md w-full mx-4 p-6">
           <!-- Icon -->
           <div
-            :class="cn(
-              'flex h-12 w-12 items-center justify-center rounded-full mx-auto mb-4',
-              options.variant === 'destructive'
-                ? 'bg-red-100 dark:bg-red-900/30'
-                : 'bg-blue-100 dark:bg-blue-900/30'
-            )"
+            :class="
+              cn(
+                'flex h-12 w-12 items-center justify-center rounded-full mx-auto mb-4',
+                options.variant === 'destructive'
+                  ? 'bg-red-100 dark:bg-red-900/30'
+                  : 'bg-blue-100 dark:bg-blue-900/30'
+              )
+            "
           >
             <AlertTriangle
-              :class="cn(
-                'h-6 w-6',
-                options.variant === 'destructive'
-                  ? 'text-red-600 dark:text-red-400'
-                  : 'text-blue-600 dark:text-blue-400'
-              )"
+              :class="
+                cn(
+                  'h-6 w-6',
+                  options.variant === 'destructive'
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-blue-600 dark:text-blue-400'
+                )
+              "
             />
           </div>
 
@@ -49,7 +53,10 @@ const { isOpen, options, handleConfirm, handleCancel } = useConfirm()
 
           <!-- Actions -->
           <div class="flex items-center justify-center gap-3">
-            <Button variant="outline" @click="handleCancel">
+            <Button
+              variant="outline"
+              @click="handleCancel"
+            >
               {{ options.cancelText }}
             </Button>
             <Button

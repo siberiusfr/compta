@@ -14,7 +14,7 @@ import {
   UserCheck,
   UserX,
   Loader2,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
@@ -30,7 +30,7 @@ const {
   getInitials,
   updateUserStatus,
   searchQuery,
-  setSearchQuery
+  setSearchQuery,
 } = usePermissions()
 
 const handleActivate = async (userId: string) => {
@@ -78,24 +78,31 @@ const onSearchInput = (event: Event) => {
           class="w-full pl-10 pr-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
-      <Button variant="outline" size="icon">
+      <Button
+        variant="outline"
+        size="icon"
+      >
         <Filter class="h-4 w-4" />
       </Button>
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="flex items-center justify-center py-12">
+    <div
+      v-if="isLoading"
+      class="flex items-center justify-center py-12"
+    >
       <Loader2 class="h-8 w-8 animate-spin text-muted-foreground" />
       <span class="ml-3 text-muted-foreground">Chargement des utilisateurs...</span>
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="users.length === 0" class="text-center py-12">
+    <div
+      v-else-if="users.length === 0"
+      class="text-center py-12"
+    >
       <Users class="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
       <h3 class="text-lg font-medium">Aucun utilisateur</h3>
-      <p class="text-muted-foreground mt-1">
-        Commencez par inviter votre premier utilisateur.
-      </p>
+      <p class="text-muted-foreground mt-1">Commencez par inviter votre premier utilisateur.</p>
       <Button class="mt-4">
         <Plus class="h-4 w-4 mr-2" />
         Inviter un utilisateur
@@ -103,7 +110,10 @@ const onSearchInput = (event: Event) => {
     </div>
 
     <!-- Users List -->
-    <div v-else class="space-y-3">
+    <div
+      v-else
+      class="space-y-3"
+    >
       <!-- Mutation Overlay -->
       <div
         v-if="isMutating"
@@ -122,7 +132,9 @@ const onSearchInput = (event: Event) => {
       >
         <div class="flex items-center gap-4">
           <!-- Avatar -->
-          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
+          >
             {{ getInitials(user.fullName) }}
           </div>
 
@@ -188,7 +200,12 @@ const onSearchInput = (event: Event) => {
             >
               <UserX class="h-4 w-4 text-yellow-600" />
             </Button>
-            <Button variant="ghost" size="icon-sm" title="Modifier" :disabled="isMutating">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Modifier"
+              :disabled="isMutating"
+            >
               <Edit class="h-4 w-4" />
             </Button>
             <Button

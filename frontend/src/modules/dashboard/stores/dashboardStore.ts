@@ -4,7 +4,7 @@ import type { DashboardStats, RecentActivity } from '../types/dashboard.types'
 import {
   mockDashboardStats,
   mockRecentActivities,
-  mockMonthlyRevenue
+  mockMonthlyRevenue,
 } from '../mock-data/dashboard.mock'
 
 export const useDashboardStore = defineStore('dashboard', () => {
@@ -24,7 +24,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     isLoading.value = true
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500))
       stats.value = mockDashboardStats
     } finally {
       isLoading.value = false
@@ -34,7 +34,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   async function fetchRecentActivities() {
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise((resolve) => setTimeout(resolve, 300))
       recentActivities.value = mockRecentActivities
     } finally {
       isLoading.value = false
@@ -49,6 +49,6 @@ export const useDashboardStore = defineStore('dashboard', () => {
     netIncome,
     profitMargin,
     fetchStats,
-    fetchRecentActivities
+    fetchRecentActivities,
   }
 })

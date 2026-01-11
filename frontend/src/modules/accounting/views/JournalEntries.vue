@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import { useAccounting } from '../composables/useAccounting'
 import { Button } from '@/components/ui/button'
-import {
-  BookMarked,
-  Plus,
-  Search,
-  Filter,
-  Check,
-  Eye,
-  Calendar
-} from 'lucide-vue-next'
+import { BookMarked, Plus, Search, Filter, Check, Eye, Calendar } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
 const {
@@ -20,7 +12,7 @@ const {
   formatDate,
   getStatusColor,
   getStatusLabel,
-  postEntry
+  postEntry,
 } = useAccounting()
 </script>
 
@@ -33,9 +25,7 @@ const {
           <BookMarked class="h-6 w-6" />
           Ecritures comptables
         </h1>
-        <p class="text-muted-foreground">
-          {{ draftEntries.length }} ecriture(s) en brouillon
-        </p>
+        <p class="text-muted-foreground">{{ draftEntries.length }} ecriture(s) en brouillon</p>
       </div>
       <Button>
         <Plus class="h-4 w-4 mr-2" />
@@ -53,24 +43,35 @@ const {
           class="w-full pl-10 pr-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
-      <Button variant="outline" size="icon">
+      <Button
+        variant="outline"
+        size="icon"
+      >
         <Filter class="h-4 w-4" />
       </Button>
     </div>
 
     <!-- Journal Entries List -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="text-center py-12 text-muted-foreground"
+    >
       Chargement...
     </div>
 
-    <div v-else class="space-y-4">
+    <div
+      v-else
+      class="space-y-4"
+    >
       <div
         v-for="entry in journalEntries"
         :key="entry.id"
-        :class="cn(
-          'rounded-xl border bg-card overflow-hidden',
-          entry.status === 'draft' && 'border-l-4 border-l-yellow-500'
-        )"
+        :class="
+          cn(
+            'rounded-xl border bg-card overflow-hidden',
+            entry.status === 'draft' && 'border-l-4 border-l-yellow-500'
+          )
+        "
       >
         <!-- Entry Header -->
         <div class="p-4 bg-muted/30 flex items-center justify-between">
@@ -96,7 +97,10 @@ const {
               <Check class="h-4 w-4 mr-1" />
               Comptabiliser
             </Button>
-            <Button variant="ghost" size="icon-sm">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+            >
               <Eye class="h-4 w-4" />
             </Button>
           </div>
@@ -119,7 +123,11 @@ const {
             </tr>
           </thead>
           <tbody class="divide-y">
-            <tr v-for="line in entry.lines" :key="line.id" class="hover:bg-muted/20">
+            <tr
+              v-for="line in entry.lines"
+              :key="line.id"
+              class="hover:bg-muted/20"
+            >
               <td class="p-2">
                 <span class="font-mono">{{ line.accountCode }}</span>
                 <span class="ml-2 text-muted-foreground">{{ line.accountName }}</span>
@@ -135,7 +143,12 @@ const {
           </tbody>
           <tfoot class="bg-muted/30 font-semibold">
             <tr>
-              <td colspan="2" class="p-2 text-right">Total</td>
+              <td
+                colspan="2"
+                class="p-2 text-right"
+              >
+                Total
+              </td>
               <td class="p-2 text-right">{{ formatCurrency(entry.totalDebit) }}</td>
               <td class="p-2 text-right">{{ formatCurrency(entry.totalCredit) }}</td>
             </tr>

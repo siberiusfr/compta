@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useInvoices } from "../composables/useInvoices";
-import { Button } from "@/components/ui/button";
+import { useInvoices } from '../composables/useInvoices'
+import { Button } from '@/components/ui/button'
 import {
   FileText,
   Plus,
@@ -15,19 +15,14 @@ import {
   AlertCircle,
   XCircle,
   FilePenLine,
-} from "lucide-vue-next";
-import { cn } from "@/lib/utils";
-import { useRouter } from "vue-router";
+} from 'lucide-vue-next'
+import { cn } from '@/lib/utils'
+import { useRouter } from 'vue-router'
 
-const {
-  invoiceSummaries,
-  isLoading,
-  formatCurrency,
-  formatDate,
-  getInvoiceStatusColor,
-} = useInvoices();
+const { invoiceSummaries, isLoading, formatCurrency, formatDate, getInvoiceStatusColor } =
+  useInvoices()
 
-const router = useRouter();
+const router = useRouter()
 
 const statusIcons = {
   draft: FilePenLine,
@@ -35,18 +30,18 @@ const statusIcons = {
   paid: CheckCircle2,
   overdue: AlertCircle,
   cancelled: XCircle,
-};
+}
 
 function handleViewInvoice(id: string) {
-  router.push({ name: "invoices-detail", params: { id } });
+  router.push({ name: 'invoices-detail', params: { id } })
 }
 
 function handleEditInvoice(id: string) {
-  router.push({ name: "invoices-edit", params: { id } });
+  router.push({ name: 'invoices-edit', params: { id } })
 }
 
 function handleCreateInvoice() {
-  router.push({ name: "invoices-create" });
+  router.push({ name: 'invoices-create' })
 }
 </script>
 
@@ -70,26 +65,33 @@ function handleCreateInvoice() {
     <!-- Filters -->
     <div class="flex items-center gap-4">
       <div class="relative flex-1 max-w-sm">
-        <Search
-          class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-        />
+        <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <input
           type="text"
           placeholder="Rechercher..."
           class="w-full pl-10 pr-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
-      <Button variant="outline" size="icon">
+      <Button
+        variant="outline"
+        size="icon"
+      >
         <Filter class="h-4 w-4" />
       </Button>
     </div>
 
     <!-- Invoices List -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="text-center py-12 text-muted-foreground"
+    >
       Chargement...
     </div>
 
-    <div v-else class="space-y-3">
+    <div
+      v-else
+      class="space-y-3"
+    >
       <div
         v-for="invoice in invoiceSummaries"
         :key="invoice.id"
@@ -97,32 +99,23 @@ function handleCreateInvoice() {
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4 flex-1">
-            <div
-              :class="
-                cn('p-2 rounded-lg', getInvoiceStatusColor(invoice.status))
-              "
-            >
-              <component :is="statusIcons[invoice.status]" class="h-5 w-5" />
+            <div :class="cn('p-2 rounded-lg', getInvoiceStatusColor(invoice.status))">
+              <component
+                :is="statusIcons[invoice.status]"
+                class="h-5 w-5"
+              />
             </div>
             <div class="flex-1">
               <div class="flex items-center gap-3">
-                <span class="font-mono font-medium text-sm">{{
-                  invoice.invoiceNumber
-                }}</span>
-                <span class="text-sm text-muted-foreground">{{
-                  invoice.customerName
-                }}</span>
+                <span class="font-mono font-medium text-sm">{{ invoice.invoiceNumber }}</span>
+                <span class="text-sm text-muted-foreground">{{ invoice.customerName }}</span>
               </div>
-              <div
-                class="flex items-center gap-4 mt-1 text-xs text-muted-foreground"
-              >
+              <div class="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
                 <span class="flex items-center gap-1">
                   <Calendar class="h-3 w-3" />
                   {{ formatDate(invoice.date) }}
                 </span>
-                <span v-if="invoice.amountDue > 0">
-                  Due: {{ formatDate(invoice.dueDate) }}
-                </span>
+                <span v-if="invoice.amountDue > 0"> Due: {{ formatDate(invoice.dueDate) }} </span>
               </div>
             </div>
           </div>

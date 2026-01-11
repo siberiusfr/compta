@@ -10,8 +10,8 @@ export const documentsRoutes: RouteRecordRaw[] = [
         component: () => import('./views/DocumentsList.vue'),
         meta: {
           title: 'Documents',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'invoices',
@@ -19,8 +19,8 @@ export const documentsRoutes: RouteRecordRaw[] = [
         component: () => import('./views/InvoicesList.vue'),
         meta: {
           title: 'Factures',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'quotes',
@@ -28,8 +28,8 @@ export const documentsRoutes: RouteRecordRaw[] = [
         component: () => import('./views/QuotesList.vue'),
         meta: {
           title: 'Devis',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'contracts',
@@ -37,9 +37,9 @@ export const documentsRoutes: RouteRecordRaw[] = [
         component: () => import('./views/ContractsList.vue'),
         meta: {
           title: 'Contrats',
-          requiresAuth: true
-        }
-      }
-    ]
-  }
+          requiresAuth: true,
+        },
+      },
+    ],
+  },
 ]

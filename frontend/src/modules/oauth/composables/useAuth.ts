@@ -7,7 +7,9 @@ export function useAuth() {
   const store = useAuthStore()
   const { user, isLoading, error, isAuthenticated, accessToken, userProfile } = storeToRefs(store)
 
-  const userName = computed(() => userProfile.value?.name ?? userProfile.value?.preferred_username ?? 'Utilisateur')
+  const userName = computed(
+    () => userProfile.value?.name ?? userProfile.value?.preferred_username ?? 'Utilisateur'
+  )
   const userEmail = computed(() => userProfile.value?.email ?? '')
   const userInitials = computed(() => {
     const name = userName.value
@@ -64,6 +66,6 @@ export function useAuth() {
     handleCallback,
     refreshToken,
     getReturnUrl,
-    clearReturnUrl
+    clearReturnUrl,
   }
 }

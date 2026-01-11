@@ -23,7 +23,12 @@ export const useDocumentsStore = defineStore('documents', () => {
 
   // Computed
   const hasActiveFilters = computed(() => {
-    return !!(filter.value.categoryId || filter.value.search || filter.value.uploadedBy || filter.value.tag)
+    return !!(
+      filter.value.categoryId ||
+      filter.value.search ||
+      filter.value.uploadedBy ||
+      filter.value.tag
+    )
   })
 
   // Actions

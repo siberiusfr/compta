@@ -8,12 +8,12 @@ import { useAuthStore } from '@/stores/authStore'
  */
 const ROLE_MAPPINGS: Record<string, string[]> = {
   // Role OAuth2 -> Roles applicatifs correspondants
-  'ROLE_ADMIN': ['Administrateur', 'Admin', 'ADMIN', 'ROLE_ADMIN'],
-  'ADMIN': ['Administrateur', 'Admin', 'ADMIN', 'ROLE_ADMIN'],
-  'ROLE_USER': ['Utilisateur', 'User', 'USER', 'ROLE_USER'],
-  'USER': ['Utilisateur', 'User', 'USER', 'ROLE_USER'],
-  'ROLE_MANAGER': ['Manager', 'MANAGER', 'ROLE_MANAGER'],
-  'MANAGER': ['Manager', 'MANAGER', 'ROLE_MANAGER'],
+  ROLE_ADMIN: ['Administrateur', 'Admin', 'ADMIN', 'ROLE_ADMIN'],
+  ADMIN: ['Administrateur', 'Admin', 'ADMIN', 'ROLE_ADMIN'],
+  ROLE_USER: ['Utilisateur', 'User', 'USER', 'ROLE_USER'],
+  USER: ['Utilisateur', 'User', 'USER', 'ROLE_USER'],
+  ROLE_MANAGER: ['Manager', 'MANAGER', 'ROLE_MANAGER'],
+  MANAGER: ['Manager', 'MANAGER', 'ROLE_MANAGER'],
 }
 
 /**
@@ -33,12 +33,12 @@ function hasRole(userRoles: string[], requiredRoles: string[]): boolean {
     // Ajoute les equivalents depuis le mapping
     const mappings = ROLE_MAPPINGS[role] ?? ROLE_MAPPINGS[role.toUpperCase()]
     if (mappings) {
-      mappings.forEach(r => expandedUserRoles.add(r))
+      mappings.forEach((r) => expandedUserRoles.add(r))
     }
   }
 
   // Verifie si au moins un role requis est present
-  return requiredRoles.some(role => expandedUserRoles.has(role))
+  return requiredRoles.some((role) => expandedUserRoles.has(role))
 }
 
 export async function authGuard(
@@ -55,13 +55,13 @@ export async function authGuard(
   const startTime = Date.now()
 
   while (authStore.isLoading && Date.now() - startTime < maxWait) {
-    await new Promise(resolve => setTimeout(resolve, 50))
+    await new Promise((resolve) => setTimeout(resolve, 50))
   }
 
   console.log('[AuthGuard] Auth state:', {
     isLoading: authStore.isLoading,
     isAuthenticated: authStore.isAuthenticated,
-    userProfile: authStore.userProfile
+    userProfile: authStore.userProfile,
   })
 
   // Skip auth check for callback routes
@@ -100,13 +100,12 @@ export async function authGuard(
     console.log('[AuthGuard] Access Token claims:', JSON.stringify(tokenClaims, null, 2))
 
     // Cherche les rôles dans le token d'accès ou le profil
-    const userRoles: string[] = (
+    const userRoles: string[] =
       (tokenClaims?.roles as string[]) ??
       (tokenClaims?.authorities as string[]) ??
       (profile?.roles as string[]) ??
       (profile?.authorities as string[]) ??
       []
-    )
 
     console.log('[AuthGuard] Detected user roles:', userRoles, 'Required:', to.meta.roles)
 

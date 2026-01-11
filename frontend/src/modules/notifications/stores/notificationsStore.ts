@@ -1,11 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Notification, NotificationTemplate, SentNotification, NotificationSettings } from '../types/notifications.types'
+import type {
+  Notification,
+  NotificationTemplate,
+  SentNotification,
+  NotificationSettings,
+} from '../types/notifications.types'
 import {
   mockNotifications,
   mockNotificationTemplates,
   mockSentNotifications,
-  mockNotificationSettings
+  mockNotificationSettings,
 } from '../mock-data/notifications.mock'
 
 export const useNotificationsStore = defineStore('notifications', () => {
@@ -15,26 +20,24 @@ export const useNotificationsStore = defineStore('notifications', () => {
   const settings = ref<NotificationSettings>(mockNotificationSettings)
   const isLoading = ref(false)
 
-  const unreadCount = computed(() =>
-    notifications.value.filter(n => !n.read && !n.archived).length
+  const unreadCount = computed(
+    () => notifications.value.filter((n) => !n.read && !n.archived).length
   )
 
   const unreadNotifications = computed(() =>
-    notifications.value.filter(n => !n.read && !n.archived)
+    notifications.value.filter((n) => !n.read && !n.archived)
   )
 
-  const archivedNotifications = computed(() =>
-    notifications.value.filter(n => n.archived)
-  )
+  const archivedNotifications = computed(() => notifications.value.filter((n) => n.archived))
 
   const urgentNotifications = computed(() =>
-    notifications.value.filter(n => n.priority === 'urgent' && !n.read && !n.archived)
+    notifications.value.filter((n) => n.priority === 'urgent' && !n.read && !n.archived)
   )
 
   async function fetchNotifications() {
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise((resolve) => setTimeout(resolve, 300))
       notifications.value = mockNotifications
     } finally {
       isLoading.value = false
@@ -42,14 +45,14 @@ export const useNotificationsStore = defineStore('notifications', () => {
   }
 
   function markAsRead(id: string) {
-    const notification = notifications.value.find(n => n.id === id)
+    const notification = notifications.value.find((n) => n.id === id)
     if (notification) {
       notification.read = true
     }
   }
 
   function markAllAsRead() {
-    notifications.value.forEach(n => {
+    notifications.value.forEach((n) => {
       if (!n.archived) {
         n.read = true
       }
@@ -57,14 +60,14 @@ export const useNotificationsStore = defineStore('notifications', () => {
   }
 
   function archiveNotification(id: string) {
-    const notification = notifications.value.find(n => n.id === id)
+    const notification = notifications.value.find((n) => n.id === id)
     if (notification) {
       notification.archived = true
     }
   }
 
   function deleteNotification(id: string) {
-    const index = notifications.value.findIndex(n => n.id === id)
+    const index = notifications.value.findIndex((n) => n.id === id)
     if (index > -1) {
       notifications.value.splice(index, 1)
     }
@@ -89,6 +92,6 @@ export const useNotificationsStore = defineStore('notifications', () => {
     markAllAsRead,
     archiveNotification,
     deleteNotification,
-    updateSettings
+    updateSettings,
   }
 })

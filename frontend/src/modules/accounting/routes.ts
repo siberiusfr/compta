@@ -6,7 +6,7 @@ export const accountingRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        redirect: { name: 'accounting-chart-of-accounts' }
+        redirect: { name: 'accounting-chart-of-accounts' },
       },
       {
         path: 'chart-of-accounts',
@@ -14,8 +14,8 @@ export const accountingRoutes: RouteRecordRaw[] = [
         component: () => import('./views/ChartOfAccounts.vue'),
         meta: {
           title: 'Plan comptable',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'journal-entries',
@@ -23,8 +23,8 @@ export const accountingRoutes: RouteRecordRaw[] = [
         component: () => import('./views/JournalEntries.vue'),
         meta: {
           title: 'Ecritures comptables',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'general-ledger',
@@ -32,8 +32,8 @@ export const accountingRoutes: RouteRecordRaw[] = [
         component: () => import('./views/GeneralLedger.vue'),
         meta: {
           title: 'Grand livre',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'trial-balance',
@@ -41,8 +41,8 @@ export const accountingRoutes: RouteRecordRaw[] = [
         component: () => import('./views/TrialBalance.vue'),
         meta: {
           title: 'Balance generale',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'balance-sheet',
@@ -50,8 +50,8 @@ export const accountingRoutes: RouteRecordRaw[] = [
         component: () => import('./views/BalanceSheet.vue'),
         meta: {
           title: 'Bilan',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'income-statement',
@@ -59,9 +59,9 @@ export const accountingRoutes: RouteRecordRaw[] = [
         component: () => import('./views/IncomeStatement.vue'),
         meta: {
           title: 'Compte de resultat',
-          requiresAuth: true
-        }
-      }
-    ]
-  }
+          requiresAuth: true,
+        },
+      },
+    ],
+  },
 ]

@@ -13,7 +13,7 @@ const categories = [
   { key: 'invoices', label: 'Factures', description: 'Notifications liees aux factures' },
   { key: 'payments', label: 'Paiements', description: 'Notifications de paiements recus' },
   { key: 'hr', label: 'Ressources Humaines', description: 'Notifications RH' },
-  { key: 'system', label: 'Systeme', description: 'Alertes systeme et maintenance' }
+  { key: 'system', label: 'Systeme', description: 'Alertes systeme et maintenance' },
 ]
 
 const saveSettings = () => {
@@ -28,7 +28,8 @@ const toggleCategoryChannel = (category: string, channel: 'email' | 'push' | 'sm
   if (!localSettings.value.categories[category]) {
     localSettings.value.categories[category] = { email: false, push: false, sms: false }
   }
-  localSettings.value.categories[category][channel] = !localSettings.value.categories[category][channel]
+  localSettings.value.categories[category][channel] =
+    !localSettings.value.categories[category][channel]
 }
 </script>
 
@@ -41,9 +42,7 @@ const toggleCategoryChannel = (category: string, channel: 'email' | 'push' | 'sm
           <Settings class="h-6 w-6" />
           Parametres de notification
         </h1>
-        <p class="text-muted-foreground">
-          Configurez vos preferences de notification
-        </p>
+        <p class="text-muted-foreground">Configurez vos preferences de notification</p>
       </div>
       <Button @click="saveSettings">
         <Save class="h-4 w-4 mr-2" />
@@ -60,16 +59,22 @@ const toggleCategoryChannel = (category: string, channel: 'email' | 'push' | 'sm
 
       <div class="grid gap-4 md:grid-cols-3">
         <button
-          :class="cn(
-            'flex items-center gap-4 p-4 rounded-lg border transition-colors',
-            localSettings.emailEnabled ? 'border-primary bg-primary/5' : 'border-border'
-          )"
+          :class="
+            cn(
+              'flex items-center gap-4 p-4 rounded-lg border transition-colors',
+              localSettings.emailEnabled ? 'border-primary bg-primary/5' : 'border-border'
+            )
+          "
           @click="toggleChannel('emailEnabled')"
         >
-          <div :class="cn(
-            'flex h-12 w-12 items-center justify-center rounded-lg',
-            localSettings.emailEnabled ? 'bg-primary text-primary-foreground' : 'bg-muted'
-          )">
+          <div
+            :class="
+              cn(
+                'flex h-12 w-12 items-center justify-center rounded-lg',
+                localSettings.emailEnabled ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              )
+            "
+          >
             <Mail class="h-6 w-6" />
           </div>
           <div class="text-left">
@@ -81,16 +86,22 @@ const toggleCategoryChannel = (category: string, channel: 'email' | 'push' | 'sm
         </button>
 
         <button
-          :class="cn(
-            'flex items-center gap-4 p-4 rounded-lg border transition-colors',
-            localSettings.pushEnabled ? 'border-primary bg-primary/5' : 'border-border'
-          )"
+          :class="
+            cn(
+              'flex items-center gap-4 p-4 rounded-lg border transition-colors',
+              localSettings.pushEnabled ? 'border-primary bg-primary/5' : 'border-border'
+            )
+          "
           @click="toggleChannel('pushEnabled')"
         >
-          <div :class="cn(
-            'flex h-12 w-12 items-center justify-center rounded-lg',
-            localSettings.pushEnabled ? 'bg-primary text-primary-foreground' : 'bg-muted'
-          )">
+          <div
+            :class="
+              cn(
+                'flex h-12 w-12 items-center justify-center rounded-lg',
+                localSettings.pushEnabled ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              )
+            "
+          >
             <Bell class="h-6 w-6" />
           </div>
           <div class="text-left">
@@ -102,16 +113,22 @@ const toggleCategoryChannel = (category: string, channel: 'email' | 'push' | 'sm
         </button>
 
         <button
-          :class="cn(
-            'flex items-center gap-4 p-4 rounded-lg border transition-colors',
-            localSettings.smsEnabled ? 'border-primary bg-primary/5' : 'border-border'
-          )"
+          :class="
+            cn(
+              'flex items-center gap-4 p-4 rounded-lg border transition-colors',
+              localSettings.smsEnabled ? 'border-primary bg-primary/5' : 'border-border'
+            )
+          "
           @click="toggleChannel('smsEnabled')"
         >
-          <div :class="cn(
-            'flex h-12 w-12 items-center justify-center rounded-lg',
-            localSettings.smsEnabled ? 'bg-primary text-primary-foreground' : 'bg-muted'
-          )">
+          <div
+            :class="
+              cn(
+                'flex h-12 w-12 items-center justify-center rounded-lg',
+                localSettings.smsEnabled ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              )
+            "
+          >
             <Smartphone class="h-6 w-6" />
           </div>
           <div class="text-left">
@@ -144,10 +161,14 @@ const toggleCategoryChannel = (category: string, channel: 'email' | 'push' | 'sm
 
           <div class="flex items-center gap-2">
             <button
-              :class="cn(
-                'flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-colors',
-                localSettings.categories[category.key]?.email ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground'
-              )"
+              :class="
+                cn(
+                  'flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-colors',
+                  localSettings.categories[category.key]?.email
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border text-muted-foreground'
+                )
+              "
               :disabled="!localSettings.emailEnabled"
               @click="toggleCategoryChannel(category.key, 'email')"
             >
@@ -156,10 +177,14 @@ const toggleCategoryChannel = (category: string, channel: 'email' | 'push' | 'sm
             </button>
 
             <button
-              :class="cn(
-                'flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-colors',
-                localSettings.categories[category.key]?.push ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground'
-              )"
+              :class="
+                cn(
+                  'flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-colors',
+                  localSettings.categories[category.key]?.push
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border text-muted-foreground'
+                )
+              "
               :disabled="!localSettings.pushEnabled"
               @click="toggleCategoryChannel(category.key, 'push')"
             >
@@ -168,10 +193,14 @@ const toggleCategoryChannel = (category: string, channel: 'email' | 'push' | 'sm
             </button>
 
             <button
-              :class="cn(
-                'flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-colors',
-                localSettings.categories[category.key]?.sms ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground'
-              )"
+              :class="
+                cn(
+                  'flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-colors',
+                  localSettings.categories[category.key]?.sms
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border text-muted-foreground'
+                )
+              "
               :disabled="!localSettings.smsEnabled"
               @click="toggleCategoryChannel(category.key, 'sms')"
             >

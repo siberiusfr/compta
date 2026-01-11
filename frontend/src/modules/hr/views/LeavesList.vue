@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import { useHr } from '../composables/useHr'
 import { Button } from '@/components/ui/button'
-import {
-  CalendarDays,
-  Plus,
-  Search,
-  Check,
-  X,
-  Calendar
-} from 'lucide-vue-next'
+import { CalendarDays, Plus, Search, Check, X, Calendar } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
 const {
@@ -20,7 +13,7 @@ const {
   getStatusLabel,
   getLeaveTypeLabel,
   approveLeave,
-  rejectLeave
+  rejectLeave,
 } = useHr()
 </script>
 
@@ -54,18 +47,26 @@ const {
     </div>
 
     <!-- Leave Requests List -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="text-center py-12 text-muted-foreground"
+    >
       Chargement...
     </div>
 
-    <div v-else class="space-y-3">
+    <div
+      v-else
+      class="space-y-3"
+    >
       <div
         v-for="leave in leaveRequests"
         :key="leave.id"
-        :class="cn(
-          'rounded-xl border bg-card p-5 transition-shadow',
-          leave.status === 'pending' && 'border-l-4 border-l-yellow-500'
-        )"
+        :class="
+          cn(
+            'rounded-xl border bg-card p-5 transition-shadow',
+            leave.status === 'pending' && 'border-l-4 border-l-yellow-500'
+          )
+        "
       >
         <div class="flex items-start gap-4">
           <!-- Content -->
@@ -82,23 +83,30 @@ const {
 
             <div class="flex items-center gap-2 text-sm text-muted-foreground mt-2">
               <Calendar class="h-4 w-4" />
-              <span>
-                Du {{ formatDate(leave.startDate) }} au {{ formatDate(leave.endDate) }}
-              </span>
+              <span> Du {{ formatDate(leave.startDate) }} au {{ formatDate(leave.endDate) }} </span>
               <span class="font-medium text-foreground">({{ leave.days }} jours)</span>
             </div>
 
-            <p v-if="leave.reason" class="text-sm text-muted-foreground mt-2">
+            <p
+              v-if="leave.reason"
+              class="text-sm text-muted-foreground mt-2"
+            >
               {{ leave.reason }}
             </p>
 
-            <p v-if="leave.approvedBy" class="text-xs text-muted-foreground mt-2">
+            <p
+              v-if="leave.approvedBy"
+              class="text-xs text-muted-foreground mt-2"
+            >
               Approuve par {{ leave.approvedBy }} le {{ formatDate(leave.approvedAt!) }}
             </p>
           </div>
 
           <!-- Actions -->
-          <div v-if="leave.status === 'pending'" class="flex items-center gap-2">
+          <div
+            v-if="leave.status === 'pending'"
+            class="flex items-center gap-2"
+          >
             <Button
               variant="outline"
               size="sm"

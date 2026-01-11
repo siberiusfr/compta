@@ -4,7 +4,7 @@ export const menuItems: MenuItem[] = [
   {
     icon: 'LayoutDashboard',
     label: 'Dashboard',
-    route: '/dashboard'
+    route: '/dashboard',
   },
   {
     icon: 'Bell',
@@ -13,16 +13,16 @@ export const menuItems: MenuItem[] = [
       { label: 'Boite de reception', route: '/notifications/inbox' },
       { label: 'Envoyees', route: '/notifications/sent' },
       { label: 'Parametres', route: '/notifications/settings' },
-      { label: 'Modeles', route: '/notifications/templates' }
-    ]
+      { label: 'Modeles', route: '/notifications/templates' },
+    ],
   },
   {
     icon: 'Building2',
     label: 'Entreprises',
     children: [
       { label: 'Liste', route: '/companies' },
-      { label: 'Nouvelle', route: '/companies/new' }
-    ]
+      { label: 'Nouvelle', route: '/companies/new' },
+    ],
   },
   {
     icon: 'Users',
@@ -31,8 +31,8 @@ export const menuItems: MenuItem[] = [
       { label: 'Employes', route: '/hr/employees' },
       { label: 'Contrats', route: '/hr/contracts' },
       { label: 'Conges', route: '/hr/leaves' },
-      { label: 'Paie', route: '/hr/payroll' }
-    ]
+      { label: 'Paie', route: '/hr/payroll' },
+    ],
   },
   {
     icon: 'Calculator',
@@ -43,8 +43,8 @@ export const menuItems: MenuItem[] = [
       { label: 'Grand livre', route: '/accounting/general-ledger' },
       { label: 'Balance', route: '/accounting/trial-balance' },
       { label: 'Bilan', route: '/accounting/balance-sheet' },
-      { label: 'Compte de resultat', route: '/accounting/income-statement' }
-    ]
+      { label: 'Compte de resultat', route: '/accounting/income-statement' },
+    ],
   },
   {
     icon: 'FileText',
@@ -53,8 +53,8 @@ export const menuItems: MenuItem[] = [
       { label: 'Tous les documents', route: '/documents' },
       { label: 'Factures', route: '/documents/invoices' },
       { label: 'Devis', route: '/documents/quotes' },
-      { label: 'Contrats', route: '/documents/contracts' }
-    ]
+      { label: 'Contrats', route: '/documents/contracts' },
+    ],
   },
   {
     icon: 'Shield',
@@ -62,12 +62,12 @@ export const menuItems: MenuItem[] = [
     children: [
       { label: 'Utilisateurs', route: '/permissions/users' },
       { label: 'Roles', route: '/permissions/roles' },
-      { label: 'Groupes', route: '/permissions/groups' }
-    ]
+      { label: 'Groupes', route: '/permissions/groups' },
+    ],
   },
   {
     icon: 'Settings',
     label: 'Parametres',
-    route: '/settings'
-  }
+    route: '/settings',
+  },
 ]

@@ -14,7 +14,7 @@ import {
   Settings,
   ChevronDown,
   ChevronRight,
-  X
+  X,
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
@@ -32,7 +32,7 @@ const iconMap: Record<string, any> = {
   Calculator,
   FileText,
   Shield,
-  Settings
+  Settings,
 }
 
 const isActive = (path?: string) => {
@@ -57,25 +57,33 @@ const navigateTo = (path?: string) => {
   }
 }
 
-const sidebarClasses = computed(() => cn(
-  'fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300',
-  sidebarStore.isCollapsed ? 'w-16' : 'w-64',
-  'max-lg:w-64',
-  sidebarStore.isMobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'
-))
+const sidebarClasses = computed(() =>
+  cn(
+    'fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300',
+    sidebarStore.isCollapsed ? 'w-16' : 'w-64',
+    'max-lg:w-64',
+    sidebarStore.isMobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'
+  )
+)
 </script>
 
 <template>
   <aside :class="sidebarClasses">
     <!-- Logo Header -->
     <div class="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
-      <div v-if="!sidebarStore.isCollapsed" class="flex items-center gap-2">
+      <div
+        v-if="!sidebarStore.isCollapsed"
+        class="flex items-center gap-2"
+      >
         <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
           <Calculator class="h-5 w-5 text-primary-foreground" />
         </div>
         <span class="text-lg font-semibold text-sidebar-foreground">Compta</span>
       </div>
-      <div v-else class="mx-auto">
+      <div
+        v-else
+        class="mx-auto"
+      >
         <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
           <Calculator class="h-5 w-5 text-primary-foreground" />
         </div>
@@ -91,16 +99,21 @@ const sidebarClasses = computed(() => cn(
     <!-- Navigation -->
     <nav class="flex-1 overflow-y-auto px-3 py-4">
       <ul class="space-y-1">
-        <li v-for="item in menuItems" :key="item.label">
+        <li
+          v-for="item in menuItems"
+          :key="item.label"
+        >
           <!-- Single item without children -->
           <template v-if="!item.children">
             <button
-              :class="cn(
-                'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                isActive(item.route)
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              )"
+              :class="
+                cn(
+                  'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                  isActive(item.route)
+                    ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                )
+              "
               @click="navigateTo(item.route)"
             >
               <component
@@ -108,19 +121,25 @@ const sidebarClasses = computed(() => cn(
                 v-if="item.icon"
                 class="h-5 w-5 shrink-0"
               />
-              <span v-if="!sidebarStore.isCollapsed" class="truncate">{{ item.label }}</span>
+              <span
+                v-if="!sidebarStore.isCollapsed"
+                class="truncate"
+                >{{ item.label }}</span
+              >
             </button>
           </template>
 
           <!-- Item with children -->
           <template v-else>
             <button
-              :class="cn(
-                'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                item.children.some(child => isActive(child.route))
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              )"
+              :class="
+                cn(
+                  'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                  item.children.some((child) => isActive(child.route))
+                    ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                )
+              "
               @click="toggleMenu(item.label)"
             >
               <component
@@ -128,7 +147,10 @@ const sidebarClasses = computed(() => cn(
                 v-if="item.icon"
                 class="h-5 w-5 shrink-0"
               />
-              <span v-if="!sidebarStore.isCollapsed" class="flex-1 truncate text-left">
+              <span
+                v-if="!sidebarStore.isCollapsed"
+                class="flex-1 truncate text-left"
+              >
                 {{ item.label }}
               </span>
               <ChevronDown
@@ -146,14 +168,19 @@ const sidebarClasses = computed(() => cn(
               v-if="isMenuExpanded(item.label) && !sidebarStore.isCollapsed"
               class="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-3"
             >
-              <li v-for="child in item.children" :key="child.label">
+              <li
+                v-for="child in item.children"
+                :key="child.label"
+              >
                 <button
-                  :class="cn(
-                    'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                    isActive(child.route)
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                      : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                  )"
+                  :class="
+                    cn(
+                      'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                      isActive(child.route)
+                        ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                        : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                    )
+                  "
                   @click="navigateTo(child.route)"
                 >
                   <span class="truncate">{{ child.label }}</span>

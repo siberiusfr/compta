@@ -19,7 +19,7 @@ onMounted(async () => {
     router.replace(returnUrl)
   } catch (error) {
     console.error('[AuthorizedPage] Callback error:', error)
-    errorMessage.value = 'Erreur lors de l\'authentification. Veuillez reessayer.'
+    errorMessage.value = "Erreur lors de l'authentification. Veuillez reessayer."
   }
 })
 </script>
@@ -29,9 +29,7 @@ onMounted(async () => {
     <div class="text-center">
       <template v-if="errorMessage">
         <div class="rounded-lg border border-destructive/50 bg-destructive/10 p-6">
-          <h1 class="mb-2 text-xl font-semibold text-destructive">
-            Erreur d'authentification
-          </h1>
+          <h1 class="mb-2 text-xl font-semibold text-destructive">Erreur d'authentification</h1>
           <p class="mb-4 text-muted-foreground">
             {{ errorMessage }}
           </p>

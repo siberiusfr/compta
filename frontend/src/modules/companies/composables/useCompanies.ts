@@ -12,7 +12,7 @@ export function useCompanies() {
     selectedCompany,
     activeCompanies,
     totalEmployees,
-    filteredCompanies
+    filteredCompanies,
   } = storeToRefs(store)
 
   const formatCurrency = (value?: number): string => {
@@ -20,7 +20,7 @@ export function useCompanies() {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'EUR',
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(value)
   }
 
@@ -28,7 +28,7 @@ export function useCompanies() {
     return new Intl.DateTimeFormat('fr-FR', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     }).format(date)
   }
 
@@ -36,7 +36,7 @@ export function useCompanies() {
     const colors: Record<string, string> = {
       active: 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30',
       inactive: 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30',
-      pending: 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30'
+      pending: 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30',
     }
     return colors[status] ?? colors.inactive!
   }
@@ -45,7 +45,7 @@ export function useCompanies() {
     const labels: Record<string, string> = {
       active: 'Active',
       inactive: 'Inactive',
-      pending: 'En attente'
+      pending: 'En attente',
     }
     return labels[status] ?? status
   }
@@ -57,7 +57,7 @@ export function useCompanies() {
       sa: 'SA',
       eurl: 'EURL',
       ei: 'EI',
-      'auto-entrepreneur': 'Auto-entrepreneur'
+      'auto-entrepreneur': 'Auto-entrepreneur',
     }
     return labels[type] ?? type.toUpperCase()
   }
@@ -92,6 +92,6 @@ export function useCompanies() {
     getCompanyContacts: store.getCompanyContacts,
     setFilter: store.setFilter,
     clearFilter: store.clearFilter,
-    selectCompany: store.selectCompany
+    selectCompany: store.selectCompany,
   }
 }

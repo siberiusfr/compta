@@ -6,7 +6,7 @@ export const hrRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        redirect: { name: 'hr-employees' }
+        redirect: { name: 'hr-employees' },
       },
       {
         path: 'employees',
@@ -14,8 +14,8 @@ export const hrRoutes: RouteRecordRaw[] = [
         component: () => import('./views/EmployeesList.vue'),
         meta: {
           title: 'Employes',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'contracts',
@@ -23,8 +23,8 @@ export const hrRoutes: RouteRecordRaw[] = [
         component: () => import('./views/ContractsList.vue'),
         meta: {
           title: 'Contrats',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'leaves',
@@ -32,8 +32,8 @@ export const hrRoutes: RouteRecordRaw[] = [
         component: () => import('./views/LeavesList.vue'),
         meta: {
           title: 'Conges',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'payroll',
@@ -41,9 +41,9 @@ export const hrRoutes: RouteRecordRaw[] = [
         component: () => import('./views/PayrollList.vue'),
         meta: {
           title: 'Paie',
-          requiresAuth: true
-        }
-      }
-    ]
-  }
+          requiresAuth: true,
+        },
+      },
+    ],
+  },
 ]

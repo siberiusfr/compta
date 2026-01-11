@@ -6,7 +6,7 @@ export const permissionsRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        redirect: { name: 'permissions-users' }
+        redirect: { name: 'permissions-users' },
       },
       {
         path: 'users',
@@ -15,8 +15,8 @@ export const permissionsRoutes: RouteRecordRaw[] = [
         meta: {
           title: 'Utilisateurs',
           requiresAuth: true,
-          roles: ['Administrateur']
-        }
+          roles: ['Administrateur'],
+        },
       },
       {
         path: 'roles',
@@ -25,8 +25,8 @@ export const permissionsRoutes: RouteRecordRaw[] = [
         meta: {
           title: 'Roles',
           requiresAuth: true,
-          roles: ['Administrateur']
-        }
+          roles: ['Administrateur'],
+        },
       },
       {
         path: 'groups',
@@ -35,9 +35,9 @@ export const permissionsRoutes: RouteRecordRaw[] = [
         meta: {
           title: 'Groupes',
           requiresAuth: true,
-          roles: ['Administrateur']
-        }
-      }
-    ]
-  }
+          roles: ['Administrateur'],
+        },
+      },
+    ],
+  },
 ]

@@ -1,20 +1,13 @@
 <script setup lang="ts">
 import { usePermissions } from '../composables/usePermissions'
 import { Button } from '@/components/ui/button'
-import {
-  UsersRound,
-  Plus,
-  Edit,
-  Trash2,
-  Users,
-  Shield
-} from 'lucide-vue-next'
+import { UsersRound, Plus, Edit, Trash2, Users, Shield } from 'lucide-vue-next'
 
 const { groups, users, isLoading, formatDate } = usePermissions()
 
 const getMemberNames = (memberIds: string[]) => {
   return memberIds
-    .map(id => users.value.find(u => u.id === id)?.fullName)
+    .map((id) => users.value.find((u) => u.id === id)?.fullName)
     .filter(Boolean)
     .slice(0, 3)
 }
@@ -29,9 +22,7 @@ const getMemberNames = (memberIds: string[]) => {
           <UsersRound class="h-6 w-6" />
           Groupes
         </h1>
-        <p class="text-muted-foreground">
-          Organisez les utilisateurs en groupes
-        </p>
+        <p class="text-muted-foreground">Organisez les utilisateurs en groupes</p>
       </div>
       <Button>
         <Plus class="h-4 w-4 mr-2" />
@@ -40,11 +31,17 @@ const getMemberNames = (memberIds: string[]) => {
     </div>
 
     <!-- Groups Grid -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="text-center py-12 text-muted-foreground"
+    >
       Chargement...
     </div>
 
-    <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div
+      v-else
+      class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+    >
       <div
         v-for="group in groups"
         :key="group.id"
@@ -53,7 +50,9 @@ const getMemberNames = (memberIds: string[]) => {
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30"
+            >
               <UsersRound class="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
@@ -64,10 +63,19 @@ const getMemberNames = (memberIds: string[]) => {
             </div>
           </div>
           <div class="flex items-center gap-1">
-            <Button variant="ghost" size="icon-sm" title="Modifier">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Modifier"
+            >
               <Edit class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon-sm" title="Supprimer" class="text-destructive hover:text-destructive">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Supprimer"
+              class="text-destructive hover:text-destructive"
+            >
               <Trash2 class="h-4 w-4" />
             </Button>
           </div>

@@ -1,1 +1,1 @@
-export { useInvoicesStore } from "./invoicesStore";
+export { useInvoicesStore } from './invoicesStore'

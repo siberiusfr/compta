@@ -14,7 +14,7 @@ import {
   Monitor,
   LogOut,
   User,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-vue-next'
 import type { BreadcrumbItem } from '@/shared/types/common.types'
 
@@ -41,9 +41,12 @@ const breadcrumbs = computed((): BreadcrumbItem[] => {
 
 const themeIcon = computed(() => {
   switch (themeStore.theme) {
-    case 'light': return Sun
-    case 'dark': return Moon
-    default: return Monitor
+    case 'light':
+      return Sun
+    case 'dark':
+      return Moon
+    default:
+      return Monitor
   }
 })
 
@@ -59,7 +62,9 @@ const goTo = (path?: string) => {
 </script>
 
 <template>
-  <header class="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-6">
+  <header
+    class="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-6"
+  >
     <!-- Mobile menu button -->
     <Button
       variant="ghost"
@@ -77,18 +82,30 @@ const goTo = (path?: string) => {
       class="hidden lg:flex"
       @click="sidebarStore.toggle"
     >
-      <PanelLeftClose v-if="!sidebarStore.isCollapsed" class="h-5 w-5" />
-      <PanelLeftOpen v-else class="h-5 w-5" />
+      <PanelLeftClose
+        v-if="!sidebarStore.isCollapsed"
+        class="h-5 w-5"
+      />
+      <PanelLeftOpen
+        v-else
+        class="h-5 w-5"
+      />
     </Button>
 
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-1 text-sm text-muted-foreground">
-      <template v-for="(item, index) in breadcrumbs" :key="item.label">
-        <ChevronRight v-if="index > 0" class="h-4 w-4" />
+      <template
+        v-for="(item, index) in breadcrumbs"
+        :key="item.label"
+      >
+        <ChevronRight
+          v-if="index > 0"
+          class="h-4 w-4"
+        />
         <button
           :class="[
             'hover:text-foreground transition-colors',
-            index === breadcrumbs.length - 1 ? 'text-foreground font-medium' : ''
+            index === breadcrumbs.length - 1 ? 'text-foreground font-medium' : '',
           ]"
           @click="goTo(item.route)"
         >
@@ -109,7 +126,10 @@ const goTo = (path?: string) => {
         @click="themeStore.toggleTheme"
         :title="`Theme: ${themeStore.theme}`"
       >
-        <component :is="themeIcon" class="h-5 w-5" />
+        <component
+          :is="themeIcon"
+          class="h-5 w-5"
+        />
       </Button>
 
       <!-- User menu -->
@@ -122,7 +142,9 @@ const goTo = (path?: string) => {
             {{ authStore.userProfile?.email }}
           </p>
         </div>
-        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
+        <div
+          class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground"
+        >
           <User class="h-5 w-5" />
         </div>
         <Button

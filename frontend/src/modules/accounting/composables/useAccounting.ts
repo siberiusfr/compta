@@ -20,13 +20,13 @@ export function useAccounting() {
     totalEquity,
     totalRevenue,
     totalExpenses,
-    netIncome
+    netIncome,
   } = storeToRefs(store)
 
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'EUR',
     }).format(Math.abs(value))
   }
 
@@ -34,7 +34,7 @@ export function useAccounting() {
     return new Intl.DateTimeFormat('fr-FR', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     }).format(date)
   }
 
@@ -44,7 +44,7 @@ export function useAccounting() {
       liability: 'Passif',
       equity: 'Capitaux propres',
       revenue: 'Produits',
-      expense: 'Charges'
+      expense: 'Charges',
     }
     return labels[type] ?? type
   }
@@ -55,7 +55,7 @@ export function useAccounting() {
       liability: 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30',
       equity: 'text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30',
       revenue: 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30',
-      expense: 'text-orange-600 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/30'
+      expense: 'text-orange-600 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/30',
     }
     return colors[type] ?? ''
   }
@@ -66,7 +66,7 @@ export function useAccounting() {
       posted: 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30',
       cancelled: 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30',
       open: 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30',
-      closed: 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30'
+      closed: 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30',
     }
     return colors[status] ?? ''
   }
@@ -77,7 +77,7 @@ export function useAccounting() {
       posted: 'Comptabilise',
       cancelled: 'Annule',
       open: 'Ouvert',
-      closed: 'Cloture'
+      closed: 'Cloture',
     }
     return labels[status] ?? status
   }
@@ -111,6 +111,6 @@ export function useAccounting() {
     getStatusColor,
     getStatusLabel,
     postEntry: store.postEntry,
-    getAccountBalance: store.getAccountBalance
+    getAccountBalance: store.getAccountBalance,
   }
 }

@@ -16,9 +16,7 @@ const { templates, formatDate, getTypeColor } = useNotifications()
           <FileText class="h-6 w-6" />
           Modeles de notification
         </h1>
-        <p class="text-muted-foreground">
-          Gerez vos modeles de notification reutilisables
-        </p>
+        <p class="text-muted-foreground">Gerez vos modeles de notification reutilisables</p>
       </div>
       <Button>
         <Plus class="h-4 w-4 mr-2" />
@@ -27,13 +25,19 @@ const { templates, formatDate, getTypeColor } = useNotifications()
     </div>
 
     <!-- Templates Grid -->
-    <div v-if="templates.length === 0" class="text-center py-12">
+    <div
+      v-if="templates.length === 0"
+      class="text-center py-12"
+    >
       <FileText class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
       <p class="text-lg font-medium">Aucun modele</p>
       <p class="text-muted-foreground">Creez votre premier modele de notification</p>
     </div>
 
-    <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div
+      v-else
+      class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+    >
       <div
         v-for="template in templates"
         :key="template.id"
@@ -41,17 +45,37 @@ const { templates, formatDate, getTypeColor } = useNotifications()
       >
         <!-- Header -->
         <div class="flex items-start justify-between mb-3">
-          <div :class="cn('flex h-10 w-10 items-center justify-center rounded-lg', getTypeColor(template.type))">
+          <div
+            :class="
+              cn(
+                'flex h-10 w-10 items-center justify-center rounded-lg',
+                getTypeColor(template.type)
+              )
+            "
+          >
             <FileText class="h-5 w-5" />
           </div>
           <div class="flex items-center gap-1">
-            <Button variant="ghost" size="icon-sm" title="Dupliquer">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Dupliquer"
+            >
               <Copy class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon-sm" title="Modifier">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Modifier"
+            >
               <Edit class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon-sm" title="Supprimer" class="text-destructive hover:text-destructive">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Supprimer"
+              class="text-destructive hover:text-destructive"
+            >
               <Trash2 class="h-4 w-4" />
             </Button>
           </div>

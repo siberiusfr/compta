@@ -1,25 +1,11 @@
 <script setup lang="ts">
 import { useHr } from '../composables/useHr'
 import { Button } from '@/components/ui/button'
-import {
-  Wallet,
-  Plus,
-  Search,
-  Filter,
-  Download,
-  Check,
-  Send
-} from 'lucide-vue-next'
+import { Wallet, Plus, Search, Filter, Download, Check, Send } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
-const {
-  payrollEntries,
-  totalPayroll,
-  isLoading,
-  formatCurrency,
-  getStatusColor,
-  getStatusLabel
-} = useHr()
+const { payrollEntries, totalPayroll, isLoading, formatCurrency, getStatusColor, getStatusLabel } =
+  useHr()
 
 const formatPeriod = (period: string): string => {
   const parts = period.split('-')
@@ -39,9 +25,7 @@ const formatPeriod = (period: string): string => {
           <Wallet class="h-6 w-6" />
           Paie
         </h1>
-        <p class="text-muted-foreground">
-          Gestion de la paie
-        </p>
+        <p class="text-muted-foreground">Gestion de la paie</p>
       </div>
       <Button>
         <Plus class="h-4 w-4 mr-2" />
@@ -62,7 +46,7 @@ const formatPeriod = (period: string): string => {
       <div class="rounded-xl border bg-card p-4">
         <p class="text-sm text-muted-foreground">A valider</p>
         <p class="text-2xl font-bold text-yellow-600">
-          {{ payrollEntries.filter(p => p.status === 'draft').length }}
+          {{ payrollEntries.filter((p) => p.status === 'draft').length }}
         </p>
       </div>
     </div>
@@ -77,17 +61,26 @@ const formatPeriod = (period: string): string => {
           class="w-full pl-10 pr-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
-      <Button variant="outline" size="icon">
+      <Button
+        variant="outline"
+        size="icon"
+      >
         <Filter class="h-4 w-4" />
       </Button>
     </div>
 
     <!-- Payroll List -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="text-center py-12 text-muted-foreground"
+    >
       Chargement...
     </div>
 
-    <div v-else class="rounded-xl border bg-card overflow-hidden">
+    <div
+      v-else
+      class="rounded-xl border bg-card overflow-hidden"
+    >
       <table class="w-full">
         <thead class="bg-muted/50">
           <tr>
@@ -109,7 +102,9 @@ const formatPeriod = (period: string): string => {
             <td class="p-4 font-medium">{{ entry.employeeName }}</td>
             <td class="p-4 text-muted-foreground capitalize">{{ formatPeriod(entry.period) }}</td>
             <td class="p-4 text-right">{{ formatCurrency(entry.grossSalary) }}</td>
-            <td class="p-4 text-right text-red-600">-{{ formatCurrency(entry.deductions + entry.taxes) }}</td>
+            <td class="p-4 text-right text-red-600">
+              -{{ formatCurrency(entry.deductions + entry.taxes) }}
+            </td>
             <td class="p-4 text-right font-medium">{{ formatCurrency(entry.netSalary) }}</td>
             <td class="p-4 text-center">
               <span :class="cn('text-xs px-2 py-1 rounded-full', getStatusColor(entry.status))">
@@ -134,7 +129,11 @@ const formatPeriod = (period: string): string => {
                 >
                   <Send class="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon-sm" title="Telecharger">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  title="Telecharger"
+                >
                   <Download class="h-4 w-4" />
                 </Button>
               </div>

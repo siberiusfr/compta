@@ -12,7 +12,7 @@ import {
   RefreshCw,
   Plus,
   UserPlus,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
@@ -24,14 +24,14 @@ const {
   profitMargin,
   formatCurrency,
   formatRelativeTime,
-  refresh
+  refresh,
 } = useDashboard()
 
 const iconMap: Record<string, any> = {
   Plus,
   UserPlus,
   Building2,
-  FileText
+  FileText,
 }
 
 const activityTypeStyles: Record<string, string> = {
@@ -39,7 +39,7 @@ const activityTypeStyles: Record<string, string> = {
   document: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
   employee: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
   company: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400',
-  payment: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+  payment: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
 }
 </script>
 
@@ -51,7 +51,12 @@ const activityTypeStyles: Record<string, string> = {
         <h1 class="text-2xl font-bold">Tableau de bord</h1>
         <p class="text-muted-foreground">Vue d'ensemble de votre activite</p>
       </div>
-      <Button variant="outline" size="sm" @click="refresh" :disabled="isLoading">
+      <Button
+        variant="outline"
+        size="sm"
+        @click="refresh"
+        :disabled="isLoading"
+      >
         <RefreshCw :class="cn('h-4 w-4 mr-2', isLoading && 'animate-spin')" />
         Actualiser
       </Button>
@@ -61,7 +66,9 @@ const activityTypeStyles: Record<string, string> = {
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <div class="rounded-xl border bg-card p-6 shadow-sm">
         <div class="flex items-center justify-between">
-          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30"
+          >
             <Building2 class="h-6 w-6 text-blue-600 dark:text-blue-400" />
           </div>
           <span class="text-xs text-muted-foreground">+2 ce mois</span>
@@ -74,7 +81,9 @@ const activityTypeStyles: Record<string, string> = {
 
       <div class="rounded-xl border bg-card p-6 shadow-sm">
         <div class="flex items-center justify-between">
-          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30"
+          >
             <Users class="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
           <span class="text-xs text-muted-foreground">+12 ce mois</span>
@@ -87,7 +96,9 @@ const activityTypeStyles: Record<string, string> = {
 
       <div class="rounded-xl border bg-card p-6 shadow-sm">
         <div class="flex items-center justify-between">
-          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30"
+          >
             <FileText class="h-6 w-6 text-purple-600 dark:text-purple-400" />
           </div>
           <span class="text-xs text-muted-foreground">+47 ce mois</span>
@@ -100,7 +111,9 @@ const activityTypeStyles: Record<string, string> = {
 
       <div class="rounded-xl border bg-card p-6 shadow-sm">
         <div class="flex items-center justify-between">
-          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30"
+          >
             <Receipt class="h-6 w-6 text-orange-600 dark:text-orange-400" />
           </div>
           <span class="text-xs text-red-500">{{ stats.pendingInvoices }} en attente</span>
@@ -116,7 +129,9 @@ const activityTypeStyles: Record<string, string> = {
     <div class="grid gap-4 lg:grid-cols-3">
       <div class="rounded-xl border bg-card p-6 shadow-sm">
         <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30"
+          >
             <TrendingUp class="h-5 w-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
@@ -130,7 +145,9 @@ const activityTypeStyles: Record<string, string> = {
 
       <div class="rounded-xl border bg-card p-6 shadow-sm">
         <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30">
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30"
+          >
             <TrendingDown class="h-5 w-5 text-red-600 dark:text-red-400" />
           </div>
           <div>
@@ -144,7 +161,9 @@ const activityTypeStyles: Record<string, string> = {
 
       <div class="rounded-xl border bg-card p-6 shadow-sm">
         <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30"
+          >
             <TrendingUp class="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
@@ -169,8 +188,15 @@ const activityTypeStyles: Record<string, string> = {
             :to="action.route"
             class="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-accent"
           >
-            <div :class="cn('flex h-10 w-10 items-center justify-center rounded-lg text-white', action.color)">
-              <component :is="iconMap[action.icon] || Plus" class="h-5 w-5" />
+            <div
+              :class="
+                cn('flex h-10 w-10 items-center justify-center rounded-lg text-white', action.color)
+              "
+            >
+              <component
+                :is="iconMap[action.icon] || Plus"
+                class="h-5 w-5"
+              />
             </div>
             <span class="text-sm font-medium">{{ action.label }}</span>
           </RouterLink>
@@ -181,7 +207,10 @@ const activityTypeStyles: Record<string, string> = {
       <div class="rounded-xl border bg-card p-6 shadow-sm">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold">Activite recente</h2>
-          <Button variant="ghost" size="sm">
+          <Button
+            variant="ghost"
+            size="sm"
+          >
             Voir tout
             <ArrowRight class="h-4 w-4 ml-1" />
           </Button>
@@ -192,7 +221,14 @@ const activityTypeStyles: Record<string, string> = {
             :key="activity.id"
             class="flex items-start gap-3"
           >
-            <div :class="cn('flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium', activityTypeStyles[activity.type])">
+            <div
+              :class="
+                cn(
+                  'flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium',
+                  activityTypeStyles[activity.type]
+                )
+              "
+            >
               {{ activity.type.charAt(0).toUpperCase() }}
             </div>
             <div class="flex-1 min-w-0">

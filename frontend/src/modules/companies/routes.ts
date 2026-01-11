@@ -10,8 +10,8 @@ export const companiesRoutes: RouteRecordRaw[] = [
         component: () => import('./views/CompaniesList.vue'),
         meta: {
           title: 'Entreprises',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'new',
@@ -19,9 +19,9 @@ export const companiesRoutes: RouteRecordRaw[] = [
         component: () => import('./views/CompanyNew.vue'),
         meta: {
           title: 'Nouvelle entreprise',
-          requiresAuth: true
-        }
-      }
-    ]
-  }
+          requiresAuth: true,
+        },
+      },
+    ],
+  },
 ]

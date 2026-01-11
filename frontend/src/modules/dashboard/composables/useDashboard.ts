@@ -4,12 +4,13 @@ import { useDashboardStore } from '../stores/dashboardStore'
 
 export function useDashboard() {
   const store = useDashboardStore()
-  const { stats, recentActivities, monthlyRevenue, isLoading, netIncome, profitMargin } = storeToRefs(store)
+  const { stats, recentActivities, monthlyRevenue, isLoading, netIncome, profitMargin } =
+    storeToRefs(store)
 
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'EUR',
     }).format(value)
   }
 
@@ -20,17 +21,14 @@ export function useDashboard() {
     const hours = Math.floor(minutes / 60)
     const days = Math.floor(hours / 24)
 
-    if (minutes < 1) return 'A l\'instant'
+    if (minutes < 1) return "A l'instant"
     if (minutes < 60) return `Il y a ${minutes} min`
     if (hours < 24) return `Il y a ${hours}h`
     return `Il y a ${days}j`
   }
 
   const refresh = async () => {
-    await Promise.all([
-      store.fetchStats(),
-      store.fetchRecentActivities()
-    ])
+    await Promise.all([store.fetchStats(), store.fetchRecentActivities()])
   }
 
   onMounted(() => {
@@ -46,6 +44,6 @@ export function useDashboard() {
     profitMargin,
     formatCurrency,
     formatRelativeTime,
-    refresh
+    refresh,
   }
 }

@@ -1,4 +1,9 @@
-import type { Notification, NotificationTemplate, SentNotification, NotificationSettings } from '../types/notifications.types'
+import type {
+  Notification,
+  NotificationTemplate,
+  SentNotification,
+  NotificationSettings,
+} from '../types/notifications.types'
 
 export const mockNotifications: Notification[] = [
   {
@@ -12,7 +17,7 @@ export const mockNotifications: Notification[] = [
     createdAt: new Date(Date.now() - 1000 * 60 * 10),
     sender: 'Systeme Comptable',
     link: '/documents/invoices/FA-2024-0156',
-    category: 'invoices'
+    category: 'invoices',
   },
   {
     id: '2',
@@ -25,7 +30,7 @@ export const mockNotifications: Notification[] = [
     createdAt: new Date(Date.now() - 1000 * 60 * 60),
     sender: 'RH',
     link: '/hr/contracts/123',
-    category: 'hr'
+    category: 'hr',
   },
   {
     id: '3',
@@ -38,7 +43,7 @@ export const mockNotifications: Notification[] = [
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
     sender: 'Systeme Bancaire',
     link: '/accounting/payments/456',
-    category: 'payments'
+    category: 'payments',
   },
   {
     id: '4',
@@ -50,12 +55,12 @@ export const mockNotifications: Notification[] = [
     archived: false,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
     sender: 'Systeme',
-    category: 'system'
+    category: 'system',
   },
   {
     id: '5',
     title: 'Nouvel employe',
-    message: 'Sophie Bernard a rejoint l\'equipe Developpement.',
+    message: "Sophie Bernard a rejoint l'equipe Developpement.",
     type: 'info',
     priority: 'low',
     read: true,
@@ -63,8 +68,8 @@ export const mockNotifications: Notification[] = [
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
     sender: 'RH',
     link: '/hr/employees/789',
-    category: 'hr'
-  }
+    category: 'hr',
+  },
 ]
 
 export const mockNotificationTemplates: NotificationTemplate[] = [
@@ -72,11 +77,11 @@ export const mockNotificationTemplates: NotificationTemplate[] = [
     id: '1',
     name: 'Rappel de facture',
     subject: 'Rappel: Facture {{invoice_number}} en attente',
-    body: 'Bonjour {{client_name}},\n\nNous vous rappelons que la facture {{invoice_number}} d\'un montant de {{amount}} EUR est en attente de paiement depuis le {{due_date}}.\n\nMerci de proceder au reglement dans les meilleurs delais.\n\nCordialement,\n{{company_name}}',
+    body: "Bonjour {{client_name}},\n\nNous vous rappelons que la facture {{invoice_number}} d'un montant de {{amount}} EUR est en attente de paiement depuis le {{due_date}}.\n\nMerci de proceder au reglement dans les meilleurs delais.\n\nCordialement,\n{{company_name}}",
     type: 'warning',
     variables: ['invoice_number', 'client_name', 'amount', 'due_date', 'company_name'],
     createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-06-20')
+    updatedAt: new Date('2024-06-20'),
   },
   {
     id: '2',
@@ -86,7 +91,7 @@ export const mockNotificationTemplates: NotificationTemplate[] = [
     type: 'info',
     variables: ['company_name', 'employee_name', 'manager_name'],
     createdAt: new Date('2024-02-10'),
-    updatedAt: new Date('2024-02-10')
+    updatedAt: new Date('2024-02-10'),
   },
   {
     id: '3',
@@ -96,8 +101,8 @@ export const mockNotificationTemplates: NotificationTemplate[] = [
     type: 'success',
     variables: ['client_name', 'amount', 'invoice_number', 'company_name'],
     createdAt: new Date('2024-03-05'),
-    updatedAt: new Date('2024-05-15')
-  }
+    updatedAt: new Date('2024-05-15'),
+  },
 ]
 
 export const mockSentNotifications: SentNotification[] = [
@@ -109,7 +114,7 @@ export const mockSentNotifications: SentNotification[] = [
     message: 'Rappel concernant la facture en attente...',
     sentAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
     status: 'delivered',
-    readCount: 1
+    readCount: 1,
   },
   {
     id: '2',
@@ -119,7 +124,7 @@ export const mockSentNotifications: SentNotification[] = [
     message: 'Confirmation de paiement...',
     sentAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
     status: 'delivered',
-    readCount: 1
+    readCount: 1,
   },
   {
     id: '3',
@@ -128,8 +133,8 @@ export const mockSentNotifications: SentNotification[] = [
     message: 'Rappel de la reunion mensuelle demain a 14h.',
     sentAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
     status: 'sent',
-    readCount: 5
-  }
+    readCount: 5,
+  },
 ]
 
 export const mockNotificationSettings: NotificationSettings = {
@@ -140,6 +145,6 @@ export const mockNotificationSettings: NotificationSettings = {
     invoices: { email: true, push: true, sms: false },
     payments: { email: true, push: true, sms: true },
     hr: { email: true, push: false, sms: false },
-    system: { email: false, push: true, sms: false }
-  }
+    system: { email: false, push: true, sms: false },
+  },
 }

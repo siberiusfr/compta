@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import { useCompanies } from '../composables/useCompanies'
 import { Button } from '@/components/ui/button'
-import {
-  Building2,
-  Plus,
-  Search,
-  Filter,
-  MapPin,
-  Users,
-  Mail
-} from 'lucide-vue-next'
+import { Building2, Plus, Search, Filter, MapPin, Users, Mail } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
 const {
@@ -20,7 +12,7 @@ const {
   getStatusColor,
   getStatusLabel,
   getTypeLabel,
-  getInitials
+  getInitials,
 } = useCompanies()
 </script>
 
@@ -53,17 +45,26 @@ const {
           class="w-full pl-10 pr-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
-      <Button variant="outline" size="icon">
+      <Button
+        variant="outline"
+        size="icon"
+      >
         <Filter class="h-4 w-4" />
       </Button>
     </div>
 
     <!-- Companies Grid -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="text-center py-12 text-muted-foreground"
+    >
       Chargement...
     </div>
 
-    <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div
+      v-else
+      class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+    >
       <RouterLink
         v-for="company in filteredCompanies"
         :key="company.id"
@@ -73,7 +74,9 @@ const {
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div class="flex items-center gap-3">
-            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold">
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold"
+            >
               {{ getInitials(company.name) }}
             </div>
             <div>
@@ -98,14 +101,19 @@ const {
             <Users class="h-4 w-4 shrink-0" />
             <span>{{ company.employeeCount }} employes</span>
           </div>
-          <div v-if="company.email" class="flex items-center gap-2 text-muted-foreground">
+          <div
+            v-if="company.email"
+            class="flex items-center gap-2 text-muted-foreground"
+          >
             <Mail class="h-4 w-4 shrink-0" />
             <span class="truncate">{{ company.email }}</span>
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="flex items-center justify-between mt-4 pt-4 border-t text-xs text-muted-foreground">
+        <div
+          class="flex items-center justify-between mt-4 pt-4 border-t text-xs text-muted-foreground"
+        >
           <span>SIRET: {{ company.siret }}</span>
           <span v-if="company.capital">Capital: {{ formatCurrency(company.capital) }}</span>
         </div>

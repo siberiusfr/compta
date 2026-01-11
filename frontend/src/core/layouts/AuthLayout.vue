@@ -8,7 +8,9 @@ import { Calculator } from 'lucide-vue-next'
     <div class="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center">
       <div class="max-w-md text-center text-primary-foreground">
         <div class="flex justify-center mb-8">
-          <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary-foreground/10">
+          <div
+            class="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary-foreground/10"
+          >
             <Calculator class="h-12 w-12" />
           </div>
         </div>

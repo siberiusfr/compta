@@ -30,8 +30,6 @@ async function handleLogin() {
       />
       Connexion en cours...
     </template>
-    <template v-else>
-      Se connecter
-    </template>
+    <template v-else> Se connecter </template>
   </Button>
 </template>

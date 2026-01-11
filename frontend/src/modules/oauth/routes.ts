@@ -8,8 +8,8 @@ export const oauthRoutes: RouteRecordRaw[] = [
     meta: {
       title: 'Connexion',
       guestOnly: true,
-      layout: 'auth'
-    }
+      layout: 'auth',
+    },
   },
   {
     path: '/authorized',
@@ -17,15 +17,15 @@ export const oauthRoutes: RouteRecordRaw[] = [
     component: () => import('./views/CallbackPage.vue'),
     meta: {
       title: 'Authentification',
-      isCallback: true
-    }
+      isCallback: true,
+    },
   },
   {
     path: '/unauthorized',
     name: 'unauthorized',
     component: () => import('./views/UnauthorizedPage.vue'),
     meta: {
-      title: 'Acces refuse'
-    }
-  }
+      title: 'Acces refuse',
+    },
+  },
 ]

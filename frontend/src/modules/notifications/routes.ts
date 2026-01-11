@@ -6,7 +6,7 @@ export const notificationsRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        redirect: { name: 'notifications-inbox' }
+        redirect: { name: 'notifications-inbox' },
       },
       {
         path: 'inbox',
@@ -14,8 +14,8 @@ export const notificationsRoutes: RouteRecordRaw[] = [
         component: () => import('./views/NotificationsInbox.vue'),
         meta: {
           title: 'Boite de reception',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'sent',
@@ -23,8 +23,8 @@ export const notificationsRoutes: RouteRecordRaw[] = [
         component: () => import('./views/NotificationsSent.vue'),
         meta: {
           title: 'Notifications envoyees',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'settings',
@@ -32,8 +32,8 @@ export const notificationsRoutes: RouteRecordRaw[] = [
         component: () => import('./views/NotificationsSettings.vue'),
         meta: {
           title: 'Parametres de notification',
-          requiresAuth: true
-        }
+          requiresAuth: true,
+        },
       },
       {
         path: 'templates',
@@ -41,9 +41,9 @@ export const notificationsRoutes: RouteRecordRaw[] = [
         component: () => import('./views/NotificationsTemplates.vue'),
         meta: {
           title: 'Modeles de notification',
-          requiresAuth: true
-        }
-      }
-    ]
-  }
+          requiresAuth: true,
+        },
+      },
+    ],
+  },
 ]

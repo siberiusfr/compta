@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import { usePermissions } from '../composables/usePermissions'
 import { Button } from '@/components/ui/button'
-import {
-  Shield,
-  Plus,
-  Edit,
-  Trash2,
-  Users,
-  Lock,
-  Key
-} from 'lucide-vue-next'
+import { Shield, Plus, Edit, Trash2, Users, Lock, Key } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
 const { roles, isLoading } = usePermissions()
@@ -24,9 +16,7 @@ const { roles, isLoading } = usePermissions()
           <Shield class="h-6 w-6" />
           Roles
         </h1>
-        <p class="text-muted-foreground">
-          Gerez les roles et permissions
-        </p>
+        <p class="text-muted-foreground">Gerez les roles et permissions</p>
       </div>
       <Button>
         <Plus class="h-4 w-4 mr-2" />
@@ -35,28 +25,40 @@ const { roles, isLoading } = usePermissions()
     </div>
 
     <!-- Roles Grid -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="text-center py-12 text-muted-foreground"
+    >
       Chargement...
     </div>
 
-    <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div
+      v-else
+      class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+    >
       <div
         v-for="role in roles"
         :key="role.id"
-        :class="cn(
-          'rounded-xl border bg-card p-5 hover:shadow-md transition-shadow',
-          role.isSystem && 'border-primary/50'
-        )"
+        :class="
+          cn(
+            'rounded-xl border bg-card p-5 hover:shadow-md transition-shadow',
+            role.isSystem && 'border-primary/50'
+          )
+        "
       >
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div class="flex items-center gap-3">
-            <div :class="cn(
-              'flex h-10 w-10 items-center justify-center rounded-lg',
-              role.isSystem
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-primary/10 text-primary'
-            )">
+            <div
+              :class="
+                cn(
+                  'flex h-10 w-10 items-center justify-center rounded-lg',
+                  role.isSystem
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-primary/10 text-primary'
+                )
+              "
+            >
               <Shield class="h-5 w-5" />
             </div>
             <div>
@@ -70,11 +72,23 @@ const { roles, isLoading } = usePermissions()
               </span>
             </div>
           </div>
-          <div v-if="!role.isSystem" class="flex items-center gap-1">
-            <Button variant="ghost" size="icon-sm" title="Modifier">
+          <div
+            v-if="!role.isSystem"
+            class="flex items-center gap-1"
+          >
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Modifier"
+            >
               <Edit class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon-sm" title="Supprimer" class="text-destructive hover:text-destructive">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Supprimer"
+              class="text-destructive hover:text-destructive"
+            >
               <Trash2 class="h-4 w-4" />
             </Button>
           </div>

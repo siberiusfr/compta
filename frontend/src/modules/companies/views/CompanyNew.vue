@@ -18,12 +18,12 @@ const form = ref({
     street: '',
     city: '',
     postalCode: '',
-    country: 'France'
+    country: 'France',
   },
   phone: '',
   email: '',
   website: '',
-  fiscalYearEnd: '12-31'
+  fiscalYearEnd: '12-31',
 })
 
 const companyTypes = [
@@ -32,7 +32,7 @@ const companyTypes = [
   { value: 'sa', label: 'SA' },
   { value: 'eurl', label: 'EURL' },
   { value: 'ei', label: 'EI' },
-  { value: 'auto-entrepreneur', label: 'Auto-entrepreneur' }
+  { value: 'auto-entrepreneur', label: 'Auto-entrepreneur' },
 ]
 
 const handleSubmit = () => {
@@ -45,7 +45,11 @@ const handleSubmit = () => {
   <div class="space-y-6 max-w-3xl">
     <!-- Header -->
     <div class="flex items-center gap-4">
-      <Button variant="ghost" size="icon" @click="router.back()">
+      <Button
+        variant="ghost"
+        size="icon"
+        @click="router.back()"
+      >
         <ArrowLeft class="h-5 w-5" />
       </Button>
       <div>
@@ -53,14 +57,15 @@ const handleSubmit = () => {
           <Building2 class="h-6 w-6" />
           Nouvelle entreprise
         </h1>
-        <p class="text-muted-foreground">
-          Creer une nouvelle entreprise
-        </p>
+        <p class="text-muted-foreground">Creer une nouvelle entreprise</p>
       </div>
     </div>
 
     <!-- Form -->
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form
+      @submit.prevent="handleSubmit"
+      class="space-y-6"
+    >
       <!-- General Info -->
       <div class="rounded-xl border bg-card p-6">
         <h2 class="text-lg font-semibold mb-4">Informations generales</h2>
@@ -90,7 +95,11 @@ const handleSubmit = () => {
               required
               class="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
             >
-              <option v-for="type in companyTypes" :key="type.value" :value="type.value">
+              <option
+                v-for="type in companyTypes"
+                :key="type.value"
+                :value="type.value"
+              >
                 {{ type.label }}
               </option>
             </select>
@@ -227,7 +236,11 @@ const handleSubmit = () => {
 
       <!-- Actions -->
       <div class="flex items-center justify-end gap-4">
-        <Button variant="outline" type="button" @click="router.back()">
+        <Button
+          variant="outline"
+          type="button"
+          @click="router.back()"
+        >
           Annuler
         </Button>
         <Button type="submit">

@@ -13,7 +13,11 @@ const authStore = useAuthStore()
         <span class="text-sm text-muted-foreground">
           {{ authStore.userProfile?.sub }}
         </span>
-        <Button variant="outline" size="sm" @click="authStore.logout()">
+        <Button
+          variant="outline"
+          size="sm"
+          @click="authStore.logout()"
+        >
           Deconnexion
         </Button>
       </div>
@@ -28,12 +32,16 @@ const authStore = useAuthStore()
 
         <div class="mt-6">
           <h3 class="mb-2 font-medium">Informations utilisateur</h3>
-          <pre class="overflow-auto rounded bg-muted p-4 text-sm">{{ JSON.stringify(authStore.userProfile, null, 2) }}</pre>
+          <pre class="overflow-auto rounded bg-muted p-4 text-sm">{{
+            JSON.stringify(authStore.userProfile, null, 2)
+          }}</pre>
         </div>
 
         <div class="mt-6">
           <h3 class="mb-2 font-medium">Token d'acces</h3>
-          <pre class="overflow-auto rounded bg-muted p-4 text-xs break-all">{{ authStore.accessToken }}</pre>
+          <pre class="overflow-auto rounded bg-muted p-4 text-xs break-all">{{
+            authStore.accessToken
+          }}</pre>
         </div>
       </div>
     </main>

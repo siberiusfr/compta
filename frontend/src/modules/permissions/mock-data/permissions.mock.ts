@@ -1,15 +1,69 @@
 import type { User, Role, Group, Permission } from '../types/permissions.types'
 
 export const mockPermissions: Permission[] = [
-  { id: 'p1', name: 'invoices.create', description: 'Creer des factures', resource: 'invoices', action: 'create' },
-  { id: 'p2', name: 'invoices.read', description: 'Voir les factures', resource: 'invoices', action: 'read' },
-  { id: 'p3', name: 'invoices.update', description: 'Modifier les factures', resource: 'invoices', action: 'update' },
-  { id: 'p4', name: 'invoices.delete', description: 'Supprimer les factures', resource: 'invoices', action: 'delete' },
-  { id: 'p5', name: 'employees.manage', description: 'Gerer les employes', resource: 'employees', action: 'manage' },
-  { id: 'p6', name: 'accounting.read', description: 'Voir la comptabilite', resource: 'accounting', action: 'read' },
-  { id: 'p7', name: 'accounting.manage', description: 'Gerer la comptabilite', resource: 'accounting', action: 'manage' },
-  { id: 'p8', name: 'users.manage', description: 'Gerer les utilisateurs', resource: 'users', action: 'manage' },
-  { id: 'p9', name: 'settings.manage', description: 'Gerer les parametres', resource: 'settings', action: 'manage' }
+  {
+    id: 'p1',
+    name: 'invoices.create',
+    description: 'Creer des factures',
+    resource: 'invoices',
+    action: 'create',
+  },
+  {
+    id: 'p2',
+    name: 'invoices.read',
+    description: 'Voir les factures',
+    resource: 'invoices',
+    action: 'read',
+  },
+  {
+    id: 'p3',
+    name: 'invoices.update',
+    description: 'Modifier les factures',
+    resource: 'invoices',
+    action: 'update',
+  },
+  {
+    id: 'p4',
+    name: 'invoices.delete',
+    description: 'Supprimer les factures',
+    resource: 'invoices',
+    action: 'delete',
+  },
+  {
+    id: 'p5',
+    name: 'employees.manage',
+    description: 'Gerer les employes',
+    resource: 'employees',
+    action: 'manage',
+  },
+  {
+    id: 'p6',
+    name: 'accounting.read',
+    description: 'Voir la comptabilite',
+    resource: 'accounting',
+    action: 'read',
+  },
+  {
+    id: 'p7',
+    name: 'accounting.manage',
+    description: 'Gerer la comptabilite',
+    resource: 'accounting',
+    action: 'manage',
+  },
+  {
+    id: 'p8',
+    name: 'users.manage',
+    description: 'Gerer les utilisateurs',
+    resource: 'users',
+    action: 'manage',
+  },
+  {
+    id: 'p9',
+    name: 'settings.manage',
+    description: 'Gerer les parametres',
+    resource: 'settings',
+    action: 'manage',
+  },
 ]
 
 export const mockRoles: Role[] = [
@@ -21,38 +75,38 @@ export const mockRoles: Role[] = [
     userCount: 2,
     isSystem: true,
     createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01')
+    updatedAt: new Date('2024-01-01'),
   },
   {
     id: 'role-2',
     name: 'Comptable',
     description: 'Acces aux fonctionnalites comptables',
-    permissions: mockPermissions.filter(p => ['invoices', 'accounting'].includes(p.resource)),
+    permissions: mockPermissions.filter((p) => ['invoices', 'accounting'].includes(p.resource)),
     userCount: 5,
     isSystem: false,
     createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-03-10')
+    updatedAt: new Date('2024-03-10'),
   },
   {
     id: 'role-3',
     name: 'RH',
     description: 'Acces aux fonctionnalites RH',
-    permissions: mockPermissions.filter(p => p.resource === 'employees'),
+    permissions: mockPermissions.filter((p) => p.resource === 'employees'),
     userCount: 3,
     isSystem: false,
     createdAt: new Date('2024-02-01'),
-    updatedAt: new Date('2024-02-01')
+    updatedAt: new Date('2024-02-01'),
   },
   {
     id: 'role-4',
     name: 'Lecteur',
     description: 'Acces en lecture seule',
-    permissions: mockPermissions.filter(p => p.action === 'read'),
+    permissions: mockPermissions.filter((p) => p.action === 'read'),
     userCount: 10,
     isSystem: false,
     createdAt: new Date('2024-02-15'),
-    updatedAt: new Date('2024-02-15')
-  }
+    updatedAt: new Date('2024-02-15'),
+  },
 ]
 
 export const mockUsers: User[] = [
@@ -67,7 +121,7 @@ export const mockUsers: User[] = [
     groups: ['Direction'],
     lastLogin: new Date(Date.now() - 1000 * 60 * 30),
     createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01')
+    updatedAt: new Date('2024-01-01'),
   },
   {
     id: 'user-2',
@@ -80,7 +134,7 @@ export const mockUsers: User[] = [
     groups: ['Comptabilite'],
     lastLogin: new Date(Date.now() - 1000 * 60 * 60 * 2),
     createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-06-01')
+    updatedAt: new Date('2024-06-01'),
   },
   {
     id: 'user-3',
@@ -93,7 +147,7 @@ export const mockUsers: User[] = [
     groups: ['Comptabilite'],
     lastLogin: new Date(Date.now() - 1000 * 60 * 60 * 24),
     createdAt: new Date('2024-02-01'),
-    updatedAt: new Date('2024-05-15')
+    updatedAt: new Date('2024-05-15'),
   },
   {
     id: 'user-4',
@@ -106,7 +160,7 @@ export const mockUsers: User[] = [
     groups: ['RH'],
     lastLogin: new Date(Date.now() - 1000 * 60 * 60 * 3),
     createdAt: new Date('2024-03-01'),
-    updatedAt: new Date('2024-03-01')
+    updatedAt: new Date('2024-03-01'),
   },
   {
     id: 'user-5',
@@ -118,7 +172,7 @@ export const mockUsers: User[] = [
     roles: ['Lecteur'],
     groups: [],
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2)
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
   },
   {
     id: 'user-6',
@@ -131,8 +185,8 @@ export const mockUsers: User[] = [
     groups: [],
     lastLogin: new Date('2024-01-15'),
     createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-06-01')
-  }
+    updatedAt: new Date('2024-06-01'),
+  },
 ]
 
 export const mockGroups: Group[] = [
@@ -143,7 +197,7 @@ export const mockGroups: Group[] = [
     members: ['user-1'],
     roles: ['Administrateur'],
     createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01')
+    updatedAt: new Date('2024-01-01'),
   },
   {
     id: 'group-2',
@@ -152,7 +206,7 @@ export const mockGroups: Group[] = [
     members: ['user-2', 'user-3'],
     roles: ['Comptable'],
     createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-02-01')
+    updatedAt: new Date('2024-02-01'),
   },
   {
     id: 'group-3',
@@ -161,6 +215,6 @@ export const mockGroups: Group[] = [
     members: ['user-4'],
     roles: ['RH'],
     createdAt: new Date('2024-02-01'),
-    updatedAt: new Date('2024-02-01')
-  }
+    updatedAt: new Date('2024-02-01'),
+  },
 ]

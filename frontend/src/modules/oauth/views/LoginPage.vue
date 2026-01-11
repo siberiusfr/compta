@@ -24,9 +24,7 @@ const handleLogin = async () => {
   <div class="space-y-6">
     <div class="text-center">
       <h2 class="text-2xl font-bold">Connexion</h2>
-      <p class="text-muted-foreground mt-2">
-        Connectez-vous pour acceder a votre espace
-      </p>
+      <p class="text-muted-foreground mt-2">Connectez-vous pour acceder a votre espace</p>
     </div>
 
     <!-- Error Message -->
@@ -45,8 +43,14 @@ const handleLogin = async () => {
       :disabled="isLoginLoading || isLoading"
       @click="handleLogin"
     >
-      <Loader2 v-if="isLoginLoading || isLoading" class="h-5 w-5 mr-2 animate-spin" />
-      <LogIn v-else class="h-5 w-5 mr-2" />
+      <Loader2
+        v-if="isLoginLoading || isLoading"
+        class="h-5 w-5 mr-2 animate-spin"
+      />
+      <LogIn
+        v-else
+        class="h-5 w-5 mr-2"
+      />
       Se connecter
     </Button>
 

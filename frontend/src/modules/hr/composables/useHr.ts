@@ -13,13 +13,13 @@ export function useHr() {
     activeEmployees,
     pendingLeaves,
     totalPayroll,
-    employeesByDepartment
+    employeesByDepartment,
   } = storeToRefs(store)
 
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'EUR',
     }).format(value)
   }
 
@@ -27,7 +27,7 @@ export function useHr() {
     return new Intl.DateTimeFormat('fr-FR', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     }).format(date)
   }
 
@@ -43,7 +43,7 @@ export function useHr() {
       cancelled: 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30',
       draft: 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30',
       validated: 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30',
-      paid: 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30'
+      paid: 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30',
     }
     return colors[status] ?? colors.inactive!
   }
@@ -60,7 +60,7 @@ export function useHr() {
       cancelled: 'Annule',
       draft: 'Brouillon',
       validated: 'Valide',
-      paid: 'Paye'
+      paid: 'Paye',
     }
     return labels[status] ?? status
   }
@@ -71,7 +71,7 @@ export function useHr() {
       cdd: 'CDD',
       internship: 'Stage',
       freelance: 'Freelance',
-      apprenticeship: 'Apprentissage'
+      apprenticeship: 'Apprentissage',
     }
     return labels[type] ?? type
   }
@@ -82,7 +82,7 @@ export function useHr() {
       sick: 'Maladie',
       parental: 'Parental',
       unpaid: 'Sans solde',
-      other: 'Autre'
+      other: 'Autre',
     }
     return labels[type] ?? type
   }
@@ -118,6 +118,6 @@ export function useHr() {
     getLeaveTypeLabel,
     getInitials,
     approveLeave: store.approveLeave,
-    rejectLeave: store.rejectLeave
+    rejectLeave: store.rejectLeave,
   }
 }

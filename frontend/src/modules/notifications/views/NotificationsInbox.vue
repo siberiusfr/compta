@@ -13,7 +13,7 @@ import {
   Info,
   AlertTriangle,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
@@ -28,21 +28,19 @@ const {
   markAsRead,
   markAllAsRead,
   archiveNotification,
-  deleteNotification
+  deleteNotification,
 } = useNotifications()
 
-const activeNotifications = computed(() =>
-  notifications.value.filter(n => !n.archived)
-)
+const activeNotifications = computed(() => notifications.value.filter((n) => !n.archived))
 
 const typeIcons: Record<string, any> = {
   info: Info,
   warning: AlertTriangle,
   error: AlertCircle,
-  success: CheckCircle
+  success: CheckCircle,
 }
 
-const handleNotificationClick = (notification: typeof notifications.value[0]) => {
+const handleNotificationClick = (notification: (typeof notifications.value)[0]) => {
   markAsRead(notification.id)
   if (notification.link) {
     router.push(notification.link)
@@ -60,7 +58,9 @@ const handleNotificationClick = (notification: typeof notifications.value[0]) =>
           Boite de reception
         </h1>
         <p class="text-muted-foreground">
-          {{ unreadCount }} notification{{ unreadCount > 1 ? 's' : '' }} non lue{{ unreadCount > 1 ? 's' : '' }}
+          {{ unreadCount }} notification{{ unreadCount > 1 ? 's' : '' }} non lue{{
+            unreadCount > 1 ? 's' : ''
+          }}
         </p>
       </div>
       <Button
@@ -75,30 +75,51 @@ const handleNotificationClick = (notification: typeof notifications.value[0]) =>
     </div>
 
     <!-- Notifications List -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="text-center py-12 text-muted-foreground"
+    >
       Chargement...
     </div>
 
-    <div v-else-if="activeNotifications.length === 0" class="text-center py-12">
+    <div
+      v-else-if="activeNotifications.length === 0"
+      class="text-center py-12"
+    >
       <Bell class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
       <p class="text-lg font-medium">Aucune notification</p>
       <p class="text-muted-foreground">Vous etes a jour !</p>
     </div>
 
-    <div v-else class="space-y-3">
+    <div
+      v-else
+      class="space-y-3"
+    >
       <div
         v-for="notification in activeNotifications"
         :key="notification.id"
-        :class="cn(
-          'rounded-xl border bg-card p-4 transition-all hover:shadow-md cursor-pointer',
-          !notification.read && 'border-l-4 border-l-primary bg-primary/5'
-        )"
+        :class="
+          cn(
+            'rounded-xl border bg-card p-4 transition-all hover:shadow-md cursor-pointer',
+            !notification.read && 'border-l-4 border-l-primary bg-primary/5'
+          )
+        "
         @click="handleNotificationClick(notification)"
       >
         <div class="flex items-start gap-4">
           <!-- Type Icon -->
-          <div :class="cn('flex h-10 w-10 items-center justify-center rounded-full shrink-0', getTypeColor(notification.type))">
-            <component :is="typeIcons[notification.type]" class="h-5 w-5" />
+          <div
+            :class="
+              cn(
+                'flex h-10 w-10 items-center justify-center rounded-full shrink-0',
+                getTypeColor(notification.type)
+              )
+            "
+          >
+            <component
+              :is="typeIcons[notification.type]"
+              class="h-5 w-5"
+            />
           </div>
 
           <!-- Content -->
@@ -119,7 +140,11 @@ const handleNotificationClick = (notification: typeof notifications.value[0]) =>
 
             <!-- Meta -->
             <div class="flex items-center gap-3 mt-3">
-              <span :class="cn('text-xs px-2 py-1 rounded-full', getPriorityColor(notification.priority))">
+              <span
+                :class="
+                  cn('text-xs px-2 py-1 rounded-full', getPriorityColor(notification.priority))
+                "
+              >
                 {{ notification.priority }}
               </span>
               <span class="text-xs text-muted-foreground">
@@ -132,7 +157,10 @@ const handleNotificationClick = (notification: typeof notifications.value[0]) =>
           </div>
 
           <!-- Actions -->
-          <div class="flex items-center gap-1 shrink-0" @click.stop>
+          <div
+            class="flex items-center gap-1 shrink-0"
+            @click.stop
+          >
             <Button
               v-if="!notification.read"
               variant="ghost"

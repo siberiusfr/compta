@@ -26,7 +26,7 @@ import {
   type DocumentUploadRequest,
   type DocumentShareRequest,
   type SearchGetParams,
-} from "@/api/documents"
+} from '@/api/documents'
 
 export function useDocumentsApi() {
   const queryClient = useQueryClient()
@@ -63,25 +63,13 @@ export function useDocumentsApi() {
     refetch: refetchMyDocuments,
   } = useGetMyDocuments()
 
-  const {
-    data: sharedWithMe,
-    isLoading: isLoadingSharedWithMe,
-  } = useGetSharedWithMe()
+  const { data: sharedWithMe, isLoading: isLoadingSharedWithMe } = useGetSharedWithMe()
 
-  const {
-    data: publicDocuments,
-    isLoading: isLoadingPublicDocuments,
-  } = useGetPublic()
+  const { data: publicDocuments, isLoading: isLoadingPublicDocuments } = useGetPublic()
 
-  const {
-    data: categories,
-    isLoading: isLoadingCategories,
-  } = useGetAll2()
+  const { data: categories, isLoading: isLoadingCategories } = useGetAll2()
 
-  const {
-    data: categoryTree,
-    isLoading: isLoadingCategoryTree,
-  } = useGetTree()
+  const { data: categoryTree, isLoading: isLoadingCategoryTree } = useGetTree()
 
   // Mutations
   const uploadMutation = useUpload({
@@ -142,9 +130,7 @@ export function useDocumentsApi() {
     return (documents.value as DocumentResponse[] | undefined) ?? []
   })
 
-  const isLoading = computed(() =>
-    isLoadingDocuments.value || isSearching.value
-  )
+  const isLoading = computed(() => isLoadingDocuments.value || isSearching.value)
 
   // Actions
   async function uploadDocument(file: File, metadata: DocumentUploadRequest) {
@@ -275,7 +261,7 @@ export function useDocumentsApi() {
 
 // Hook pour un document spécifique
 export function useDocument(id: number | (() => number)) {
-  const documentId = computed(() => typeof id === 'function' ? id() : id)
+  const documentId = computed(() => (typeof id === 'function' ? id() : id))
 
   const {
     data: document,
@@ -288,28 +274,19 @@ export function useDocument(id: number | (() => number)) {
     },
   })
 
-  const {
-    data: versions,
-    isLoading: isLoadingVersions,
-  } = useGetVersions(documentId, {
+  const { data: versions, isLoading: isLoadingVersions } = useGetVersions(documentId, {
     query: {
       enabled: computed(() => !!documentId.value),
     },
   })
 
-  const {
-    data: shares,
-    isLoading: isLoadingShares,
-  } = useGetSharesByDocument(documentId, {
+  const { data: shares, isLoading: isLoadingShares } = useGetSharesByDocument(documentId, {
     query: {
       enabled: computed(() => !!documentId.value),
     },
   })
 
-  const {
-    data: downloadUrl,
-    refetch: fetchDownloadUrl,
-  } = useGetDownloadUrl(documentId, {
+  const { data: downloadUrl, refetch: fetchDownloadUrl } = useGetDownloadUrl(documentId, {
     query: {
       enabled: false, // Manual fetch only
     },

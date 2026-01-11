@@ -9,10 +9,11 @@ const authStore = useAuthStore()
   <div class="flex min-h-screen flex-col items-center justify-center gap-8 p-8">
     <h1 class="text-4xl font-bold">Compta</h1>
 
-    <div v-if="authStore.isLoading" class="flex items-center gap-2">
-      <div
-        class="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"
-      />
+    <div
+      v-if="authStore.isLoading"
+      class="flex items-center gap-2"
+    >
+      <div class="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       <span class="text-muted-foreground">Chargement...</span>
     </div>
 
@@ -43,9 +44,7 @@ const authStore = useAuthStore()
     </template>
 
     <template v-else>
-      <p class="text-muted-foreground">
-        Connectez-vous pour acceder a l'application
-      </p>
+      <p class="text-muted-foreground">Connectez-vous pour acceder a l'application</p>
       <LoginButton />
     </template>
   </div>

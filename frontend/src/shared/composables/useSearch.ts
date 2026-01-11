@@ -31,7 +31,7 @@ export function useSearch<T>(
       return items()
     }
 
-    return items().filter(item => searchFn(item, searchQuery))
+    return items().filter((item) => searchFn(item, searchQuery))
   })
 
   const isSearching = computed(() => query.value !== debouncedQuery.value)
@@ -48,6 +48,6 @@ export function useSearch<T>(
     filteredItems,
     isSearching,
     hasResults,
-    clearSearch
+    clearSearch,
   }
 }

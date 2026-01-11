@@ -1,7 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Account, JournalEntry, TrialBalanceEntry, FiscalYear } from '../types/accounting.types'
-import { mockAccounts, mockJournalEntries, mockTrialBalance, mockFiscalYears } from '../mock-data/accounting.mock'
+import type {
+  Account,
+  JournalEntry,
+  TrialBalanceEntry,
+  FiscalYear,
+} from '../types/accounting.types'
+import {
+  mockAccounts,
+  mockJournalEntries,
+  mockTrialBalance,
+  mockFiscalYears,
+} from '../mock-data/accounting.mock'
 
 export const useAccountingStore = defineStore('accounting', () => {
   const accounts = ref<Account[]>(mockAccounts)
@@ -10,13 +20,9 @@ export const useAccountingStore = defineStore('accounting', () => {
   const fiscalYears = ref<FiscalYear[]>(mockFiscalYears)
   const isLoading = ref(false)
 
-  const currentFiscalYear = computed(() =>
-    fiscalYears.value.find(fy => fy.isCurrent)
-  )
+  const currentFiscalYear = computed(() => fiscalYears.value.find((fy) => fy.isCurrent))
 
-  const activeAccounts = computed(() =>
-    accounts.value.filter(a => a.isActive)
-  )
+  const activeAccounts = computed(() => accounts.value.filter((a) => a.isActive))
 
   const accountsByType = computed(() => {
     const groups: Record<string, Account[]> = {
@@ -24,50 +30,42 @@ export const useAccountingStore = defineStore('accounting', () => {
       liability: [],
       equity: [],
       revenue: [],
-      expense: []
+      expense: [],
     }
-    accounts.value.forEach(acc => {
+    accounts.value.forEach((acc) => {
       groups[acc.type]!.push(acc)
     })
     return groups
   })
 
-  const draftEntries = computed(() =>
-    journalEntries.value.filter(e => e.status === 'draft')
-  )
+  const draftEntries = computed(() => journalEntries.value.filter((e) => e.status === 'draft'))
 
-  const postedEntries = computed(() =>
-    journalEntries.value.filter(e => e.status === 'posted')
-  )
+  const postedEntries = computed(() => journalEntries.value.filter((e) => e.status === 'posted'))
 
   const totalAssets = computed(() =>
-    accounts.value
-      .filter(a => a.type === 'asset')
-      .reduce((sum, a) => sum + a.balance, 0)
+    accounts.value.filter((a) => a.type === 'asset').reduce((sum, a) => sum + a.balance, 0)
   )
 
   const totalLiabilities = computed(() =>
-    Math.abs(accounts.value
-      .filter(a => a.type === 'liability')
-      .reduce((sum, a) => sum + a.balance, 0))
+    Math.abs(
+      accounts.value.filter((a) => a.type === 'liability').reduce((sum, a) => sum + a.balance, 0)
+    )
   )
 
   const totalEquity = computed(() =>
-    Math.abs(accounts.value
-      .filter(a => a.type === 'equity')
-      .reduce((sum, a) => sum + a.balance, 0))
+    Math.abs(
+      accounts.value.filter((a) => a.type === 'equity').reduce((sum, a) => sum + a.balance, 0)
+    )
   )
 
   const totalRevenue = computed(() =>
-    Math.abs(accounts.value
-      .filter(a => a.type === 'revenue')
-      .reduce((sum, a) => sum + a.balance, 0))
+    Math.abs(
+      accounts.value.filter((a) => a.type === 'revenue').reduce((sum, a) => sum + a.balance, 0)
+    )
   )
 
   const totalExpenses = computed(() =>
-    accounts.value
-      .filter(a => a.type === 'expense')
-      .reduce((sum, a) => sum + a.balance, 0)
+    accounts.value.filter((a) => a.type === 'expense').reduce((sum, a) => sum + a.balance, 0)
   )
 
   const netIncome = computed(() => totalRevenue.value - totalExpenses.value)
@@ -75,7 +73,7 @@ export const useAccountingStore = defineStore('accounting', () => {
   async function fetchAccounts() {
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise((resolve) => setTimeout(resolve, 300))
       accounts.value = mockAccounts
     } finally {
       isLoading.value = false
@@ -85,7 +83,7 @@ export const useAccountingStore = defineStore('accounting', () => {
   async function fetchJournalEntries() {
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise((resolve) => setTimeout(resolve, 300))
       journalEntries.value = mockJournalEntries
     } finally {
       isLoading.value = false
@@ -93,7 +91,7 @@ export const useAccountingStore = defineStore('accounting', () => {
   }
 
   function postEntry(id: string) {
-    const entry = journalEntries.value.find(e => e.id === id)
+    const entry = journalEntries.value.find((e) => e.id === id)
     if (entry && entry.status === 'draft') {
       entry.status = 'posted'
       entry.postedAt = new Date()
@@ -101,7 +99,7 @@ export const useAccountingStore = defineStore('accounting', () => {
   }
 
   function getAccountBalance(accountId: string): number {
-    const account = accounts.value.find(a => a.id === accountId)
+    const account = accounts.value.find((a) => a.id === accountId)
     return account?.balance ?? 0
   }
 
@@ -125,6 +123,6 @@ export const useAccountingStore = defineStore('accounting', () => {
     fetchAccounts,
     fetchJournalEntries,
     postEntry,
-    getAccountBalance
+    getAccountBalance,
   }
 })

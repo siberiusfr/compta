@@ -1,4 +1,4 @@
-export * from "./gen/generated.schemas";
+export * from './gen/generated.schemas'
 
 export {
   getById1,
@@ -21,7 +21,7 @@ export {
   useGetTree,
   getGetTreeQueryKey,
   getGetTreeQueryOptions,
-} from "./gen/categories/categories";
+} from './gen/categories/categories'
 
 export {
   revoke,
@@ -45,7 +45,7 @@ export {
   getGetSharedWithMeQueryKey,
   getGetSharedWithMeQueryOptions,
   useGetSharedWithMe,
-} from "./gen/document-sharing/document-sharing";
+} from './gen/document-sharing/document-sharing'
 
 export {
   getVersions,
@@ -67,7 +67,7 @@ export {
   getGetVersionDownloadUrlQueryKey,
   getGetVersionDownloadUrlQueryOptions,
   useGetVersionDownloadUrl,
-} from "./gen/document-versions/document-versions";
+} from './gen/document-versions/document-versions'
 
 export {
   getById,
@@ -124,7 +124,7 @@ export {
   deleteMetadataKey,
   getDeleteMetadataKeyMutationOptions,
   useDeleteMetadataKey,
-} from "./gen/documents/documents";
+} from './gen/documents/documents'
 
 export {
   getAll,
@@ -141,4 +141,4 @@ export {
   delete2,
   getDelete2MutationOptions,
   useDelete2,
-} from "./gen/tags/tags";
+} from './gen/tags/tags'

@@ -1,118 +1,106 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useInvoices } from "../composables/useInvoices";
-import { Button } from "@/components/ui/button";
-import {
-  FileText,
-  ArrowLeft,
-  Save,
-  Plus,
-  Trash2,
-  Calendar,
-} from "lucide-vue-next";
-import type { InvoiceItem } from "../types/invoices.types";
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useInvoices } from '../composables/useInvoices'
+import { Button } from '@/components/ui/button'
+import { FileText, ArrowLeft, Save, Plus, Trash2, Calendar } from 'lucide-vue-next'
+import type { InvoiceItem } from '../types/invoices.types'
 
-const route = useRoute();
-const router = useRouter();
-const {
-  getInvoiceById,
-  updateInvoice,
-  calculateItemAmount,
-  calculateTotals,
-  formatCurrency,
-} = useInvoices();
+const route = useRoute()
+const router = useRouter()
+const { getInvoiceById, updateInvoice, calculateItemAmount, calculateTotals, formatCurrency } =
+  useInvoices()
 
-const isSubmitting = ref(false);
-const invoiceId = route.params.id as string;
+const isSubmitting = ref(false)
+const invoiceId = route.params.id as string
 
-const items = ref<InvoiceItem[]>([]);
+const items = ref<InvoiceItem[]>([])
 const formData = ref({
-  type: "sale" as string,
-  status: "draft" as string,
-  customerId: "",
-  customerName: "",
-  customerEmail: "",
+  type: 'sale' as string,
+  status: 'draft' as string,
+  customerId: '',
+  customerName: '',
+  customerEmail: '',
   customerAddress: {
-    street: "",
-    city: "",
-    postalCode: "",
-    country: "France",
+    street: '',
+    city: '',
+    postalCode: '',
+    country: 'France',
   },
-  date: "" as string,
-  dueDate: "" as string,
-  currency: "EUR",
-  notes: "",
-});
+  date: '' as string,
+  dueDate: '' as string,
+  currency: 'EUR',
+  notes: '',
+})
 
 const totals = computed(() => {
-  return calculateTotals(items.value);
-});
+  return calculateTotals(items.value)
+})
 
 onMounted(async () => {
-  const invoice = getInvoiceById(invoiceId);
+  const invoice = getInvoiceById(invoiceId)
   if (invoice) {
-    items.value = [...invoice.items];
+    items.value = [...invoice.items]
     formData.value = {
       type: invoice.type,
       status: invoice.status,
       customerId: invoice.customerId,
       customerName: invoice.customerName,
-      customerEmail: invoice.customerEmail || "",
+      customerEmail: invoice.customerEmail || '',
       customerAddress: invoice.customerAddress || {
-        street: "",
-        city: "",
-        postalCode: "",
-        country: "France",
+        street: '',
+        city: '',
+        postalCode: '',
+        country: 'France',
       },
-      date: invoice.date?.toISOString().split("T")[0] ?? "",
-      dueDate: invoice.dueDate?.toISOString().split("T")[0] ?? "",
+      date: invoice.date?.toISOString().split('T')[0] ?? '',
+      dueDate: invoice.dueDate?.toISOString().split('T')[0] ?? '',
       currency: invoice.currency,
-      notes: invoice.notes || "",
-    };
+      notes: invoice.notes || '',
+    }
   }
-});
+})
 
 function addItem() {
   items.value.push({
     id: `temp-${Date.now()}`,
-    productName: "",
+    productName: '',
     quantity: 1,
     unitPrice: 0,
     taxRate: 20,
     discount: 0,
     amount: 0,
-    accountId: "707000",
-  });
+    accountId: '707000',
+  })
 }
 
 function removeItem(index: number) {
   if (items.value.length > 1) {
-    items.value.splice(index, 1);
+    items.value.splice(index, 1)
   }
 }
 
 function updateItem(index: number, field: keyof InvoiceItem, value: any) {
-  const item = items.value[index];
+  const item = items.value[index]
   if (item) {
     items.value[index] = {
       ...item,
       [field]: value,
       amount: calculateItemAmount(
-        field === "quantity" ? Number(value) : item.quantity,
-        field === "unitPrice" ? Number(value) : item.unitPrice,
-        field === "discount" ? Number(value) : item.discount,
+        field === 'quantity' ? Number(value) : item.quantity,
+        field === 'unitPrice' ? Number(value) : item.unitPrice,
+        field === 'discount' ? Number(value) : item.discount
       ),
-    };
+    }
   }
 }
 
 async function handleSubmit() {
   try {
-    isSubmitting.value = true;
+    isSubmitting.value = true
 
     const updated = await updateInvoice(invoiceId, {
-      customerId: formData.value.customerId || "temp-cust",
+      customerId: formData.value.customerId || 'temp-cust',
       customerName: formData.value.customerName,
       customerEmail: formData.value.customerEmail,
       customerAddress: formData.value.customerAddress,
@@ -123,20 +111,20 @@ async function handleSubmit() {
       taxTotal: totals.value.taxTotal,
       total: totals.value.total,
       notes: formData.value.notes,
-    });
+    })
 
     if (updated) {
-      router.push({ name: "invoices-detail", params: { id: invoiceId } });
+      router.push({ name: 'invoices-detail', params: { id: invoiceId } })
     }
   } catch (error) {
-    console.error("Error updating invoice:", error);
+    console.error('Error updating invoice:', error)
   } finally {
-    isSubmitting.value = false;
+    isSubmitting.value = false
   }
 }
 
 function handleCancel() {
-  router.push({ name: "invoices-detail", params: { id: invoiceId } });
+  router.push({ name: 'invoices-detail', params: { id: invoiceId } })
 }
 </script>
 
@@ -145,7 +133,11 @@ function handleCancel() {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Button variant="ghost" size="icon" @click="handleCancel">
+        <Button
+          variant="ghost"
+          size="icon"
+          @click="handleCancel"
+        >
           <ArrowLeft class="h-4 w-4" />
         </Button>
         <div>
@@ -153,14 +145,20 @@ function handleCancel() {
             <FileText class="h-6 w-6" />
             Modifier facture
           </h1>
-          <p class="text-muted-foreground">
-            Modifier les détails de la facture
-          </p>
+          <p class="text-muted-foreground">Modifier les détails de la facture</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <Button variant="outline" @click="handleCancel"> Annuler </Button>
-        <Button @click="handleSubmit" :disabled="isSubmitting">
+        <Button
+          variant="outline"
+          @click="handleCancel"
+        >
+          Annuler
+        </Button>
+        <Button
+          @click="handleSubmit"
+          :disabled="isSubmitting"
+        >
           <Save class="h-4 w-4 mr-2" />
           Enregistrer
         </Button>
@@ -175,9 +173,7 @@ function handleCancel() {
 
           <div class="grid grid-cols-2 gap-4">
             <div class="col-span-2">
-              <label class="block text-sm font-medium mb-2"
-                >Nom du client</label
-              >
+              <label class="block text-sm font-medium mb-2">Nom du client</label>
               <input
                 v-model="formData.customerName"
                 type="text"
@@ -227,7 +223,11 @@ function handleCancel() {
         <div class="rounded-xl border bg-card p-6">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold">Articles</h2>
-            <Button variant="outline" size="sm" @click="addItem">
+            <Button
+              variant="outline"
+              size="sm"
+              @click="addItem"
+            >
               <Plus class="h-4 w-4 mr-2" />
               Ajouter
             </Button>
@@ -245,11 +245,7 @@ function handleCancel() {
                   <input
                     :value="item.productName"
                     @input="
-                      updateItem(
-                        index,
-                        'productName',
-                        ($event.target as HTMLInputElement).value,
-                      )
+                      updateItem(index, 'productName', ($event.target as HTMLInputElement).value)
                     "
                     type="text"
                     class="w-full px-2 py-1.5 rounded border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -264,7 +260,7 @@ function handleCancel() {
                       updateItem(
                         index,
                         'quantity',
-                        Number(($event.target as HTMLInputElement).value),
+                        Number(($event.target as HTMLInputElement).value)
                       )
                     "
                     type="number"
@@ -273,16 +269,14 @@ function handleCancel() {
                   />
                 </div>
                 <div class="col-span-2">
-                  <label class="block text-xs font-medium mb-1"
-                    >Prix unit.</label
-                  >
+                  <label class="block text-xs font-medium mb-1">Prix unit.</label>
                   <input
                     :value="item.unitPrice"
                     @input="
                       updateItem(
                         index,
                         'unitPrice',
-                        Number(($event.target as HTMLInputElement).value),
+                        Number(($event.target as HTMLInputElement).value)
                       )
                     "
                     type="number"
@@ -299,7 +293,7 @@ function handleCancel() {
                       updateItem(
                         index,
                         'taxRate',
-                        Number(($event.target as HTMLInputElement).value),
+                        Number(($event.target as HTMLInputElement).value)
                       )
                     "
                     type="number"
@@ -318,13 +312,9 @@ function handleCancel() {
                   </Button>
                 </div>
               </div>
-              <div
-                class="flex items-center justify-between text-sm pt-2 border-t"
-              >
+              <div class="flex items-center justify-between text-sm pt-2 border-t">
                 <span class="text-muted-foreground">Total ligne</span>
-                <span class="font-medium">{{
-                  formatCurrency(item.amount)
-                }}</span>
+                <span class="font-medium">{{ formatCurrency(item.amount) }}</span>
               </div>
             </div>
           </div>
@@ -340,9 +330,7 @@ function handleCancel() {
           </h2>
           <div class="space-y-3">
             <div>
-              <label class="block text-sm font-medium mb-2"
-                >Date de facturation</label
-              >
+              <label class="block text-sm font-medium mb-2">Date de facturation</label>
               <input
                 v-model="formData.date"
                 type="date"
@@ -350,9 +338,7 @@ function handleCancel() {
               />
             </div>
             <div>
-              <label class="block text-sm font-medium mb-2"
-                >Date d'échéance</label
-              >
+              <label class="block text-sm font-medium mb-2">Date d'échéance</label>
               <input
                 v-model="formData.dueDate"
                 type="date"
@@ -367,19 +353,13 @@ function handleCancel() {
           <div class="space-y-3">
             <div class="flex items-center justify-between text-sm">
               <span class="text-muted-foreground">Sous-total</span>
-              <span class="font-medium">{{
-                formatCurrency(totals.subtotal)
-              }}</span>
+              <span class="font-medium">{{ formatCurrency(totals.subtotal) }}</span>
             </div>
             <div class="flex items-center justify-between text-sm">
               <span class="text-muted-foreground">TVA</span>
-              <span class="font-medium">{{
-                formatCurrency(totals.taxTotal)
-              }}</span>
+              <span class="font-medium">{{ formatCurrency(totals.taxTotal) }}</span>
             </div>
-            <div
-              class="border-t pt-3 flex items-center justify-between text-lg font-bold"
-            >
+            <div class="border-t pt-3 flex items-center justify-between text-lg font-bold">
               <span>Total</span>
               <span>{{ formatCurrency(totals.total) }}</span>
             </div>

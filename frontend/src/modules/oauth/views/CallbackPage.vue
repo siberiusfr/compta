@@ -22,7 +22,7 @@ const processCallback = async () => {
     router.replace(returnUrl)
   } catch (e) {
     console.error('Callback error:', e)
-    callbackError.value = e instanceof Error ? e.message : 'Erreur lors de l\'authentification'
+    callbackError.value = e instanceof Error ? e.message : "Erreur lors de l'authentification"
   } finally {
     isProcessing.value = false
   }
@@ -51,7 +51,9 @@ onMounted(() => {
 
       <!-- Error State -->
       <template v-else-if="callbackError || error">
-        <div class="flex h-12 w-12 items-center justify-center mx-auto rounded-full bg-destructive/10 mb-4">
+        <div
+          class="flex h-12 w-12 items-center justify-center mx-auto rounded-full bg-destructive/10 mb-4"
+        >
           <AlertCircle class="h-6 w-6 text-destructive" />
         </div>
         <h2 class="text-xl font-semibold mb-2">Erreur d'authentification</h2>

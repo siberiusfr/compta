@@ -1,44 +1,32 @@
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import type { Invoice, InvoiceSummary } from "../types/invoices.types";
-import { mockInvoices } from "../mock-data/invoices.mock";
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import type { Invoice, InvoiceSummary } from '../types/invoices.types'
+import { mockInvoices } from '../mock-data/invoices.mock'
 
-export const useInvoicesStore = defineStore("invoices", () => {
-  const invoices = ref<Invoice[]>(mockInvoices);
-  const isLoading = ref(false);
-  const error = ref<string | null>(null);
+export const useInvoicesStore = defineStore('invoices', () => {
+  const invoices = ref<Invoice[]>(mockInvoices)
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
 
-  const draftInvoices = computed(() =>
-    invoices.value.filter((inv) => inv.status === "draft"),
-  );
+  const draftInvoices = computed(() => invoices.value.filter((inv) => inv.status === 'draft'))
 
-  const sentInvoices = computed(() =>
-    invoices.value.filter((inv) => inv.status === "sent"),
-  );
+  const sentInvoices = computed(() => invoices.value.filter((inv) => inv.status === 'sent'))
 
-  const paidInvoices = computed(() =>
-    invoices.value.filter((inv) => inv.status === "paid"),
-  );
+  const paidInvoices = computed(() => invoices.value.filter((inv) => inv.status === 'paid'))
 
-  const overdueInvoices = computed(() =>
-    invoices.value.filter((inv) => inv.status === "overdue"),
-  );
+  const overdueInvoices = computed(() => invoices.value.filter((inv) => inv.status === 'overdue'))
 
   const cancelledInvoices = computed(() =>
-    invoices.value.filter((inv) => inv.status === "cancelled"),
-  );
+    invoices.value.filter((inv) => inv.status === 'cancelled')
+  )
 
-  const totalRevenue = computed(() =>
-    paidInvoices.value.reduce((sum, inv) => sum + inv.total, 0),
-  );
+  const totalRevenue = computed(() => paidInvoices.value.reduce((sum, inv) => sum + inv.total, 0))
 
-  const pendingRevenue = computed(() =>
-    sentInvoices.value.reduce((sum, inv) => sum + inv.total, 0),
-  );
+  const pendingRevenue = computed(() => sentInvoices.value.reduce((sum, inv) => sum + inv.total, 0))
 
   const overdueAmount = computed(() =>
-    overdueInvoices.value.reduce((sum, inv) => sum + inv.total, 0),
-  );
+    overdueInvoices.value.reduce((sum, inv) => sum + inv.total, 0)
+  )
 
   const invoiceSummaries = computed<InvoiceSummary[]>(() =>
     invoices.value.map((inv) => ({
@@ -49,76 +37,73 @@ export const useInvoicesStore = defineStore("invoices", () => {
       dueDate: inv.dueDate,
       total: inv.total,
       status: inv.status,
-      amountDue: inv.status === "paid" ? 0 : inv.total,
-    })),
-  );
+      amountDue: inv.status === 'paid' ? 0 : inv.total,
+    }))
+  )
 
   async function fetchInvoices() {
-    isLoading.value = true;
-    error.value = null;
+    isLoading.value = true
+    error.value = null
     try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      invoices.value = mockInvoices;
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      invoices.value = mockInvoices
     } catch (e) {
-      error.value = "Erreur lors du chargement des factures";
-      console.error("[InvoicesStore] Fetch error:", e);
+      error.value = 'Erreur lors du chargement des factures'
+      console.error('[InvoicesStore] Fetch error:', e)
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
   }
 
   async function fetchInvoiceById(id: string): Promise<Invoice | undefined> {
-    isLoading.value = true;
+    isLoading.value = true
     try {
-      await new Promise((resolve) => setTimeout(resolve, 200));
-      return invoices.value.find((inv) => inv.id === id);
+      await new Promise((resolve) => setTimeout(resolve, 200))
+      return invoices.value.find((inv) => inv.id === id)
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
   }
 
   async function createInvoice(
-    invoiceData: Omit<
-      Invoice,
-      "id" | "invoiceNumber" | "createdAt" | "updatedAt"
-    >,
+    invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'updatedAt'>
   ): Promise<Invoice> {
-    isLoading.value = true;
-    error.value = null;
+    isLoading.value = true
+    error.value = null
     try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300))
 
       const newInvoice: Invoice = {
         ...invoiceData,
         id: `inv-${Date.now()}`,
-        invoiceNumber: `FAC-${new Date().getFullYear()}-${String(invoices.value.length + 1).padStart(3, "0")}`,
+        invoiceNumber: `FAC-${new Date().getFullYear()}-${String(invoices.value.length + 1).padStart(3, '0')}`,
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
+      }
 
-      invoices.value.unshift(newInvoice);
-      return newInvoice;
+      invoices.value.unshift(newInvoice)
+      return newInvoice
     } catch (e) {
-      error.value = "Erreur lors de la création de la facture";
-      console.error("[InvoicesStore] Create error:", e);
-      throw e;
+      error.value = 'Erreur lors de la création de la facture'
+      console.error('[InvoicesStore] Create error:', e)
+      throw e
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
   }
 
   async function updateInvoice(
     id: string,
-    updates: Partial<Invoice>,
+    updates: Partial<Invoice>
   ): Promise<Invoice | undefined> {
-    isLoading.value = true;
-    error.value = null;
+    isLoading.value = true
+    error.value = null
     try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300))
 
-      const index = invoices.value.findIndex((inv) => inv.id === id);
+      const index = invoices.value.findIndex((inv) => inv.id === id)
       if (index !== -1) {
-        const existingInvoice = invoices.value[index]!;
+        const existingInvoice = invoices.value[index]!
         invoices.value[index] = {
           ...existingInvoice,
           ...updates,
@@ -139,41 +124,41 @@ export const useInvoicesStore = defineStore("invoices", () => {
           createdBy: existingInvoice.createdBy,
           createdAt: existingInvoice.createdAt,
           updatedAt: new Date(),
-        };
-        return invoices.value[index];
+        }
+        return invoices.value[index]
       }
-      return undefined;
+      return undefined
     } catch (e) {
-      error.value = "Erreur lors de la mise à jour de la facture";
-      console.error("[InvoicesStore] Update error:", e);
-      throw e;
+      error.value = 'Erreur lors de la mise à jour de la facture'
+      console.error('[InvoicesStore] Update error:', e)
+      throw e
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
   }
 
   async function deleteInvoice(id: string): Promise<boolean> {
-    isLoading.value = true;
-    error.value = null;
+    isLoading.value = true
+    error.value = null
     try {
-      await new Promise((resolve) => setTimeout(resolve, 200));
-      const index = invoices.value.findIndex((inv) => inv.id === id);
+      await new Promise((resolve) => setTimeout(resolve, 200))
+      const index = invoices.value.findIndex((inv) => inv.id === id)
       if (index !== -1) {
-        invoices.value.splice(index, 1);
-        return true;
+        invoices.value.splice(index, 1)
+        return true
       }
-      return false;
+      return false
     } catch (e) {
-      error.value = "Erreur lors de la suppression de la facture";
-      console.error("[InvoicesStore] Delete error:", e);
-      throw e;
+      error.value = 'Erreur lors de la suppression de la facture'
+      console.error('[InvoicesStore] Delete error:', e)
+      throw e
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
   }
 
   function getInvoiceById(id: string): Invoice | undefined {
-    return invoices.value.find((inv) => inv.id === id);
+    return invoices.value.find((inv) => inv.id === id)
   }
 
   return {
@@ -195,5 +180,5 @@ export const useInvoicesStore = defineStore("invoices", () => {
     updateInvoice,
     deleteInvoice,
     getInvoiceById,
-  };
-});
+  }
+})

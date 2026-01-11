@@ -86,10 +86,7 @@ export function useApiError(options: ApiErrorOptions = {}) {
   /**
    * Gere une erreur API de maniere centralisee
    */
-  const handleError = (
-    error: unknown,
-    context?: string
-  ): { message: string; status?: number } => {
+  const handleError = (error: unknown, context?: string): { message: string; status?: number } => {
     // Si ce n'est pas une erreur Axios, on retourne un message generique
     if (!(error instanceof AxiosError)) {
       const message = error instanceof Error ? error.message : 'Une erreur est survenue'

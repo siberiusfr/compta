@@ -7,10 +7,9 @@ import { cn } from '@/lib/utils'
 
 const sidebarStore = useSidebarStore()
 
-const mainClasses = computed(() => cn(
-  'min-h-screen transition-all duration-300',
-  sidebarStore.isCollapsed ? 'lg:pl-16' : 'lg:pl-64'
-))
+const mainClasses = computed(() =>
+  cn('min-h-screen transition-all duration-300', sidebarStore.isCollapsed ? 'lg:pl-16' : 'lg:pl-64')
+)
 </script>
 
 <template>

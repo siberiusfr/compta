@@ -1,9 +1,4 @@
-import {
-  UserManager,
-  WebStorageStateStore,
-  User,
-  type UserManagerSettings,
-} from 'oidc-client-ts'
+import { UserManager, WebStorageStateStore, User, type UserManagerSettings } from 'oidc-client-ts'
 
 const settings: UserManagerSettings = {
   authority: 'http://localhost:9000',

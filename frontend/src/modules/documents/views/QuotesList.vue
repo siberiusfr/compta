@@ -11,35 +11,30 @@ import {
   ArrowRight,
   Clock,
   CheckCircle,
-  Loader2
+  Loader2,
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
-import type { DocumentResponse, TagResponse } from "@/api/documents"
+import type { DocumentResponse, TagResponse } from '@/api/documents'
 
-const {
-  documents,
-  isLoading,
-  formatDate,
-  getStatusColor,
-  openUploadModal,
-  selectDocument,
-} = useDocuments()
+const { documents, isLoading, formatDate, getStatusColor, openUploadModal, selectDocument } =
+  useDocuments()
 
 // Filter documents by quote category
 const quotes = computed(() => {
   const docs = documents.value as DocumentResponse[] | undefined
   if (!docs) return []
-  return docs.filter(doc =>
-    doc.categoryName?.toLowerCase().includes('devis') ||
-    doc.categoryName?.toLowerCase().includes('quote') ||
-    doc.tags?.some((tag: TagResponse) => tag.name?.toLowerCase().includes('devis'))
+  return docs.filter(
+    (doc) =>
+      doc.categoryName?.toLowerCase().includes('devis') ||
+      doc.categoryName?.toLowerCase().includes('quote') ||
+      doc.tags?.some((tag: TagResponse) => tag.name?.toLowerCase().includes('devis'))
   )
 })
 
 const formatCurrency = (value: number, currency = 'EUR'): string => {
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
-    currency
+    currency,
   }).format(value)
 }
 
@@ -64,9 +59,7 @@ async function handleDownload(doc: DocumentResponse) {
           <FileText class="h-6 w-6" />
           Devis
         </h1>
-        <p class="text-muted-foreground">
-          Gerez vos devis clients
-        </p>
+        <p class="text-muted-foreground">Gerez vos devis clients</p>
       </div>
       <Button @click="openUploadModal">
         <Plus class="h-4 w-4 mr-2" />
@@ -85,18 +78,22 @@ async function handleDownload(doc: DocumentResponse) {
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="flex items-center justify-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="flex items-center justify-center py-12 text-muted-foreground"
+    >
       <Loader2 class="h-6 w-6 animate-spin mr-2" />
       Chargement...
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="quotes.length === 0" class="text-center py-12">
+    <div
+      v-else-if="quotes.length === 0"
+      class="text-center py-12"
+    >
       <FileText class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
       <p class="text-lg font-medium">Aucun devis</p>
-      <p class="text-muted-foreground mb-4">
-        Ajoutez votre premier devis
-      </p>
+      <p class="text-muted-foreground mb-4">Ajoutez votre premier devis</p>
       <Button @click="openUploadModal">
         <Plus class="h-4 w-4 mr-2" />
         Ajouter un devis
@@ -104,7 +101,10 @@ async function handleDownload(doc: DocumentResponse) {
     </div>
 
     <!-- Quotes Grid -->
-    <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div
+      v-else
+      class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+    >
       <div
         v-for="doc in quotes"
         :key="doc.id"
@@ -114,29 +114,45 @@ async function handleDownload(doc: DocumentResponse) {
         <div class="flex items-start justify-between mb-4">
           <div>
             <h3 class="font-semibold">{{ doc.title }}</h3>
-            <p class="text-sm text-muted-foreground">{{ doc.metadata?.clientName || doc.fileName }}</p>
+            <p class="text-sm text-muted-foreground">
+              {{ doc.metadata?.clientName || doc.fileName }}
+            </p>
           </div>
           <span :class="cn('text-xs px-2 py-1 rounded-full', getStatusColor(doc.isPublic))">
-            {{ doc.metadata?.convertedToInvoice ? 'Converti' : (isExpired(doc) ? 'Expire' : 'En cours') }}
+            {{
+              doc.metadata?.convertedToInvoice ? 'Converti' : isExpired(doc) ? 'Expire' : 'En cours'
+            }}
           </span>
         </div>
 
         <!-- Amount -->
-        <div v-if="doc.metadata?.amount" class="mb-4">
+        <div
+          v-if="doc.metadata?.amount"
+          class="mb-4"
+        >
           <p class="text-2xl font-bold">{{ formatCurrency(parseFloat(doc.metadata.amount)) }}</p>
         </div>
 
         <!-- Meta -->
         <div class="space-y-2 text-sm">
-          <div v-if="doc.metadata?.validUntil" class="flex items-center gap-2 text-muted-foreground">
+          <div
+            v-if="doc.metadata?.validUntil"
+            class="flex items-center gap-2 text-muted-foreground"
+          >
             <Clock class="h-4 w-4" />
             <span>Valide jusqu'au {{ formatDate(doc.metadata.validUntil) }}</span>
           </div>
-          <div v-if="doc.metadata?.convertedToInvoice" class="flex items-center gap-2 text-green-600">
+          <div
+            v-if="doc.metadata?.convertedToInvoice"
+            class="flex items-center gap-2 text-green-600"
+          >
             <CheckCircle class="h-4 w-4" />
             <span>Converti en {{ doc.metadata.convertedToInvoice }}</span>
           </div>
-          <div v-else-if="isExpired(doc)" class="flex items-center gap-2 text-red-600">
+          <div
+            v-else-if="isExpired(doc)"
+            class="flex items-center gap-2 text-red-600"
+          >
             <Clock class="h-4 w-4" />
             <span>Expire</span>
           </div>
@@ -144,11 +160,20 @@ async function handleDownload(doc: DocumentResponse) {
 
         <!-- Actions -->
         <div class="flex items-center gap-2 mt-4 pt-4 border-t">
-          <Button variant="ghost" size="sm" @click="selectDocument(doc.id!)">
+          <Button
+            variant="ghost"
+            size="sm"
+            @click="selectDocument(doc.id!)"
+          >
             <Eye class="h-4 w-4 mr-1" />
             Voir
           </Button>
-          <Button variant="ghost" size="sm" :disabled="!doc.downloadUrl" @click="handleDownload(doc)">
+          <Button
+            variant="ghost"
+            size="sm"
+            :disabled="!doc.downloadUrl"
+            @click="handleDownload(doc)"
+          >
             <Download class="h-4 w-4 mr-1" />
             PDF
           </Button>

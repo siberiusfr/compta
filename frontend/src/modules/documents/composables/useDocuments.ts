@@ -2,7 +2,7 @@ import { computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDocumentsStore } from '../stores/documentsStore'
 import { useDocumentsApi } from './useDocumentsApi'
-import type { DocumentResponse } from "@/api/documents"
+import type { DocumentResponse } from '@/api/documents'
 
 export function useDocuments() {
   const store = useDocumentsStore()
@@ -66,7 +66,8 @@ export function useDocuments() {
     if (mimeType.includes('word') || mimeType.includes('document')) return 'FileText'
     if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return 'Table'
     if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return 'Presentation'
-    if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('archive')) return 'Archive'
+    if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('archive'))
+      return 'Archive'
     return 'File'
   }
 
@@ -77,14 +78,21 @@ export function useDocuments() {
     if (mimeType.includes('word') || mimeType.includes('document')) return 'Document'
     if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return 'Tableur'
     if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return 'Presentation'
-    if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('archive')) return 'Archive'
+    if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('archive'))
+      return 'Archive'
     return 'Fichier'
   }
 
   // Stats
-  const totalDocuments = computed(() => (allDocuments.value as DocumentResponse[] | undefined)?.length ?? 0)
-  const totalShared = computed(() => (sharedWithMe.value as DocumentResponse[] | undefined)?.length ?? 0)
-  const totalPublic = computed(() => (publicDocuments.value as DocumentResponse[] | undefined)?.length ?? 0)
+  const totalDocuments = computed(
+    () => (allDocuments.value as DocumentResponse[] | undefined)?.length ?? 0
+  )
+  const totalShared = computed(
+    () => (sharedWithMe.value as DocumentResponse[] | undefined)?.length ?? 0
+  )
+  const totalPublic = computed(
+    () => (publicDocuments.value as DocumentResponse[] | undefined)?.length ?? 0
+  )
 
   return {
     // Data

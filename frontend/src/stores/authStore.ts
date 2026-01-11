@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       user.value = await authService.getUser()
     } catch (e) {
-      error.value = 'Erreur lors de l\'initialisation de l\'authentification'
+      error.value = "Erreur lors de l'initialisation de l'authentification"
       console.error('[AuthStore] Initialize error:', e)
     } finally {
       isLoading.value = false
@@ -59,7 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       user.value = await authService.handleCallback()
     } catch (e) {
-      error.value = 'Erreur lors du callback d\'authentification'
+      error.value = "Erreur lors du callback d'authentification"
       console.error('[AuthStore] Callback error:', e)
       throw e
     } finally {

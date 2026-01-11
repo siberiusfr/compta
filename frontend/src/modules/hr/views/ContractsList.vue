@@ -10,7 +10,7 @@ import {
   Download,
   Calendar,
   Clock,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
@@ -22,13 +22,13 @@ const {
   formatDate,
   getStatusColor,
   getStatusLabel,
-  getContractTypeLabel
+  getContractTypeLabel,
 } = useHr()
 
 const contractsWithEmployee = computed(() =>
-  contracts.value.map(contract => ({
+  contracts.value.map((contract) => ({
     ...contract,
-    employee: employees.value.find(e => e.id === contract.employeeId)
+    employee: employees.value.find((e) => e.id === contract.employeeId),
   }))
 )
 
@@ -48,9 +48,7 @@ const daysUntilEnd = (endDate?: Date) => {
           <FileSignature class="h-6 w-6" />
           Contrats
         </h1>
-        <p class="text-muted-foreground">
-          Gestion des contrats de travail
-        </p>
+        <p class="text-muted-foreground">Gestion des contrats de travail</p>
       </div>
       <Button>
         <Plus class="h-4 w-4 mr-2" />
@@ -69,11 +67,17 @@ const daysUntilEnd = (endDate?: Date) => {
     </div>
 
     <!-- Contracts List -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="text-center py-12 text-muted-foreground"
+    >
       Chargement...
     </div>
 
-    <div v-else class="space-y-3">
+    <div
+      v-else
+      class="space-y-3"
+    >
       <div
         v-for="contract in contractsWithEmployee"
         :key="contract.id"
@@ -81,7 +85,9 @@ const daysUntilEnd = (endDate?: Date) => {
       >
         <div class="flex items-start gap-4">
           <!-- Icon -->
-          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30"
+          >
             <FileSignature class="h-6 w-6 text-purple-600 dark:text-purple-400" />
           </div>
 
@@ -93,7 +99,11 @@ const daysUntilEnd = (endDate?: Date) => {
                 {{ getStatusLabel(contract.status) }}
               </span>
               <span
-                v-if="contract.endDate && daysUntilEnd(contract.endDate)! <= 30 && daysUntilEnd(contract.endDate)! > 0"
+                v-if="
+                  contract.endDate &&
+                  daysUntilEnd(contract.endDate)! <= 30 &&
+                  daysUntilEnd(contract.endDate)! > 0
+                "
                 class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400"
               >
                 <AlertTriangle class="h-3 w-3 inline mr-1" />
@@ -112,9 +122,7 @@ const daysUntilEnd = (endDate?: Date) => {
               <span class="flex items-center gap-1">
                 <Calendar class="h-4 w-4" />
                 {{ formatDate(contract.startDate) }}
-                <template v-if="contract.endDate">
-                  - {{ formatDate(contract.endDate) }}
-                </template>
+                <template v-if="contract.endDate"> - {{ formatDate(contract.endDate) }} </template>
               </span>
               <span class="flex items-center gap-1">
                 <Clock class="h-4 w-4" />
@@ -131,10 +139,18 @@ const daysUntilEnd = (endDate?: Date) => {
 
           <!-- Actions -->
           <div class="flex items-center gap-1">
-            <Button variant="ghost" size="icon-sm" title="Voir">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Voir"
+            >
               <Eye class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon-sm" title="Telecharger">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              title="Telecharger"
+            >
               <Download class="h-4 w-4" />
             </Button>
           </div>

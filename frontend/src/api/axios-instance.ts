@@ -50,9 +50,7 @@ AXIOS_INSTANCE.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     // Ne pas ajouter de token pour les endpoints publics
     const publicEndpoints = ['/health', '/actuator']
-    const isPublicEndpoint = publicEndpoints.some((endpoint) =>
-      config.url?.includes(endpoint)
-    )
+    const isPublicEndpoint = publicEndpoints.some((endpoint) => config.url?.includes(endpoint))
 
     if (!isPublicEndpoint) {
       try {

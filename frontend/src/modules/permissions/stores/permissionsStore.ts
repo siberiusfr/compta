@@ -10,13 +10,9 @@ export const usePermissionsStore = defineStore('permissions', () => {
   const permissions = ref<Permission[]>(mockPermissions)
   const isLoading = ref(false)
 
-  const activeUsers = computed(() =>
-    users.value.filter(u => u.status === 'active')
-  )
+  const activeUsers = computed(() => users.value.filter((u) => u.status === 'active'))
 
-  const pendingUsers = computed(() =>
-    users.value.filter(u => u.status === 'pending')
-  )
+  const pendingUsers = computed(() => users.value.filter((u) => u.status === 'pending'))
 
   const userCount = computed(() => users.value.length)
   const roleCount = computed(() => roles.value.length)
@@ -25,7 +21,7 @@ export const usePermissionsStore = defineStore('permissions', () => {
   async function fetchUsers() {
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise((resolve) => setTimeout(resolve, 300))
       users.value = mockUsers
     } finally {
       isLoading.value = false
@@ -35,7 +31,7 @@ export const usePermissionsStore = defineStore('permissions', () => {
   async function fetchRoles() {
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise((resolve) => setTimeout(resolve, 300))
       roles.value = mockRoles
     } finally {
       isLoading.value = false
@@ -45,7 +41,7 @@ export const usePermissionsStore = defineStore('permissions', () => {
   async function fetchGroups() {
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise((resolve) => setTimeout(resolve, 300))
       groups.value = mockGroups
     } finally {
       isLoading.value = false
@@ -53,7 +49,7 @@ export const usePermissionsStore = defineStore('permissions', () => {
   }
 
   function updateUserStatus(userId: string, status: User['status']) {
-    const user = users.value.find(u => u.id === userId)
+    const user = users.value.find((u) => u.id === userId)
     if (user) {
       user.status = status
       user.updatedAt = new Date()
@@ -61,14 +57,14 @@ export const usePermissionsStore = defineStore('permissions', () => {
   }
 
   function addUserToGroup(userId: string, groupId: string) {
-    const group = groups.value.find(g => g.id === groupId)
+    const group = groups.value.find((g) => g.id === groupId)
     if (group && !group.members.includes(userId)) {
       group.members.push(userId)
     }
   }
 
   function removeUserFromGroup(userId: string, groupId: string) {
-    const group = groups.value.find(g => g.id === groupId)
+    const group = groups.value.find((g) => g.id === groupId)
     if (group) {
       const index = group.members.indexOf(userId)
       if (index > -1) {
@@ -93,6 +89,6 @@ export const usePermissionsStore = defineStore('permissions', () => {
     fetchGroups,
     updateUserStatus,
     addUserToGroup,
-    removeUserFromGroup
+    removeUserFromGroup,
   }
 })

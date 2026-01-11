@@ -10,9 +10,7 @@ export const useCompaniesStore = defineStore('companies', () => {
   const filter = ref<CompanyFilter>({})
   const selectedCompany = ref<Company | null>(null)
 
-  const activeCompanies = computed(() =>
-    companies.value.filter(c => c.status === 'active')
-  )
+  const activeCompanies = computed(() => companies.value.filter((c) => c.status === 'active'))
 
   const totalEmployees = computed(() =>
     companies.value.reduce((sum, c) => sum + c.employeeCount, 0)
@@ -22,19 +20,20 @@ export const useCompaniesStore = defineStore('companies', () => {
     let result = [...companies.value]
 
     if (filter.value.status) {
-      result = result.filter(c => c.status === filter.value.status)
+      result = result.filter((c) => c.status === filter.value.status)
     }
 
     if (filter.value.type) {
-      result = result.filter(c => c.type === filter.value.type)
+      result = result.filter((c) => c.type === filter.value.type)
     }
 
     if (filter.value.search) {
       const search = filter.value.search.toLowerCase()
-      result = result.filter(c =>
-        c.name.toLowerCase().includes(search) ||
-        c.legalName.toLowerCase().includes(search) ||
-        c.siret.includes(search)
+      result = result.filter(
+        (c) =>
+          c.name.toLowerCase().includes(search) ||
+          c.legalName.toLowerCase().includes(search) ||
+          c.siret.includes(search)
       )
     }
 
@@ -44,7 +43,7 @@ export const useCompaniesStore = defineStore('companies', () => {
   async function fetchCompanies() {
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise((resolve) => setTimeout(resolve, 300))
       companies.value = mockCompanies
     } finally {
       isLoading.value = false
@@ -52,7 +51,7 @@ export const useCompaniesStore = defineStore('companies', () => {
   }
 
   function getCompanyContacts(companyId: string) {
-    return contacts.value.filter(c => c.companyId === companyId)
+    return contacts.value.filter((c) => c.companyId === companyId)
   }
 
   function setFilter(newFilter: CompanyFilter) {
@@ -80,6 +79,6 @@ export const useCompaniesStore = defineStore('companies', () => {
     getCompanyContacts,
     setFilter,
     clearFilter,
-    selectCompany
+    selectCompany,
   }
 })

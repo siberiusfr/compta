@@ -18,7 +18,7 @@ export const mockEmployees: Employee[] = [
     salary: 45000,
     contractType: 'cdi',
     createdAt: new Date('2020-01-15'),
-    updatedAt: new Date('2024-06-01')
+    updatedAt: new Date('2024-06-01'),
   },
   {
     id: 'emp-2',
@@ -38,7 +38,7 @@ export const mockEmployees: Employee[] = [
     salary: 52000,
     contractType: 'cdi',
     createdAt: new Date('2019-06-01'),
-    updatedAt: new Date('2024-05-15')
+    updatedAt: new Date('2024-05-15'),
   },
   {
     id: 'emp-3',
@@ -55,7 +55,7 @@ export const mockEmployees: Employee[] = [
     salary: 35000,
     contractType: 'cdd',
     createdAt: new Date('2023-09-01'),
-    updatedAt: new Date('2023-09-01')
+    updatedAt: new Date('2023-09-01'),
   },
   {
     id: 'emp-4',
@@ -74,7 +74,7 @@ export const mockEmployees: Employee[] = [
     salary: 12000,
     contractType: 'internship',
     createdAt: new Date('2024-03-01'),
-    updatedAt: new Date('2024-03-01')
+    updatedAt: new Date('2024-03-01'),
   },
   {
     id: 'emp-5',
@@ -92,8 +92,8 @@ export const mockEmployees: Employee[] = [
     salary: 75000,
     contractType: 'cdi',
     createdAt: new Date('2018-02-01'),
-    updatedAt: new Date('2024-06-15')
-  }
+    updatedAt: new Date('2024-06-15'),
+  },
 ]
 
 export const mockContracts: EmployeeContract[] = [
@@ -107,7 +107,7 @@ export const mockContracts: EmployeeContract[] = [
     position: 'Comptable Senior',
     department: 'Comptabilite',
     signedAt: new Date('2020-01-10'),
-    status: 'active'
+    status: 'active',
   },
   {
     id: 'contract-2',
@@ -120,7 +120,7 @@ export const mockContracts: EmployeeContract[] = [
     position: 'Charge de communication',
     department: 'Marketing',
     signedAt: new Date('2023-08-25'),
-    status: 'active'
+    status: 'active',
   },
   {
     id: 'contract-3',
@@ -133,8 +133,8 @@ export const mockContracts: EmployeeContract[] = [
     position: 'Stagiaire developpeur',
     department: 'Developpement',
     signedAt: new Date('2024-02-20'),
-    status: 'active'
-  }
+    status: 'active',
+  },
 ]
 
 export const mockLeaveRequests: LeaveRequest[] = [
@@ -150,7 +150,7 @@ export const mockLeaveRequests: LeaveRequest[] = [
     status: 'approved',
     approvedBy: 'Admin',
     approvedAt: new Date('2024-05-20'),
-    createdAt: new Date('2024-05-15')
+    createdAt: new Date('2024-05-15'),
   },
   {
     id: 'leave-2',
@@ -162,7 +162,7 @@ export const mockLeaveRequests: LeaveRequest[] = [
     days: 10,
     reason: 'Vacances ete',
     status: 'pending',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2)
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
   },
   {
     id: 'leave-3',
@@ -176,7 +176,7 @@ export const mockLeaveRequests: LeaveRequest[] = [
     status: 'approved',
     approvedBy: 'Admin',
     approvedAt: new Date('2024-06-10'),
-    createdAt: new Date('2024-06-10')
+    createdAt: new Date('2024-06-10'),
   },
   {
     id: 'leave-4',
@@ -187,8 +187,8 @@ export const mockLeaveRequests: LeaveRequest[] = [
     endDate: new Date('2024-08-05'),
     days: 5,
     status: 'pending',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24)
-  }
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
+  },
 ]
 
 export const mockPayrollEntries: PayrollEntry[] = [
@@ -203,7 +203,7 @@ export const mockPayrollEntries: PayrollEntry[] = [
     taxes: 275,
     status: 'paid',
     paidAt: new Date('2024-06-28'),
-    createdAt: new Date('2024-06-25')
+    createdAt: new Date('2024-06-25'),
   },
   {
     id: 'payroll-2',
@@ -216,7 +216,7 @@ export const mockPayrollEntries: PayrollEntry[] = [
     taxes: 303,
     status: 'paid',
     paidAt: new Date('2024-06-28'),
-    createdAt: new Date('2024-06-25')
+    createdAt: new Date('2024-06-25'),
   },
   {
     id: 'payroll-3',
@@ -228,6 +228,6 @@ export const mockPayrollEntries: PayrollEntry[] = [
     deductions: 550,
     taxes: 275,
     status: 'validated',
-    createdAt: new Date('2024-07-25')
-  }
+    createdAt: new Date('2024-07-25'),
+  },
 ]

@@ -62,6 +62,6 @@ export function usePagination(options: UsePaginationOptions = {}) {
     prevPage,
     setPageSize,
     setTotal,
-    reset
+    reset,
   }
 }

@@ -1,20 +1,10 @@
 <script setup lang="ts">
 import { useAccounting } from '../composables/useAccounting'
 import { Button } from '@/components/ui/button'
-import {
-  PieChart,
-  Download,
-  Calendar
-} from 'lucide-vue-next'
+import { PieChart, Download, Calendar } from 'lucide-vue-next'
 
-const {
-  totalAssets,
-  totalLiabilities,
-  totalEquity,
-  isLoading,
-  formatCurrency,
-  currentFiscalYear
-} = useAccounting()
+const { totalAssets, totalLiabilities, totalEquity, isLoading, formatCurrency, currentFiscalYear } =
+  useAccounting()
 </script>
 
 <template>
@@ -38,12 +28,18 @@ const {
     </div>
 
     <!-- Loading -->
-    <div v-if="isLoading" class="text-center py-12 text-muted-foreground">
+    <div
+      v-if="isLoading"
+      class="text-center py-12 text-muted-foreground"
+    >
       Chargement...
     </div>
 
     <!-- Balance Sheet -->
-    <div v-else class="grid gap-6 lg:grid-cols-2">
+    <div
+      v-else
+      class="grid gap-6 lg:grid-cols-2"
+    >
       <!-- ACTIF -->
       <div class="rounded-xl border bg-card overflow-hidden">
         <div class="p-4 bg-blue-100 dark:bg-blue-900/30 border-b">

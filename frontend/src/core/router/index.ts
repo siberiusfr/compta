@@ -24,7 +24,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        redirect: '/dashboard'
+        redirect: '/dashboard',
       },
       ...dashboardRoutes,
       ...notificationsRoutes,
@@ -32,8 +32,8 @@ const routes: RouteRecordRaw[] = [
       ...permissionsRoutes,
       ...companiesRoutes,
       ...hrRoutes,
-      ...accountingRoutes
-    ]
+      ...accountingRoutes,
+    ],
   },
 
   // Settings page
@@ -48,18 +48,18 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/modules/dashboard/views/DashboardHome.vue'),
         meta: {
           title: 'Parametres',
-          requiresAuth: true
-        }
-      }
-    ]
+          requiresAuth: true,
+        },
+      },
+    ],
   },
 
   // 404 Not Found
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
-    component: () => import('@/core/views/NotFound.vue')
-  }
+    component: () => import('@/core/views/NotFound.vue'),
+  },
 ]
 
 const router = createRouter({
@@ -70,7 +70,7 @@ const router = createRouter({
       return savedPosition
     }
     return { top: 0 }
-  }
+  },
 })
 
 // Global navigation guard
