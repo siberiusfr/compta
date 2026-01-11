@@ -35,8 +35,8 @@ public class AuthController {
     String userAgent = request.getHeader("User-Agent");
     String userAgent1 = request.getHeader("User-Agent");
 
-           AuthResponse response = authService.login(loginRequest, ipAddress, userAgent);
-        return ResponseEntity.ok(response);
+    AuthResponse response = authService.login(loginRequest, ipAddress, userAgent);
+    return ResponseEntity.ok(response);
   }
 
   @PostMapping("/refresh")

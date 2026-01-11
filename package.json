@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky",
-    "format:api-java": "cd api && (mvnw.cmd spotless:apply || ./mvnw spotless:apply)"
+    "format:api-java": "bash -c 'cd api && mvnw.cmd spotless:apply' --"
   },
   "keywords": [],
   "author": "",
@@ -15,19 +15,5 @@
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7"
-  },
-  "lint-staged": {
-    "frontend/**/*.{js,jsx,ts,tsx,vue,css,scss,json,md}": [
-      "prettier --write"
-    ],
-    "api/src/**/*.java": [
-      "pnpm run format:api-java"
-    ],
-    "api/**/*.sql": [
-      "cd api && prettier --write"
-    ],
-    "api/**/*.{xml,yml,yaml}": [
-      "cd api && prettier --write"
-    ]
   }
 }
