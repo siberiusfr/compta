@@ -7,10 +7,6 @@ dist
 dist-ssr
 *.local
 
-# Generated files
-src/api/generated
-*.gen.ts
-
 # IDE
 .vscode
 .idea
