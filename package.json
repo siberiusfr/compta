@@ -1,0 +1,32 @@
+{
+  "name": "compta",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  },
+  "lint-staged": {
+    "frontend/**/*.{js,jsx,ts,tsx,vue,css,scss,json,md}": [
+      "prettier --write"
+    ],
+    "api/src/**/*.java": [
+      "cd api && ./mvnw spotless:apply -DspotlessFiles=$0"
+    ],
+    "api/**/*.sql": [
+      "cd api && prettier --write"
+    ],
+    "api/**/*.{xml,yml,yaml}": [
+      "cd api && prettier --write"
+    ]
+  }
+}
