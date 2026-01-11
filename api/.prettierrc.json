@@ -7,19 +7,16 @@
   "trailingComma": "none",
   "bracketSpacing": true,
   "endOfLine": "lf",
-  "plugins": ["prettier-plugin-java", "@prettier/plugin-xml", "prettier-plugin-sql"],
+  "plugins": [
+    "prettier-plugin-java",
+    "@prettier/plugin-xml",
+    "prettier-plugin-sql"
+  ],
   "overrides": [
     {
       "files": "*.java",
       "options": {
         "parser": "java"
-      }
-    },
-    {
-      "files": ["*.xml", "pom.xml"],
-      "options": {
-        "parser": "xml",
-        "printWidth": 120
       }
     },
     {
@@ -31,7 +28,10 @@
       }
     },
     {
-      "files": ["*.yml", "*.yaml"],
+      "files": [
+        "*.yml",
+        "*.yaml"
+      ],
       "options": {
         "parser": "yaml",
         "singleQuote": true,

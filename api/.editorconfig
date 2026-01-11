@@ -11,8 +11,8 @@ trim_trailing_whitespace = true
 # Java (aligné avec Google Java Format)
 [*.java]
 indent_style = space
-indent_size = 2              # Google Style = 2 spaces
-max_line_length = 100        # Google Style = 100
+indent_size = 2 # Google Style = 2 spaces
+max_line_length = 100 # Google Style = 100
 continuation_indent_size = 4
 
 # XML, POM
