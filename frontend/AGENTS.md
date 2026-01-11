@@ -21,20 +21,34 @@
 
 ```
 src/
-├── api/                  # Clients API et endpoints
-│   ├── client.ts         # Instance Axios configuree
-│   └── endpoints/        # Fonctions par domaine
+├── api/                      # Clients API (Orval generes + config)
+│   ├── axios-instance.ts     # Instance Axios custom avec refresh token
+│   ├── oauth/                # API OAuth2
+│   │   ├── index.ts          # Barrel file - re-exports
+│   │   └── gen/              # Fichiers generes par Orval
+│   ├── documents/            # API Documents
+│   │   ├── index.ts          # Barrel file - re-exports
+│   │   └── gen/              # Fichiers generes par Orval
+│   └── authz/                # API Authz (permissions)
+│       ├── index.ts          # Barrel file - re-exports
+│       └── gen/              # Fichiers generes par Orval
 ├── components/
-│   ├── ui/               # Composants shadcn-vue
-│   └── [feature]/        # Composants par feature
-├── composables/          # Hooks Vue reutilisables
-├── layouts/              # Layouts de pages
-├── lib/                  # Utilitaires (utils.ts, etc.)
-├── pages/                # Pages/vues de l'app
-├── router/               # Configuration Vue Router
-├── stores/               # Stores Pinia
-├── types/                # Types TypeScript globaux
-└── validators/           # Schemas Zod
+│   ├── ui/                   # Composants shadcn-vue
+│   └── [feature]/            # Composants par feature
+├── composables/              # Hooks Vue reutilisables globaux
+├── layouts/                  # Layouts de pages
+├── lib/                      # Utilitaires (utils.ts, etc.)
+├── modules/                  # Modules metier (feature-based)
+│   └── [module]/
+│       ├── components/       # Composants specifiques au module
+│       ├── composables/      # Hooks specifiques au module
+│       ├── stores/           # Stores Pinia du module
+│       ├── views/            # Pages/vues du module
+│       └── routes.ts         # Routes du module
+├── router/                   # Configuration Vue Router
+├── stores/                   # Stores Pinia globaux
+├── types/                    # Types TypeScript globaux
+└── validators/               # Schemas Zod
 ```
 
 ---

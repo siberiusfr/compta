@@ -21,6 +21,7 @@
     <module>compta-commons</module>
     <module>compta-security-commons</module>
     <module>notification-contracts</module>
+    <module>authz-contracts</module>
     <module>auth-service</module>
     <module>authz-service</module>
     <module>document-service</module>
@@ -58,6 +59,13 @@
   </properties>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>2025.0.1</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>testcontainers-bom</artifactId>
