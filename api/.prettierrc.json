@@ -7,11 +7,7 @@
   "trailingComma": "none",
   "bracketSpacing": true,
   "endOfLine": "lf",
-  "plugins": [
-    "prettier-plugin-java",
-    "@prettier/plugin-xml",
-    "prettier-plugin-sql"
-  ],
+  "plugins": ["prettier-plugin-java", "@prettier/plugin-xml", "prettier-plugin-sql"],
   "overrides": [
     {
       "files": "*.java",
@@ -28,10 +24,7 @@
       }
     },
     {
-      "files": [
-        "*.yml",
-        "*.yaml"
-      ],
+      "files": ["*.yml", "*.yaml"],
       "options": {
         "parser": "yaml",
         "singleQuote": true,
