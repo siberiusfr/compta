@@ -95,8 +95,10 @@ Cabinet Comptable (societes_comptables)
 ```
 src/main/java/tn/cyberious/compta/authz/
 ├── AuthzServiceApplication.java      # Point d'entrée
-├── config/                           # Configuration Spring
+├── config/
+│   └── CacheConfig.java              # Configuration Caffeine
 ├── controller/                       # Contrôleurs REST
+│   ├── AccessController.java         # Accès unifié (avec cache)
 │   ├── SocieteComptableController.java
 │   ├── SocieteController.java
 │   ├── UserSocieteComptableController.java
@@ -104,6 +106,7 @@ src/main/java/tn/cyberious/compta/authz/
 │   ├── UserSocietesController.java
 │   └── PermissionController.java
 ├── service/                          # Logique métier
+│   ├── AccessService.java            # Accès unifié avec cache Caffeine
 │   ├── SocieteComptableService.java
 │   ├── SocieteService.java
 │   ├── UserSocieteComptableService.java
@@ -119,6 +122,7 @@ src/main/java/tn/cyberious/compta/authz/
 │   ├── PermissionRepository.java
 │   └── RolePermissionRepository.java
 ├── dto/                              # Objets de transfert
+│   ├── UserAccessDto.java            # Résultat d'accès unifié
 │   ├── SocieteComptableDto.java
 │   ├── SocieteDto.java
 │   ├── UserSocieteComptableDto.java
@@ -229,6 +233,70 @@ src/main/java/tn/cyberious/compta/authz/
 | GET | `/roles` | Lister les rôles |
 | GET | `/check?role=&permissionCode=` | Vérifier permission |
 | GET | `/check/resource?role=&resource=&action=` | Vérifier accès ressource |
+
+### Accès Unifié (`/api/access`) - AVEC CACHE CAFFEINE
+
+**Endpoint principal pour vérifier les accès utilisateur.** Combine les deux sources d'accès:
+- **COMPTABLE**: Accès via `comptable_societes` (comptable avec accès à la société cliente)
+- **MEMBRE**: Accès via `user_societes` (employé/manager de la société)
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/user/{userId}/societe/{societeId}` | Détails complets d'accès (type, rôle, droits) |
+| GET | `/check?userId=&societeId=` | Vérification rapide d'accès (comptable OU membre) |
+| GET | `/check/write?userId=&societeId=` | Vérifier droit d'écriture |
+| GET | `/check/validate?userId=&societeId=` | Vérifier droit de validation |
+| GET | `/check/permission?userId=&societeId=&permissionCode=` | Vérifier une permission spécifique |
+| GET | `/user/{userId}/societe/{societeId}/permissions` | Lister toutes les permissions |
+| GET | `/user/{userId}/societes` | **Lister TOUTES les sociétés accessibles** (comptable + membre) |
+| GET | `/user/{userId}/societes/write` | Lister les sociétés avec droit d'écriture |
+| DELETE | `/cache` | Invalider tout le cache d'accès |
+| DELETE | `/cache/user/{userId}/societe/{societeId}` | Invalider le cache pour un accès spécifique |
+
+## Cache Caffeine
+
+Le service utilise **Caffeine** pour mettre en cache les vérifications d'accès fréquentes.
+
+### Configuration
+
+```java
+@Configuration
+@EnableCaching
+public class CacheConfig {
+    public static final String USER_ACCESS_CACHE = "userAccessCache";
+    public static final String USER_PERMISSIONS_CACHE = "userPermissionsCache";
+
+    @Bean
+    public Caffeine<Object, Object> caffeineConfig() {
+        return Caffeine.newBuilder()
+                .expireAfterWrite(5, TimeUnit.MINUTES)
+                .maximumSize(10_000)
+                .recordStats();
+    }
+}
+```
+
+### Caches disponibles
+
+| Cache | TTL | Description |
+|-------|-----|-------------|
+| `userAccessCache` | 5 min | Résultats des vérifications d'accès |
+| `userPermissionsCache` | 5 min | Liste des permissions par utilisateur/société |
+
+### Invalidation du cache
+
+Le cache est automatiquement invalidé après 5 minutes. Pour une invalidation manuelle:
+
+```bash
+# Invalider tout le cache
+DELETE /api/access/cache
+
+# Invalider pour un utilisateur/société spécifique
+DELETE /api/access/cache/user/{userId}/societe/{societeId}
+```
+
+**Important**: Après modification des accès (via `/api/comptable-societes` ou `/api/user-societes`),
+il est recommandé d'invalider le cache correspondant.
 
 ## Patterns de Code
 

@@ -141,6 +141,28 @@ public class UserSocietesRepository {
                         .where(USER_SOCIETES.USER_ID.eq(userId)));
     }
 
+    public boolean hasActiveAccess(Long userId, Long societeId) {
+        return dsl.fetchExists(
+                dsl.selectOne()
+                        .from(USER_SOCIETES)
+                        .where(USER_SOCIETES.USER_ID.eq(userId))
+                        .and(USER_SOCIETES.SOCIETE_ID.eq(societeId))
+                        .and(USER_SOCIETES.IS_ACTIVE.eq(true))
+                        .and(USER_SOCIETES.DATE_FIN.isNull()
+                                .or(USER_SOCIETES.DATE_FIN.ge(LocalDate.now()))));
+    }
+
+    public Optional<String> findRoleByUserIdAndSocieteId(Long userId, Long societeId) {
+        return dsl.select(USER_SOCIETES.ROLE)
+                .from(USER_SOCIETES)
+                .where(USER_SOCIETES.USER_ID.eq(userId))
+                .and(USER_SOCIETES.SOCIETE_ID.eq(societeId))
+                .and(USER_SOCIETES.IS_ACTIVE.eq(true))
+                .and(USER_SOCIETES.DATE_FIN.isNull()
+                        .or(USER_SOCIETES.DATE_FIN.ge(LocalDate.now())))
+                .fetchOptional(USER_SOCIETES.ROLE);
+    }
+
     public boolean existsActiveManagerBySocieteId(Long societeId) {
         return dsl.fetchExists(
                 dsl.selectOne()

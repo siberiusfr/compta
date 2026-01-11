@@ -82,6 +82,17 @@ public class ComptableSocietesRepository {
                 .map(r -> r.into(ComptableSocietes.class));
     }
 
+    public Optional<ComptableSocietes> findActiveAccessByUserIdAndSocieteId(Long userId, Long societeId) {
+        return dsl.selectFrom(COMPTABLE_SOCIETES)
+                .where(COMPTABLE_SOCIETES.USER_ID.eq(userId))
+                .and(COMPTABLE_SOCIETES.SOCIETE_ID.eq(societeId))
+                .and(COMPTABLE_SOCIETES.IS_ACTIVE.eq(true))
+                .and(COMPTABLE_SOCIETES.DATE_FIN.isNull()
+                        .or(COMPTABLE_SOCIETES.DATE_FIN.ge(LocalDate.now())))
+                .fetchOptional()
+                .map(r -> r.into(ComptableSocietes.class));
+    }
+
     public List<ComptableSocietes> findByUserId(Long userId) {
         return dsl.selectFrom(COMPTABLE_SOCIETES)
                 .where(COMPTABLE_SOCIETES.USER_ID.eq(userId))
