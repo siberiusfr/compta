@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: e-invoicing-tn-service-test
+
+  # Disable database for unit tests
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+
+  flyway:
+    enabled: false
+
+# Configuration El Fatoora for tests
+elfatoora:
+  xsd:
+    path: classpath:schema/facture_INVOIC_V1.8.8_withSig.xsd
+    path-without-sig: classpath:schema/facture_INVOIC_V1.8.8_withoutSig.xsd
+    # Disable XSD validation in tests since schema requires signature
+    validation-enabled: false
+
+  certificate:
+    path: classpath:certificates/test-cert.p12
+    password: ${ELFATOORA_CERT_PASSWORD:}
+    alias: 1
+    type: PKCS12
+    required: false
+
+  signature:
+    algorithm: http://www.w3.org/2001/04/xmldsig-more#rsa-sha256
+    digest-algorithm: http://www.w3.org/2001/04/xmlenc#sha256
+    canonicalization: http://www.w3.org/2001/10/xml-exc-c14n#
+    policy-oid: urn:2.16.788.1.2.1
+    policy-description: Politique de signature de la facture electronique
+    policy-hash: 3J1oMkha+OAlm9hBNCcAS+/nbKokG8Gf9N3XPipP7yg=
+    signer-role: CEO
+
+  ttn:
+    enabled: false

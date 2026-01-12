@@ -7,14 +7,8 @@
   "trailingComma": "none",
   "bracketSpacing": true,
   "endOfLine": "lf",
-  "plugins": ["prettier-plugin-java", "@prettier/plugin-xml", "prettier-plugin-sql"],
+  "plugins": ["prettier-plugin-sql"],
   "overrides": [
-    {
-      "files": "*.java",
-      "options": {
-        "parser": "java"
-      }
-    },
     {
       "files": "*.sql",
       "options": {

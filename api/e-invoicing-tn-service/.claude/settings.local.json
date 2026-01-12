@@ -1,0 +1,5 @@
+{
+  "permissions": {
+    "allow": ["Bash(mvn generate-sources:*)", "Bash(mvn compile:*)"]
+  }
+}

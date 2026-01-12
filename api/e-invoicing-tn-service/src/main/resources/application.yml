@@ -1,0 +1,73 @@
+spring:
+  application:
+    name: '@project.name@'
+
+  # Configuration PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/compta
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  # Activer Flyway pour ce service
+  flyway:
+    enabled: true
+    schemas: einvoicing
+    default-schema: einvoicing
+
+  # Port spécifique pour ce service
+  server:
+    port: 8086
+
+  # Configuration Sentry
+  sentry:
+    dsn: ${SENTRY_DSN:}
+    environment: ${SENTRY_ENVIRONMENT:development}
+    traces-sample-rate: 1.0
+    send-default-pii: false
+    enable-tracing: true
+    tags:
+      service: e-invoicing-tn-service
+      module: e-invoicing
+
+# Configuration du service d'autorisation
+authz:
+  service:
+    url: ${AUTHZ_SERVICE_URL:http://localhost:8085}
+
+# Configuration El Fatoora (Facturation électronique tunisienne)
+elfatoora:
+  # Validation XSD
+  xsd:
+    path: classpath:schema/facture_INVOIC_V1.8.8_withSig.xsd
+    path-without-sig: classpath:schema/facture_INVOIC_V1.8.8_withoutSig.xsd
+    validation-enabled: true
+
+  # Certificat de signature (PKCS#12)
+  certificate:
+    path: ${ELFATOORA_CERT_PATH:classpath:certificates/test-cert.p12}
+    password: ${ELFATOORA_CERT_PASSWORD:}
+    alias: ${ELFATOORA_CERT_ALIAS:1}
+    type: PKCS12
+    required: false
+
+  # Configuration signature XAdES
+  signature:
+    algorithm: http://www.w3.org/2001/04/xmldsig-more#rsa-sha256
+    digest-algorithm: http://www.w3.org/2001/04/xmlenc#sha256
+    canonicalization: http://www.w3.org/2001/10/xml-exc-c14n#
+    policy-oid: urn:2.16.788.1.2.1
+    policy-description: Politique de signature de la facture electronique
+    policy-hash: 3J1oMkha+OAlm9hBNCcAS+/nbKokG8Gf9N3XPipP7yg=
+    policy-uri: http://www.tradenet.com.tn/portal/telechargerTelechargement?lien=Politique_de_Signature_de_la_facture_electronique.pdf
+    signer-role: CEO
+    signature-id-prefix: SigFrs
+    reference-id: r-id-frs
+
+  # TTN (Tunisie TradeNet) - Pour intégration future
+  ttn:
+    enabled: false
+    test-url: https://test.tradenet.com.tn
+    prod-url: https://www.tradenet.com.tn
+    timeout: 30000
+    use-test-environment: true

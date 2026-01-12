@@ -1,0 +1,11 @@
+# Placeholder for certificate files
+# DO NOT commit actual certificates to this directory
+# Certificates should be provided via environment variables or secure configuration
+
+# Supported formats:
+# - PKCS#12 (.p12, .pfx)
+# - JKS (.jks)
+
+# Configure certificate path via:
+# - Environment variable: ELFATOORA_CERT_PATH
+# - Application property: elfatoora.certificate.path
