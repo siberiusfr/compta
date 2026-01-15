@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { accountingRoutes } from '@/modules/accounting/routes'
 import { invoicesRoutes } from '@/modules/invoices/routes'
+import { referentielRoutes } from '@/modules/referentiel/routes'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -29,6 +30,11 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/invoices',
     children: invoicesRoutes,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/',
+    children: referentielRoutes,
     meta: { requiresAuth: true },
   },
 ]

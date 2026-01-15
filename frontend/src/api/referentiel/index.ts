@@ -1,0 +1,5 @@
+export * from './gen/generated.schemas'
+export * from './gen/produits/produits'
+export * from './gen/clients/clients'
+export * from './gen/fournisseurs/fournisseurs'
+export * from './gen/familles-produits/familles-produits'

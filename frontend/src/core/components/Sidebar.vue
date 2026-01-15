@@ -12,6 +12,7 @@ import {
   FileText,
   Shield,
   Settings,
+  Database,
   ChevronDown,
   ChevronRight,
   X,
@@ -33,6 +34,7 @@ const iconMap: Record<string, any> = {
   FileText,
   Shield,
   Settings,
+  Database,
 }
 
 const isActive = (path?: string) => {

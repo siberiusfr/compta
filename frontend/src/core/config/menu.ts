@@ -47,6 +47,16 @@ export const menuItems: MenuItem[] = [
     ],
   },
   {
+    icon: 'Database',
+    label: 'Referentiel',
+    children: [
+      { label: 'Produits', route: '/referentiel/produits' },
+      { label: 'Clients', route: '/referentiel/clients' },
+      { label: 'Fournisseurs', route: '/referentiel/fournisseurs' },
+      { label: 'Familles', route: '/referentiel/familles' },
+    ],
+  },
+  {
     icon: 'FileText',
     label: 'Documents',
     children: [
