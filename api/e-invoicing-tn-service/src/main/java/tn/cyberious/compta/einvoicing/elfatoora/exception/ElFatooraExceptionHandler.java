@@ -95,7 +95,8 @@ public class ElFatooraExceptionHandler {
           INVALID_TAX_RATE,
           INVALID_CURRENCY,
           XML_PARSING_ERROR,
-          UNMARSHALLING_ERROR ->
+          UNMARSHALLING_ERROR,
+          VALIDATION_FAILED ->
           HttpStatus.BAD_REQUEST;
       case CERTIFICATE_ERROR, SIGNATURE_FAILED, SIGNATURE_VERIFICATION_FAILED ->
           HttpStatus.INTERNAL_SERVER_ERROR;

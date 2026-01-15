@@ -1,5 +1,15 @@
 {
   "permissions": {
-    "allow": ["Bash(mvn generate-sources:*)", "Bash(mvn compile:*)"]
+    "allow": [
+      "Bash(mvn generate-sources:*)",
+      "Bash(mvn compile:*)",
+      "Bash(mvn clean generate-sources:*)",
+      "Bash(ls:*)",
+      "Bash(mvn compiler:compile:*)",
+      "Bash(mvn test-compile:*)",
+      "Bash(mvn compiler:testCompile:*)",
+      "Bash(mvn surefire:test:*)",
+      "Bash(mvn spotless:apply:*)"
+    ]
   }
 }

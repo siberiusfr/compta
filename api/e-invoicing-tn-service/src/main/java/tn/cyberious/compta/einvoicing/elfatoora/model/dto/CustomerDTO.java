@@ -9,11 +9,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tn.cyberious.compta.einvoicing.elfatoora.model.enums.IdentifierType;
 
 /**
  * DTO representing the customer (client/destinataire) in El Fatoora invoice.
  *
  * <p>The customer is identified by partner function code I-64.
+ *
+ * <p>Validation rules from XSD:
+ *
+ * <ul>
+ *   <li>Tax identifier: Max 35 characters
+ *   <li>Company name: Max 200 characters
+ *   <li>Customer type: SMTP ou SMPP
+ *   <li>Tax regime: P ou NP
+ * </ul>
  */
 @Data
 @Builder
@@ -22,11 +32,18 @@ import lombok.NoArgsConstructor;
 public class CustomerDTO {
 
   /**
-   * Tax identifier (Matricule Fiscal) or other identifier. For Matricule Fiscal: NNNNNNNXAMZZZ (7
-   * digits + 1 letter + AM + 3 digits) For CIN: 8 digits For Carte de Séjour: 9 digits
+   * Identifiant fiscal du client.
+   *
+   * <p>Selon le type:
+   *
+   * <ul>
+   *   <li>I-01 (Matricule Fiscal): 13 caractères
+   *   <li>I-02 (CIN): 8 chiffres
+   *   <li>I-03 (Carte de Séjour): 9 chiffres
+   *   <li>I-04 (Autre): Max 35 caractères
+   * </ul>
    */
-  @NotBlank(message = "Tax identifier is required")
-  @Size(max = 35, message = "Tax identifier must not exceed 35 characters")
+  @Size(max = 35, message = "L'identifiant fiscal ne peut pas dépasser 35 caractères")
   private String taxIdentifier;
 
   /** Company name or individual name. */
@@ -66,28 +83,10 @@ public class CustomerDTO {
   @NotNull(message = "Address is required")
   private AddressDTO address;
 
-  /** Identifier type for the partner. Defaults to I-01 (Matricule Fiscal). */
-  @Builder.Default private IdentifierType identifierType = IdentifierType.MATRICULE_FISCAL;
-
-  /** Enum for partner identifier types. */
-  public enum IdentifierType {
-    /** I-01: Matricule Fiscal (Tax ID). */
-    MATRICULE_FISCAL("I-01"),
-    /** I-02: CIN (National ID Card). */
-    CIN("I-02"),
-    /** I-03: Carte de Séjour (Residence Card). */
-    CARTE_SEJOUR("I-03"),
-    /** I-04: Other identifier. */
-    OTHER("I-04");
-
-    private final String code;
-
-    IdentifierType(String code) {
-      this.code = code;
-    }
-
-    public String getCode() {
-      return code;
-    }
-  }
+  /**
+   * Type d'identifiant du client.
+   *
+   * <p>Défaut: I-01 (Matricule Fiscal)
+   */
+  @Builder.Default private IdentifierType identifierType = IdentifierType.I_01;
 }

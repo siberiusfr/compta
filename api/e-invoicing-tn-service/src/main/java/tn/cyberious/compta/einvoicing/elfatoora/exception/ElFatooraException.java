@@ -41,4 +41,10 @@ public class ElFatooraException extends RuntimeException {
     this.errorCode = errorCode;
     this.details = List.of(detail);
   }
+
+  public ElFatooraException(ErrorCode errorCode, String message, List<String> details) {
+    super(message + ": " + String.join("; ", details));
+    this.errorCode = errorCode;
+    this.details = details;
+  }
 }

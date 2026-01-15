@@ -12,6 +12,8 @@ import tn.cyberious.compta.einvoicing.elfatoora.model.dto.InvoiceLineDTO;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.PaymentTermsDTO;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.PostalAccountDTO;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.SupplierDTO;
+import tn.cyberious.compta.einvoicing.elfatoora.model.enums.IdentifierType;
+import tn.cyberious.compta.einvoicing.elfatoora.model.enums.TaxTypeCode;
 
 /**
  * Test data factory for El Fatoora unit tests.
@@ -121,7 +123,7 @@ public final class ElFatooraTestData {
         .companyName("Tunisie TradeNet")
         .registrationNumber("B154702000")
         .legalForm("SA")
-        .identifierType(SupplierDTO.IdentifierType.MATRICULE_FISCAL)
+        .identifierType(IdentifierType.I_01)
         .address(createSupplierAddress())
         .contact(createSupplierContact())
         .build();
@@ -141,7 +143,7 @@ public final class ElFatooraTestData {
         .establishmentName("Salle Publique")
         .taxRegime("P")
         .vatNumber("41115530")
-        .identifierType(CustomerDTO.IdentifierType.MATRICULE_FISCAL)
+        .identifierType(IdentifierType.I_01)
         .address(createCustomerAddress())
         .build();
   }
@@ -157,7 +159,7 @@ public final class ElFatooraTestData {
         .companyName("Mohamed Ben Ali")
         .customerType("SMPP")
         .taxRegime("NP")
-        .identifierType(CustomerDTO.IdentifierType.CIN)
+        .identifierType(IdentifierType.I_02)
         .address(createCustomerAddress())
         .build();
   }
@@ -175,8 +177,8 @@ public final class ElFatooraTestData {
         .unitType("UNIT")
         .quantity(new BigDecimal("1.000"))
         .unitPrice(new BigDecimal("2.000"))
-        .taxRate(new BigDecimal("12"))
-        .taxTypeCode(InvoiceLineDTO.TaxTypeCode.TVA)
+        .taxRate(new BigDecimal("19"))
+        .taxTypeCode(TaxTypeCode.TVA)
         .language("fr")
         .build();
   }
@@ -197,7 +199,7 @@ public final class ElFatooraTestData {
         .quantity(quantity)
         .unitPrice(unitPrice)
         .taxRate(taxRate)
-        .taxTypeCode(InvoiceLineDTO.TaxTypeCode.TVA)
+        .taxTypeCode(TaxTypeCode.TVA)
         .language("fr")
         .build();
   }

@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.CertificateInfo;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.ElFatooraInvoiceDTO;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.ElFatooraResult;
-import tn.cyberious.compta.einvoicing.elfatoora.model.dto.ValidationResult;
 import tn.cyberious.compta.einvoicing.elfatoora.service.ElFatooraService;
+import tn.cyberious.compta.einvoicing.elfatoora.validation.ValidationResult;
 
 /**
  * REST controller for El Fatoora invoice generation.

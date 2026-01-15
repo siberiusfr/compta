@@ -23,7 +23,8 @@ public enum ErrorCode {
   INVALID_CURRENCY("ELF014", "Invalid currency code (only TND supported)"),
   XML_PARSING_ERROR("ELF015", "Error parsing XML document"),
   MARSHALLING_ERROR("ELF016", "Error marshalling object to XML"),
-  UNMARSHALLING_ERROR("ELF017", "Error unmarshalling XML to object");
+  UNMARSHALLING_ERROR("ELF017", "Error unmarshalling XML to object"),
+  VALIDATION_FAILED("ELF018", "Invoice validation failed");
 
   private final String code;
   private final String message;

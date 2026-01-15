@@ -108,31 +108,53 @@
         <groupId>org.jooq</groupId>
         <artifactId>jooq-codegen-maven</artifactId>
       </plugin>
-      <!-- JAXB2 Maven Plugin for generating Java classes from XSD -->
+      <!-- Étape 1: Prétraitement XSD - Supprime les éléments XSD 1.1 (xs:assert, xs:alternative) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>strip-xsd11-features</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>initialize</phase>
+            <configuration>
+              <target>
+                <mkdir dir="${project.build.directory}/schema"/>
+                <xslt in="${project.basedir}/src/main/resources/schema/facture_INVOIC_V1.8.8_withSig.xsd" out="${project.build.directory}/schema/facture_INVOIC_V1.8.8_jaxb-filtered.xsd" style="${project.basedir}/src/main/resources/schema/strip-xsd11.xslt"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Étape 2: Génération JAXB depuis le XSD filtré -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>jaxb2-maven-plugin</artifactId>
         <version>4.0.0</version>
+        <configuration>
+          <sources>
+            <!-- Utilise le XSD filtré (sans xs:assert) généré par antrun -->
+            <source>${project.build.directory}/schema/facture_INVOIC_V1.8.8_jaxb-filtered.xsd</source>
+          </sources>
+          <packageName>tn.cyberious.compta.einvoicing.elfatoora.model.generated</packageName>
+          <outputDirectory>${project.build.directory}/generated-sources/jaxb</outputDirectory>
+          <clearOutputDir>true</clearOutputDir>
+          <encoding>UTF-8</encoding>
+          <arguments>
+            <argument>-nv</argument>
+            <argument>-extension</argument>
+            <argument>-XautoNameResolution</argument>
+          </arguments>
+        </configuration>
         <executions>
           <execution>
             <id>xjc-elfatoora</id>
             <goals>
               <goal>xjc</goal>
             </goals>
-            <configuration>
-              <sources>
-                <!-- Using JAXB-compatible XSD (XSD 1.0) for code generation -->
-                <!-- Original XSD uses XSD 1.1 features (xs:assert, xs:alternative) not supported by JAXB XJC -->
-                <source>${project.basedir}/src/main/resources/schema/facture_INVOIC_V1.8.8_jaxb.xsd</source>
-              </sources>
-              <packageName>tn.cyberious.compta.einvoicing.elfatoora.model.generated</packageName>
-              <outputDirectory>${project.build.directory}/generated-sources/jaxb</outputDirectory>
-              <clearOutputDir>false</clearOutputDir>
-              <extension>true</extension>
-              <arguments>
-                <argument>-XautoNameResolution</argument>
-              </arguments>
-            </configuration>
+            <phase>generate-sources</phase>
           </execution>
         </executions>
       </plugin>

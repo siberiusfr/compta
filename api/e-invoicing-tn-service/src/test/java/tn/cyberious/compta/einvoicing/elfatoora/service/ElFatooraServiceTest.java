@@ -15,8 +15,9 @@ import tn.cyberious.compta.einvoicing.elfatoora.model.dto.CustomerDTO;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.ElFatooraInvoiceDTO;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.ElFatooraResult;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.InvoiceLineDTO;
-import tn.cyberious.compta.einvoicing.elfatoora.model.dto.ValidationResult;
+import tn.cyberious.compta.einvoicing.elfatoora.model.enums.TaxTypeCode;
 import tn.cyberious.compta.einvoicing.elfatoora.testdata.ElFatooraTestData;
+import tn.cyberious.compta.einvoicing.elfatoora.validation.ValidationResult;
 
 /** Unit tests for {@link ElFatooraService}. */
 @SpringBootTest
@@ -157,8 +158,8 @@ class ElFatooraServiceTest {
     }
 
     @Test
-    @DisplayName("Should add warning for non-standard tax rate")
-    void shouldAddWarningForNonStandardTaxRate() {
+    @DisplayName("Should reject non-standard tax rate")
+    void shouldRejectNonStandardTaxRate() {
       // Given
       ElFatooraInvoiceDTO invoice = ElFatooraTestData.createSampleInvoice();
       invoice.getLines().get(0).setTaxRate(new BigDecimal("15")); // Non-standard rate
@@ -167,8 +168,8 @@ class ElFatooraServiceTest {
       ValidationResult result = elFatooraService.validateInvoice(invoice);
 
       // Then
-      assertThat(result.isValid()).isTrue(); // Still valid, just warning
-      assertThat(result.getWarnings()).anyMatch(w -> w.getField().contains("taxRate"));
+      assertThat(result.isValid()).isFalse(); // Invalid - only 0%, 7%, 13%, 19% allowed
+      assertThat(result.getErrors()).anyMatch(e -> e.getField().contains("taxRate"));
     }
 
     @Test
@@ -254,7 +255,7 @@ class ElFatooraServiceTest {
               .quantity(new BigDecimal("2.000"))
               .unitPrice(new BigDecimal("100.000"))
               .taxRate(new BigDecimal("19"))
-              .taxTypeCode(InvoiceLineDTO.TaxTypeCode.TVA)
+              .taxTypeCode(TaxTypeCode.TVA)
               .build();
 
       ElFatooraInvoiceDTO invoice =

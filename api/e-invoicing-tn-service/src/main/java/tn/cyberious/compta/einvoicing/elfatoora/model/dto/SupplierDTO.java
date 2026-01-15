@@ -3,17 +3,26 @@ package tn.cyberious.compta.einvoicing.elfatoora.model.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tn.cyberious.compta.einvoicing.elfatoora.model.enums.IdentifierType;
+import tn.cyberious.compta.einvoicing.elfatoora.validation.constraints.ValidTaxIdentifier;
 
 /**
  * DTO representing the supplier (fournisseur) in El Fatoora invoice.
  *
  * <p>The supplier is identified by partner function code I-62.
+ *
+ * <p>Validation rules from XSD:
+ *
+ * <ul>
+ *   <li>Tax identifier: Matricule fiscal format (13 chars)
+ *   <li>Company name: Max 200 characters
+ *   <li>Address: Required
+ * </ul>
  */
 @Data
 @Builder
@@ -22,13 +31,22 @@ import lombok.NoArgsConstructor;
 public class SupplierDTO {
 
   /**
-   * Tax identifier (Matricule Fiscal). Format: NNNNNNNXAMZZZ (7 digits + 1 letter + AM + 3 digits)
-   * Example: 0736202XAM000
+   * Tax identifier (Matricule Fiscal).
+   *
+   * <p>Format: NNNNNNNLPCE99 (13 caractères)
+   *
+   * <ul>
+   *   <li>N: 7 chiffres (0-9)
+   *   <li>L: 1 lettre majuscule (A-Z sauf I et O)
+   *   <li>P: Position fiscale (A, B, D, N, P)
+   *   <li>C: Catégorie (C, M, N, P, E)
+   *   <li>E: 3 chiffres établissement (000-999)
+   * </ul>
+   *
+   * <p>Exemple valide: 0736202XAM000
    */
-  @NotBlank(message = "Tax identifier is required")
-  @Pattern(
-      regexp = "[0-9]{7}[ABCDEFGHJKLMNPQRSTVWXYZ][ABDNP][CMNP][0-9]{3}",
-      message = "Invalid tax identifier format (expected: NNNNNNNXAMZZZ)")
+  @NotBlank(message = "Le matricule fiscal est obligatoire")
+  @ValidTaxIdentifier(type = IdentifierType.I_01, message = "Matricule fiscal invalide")
   private String taxIdentifier;
 
   /** Company name (Raison Sociale). */
@@ -52,28 +70,10 @@ public class SupplierDTO {
   /** Contact information. */
   @Valid private ContactDTO contact;
 
-  /** Identifier type for the partner. Defaults to I-01 (Matricule Fiscal). */
-  @Builder.Default private IdentifierType identifierType = IdentifierType.MATRICULE_FISCAL;
-
-  /** Enum for partner identifier types. */
-  public enum IdentifierType {
-    /** I-01: Matricule Fiscal (Tax ID). */
-    MATRICULE_FISCAL("I-01"),
-    /** I-02: CIN (National ID Card). */
-    CIN("I-02"),
-    /** I-03: Carte de Séjour (Residence Card). */
-    CARTE_SEJOUR("I-03"),
-    /** I-04: Other identifier. */
-    OTHER("I-04");
-
-    private final String code;
-
-    IdentifierType(String code) {
-      this.code = code;
-    }
-
-    public String getCode() {
-      return code;
-    }
-  }
+  /**
+   * Type d'identifiant du partenaire.
+   *
+   * <p>Défaut: I-01 (Matricule Fiscal)
+   */
+  @Builder.Default private IdentifierType identifierType = IdentifierType.I_01;
 }

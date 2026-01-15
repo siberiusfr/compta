@@ -7,36 +7,57 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tn.cyberious.compta.einvoicing.elfatoora.validation.constraints.ValidCountryCode;
 
-/** DTO representing an address in El Fatoora invoice. */
+/**
+ * DTO representing an address in El Fatoora invoice.
+ *
+ * <p>Validation rules from XSD:
+ *
+ * <ul>
+ *   <li>Address description: Max 500 characters
+ *   <li>Street: Max 35 characters
+ *   <li>City: Max 35 characters
+ *   <li>Postal code: 4 digits (Tunisie)
+ *   <li>Country: ISO 3166-1 alpha-2
+ * </ul>
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressDTO {
 
-  /** Address description (main address line). */
-  @Size(max = 500, message = "Address description must not exceed 500 characters")
+  /** Description de l'adresse (ligne principale). */
+  @Size(max = 500, message = "La description d'adresse ne peut pas dépasser 500 caractères")
   private String addressDescription;
 
-  /** Street name. */
-  @Size(max = 35, message = "Street must not exceed 35 characters")
+  /** Nom de la rue. */
+  @Size(max = 35, message = "La rue ne peut pas dépasser 35 caractères")
   private String street;
 
-  /** City name. */
-  @Size(max = 35, message = "City name must not exceed 35 characters")
+  /** Ville. */
+  @Size(max = 35, message = "La ville ne peut pas dépasser 35 caractères")
   private String city;
 
-  /** Postal code (4 digits for Tunisia). */
-  @Pattern(regexp = "\\d{4}", message = "Postal code must be exactly 4 digits")
+  /**
+   * Code postal tunisien (4 chiffres).
+   *
+   * <p>Exemple: 1002 (Tunis Belvédère)
+   */
+  @Pattern(regexp = "\\d{4}", message = "Le code postal doit contenir exactement 4 chiffres")
   private String postalCode;
 
-  /** Country code (ISO 3166-1 alpha-2). Defaults to TN. */
-  @NotBlank(message = "Country code is required")
-  @Size(min = 2, max = 2, message = "Country code must be 2 characters")
+  /**
+   * Code pays ISO 3166-1 alpha-2.
+   *
+   * <p>Défaut: TN (Tunisie)
+   */
+  @NotBlank(message = "Le code pays est obligatoire")
+  @ValidCountryCode
   @Builder.Default
   private String country = "TN";
 
-  /** Language for address (fr, en, ar). */
+  /** Langue de l'adresse (fr, en, ar). */
   @Builder.Default private String language = "fr";
 }

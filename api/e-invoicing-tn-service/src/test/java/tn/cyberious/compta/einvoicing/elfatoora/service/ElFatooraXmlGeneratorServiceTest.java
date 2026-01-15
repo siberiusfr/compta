@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.ElFatooraInvoiceDTO;
 import tn.cyberious.compta.einvoicing.elfatoora.model.dto.InvoiceLineDTO;
+import tn.cyberious.compta.einvoicing.elfatoora.model.enums.TaxTypeCode;
 import tn.cyberious.compta.einvoicing.elfatoora.testdata.ElFatooraTestData;
 
 /** Unit tests for {@link ElFatooraXmlGeneratorService}. */
@@ -156,7 +157,7 @@ class ElFatooraXmlGeneratorServiceTest {
               .quantity(new BigDecimal("10.000"))
               .unitPrice(new BigDecimal("5.000"))
               .taxRate(new BigDecimal("19"))
-              .taxTypeCode(InvoiceLineDTO.TaxTypeCode.TVA)
+              .taxTypeCode(TaxTypeCode.TVA)
               .build();
 
       ElFatooraInvoiceDTO invoice =
@@ -194,7 +195,7 @@ class ElFatooraXmlGeneratorServiceTest {
               .quantity(new BigDecimal("1.234"))
               .unitPrice(new BigDecimal("5.678"))
               .taxRate(new BigDecimal("19"))
-              .taxTypeCode(InvoiceLineDTO.TaxTypeCode.TVA)
+              .taxTypeCode(TaxTypeCode.TVA)
               .build();
 
       ElFatooraInvoiceDTO invoice =
