@@ -24,6 +24,7 @@
     <module>document-service</module>
     <module>accounting-service</module>
     <module>hr-service</module>
+    <module>referentiel-service</module>
     <module>e-invoicing-tn-service</module>
     <module>migration-service</module>
     <module>oauth2-server</module>

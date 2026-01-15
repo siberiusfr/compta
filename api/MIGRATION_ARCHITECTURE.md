@@ -9,6 +9,7 @@ Ce document décrit l'architecture des migrations de base de données pour le pr
 ### Principe
 
 Les migrations de base de données sont gérées de manière **décentralisée** avec **isolation par schéma** :
+
 - **Flyway est configuré dans `compta-commons`** et hérité par tous les services
 - **Chaque service gère ses propres migrations** au démarrage
 - **Chaque service a son propre schéma PostgreSQL** pour une isolation complète
@@ -29,14 +30,14 @@ Les migrations de base de données sont gérées de manière **décentralisée**
 
 Chaque service utilise son propre schéma :
 
-| Service | Schéma PostgreSQL | Port |
-|---------|------------------|------|
-| accounting-service | `accounting` | 8082 |
-| auth-service | `auth` | 8083 |
-| hr-service | `hr` | 8084 |
-| document-service | `document` | 8085 |
-| notification-service | `notification` | 8086 |
-| migration-service | (consultation seule) | 8081 |
+| Service              | Schéma PostgreSQL    | Port |
+|----------------------|----------------------|------|
+| accounting-service   | `accounting`         | 8082 |
+| auth-service         | `auth`               | 8083 |
+| hr-service           | `hr`                 | 8084 |
+| document-service     | `document`           | 8085 |
+| notification-service | `notification`       | 8086 |
+| migration-service    | (consultation seule) | 8081 |
 
 ### Répertoires
 
@@ -67,18 +68,19 @@ notification-service/
 
 migration-service/
 ├── src/main/resources/db/migration/
-│   └── V1__init_schema.sql               # Copie pour consultation
+│   └── V1__create_referentiel_schema.sql               # Copie pour consultation
 └── README.md                              # Documentation du service
 ```
 
 ### Convention de nommage
 
 Les migrations suivent la convention Flyway :
+
 - **Format** : `V{version}__{description}.sql`
 - **Exemples** :
-  - `V1__init_accounting_schema.sql` - Migration initiale avec création du schéma
-  - `V2__add_invoice_table.sql` - Ajout d'une table
-  - `V3__add_audit_columns.sql` - Ajout de colonnes d'audit
+    - `V1__init_accounting_schema.sql` - Migration initiale avec création du schéma
+    - `V2__add_invoice_table.sql` - Ajout d'une table
+    - `V3__add_audit_columns.sql` - Ajout de colonnes d'audit
 
 ### Structure d'une migration V1
 
@@ -155,6 +157,7 @@ server:
 ```
 
 **Services configurés :**
+
 - ✅ [`accounting-service`](accounting-service/src/main/resources/application.yml) - Schéma `accounting`
 - ✅ [`auth-service`](auth-service/src/main/resources/application.yml) - Schéma `auth`
 - ✅ [`hr-service`](hr-service/src/main/resources/application.yml) - Schéma `hr`
@@ -203,13 +206,13 @@ Le [`migration-service`](migration-service/README.md) expose des endpoints REST 
 
 ### Endpoints
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/migrations` | Liste toutes les migrations |
-| `GET /api/migrations/applied` | Migrations appliquées |
-| `GET /api/migrations/pending` | Migrations en attente |
-| `GET /api/migrations/failed` | Migrations échouées |
-| `GET /api/migrations/info` | Informations générales |
+| Endpoint                      | Description                 |
+|-------------------------------|-----------------------------|
+| `GET /api/migrations`         | Liste toutes les migrations |
+| `GET /api/migrations/applied` | Migrations appliquées       |
+| `GET /api/migrations/pending` | Migrations en attente       |
+| `GET /api/migrations/failed`  | Migrations échouées         |
+| `GET /api/migrations/info`    | Informations générales      |
 
 ### Exemple d'utilisation
 
@@ -272,12 +275,14 @@ CREATE TABLE accounting.user_settings (
 ### Modifier une migration non appliquée
 
 Si la migration n'a **jamais été appliquée** en production :
+
 - Vous pouvez modifier le fichier directement
 - Supprimez la ligne correspondante dans `{schema}.flyway_schema_history` en développement
 
 ### Corriger une migration appliquée
 
 Si la migration a **déjà été appliquée** :
+
 - **Ne jamais modifier le fichier existant**
 - Créer une nouvelle migration pour corriger :
   ```sql
@@ -308,12 +313,14 @@ Si la migration a **déjà été appliquée** :
 ## Tables créées par service
 
 ### accounting-service (schéma: accounting)
+
 - `companies` - Entreprises
 - `accounts` - Comptes comptables
 - `journal_entries` - Écritures comptables
 - `journal_entry_lines` - Lignes d'écriture
 
 ### auth-service (schéma: auth)
+
 - `users` - Utilisateurs
 - `roles` - Rôles
 - `user_roles` - Liaison utilisateurs-rôles
@@ -323,6 +330,7 @@ Si la migration a **déjà été appliquée** :
 - `login_audit` - Audit des connexions
 
 ### hr-service (schéma: hr)
+
 - `employees` - Employés
 - `departments` - Départements
 - `contracts` - Contrats
@@ -331,6 +339,7 @@ Si la migration a **déjà été appliquée** :
 - `payslips` - Fiches de paie
 
 ### document-service (schéma: document)
+
 - `categories` - Catégories de documents
 - `documents` - Documents
 - `document_versions` - Versions de documents
@@ -340,6 +349,7 @@ Si la migration a **déjà été appliquée** :
 - `document_metadata` - Métadonnées personnalisées
 
 ### notification-service (schéma: notification)
+
 - `templates` - Templates de notifications
 - `notifications` - Notifications
 - `user_preferences` - Préférences utilisateur
@@ -354,6 +364,7 @@ Si la migration a **déjà été appliquée** :
 **Cause** : Une migration a été modifiée après application
 
 **Solution** :
+
 1. En développement : Supprimez la ligne dans `{schema}.flyway_schema_history`
 2. En production : Créez une nouvelle migration corrective
 
@@ -362,12 +373,14 @@ Si la migration a **déjà été appliquée** :
 **Cause** : Le schéma n'a pas été créé
 
 **Solution** :
+
 1. Vérifiez que la migration V1 crée bien le schéma : `CREATE SCHEMA IF NOT EXISTS {schema}`
 2. Vérifiez la configuration : `spring.flyway.schemas` et `default-schema`
 
 ### Les migrations ne s'exécutent pas
 
 **Vérifiez** :
+
 1. `spring.flyway.enabled=true` dans `application.yml`
 2. `spring.flyway.schemas` et `default-schema` sont configurés
 3. Les fichiers sont dans `src/main/resources/db/migration/`
@@ -377,6 +390,7 @@ Si la migration a **déjà été appliquée** :
 ### Erreur de permission sur le schéma
 
 **Solution** :
+
 ```sql
 -- Donner les droits à l'utilisateur
 GRANT ALL ON SCHEMA {schema} TO {user};

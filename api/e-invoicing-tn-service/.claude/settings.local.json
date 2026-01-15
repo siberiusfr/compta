@@ -9,7 +9,12 @@
       "Bash(mvn test-compile:*)",
       "Bash(mvn compiler:testCompile:*)",
       "Bash(mvn surefire:test:*)",
-      "Bash(mvn spotless:apply:*)"
+      "Bash(mvn spotless:apply:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(xargs cat:*)",
+      "Bash(mvn clean test-compile:*)",
+      "Bash(mvn test:*)"
     ]
   }
 }
