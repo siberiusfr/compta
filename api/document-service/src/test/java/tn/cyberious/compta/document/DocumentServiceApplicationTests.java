@@ -1,4 +1,4 @@
-package tn.cyberious.compta;
+package tn.cyberious.compta.document;
 
 import org.junit.jupiter.api.Test;
 import tn.cyberious.compta.test.AbstractIntegrationTest;
