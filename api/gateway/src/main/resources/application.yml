@@ -200,7 +200,39 @@ spring:
           metadata:
             response-timeout: 30000 # Longer timeout for file uploads
 
-# ✅ CORS Configuration (externalized)
+        # ==========================================
+        # Referentiel Service
+        # ==========================================
+        - id: referentiel-service
+          uri: ${REFERENTIEL_SERVICE_URL:http://localhost:8086}
+          predicates:
+            - Path=/referentiel/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: referentielService
+                fallbackUri: forward:/fallback/referentiel
+            # ✅ Rate limiting with Redis (20 requests/second, burst of 40)
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: '#{@userKeyResolver}'
+            # ✅ Retry strategy for transient errors
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT
+                methods: GET,PUT
+                backoff:
+                  firstBackoff: 10ms
+                  maxBackoff: 50ms
+                  factor: 2
+                  basedOnPreviousValue: false
+          metadata:
+            response-timeout: 5000
+
+  # ✅ CORS Configuration (externalized)
 cors:
   allowed-origins:
     - http://localhost:3000
@@ -269,6 +301,10 @@ resilience4j:
         failureRateThreshold: 50
         slowCallDurationThreshold: 30s
         waitDurationInOpenState: 30s
+      referentielService:
+        baseConfig: default
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
   timelimiter:
     configs:
       default:
@@ -284,8 +320,10 @@ resilience4j:
         timeoutDuration: 10s
       documentService:
         timeoutDuration: 60s
+      referentielService:
+        timeoutDuration: 10s
 
-# Health check configuration
+  # Health check configuration
 health:
   check:
     timeout-seconds: 5
@@ -311,6 +349,8 @@ springdoc:
         url: /employees/v3/api-docs
       - name: Document Service
         url: /doc/v3/api-docs
+      - name: Referentiel Service
+        url: /referentiel/v3/api-docs
     oauth2:
       use-pkce-with-authorization-code-grant: false
 

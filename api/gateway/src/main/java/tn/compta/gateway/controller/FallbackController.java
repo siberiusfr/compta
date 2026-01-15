@@ -105,12 +105,34 @@ public class FallbackController {
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
         .body(
             Map.of(
+                "timestamp",
+                Instant.now().toString(),
+                "status",
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "error",
+                "Service Unavailable",
+                "message",
+                "Le service de documents est temporairement indisponible. Vos fichiers sont en sécurité.",
+                "service",
+                "document-service"));
+  }
+
+  /** Fallback for referentiel service. */
+  @RequestMapping(
+      value = "/referentiel",
+      method = {GET, POST, PUT, DELETE, PATCH})
+  public ResponseEntity<Map<String, Object>> referentielServiceFallback() {
+    log.warn("Referentiel service circuit breaker activated - returning fallback response");
+
+    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+        .body(
+            Map.of(
                 "timestamp", Instant.now().toString(),
                 "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
                 "error", "Service Unavailable",
                 "message",
-                    "Le service de documents est temporairement indisponible. Vos fichiers sont en sécurité.",
-                "service", "document-service"));
+                    "Le service de référentiel est temporairement indisponible. Veuillez réessayer dans quelques instants.",
+                "service", "referentiel-service"));
   }
 
   /** Generic fallback for any service. */
