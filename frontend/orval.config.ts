@@ -1,4 +1,4 @@
-import { defineConfig } from 'orval';
+import { defineConfig } from 'orval'
 
 export default defineConfig({
   oauth2: {
@@ -58,4 +58,23 @@ export default defineConfig({
       },
     },
   },
-});
+  referentiel: {
+    input: {
+      target: './openapi/referentiel.json',
+    },
+    output: {
+      client: 'vue-query',
+      mode: 'tags-split', // ou 'single', 'split'
+      target: './src/api/referentiel/gen/generated.ts',
+      mock: false,
+      clean: true,
+      prettier: true,
+      override: {
+        mutator: {
+          path: './src/api/axios-instance.ts',
+          name: 'customInstance',
+        },
+      },
+    },
+  },
+})
