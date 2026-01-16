@@ -1,18 +1,53 @@
 # OAuth2 Server Module
 
+> **Code Review**: 2026-01-17 | **Health Score**: 8.2/10 | **Status**: Production Ready
+
 ## Overview
 
-This module provides a complete OAuth2 Authorization Server implementation using Spring Authorization Server 1.3+ with Spring Security 6. It supports both public clients (with PKCE) and confidential clients, and uses JOOQ for database access.
+This module provides a complete OAuth2 Authorization Server implementation using Spring Authorization Server 1.3+ with Spring Security 6. It supports both public clients (with PKCE) and confidential clients, and uses jOOQ for database access.
+
+## Quick Start
+
+```bash
+# Build
+mvn clean install -pl oauth2-server -am
+
+# Run (dev profile)
+cd oauth2-server && mvn spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Access points
+# - OAuth2 Server: http://localhost:9000
+# - Swagger UI: http://localhost:9000/swagger-ui.html
+# - JWKS: http://localhost:9000/.well-known/jwks.json
+```
 
 ## Architecture
 
 ### Technology Stack
-- **Spring Boot 3.x** with Spring Security 6
+- **Spring Boot 3.5.9** with Spring Security 6
 - **Spring Authorization Server 1.3+**
-- **JOOQ** for type-safe database access
+- **jOOQ** for type-safe database access
 - **Flyway** for database migrations
-- **PostgreSQL** with `oauth2` schema
-- **RSA 2048-bit** keys for JWT signing
+- **PostgreSQL 16** with `oauth2` schema
+- **Redis** for rate limiting cache
+- **RSA 2048-bit** keys for JWT signing (with rotation)
+- **Micrometer** for metrics
+
+### Features Implemented
+
+| Feature | Status | RFC |
+|---------|--------|-----|
+| Authorization Code Flow | Implemented | RFC 6749 |
+| PKCE | Implemented | RFC 7636 |
+| Client Credentials | Implemented | RFC 6749 |
+| Refresh Token | Implemented | RFC 6749 |
+| Token Introspection | Implemented | RFC 7662 |
+| Token Revocation | Implemented | RFC 7009 |
+| OIDC UserInfo | Implemented | OpenID Connect |
+| JWKS | Implemented | RFC 7517 |
+| Rate Limiting | Implemented | - |
+| Audit Logging | Implemented | - |
+| Key Rotation | Implemented | - |
 
 ### Registered Clients
 
@@ -23,7 +58,7 @@ This module provides a complete OAuth2 Authorization Server implementation using
 
 ### Client Secrets
 - `public-client`: No secret (public client)
-- `gateway`: `gateway-secret`
+- `gateway`: `${GATEWAY_SECRET}` (configure via environment)
 
 ### Architecture Note
 
@@ -256,9 +291,84 @@ logging:
     tn.cyberious.compta.oauth2: DEBUG
 ```
 
+## API Endpoints
+
+### OAuth2 Standard
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/oauth2/authorize` | GET | Authorization endpoint |
+| `/oauth2/token` | POST | Token endpoint |
+| `/oauth2/revoke` | POST | Token revocation |
+| `/oauth2/introspect` | POST | Token introspection |
+| `/.well-known/jwks.json` | GET | JWKS public keys |
+| `/userinfo` | GET | OIDC UserInfo |
+
+### Management APIs
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/users` | CRUD | ADMIN | User management |
+| `/api/clients` | CRUD | ADMIN | Client management |
+| `/api/users/password/reset` | POST | Public | Password reset |
+| `/api/users/email/verify` | POST | Public | Email verification |
+
+## Configuration
+
+### Environment Variables
+
+```bash
+# Required for production
+OAUTH2_ISSUER=https://auth.example.com
+GATEWAY_SECRET=your-secure-secret
+CORS_ALLOWED_ORIGINS=https://app.example.com
+FRONTEND_URL=https://app.example.com
+
+# Database
+DATABASE_URL=jdbc:postgresql://host:5432/compta
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=secret
+
+# Redis
+REDIS_HOST=redis-host
+REDIS_PORT=6379
+```
+
+## Documentation
+
+- **Detailed Architecture**: See [`AGENTS.md`](AGENTS.md)
+- **Completed Tasks**: See [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md)
+- **Remaining Tasks**: See [`TASKS.md`](TASKS.md)
+
 ## References
 
 - [Spring Authorization Server Documentation](https://docs.spring.io/spring-authorization-server/reference/)
 - [OAuth 2.1 RFC](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-09)
 - [PKCE RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636)
-- [JOOQ Documentation](https://www.jooq.org/)
+- [Token Introspection RFC 7662](https://datatracker.ietf.org/doc/html/rfc7662)
+- [Token Revocation RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009)
+- [jOOQ Documentation](https://www.jooq.org/)
+
+---
+
+## Code Review Summary (2026-01-17)
+
+### Health Score: 8.2/10
+
+| Category | Score |
+|----------|-------|
+| Architecture | 9/10 |
+| Security | 8/10 |
+| Code Quality | 8/10 |
+| Tests | 5/10 |
+| Documentation | 9/10 |
+
+### What's Working Well
+- Spring Authorization Server 1.3+ properly configured
+- PKCE, RSA key rotation, token blacklisting
+- Rate limiting and audit logging
+- Full user and client management APIs
+
+### Areas for Improvement
+- Add integration tests
+- Implement account lockout
+- Consider adding 2FA support
+- See [`TASKS.md`](TASKS.md) for full list

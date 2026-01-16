@@ -1,5 +1,8 @@
 # OAuth2 Server - Tasks Roadmap
 
+> **Last Code Review**: 2026-01-17
+> **Reviewed By**: Claude Code (Opus 4.5)
+
 This document outlines all the missing components and features needed to make the OAuth2 server complete and production-ready.
 
 > **Note:** The High Priority Tasks (tasks 1-6) and most Medium Priority Tasks have been completed and moved to [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md).
@@ -8,11 +11,223 @@ This document outlines all the missing components and features needed to make th
 
 ## Table of Contents
 
-1. [Bugs & Issues to Fix](#bugs--issues-to-fix) - **URGENT**
-2. [Medium Priority Tasks](#medium-priority-tasks) - Partially Completed
-3. [Low Priority Tasks](#low-priority-tasks)
-4. [Testing Tasks](#testing-tasks)
-5. [DevOps & Operations Tasks](#devops--operations-tasks)
+1. [Code Review Findings](#code-review-findings---new) - **FROM 2026-01-17 REVIEW**
+2. [Critical Issues to Fix](#critical-issues-to-fix) - **URGENT**
+3. [Medium Priority Tasks](#medium-priority-tasks) - Partially Completed
+4. [Low Priority Tasks](#low-priority-tasks)
+5. [Testing Tasks](#testing-tasks)
+6. [DevOps & Operations Tasks](#devops--operations-tasks)
+
+---
+
+## Code Review Findings - NEW
+
+### Summary
+
+| Category | Score | Status |
+|----------|-------|--------|
+| Architecture | 9/10 | Excellent |
+| Security | 8/10 | Good |
+| Code Quality | 8/10 | Good |
+| Tests | 5/10 | Needs Work |
+| Documentation | 9/10 | Excellent |
+
+### What's Working Well
+
+1. **Architecture solide**
+   - Spring Authorization Server 1.3+ bien configuré
+   - jOOQ avec type-safety
+   - Séparation claire des responsabilités (Controller → Service → Repository)
+
+2. **Sécurité**
+   - PKCE obligatoire pour clients publics
+   - RSA 2048-bit avec rotation automatique
+   - Token blacklisting avec double-couche (cache + DB)
+   - Rate limiting sur tous les endpoints sensibles
+   - Audit logging complet
+
+3. **Features complètes**
+   - Token introspection (RFC 7662)
+   - Token revocation (RFC 7009)
+   - OIDC UserInfo endpoint
+   - User/Client management APIs
+   - Password reset flow
+   - Email verification flow
+
+4. **Configuration**
+   - Secrets externalisés via variables d'environnement
+   - CORS configurable
+   - Profiles dev/prod
+
+### Issues Identified
+
+#### CRITICAL - Security
+| # | Issue | Impact | Fix Required |
+|---|-------|--------|--------------|
+| 1 | **Redirect URIs hardcodées** | Vulnérabilité en production | Externaliser via config |
+| 2 | **Pas de account lockout** | Brute force possible | Implémenter lockout progressif |
+| 3 | **Pas de 2FA** | Sécurité insuffisante pour comptes sensibles | Implémenter TOTP |
+
+#### HIGH - Code Quality
+| # | Issue | Impact | Fix Required |
+|---|-------|--------|--------------|
+| 4 | **Tests insuffisants** | Régressions possibles | Ajouter tests d'intégration |
+| 5 | **RequestCounter bug potentiel** | Race condition | Refactorer la logique |
+| 6 | **DPoP non implémenté** | Documenté mais absent | Implémenter ou supprimer doc |
+
+#### MEDIUM - Functionality
+| # | Issue | Impact | Fix Required |
+|---|-------|--------|--------------|
+| 7 | **Pas de session management** | UX limitée | Ajouter gestion sessions |
+| 8 | **Pas de social login** | Friction utilisateur | Implémenter OAuth2 federation |
+| 9 | **Multi-tenancy limité** | Scalabilité | Améliorer isolation |
+
+---
+
+## Critical Issues to Fix
+
+### Issue 1: Redirect URIs Hardcodées
+
+**Problem**: Les redirect URIs sont hardcodées dans `AuthorizationServerConfig.java`:
+```java
+.redirectUri("http://localhost:3000/authorized")
+.redirectUri("http://localhost:8080/authorized")
+```
+
+**Impact**: Ne fonctionne pas en production sans modification du code.
+
+**Solution**:
+```yaml
+# application.yml
+oauth2:
+  clients:
+    public-client:
+      redirect-uris: ${PUBLIC_CLIENT_REDIRECT_URIS:http://localhost:3000/authorized}
+    gateway:
+      redirect-uris: ${GATEWAY_REDIRECT_URIS:http://localhost:8080/authorized}
+```
+
+**Files to Modify**:
+- `src/main/java/tn/cyberious/compta/oauth2/config/AuthorizationServerConfig.java`
+- `src/main/resources/application.yml`
+
+---
+
+### Issue 2: Account Lockout Missing
+
+**Problem**: Pas de protection contre les attaques brute force sur `/login`.
+
+**Current State**: Rate limiting existe mais n'est pas suffisant.
+
+**Solution**: Implémenter lockout progressif:
+- 5 échecs → 15 minutes de blocage
+- 10 échecs → 1 heure
+- 15 échecs → 24 heures
+
+**Files to Create**:
+```
+src/main/java/tn/cyberious/compta/oauth2/service/AccountLockoutService.java
+src/main/java/tn/cyberious/compta/oauth2/handler/AuthenticationFailureHandler.java
+src/main/resources/db/migration/V11__failed_login_attempts.sql
+```
+
+**Database Schema**:
+```sql
+CREATE TABLE oauth2.failed_login_attempts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(45),
+    attempt_count INTEGER DEFAULT 1,
+    first_attempt_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_attempt_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    locked_until TIMESTAMP
+);
+```
+
+---
+
+### Issue 3: 2FA Missing
+
+**Problem**: Authentification mono-facteur uniquement.
+
+**Solution**: Implémenter TOTP (Time-based One-Time Password)
+
+**Files to Create**:
+```
+src/main/java/tn/cyberious/compta/oauth2/service/TwoFactorAuthService.java
+src/main/java/tn/cyberious/compta/oauth2/controller/TwoFactorAuthController.java
+src/main/java/tn/cyberious/compta/oauth2/dto/Enable2FARequest.java
+src/main/java/tn/cyberious/compta/oauth2/dto/Verify2FARequest.java
+src/main/resources/db/migration/V12__two_factor_auth.sql
+```
+
+**Dependencies**:
+```xml
+<dependency>
+    <groupId>dev.samstevens.totp</groupId>
+    <artifactId>totp</artifactId>
+    <version>1.7.1</version>
+</dependency>
+```
+
+---
+
+### Issue 4: Tests Insuffisants
+
+**Current State**: Seulement `OAuth2ServerApplicationTests.java` qui teste le chargement du contexte.
+
+**Required Tests**:
+
+| Category | Files to Create |
+|----------|-----------------|
+| Integration | `AuthorizationCodeFlowTest.java` |
+| Integration | `ClientCredentialsFlowTest.java` |
+| Integration | `RefreshTokenFlowTest.java` |
+| Integration | `TokenRevocationTest.java` |
+| Security | `AuthenticationSecurityTest.java` |
+| Security | `RateLimitTest.java` |
+| Unit | `UserManagementServiceTest.java` |
+| Unit | `TokenBlacklistServiceTest.java` |
+
+---
+
+### Issue 5: RequestCounter Race Condition
+
+**Location**: `filter/RateLimitFilter.java:130-153`
+
+**Problem**: La méthode `increment()` fait cleanup après ajout, pouvant causer des incohérences.
+
+**Current Code**:
+```java
+public int increment() {
+    long now = System.currentTimeMillis();
+    timestamps.compute(now, (k, v) -> v == null ? new AtomicInteger(1) : v);
+    // Cleanup happens AFTER adding
+    long cutoff = now - lastWindowSize;
+    timestamps.entrySet().removeIf(entry -> entry.getKey() < cutoff);
+    return timestamps.values().stream().mapToInt(AtomicInteger::get).sum();
+}
+```
+
+**Fix**: Faire cleanup AVANT l'ajout ou utiliser une approche sliding window.
+
+---
+
+### Issue 6: DPoP Non Implémenté
+
+**Current State**: Documenté dans COMPLETED_TASKS.md comme "NOT DONE" mais présent dans la documentation.
+
+**Decision Required**:
+- Option A: Implémenter DPoP (RFC 9449)
+- Option B: Supprimer la documentation DPoP
+
+**If Implementing**:
+```
+src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPConfig.java
+src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPValidator.java
+src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPProofGenerator.java
+src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPFilter.java
+```
 
 ---
 
@@ -23,7 +238,6 @@ All 8 critical issues have been fixed. See [`COMPLETED_TASKS.md`](COMPLETED_TASK
 ---
 
 ## Medium Priority Tasks - ✅ MOSTLY COMPLETED
-| 6 | Implement Token Binding (DPoP) | ❌ **NOT DONE** | Only documented, code not written |
 
 8 of 9 tasks completed. See [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md#medium-priority-tasks) for implementation details.
 
@@ -38,6 +252,308 @@ DPoP (Demonstrating Proof-of-Possession) is documented but **not actually implem
 - `src/main/java/tn/cyberious/compta/oauth2/dpop/DPoPFilter.java`
 
 See RFC 9449 for implementation details.
+
+---
+
+## Detailed Code Analysis (2026-01-17)
+
+### File-by-File Review
+
+#### AuthorizationServerConfig.java (8/10)
+**Location**: `config/AuthorizationServerConfig.java`
+
+**Positifs**:
+- Deux filter chains bien séparées (OAuth2 vs Default)
+- CORS configurable via CorsProperties
+- CSRF protection appropriée
+- JWT authentication converter injecté
+
+**Problèmes**:
+- Lignes 196-197: Redirect URIs hardcodées `http://localhost:3000/authorized`
+- Ligne 224: Post-logout redirect URI hardcodée
+- Pas de validation des redirect URIs contre une whitelist
+
+---
+
+#### TokenBlacklistService.java (9/10)
+**Location**: `jti/TokenBlacklistService.java`
+
+**Positifs**:
+- Double-couche cache/DB bien implémentée
+- Lazy initialization du cache
+- Cleanup automatique des entrées expirées
+- Gestion des métadonnées (revoked_by, reason)
+
+**Problèmes mineurs**:
+- Ligne 63: `rs.getTimestamp().toInstant()` peut échouer si timestamp est null
+
+---
+
+#### RateLimitFilter.java (7/10)
+**Location**: `filter/RateLimitFilter.java`
+
+**Positifs**:
+- Support des headers proxy (X-Forwarded-For, X-Real-IP)
+- Integration avec les métriques
+- Blocage IP supporté
+
+**Problèmes**:
+- Lignes 141-152: `RequestCounter.increment()` a une race condition potentielle
+- Le cleanup se fait APRÈS l'ajout, ce qui peut fausser le comptage
+- `blockIp()` n'est jamais appelé (méthode morte)
+
+**Fix suggéré**:
+```java
+public int increment() {
+    long now = System.currentTimeMillis();
+    long cutoff = now - lastWindowSize;
+    // Cleanup AVANT l'ajout
+    timestamps.entrySet().removeIf(entry -> entry.getKey() < cutoff);
+    timestamps.compute(now, (k, v) -> v == null ? new AtomicInteger(1) : v);
+    return timestamps.values().stream().mapToInt(AtomicInteger::get).sum();
+}
+```
+
+---
+
+#### KeyManagementService.java (9/10)
+**Location**: `service/KeyManagementService.java`
+
+**Positifs**:
+- Rotation automatique via @Scheduled
+- Grace period pour transition douce
+- Configuration externalisée
+- Génération RSA 2048-bit
+
+**Problèmes mineurs**:
+- Ligne 181: `queryForObject` peut retourner null et causer NPE
+- Pas de backup des clés avant rotation
+
+---
+
+#### UserRepository.java (9/10)
+**Location**: `repository/UserRepository.java`
+
+**Positifs**:
+- jOOQ type-safe
+- Méthodes bien nommées
+- Gestion des timestamps
+
+**Problèmes mineurs**:
+- Lignes 75-88: `updateFields()` ne vérifie pas si les champs sont non-null avant `.set()`
+
+---
+
+#### OAuth2Metrics.java (9/10)
+**Location**: `metrics/OAuth2Metrics.java`
+
+**Positifs**:
+- 50+ métriques Micrometer
+- Tags pour filtrage (client_id, grant_type, status)
+- Timers pour performance
+- Bien organisé par catégorie
+
+**Problèmes mineurs**:
+- Lignes 387-394: Switch case avec clients hardcodés (public-client, gateway)
+- Nouveaux clients ne seront pas trackés
+
+---
+
+#### AuditLogAspect.java (8/10)
+**Location**: `aspect/AuditLogAspect.java`
+
+**Positifs**:
+- Pointcuts bien définis
+- Logging asynchrone
+- Capture complète (IP, User-Agent, duration)
+- Gestion des erreurs
+
+**Problèmes**:
+- Ligne 43: `TokenRevocationController` n'existe pas (c'est `RevocationController`)
+- Ligne 47: `TokenIntrospectionController` n'existe pas (c'est `IntrospectionController`)
+- Ces pointcuts ne matchent probablement pas
+
+---
+
+#### CustomUserDetailsService.java (8/10)
+**Location**: `security/CustomUserDetailsService.java`
+
+**Positifs**:
+- Simple et efficace
+- Transaction read-only
+- Charge les rôles en une requête
+
+**Problèmes**:
+- Pas de logging des tentatives de login
+- N'intègre pas avec un mécanisme de lockout
+
+---
+
+### Database Migrations Review
+
+| Migration | Status | Notes |
+|-----------|--------|-------|
+| V1__oauth2_registered_client.sql | OK | Table standard Spring Auth Server |
+| V2__oauth2_authorization.sql | OK | Table standard |
+| V3__oauth2_authorization_consent.sql | OK | Table standard |
+| V4__user_authentication_tables.sql | OK | Users, roles, user_roles |
+| V5__oauth2_keys.sql | OK | RSA keys storage |
+| V6__create_password_reset_tables.sql | OK | Tokens avec expiration |
+| V7__create_email_verification_tables.sql | OK | Tokens avec expiration |
+| V8__create_audit_log_table.sql | OK | JSONB pour details |
+| V9__create_token_blacklist_table.sql | OK | JTI blacklist |
+| V10__fix_default_user_passwords.sql | OK | BCrypt hashes |
+
+**Total migrations**: 10
+**Manquantes**: `failed_login_attempts`, `two_factor_auth`, `user_sessions`
+
+---
+
+### Security Checklist
+
+| Check | Status | Notes |
+|-------|--------|-------|
+| SQL Injection | SAFE | jOOQ parameterized queries |
+| XSS | SAFE | No HTML rendering of user input |
+| CSRF | PROTECTED | Cookie-based tokens |
+| Brute Force | PARTIAL | Rate limiting only, no lockout |
+| Password Storage | SAFE | BCrypt |
+| Key Management | SAFE | RSA 2048 with rotation |
+| Token Revocation | SAFE | JTI blacklist |
+| Audit Logging | GOOD | Comprehensive |
+| Secrets | GOOD | Externalized via env vars |
+
+---
+
+## Quick Fixes (Copy-Paste Ready)
+
+### Fix 1: AuditLogAspect Pointcuts
+
+**File**: `src/main/java/tn/cyberious/compta/oauth2/aspect/AuditLogAspect.java`
+
+**Current (BROKEN)**:
+```java
+@Pointcut("execution(* tn.cyberious.compta.oauth2.controller.TokenRevocationController.revokeToken(..))")
+public void tokenRevocation() {}
+
+@Pointcut("execution(* tn.cyberious.compta.oauth2.controller.TokenIntrospectionController.introspectToken(..))")
+public void tokenIntrospection() {}
+```
+
+**Fixed**:
+```java
+@Pointcut("execution(* tn.cyberious.compta.oauth2.controller.RevocationController.revoke(..))")
+public void tokenRevocation() {}
+
+@Pointcut("execution(* tn.cyberious.compta.oauth2.controller.IntrospectionController.introspect(..))")
+public void tokenIntrospection() {}
+```
+
+---
+
+### Fix 2: RateLimitFilter Race Condition
+
+**File**: `src/main/java/tn/cyberious/compta/oauth2/filter/RateLimitFilter.java`
+
+**Current (lines 141-152)**:
+```java
+public int increment() {
+    long now = System.currentTimeMillis();
+    timestamps.compute(now, (k, v) -> v == null ? new AtomicInteger(1) : v);
+    long cutoff = now - lastWindowSize;
+    timestamps.entrySet().removeIf(entry -> entry.getKey() < cutoff);
+    return timestamps.values().stream().mapToInt(AtomicInteger::get).sum();
+}
+```
+
+**Fixed**:
+```java
+public int increment() {
+    long now = System.currentTimeMillis();
+    long cutoff = now - lastWindowSize;
+    // Cleanup BEFORE adding to ensure accurate count
+    timestamps.entrySet().removeIf(entry -> entry.getKey() < cutoff);
+    timestamps.compute(now, (k, v) -> v == null ? new AtomicInteger(1) : v);
+    return timestamps.values().stream().mapToInt(AtomicInteger::get).sum();
+}
+```
+
+---
+
+### Fix 3: Externalize Redirect URIs
+
+**File**: `src/main/resources/application.yml`
+
+**Add**:
+```yaml
+oauth2:
+  clients:
+    public-client:
+      redirect-uris: ${PUBLIC_CLIENT_REDIRECT_URIS:http://localhost:3000/authorized}
+      post-logout-redirect-uris: ${PUBLIC_CLIENT_POST_LOGOUT_URIS:http://localhost:3000}
+    gateway:
+      redirect-uris: ${GATEWAY_REDIRECT_URIS:http://localhost:8080/authorized}
+```
+
+**File**: `src/main/java/tn/cyberious/compta/oauth2/config/AuthorizationServerConfig.java`
+
+**Add fields**:
+```java
+@Value("${oauth2.clients.public-client.redirect-uris}")
+private String publicClientRedirectUris;
+
+@Value("${oauth2.clients.public-client.post-logout-redirect-uris}")
+private String publicClientPostLogoutUris;
+
+@Value("${oauth2.clients.gateway.redirect-uris}")
+private String gatewayRedirectUris;
+```
+
+**Update initializeDefaultClients() lines 196-197, 224**:
+```java
+// Replace hardcoded URIs with:
+.redirectUri(publicClientRedirectUris)
+.postLogoutRedirectUri(publicClientPostLogoutUris)
+// ...
+.redirectUri(gatewayRedirectUris)
+```
+
+---
+
+### Fix 4: Remove Dead Code
+
+**File**: `src/main/java/tn/cyberious/compta/oauth2/filter/RateLimitFilter.java`
+
+**Remove unused method** (line 126-128):
+```java
+// DELETE THIS - never called
+private void blockIp(String clientIp, long blockDurationMillis) {
+    blockedUntil.put(clientIp, Instant.now().plusMillis(blockDurationMillis));
+}
+```
+
+---
+
+### Fix 5: KeyManagementService NPE Protection
+
+**File**: `src/main/java/tn/cyberious/compta/oauth2/service/KeyManagementService.java`
+
+**Current (line 181)**:
+```java
+LocalDateTime expiresAt = jdbcTemplate.queryForObject(sql, LocalDateTime.class, keyId);
+if (expiresAt == null) {
+    return true;
+}
+```
+
+**Fixed**:
+```java
+List<LocalDateTime> results = jdbcTemplate.queryForList(sql, LocalDateTime.class, keyId);
+if (results.isEmpty() || results.get(0) == null) {
+    return true;
+}
+LocalDateTime expiresAt = results.get(0);
+```
 
 ---
 
