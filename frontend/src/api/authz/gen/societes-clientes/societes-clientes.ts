@@ -27,7 +27,7 @@ import type {
   UpdateSocieteRequest,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { authzInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -37,7 +37,7 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const findById = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<SocieteDto>({ url: `/api/societes/${id}`, method: 'GET', signal })
+  return authzInstance<SocieteDto>({ url: `/api/societes/${id}`, method: 'GET', signal })
 }
 
 export const getFindByIdQueryKey = (id?: MaybeRef<number>) => {
@@ -107,7 +107,7 @@ export const update = (
   id = unref(id)
   updateSocieteRequest = unref(updateSocieteRequest)
 
-  return customInstance<SocieteDto>({
+  return authzInstance<SocieteDto>({
     url: `/api/societes/${id}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -184,7 +184,7 @@ export const useUpdate = <TError = ErrorType<SocieteDto>, TContext = unknown>(
 export const _delete = (id: MaybeRef<number>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/societes/${id}`, method: 'DELETE' })
+  return authzInstance<void>({ url: `/api/societes/${id}`, method: 'DELETE' })
 }
 
 export const getDeleteMutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
@@ -240,7 +240,7 @@ export const useDelete = <TError = ErrorType<void>, TContext = unknown>(
  * @summary Lister toutes les societes clientes
  */
 export const findAll = (signal?: AbortSignal) => {
-  return customInstance<SocieteDto[]>({ url: `/api/societes`, method: 'GET', signal })
+  return authzInstance<SocieteDto[]>({ url: `/api/societes`, method: 'GET', signal })
 }
 
 export const getFindAllQueryKey = () => {
@@ -304,7 +304,7 @@ export const create = (
 ) => {
   createSocieteRequest = unref(createSocieteRequest)
 
-  return customInstance<SocieteDto>({
+  return authzInstance<SocieteDto>({
     url: `/api/societes`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -382,7 +382,7 @@ export const useCreate = <TError = ErrorType<SocieteDto>, TContext = unknown>(
 export const findBySecteur = (secteur: MaybeRef<string>, signal?: AbortSignal) => {
   secteur = unref(secteur)
 
-  return customInstance<SocieteDto[]>({
+  return authzInstance<SocieteDto[]>({
     url: `/api/societes/secteur/${secteur}`,
     method: 'GET',
     signal,
@@ -452,7 +452,7 @@ export function useFindBySecteur<
 export const search = (params: MaybeRef<SearchParams>, signal?: AbortSignal) => {
   params = unref(params)
 
-  return customInstance<SocieteDto[]>({
+  return authzInstance<SocieteDto[]>({
     url: `/api/societes/search`,
     method: 'GET',
     params: unref(params),
@@ -518,7 +518,7 @@ export const findByMatriculeFiscale = (
 ) => {
   matriculeFiscale = unref(matriculeFiscale)
 
-  return customInstance<SocieteDto>({
+  return authzInstance<SocieteDto>({
     url: `/api/societes/matricule/${matriculeFiscale}`,
     method: 'GET',
     signal,
@@ -597,7 +597,7 @@ export const findBySocieteComptableId1 = (
 ) => {
   societeComptableId = unref(societeComptableId)
 
-  return customInstance<SocieteDto[]>({
+  return authzInstance<SocieteDto[]>({
     url: `/api/societes/cabinet/${societeComptableId}`,
     method: 'GET',
     signal,
@@ -677,7 +677,7 @@ export const findActiveBySocieteComptableId1 = (
 ) => {
   societeComptableId = unref(societeComptableId)
 
-  return customInstance<SocieteDto[]>({
+  return authzInstance<SocieteDto[]>({
     url: `/api/societes/cabinet/${societeComptableId}/active`,
     method: 'GET',
     signal,
@@ -754,7 +754,7 @@ export function useFindActiveBySocieteComptableId1<
  * @summary Lister les societes clientes actives
  */
 export const findAllActive = (signal?: AbortSignal) => {
-  return customInstance<SocieteDto[]>({ url: `/api/societes/active`, method: 'GET', signal })
+  return authzInstance<SocieteDto[]>({ url: `/api/societes/active`, method: 'GET', signal })
 }
 
 export const getFindAllActiveQueryKey = () => {

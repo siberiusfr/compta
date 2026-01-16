@@ -34,7 +34,7 @@ export default defineConfig({
       override: {
         mutator: {
           path: './src/api/axios-instance.ts',
-          name: 'customInstance',
+          name: 'documentsInstance',
         },
       },
     },
@@ -53,7 +53,7 @@ export default defineConfig({
       override: {
         mutator: {
           path: './src/api/axios-instance.ts',
-          name: 'customInstance',
+          name: 'authzInstance',
         },
       },
     },
@@ -72,7 +72,7 @@ export default defineConfig({
       override: {
         mutator: {
           path: './src/api/axios-instance.ts',
-          name: 'customInstance',
+          name: 'referentielInstance',
         },
       },
     },

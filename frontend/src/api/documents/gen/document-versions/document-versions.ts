@@ -28,7 +28,7 @@ import type {
   UploadVersionBody,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { documentsInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -38,7 +38,7 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const getVersions = (documentId: MaybeRef<number>, signal?: AbortSignal) => {
   documentId = unref(documentId)
 
-  return customInstance<DocumentVersionResponse[]>({
+  return documentsInstance<DocumentVersionResponse[]>({
     url: `/api/documents/${documentId}/versions`,
     method: 'GET',
     signal,
@@ -118,7 +118,7 @@ export const uploadVersion = (
     formData.append(`data`, JSON.stringify(uploadVersionBody.data))
   }
 
-  return customInstance<DocumentVersionResponse>({
+  return documentsInstance<DocumentVersionResponse>({
     url: `/api/documents/${documentId}/versions`,
     method: 'POST',
     headers: { 'Content-Type': 'multipart/form-data' },
@@ -201,7 +201,7 @@ export const getVersion = (
   documentId = unref(documentId)
   versionNumber = unref(versionNumber)
 
-  return customInstance<DocumentVersionResponse>({
+  return documentsInstance<DocumentVersionResponse>({
     url: `/api/documents/${documentId}/versions/${versionNumber}`,
     method: 'GET',
     signal,
@@ -281,7 +281,7 @@ export const downloadVersion = (
   documentId = unref(documentId)
   versionNumber = unref(versionNumber)
 
-  return customInstance<Blob>({
+  return documentsInstance<Blob>({
     url: `/api/documents/${documentId}/versions/${versionNumber}/download`,
     method: 'GET',
     responseType: 'blob',
@@ -362,7 +362,7 @@ export const getVersionDownloadUrl = (
   documentId = unref(documentId)
   versionNumber = unref(versionNumber)
 
-  return customInstance<GetVersionDownloadUrl200>({
+  return documentsInstance<GetVersionDownloadUrl200>({
     url: `/api/documents/${documentId}/versions/${versionNumber}/download-url`,
     method: 'GET',
     signal,

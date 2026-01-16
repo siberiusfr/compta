@@ -4,7 +4,8 @@
       "Bash(pnpm run build:*)",
       "Bash(pnpm run format:*)",
       "Bash(pnpm build:*)",
-      "Bash(npx vue-tsc:*)"
+      "Bash(npx vue-tsc:*)",
+      "Bash(pnpm run api:generate:*)"
     ]
   }
 }

@@ -3,8 +3,11 @@ const path = require('path');
 const os = require('os');
 
 module.exports = {
-  'frontend/**/*.{js,jsx,ts,tsx,vue,css,scss,json,md}': (files) => 
-    `prettier --write ${files.join(' ')}`,
+  'frontend/**/*.{js,jsx,ts,tsx,vue,css,scss,json,md}': (files) => {
+    const frontendDir = path.join(__dirname, 'frontend');
+    const prettierBin = path.join(frontendDir, 'node_modules', '.bin', 'prettier');
+    return `"${prettierBin}" --write ${files.join(' ')}`;
+  },
   
   'api/**/*.java': () => {
     try {
@@ -22,6 +25,9 @@ module.exports = {
     }
   },
   
-  'api/**/*.sql': (files) => 
-    `prettier --write ${files.join(' ')}`,
+  'api/**/*.sql': (files) => {
+    const frontendDir = path.join(__dirname, 'frontend');
+    const prettierBin = path.join(frontendDir, 'node_modules', '.bin', 'prettier');
+    return `"${prettierBin}" --write ${files.join(' ')}`;
+  },
 };

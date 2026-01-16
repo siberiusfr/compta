@@ -15,22 +15,41 @@ spring:
     schemas: referentiel
     default-schema: referentiel
 
-  # Port spécifique pour ce service
-  server:
-    port: 8086
+# Port spécifique pour ce service
+server:
+  port: 8086
+  forward-headers-strategy: framework
+  servlet:
+    context-path: /referentiel
 
-  # Configuration Sentry
-  sentry:
-    dsn: ${SENTRY_DSN:} # À configurer via variable d'environnement
-    environment: ${SENTRY_ENVIRONMENT:development}
-    traces-sample-rate: 1.0 # 100% en dev, réduire à 0.1 (10%) en production
-    send-default-pii: false
-    enable-tracing: true
-    tags:
-      service: referentiel-service
-      module: referentiel
+# Configuration Sentry
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SENTRY_ENVIRONMENT:development}
+  traces-sample-rate: 1.0
+  send-default-pii: false
+  enable-tracing: true
+  tags:
+    service: referentiel-service
+    module: referentiel
+
+# Configuration du module de sécurité partagé
+compta:
+  security:
+    enabled: true
+    public-paths: /actuator/**,/v3/api-docs/**,/swagger-ui/**,/referentiel/v3/api-docs/**,/referentiel/swagger-ui/**
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
 
 # Configuration du service d'autorisation
 authz:
   service:
-    url: ${AUTHZ_SERVICE_URL:http://localhost:8085}
+    url: ${AUTHZ_SERVICE_URL:http://localhost:8082}

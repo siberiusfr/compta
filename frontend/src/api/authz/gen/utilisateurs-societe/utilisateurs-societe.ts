@@ -27,7 +27,7 @@ import type {
   UserSocietesDto,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { authzInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -38,7 +38,7 @@ export const updateRole = (id: MaybeRef<number>, params: MaybeRef<UpdateRolePara
   id = unref(id)
   params = unref(params)
 
-  return customInstance<UserSocietesDto>({
+  return authzInstance<UserSocietesDto>({
     url: `/api/user-societes/${id}/role`,
     method: 'PUT',
     params: unref(params),
@@ -114,7 +114,7 @@ export const useUpdateRole = <TError = ErrorType<UserSocietesDto>, TContext = un
 export const deactivate = (id: MaybeRef<number>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/user-societes/${id}/deactivate`, method: 'PUT' })
+  return authzInstance<void>({ url: `/api/user-societes/${id}/deactivate`, method: 'PUT' })
 }
 
 export const getDeactivateMutationOptions = <
@@ -188,7 +188,7 @@ export const assignUser = (
 ) => {
   assignUserToSocieteRequest = unref(assignUserToSocieteRequest)
 
-  return customInstance<UserSocietesDto>({
+  return authzInstance<UserSocietesDto>({
     url: `/api/user-societes`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -266,7 +266,7 @@ export const useAssignUser = <TError = ErrorType<UserSocietesDto>, TContext = un
 export const findById3 = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<UserSocietesDto>({ url: `/api/user-societes/${id}`, method: 'GET', signal })
+  return authzInstance<UserSocietesDto>({ url: `/api/user-societes/${id}`, method: 'GET', signal })
 }
 
 export const getFindById3QueryKey = (id?: MaybeRef<number>) => {
@@ -332,7 +332,7 @@ export function useFindById3<
 export const delete2 = (id: MaybeRef<number>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/user-societes/${id}`, method: 'DELETE' })
+  return authzInstance<void>({ url: `/api/user-societes/${id}`, method: 'DELETE' })
 }
 
 export const getDelete2MutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
@@ -390,7 +390,7 @@ export const useDelete2 = <TError = ErrorType<void>, TContext = unknown>(
 export const findByUserId = (userId: MaybeRef<number>, signal?: AbortSignal) => {
   userId = unref(userId)
 
-  return customInstance<UserSocietesDto>({
+  return authzInstance<UserSocietesDto>({
     url: `/api/user-societes/user/${userId}`,
     method: 'GET',
     signal,
@@ -460,7 +460,7 @@ export function useFindByUserId<
 export const findSocieteByUserId = (userId: MaybeRef<number>, signal?: AbortSignal) => {
   userId = unref(userId)
 
-  return customInstance<SocieteDto>({
+  return authzInstance<SocieteDto>({
     url: `/api/user-societes/user/${userId}/societe`,
     method: 'GET',
     signal,
@@ -532,7 +532,7 @@ export function useFindSocieteByUserId<
 export const findActiveByUserId = (userId: MaybeRef<number>, signal?: AbortSignal) => {
   userId = unref(userId)
 
-  return customInstance<UserSocietesDto>({
+  return authzInstance<UserSocietesDto>({
     url: `/api/user-societes/user/${userId}/active`,
     method: 'GET',
     signal,
@@ -604,7 +604,7 @@ export function useFindActiveByUserId<
 export const findBySocieteId = (societeId: MaybeRef<number>, signal?: AbortSignal) => {
   societeId = unref(societeId)
 
-  return customInstance<UserSocietesDto[]>({
+  return authzInstance<UserSocietesDto[]>({
     url: `/api/user-societes/societe/${societeId}`,
     method: 'GET',
     signal,
@@ -674,7 +674,7 @@ export function useFindBySocieteId<
 export const findManagerBySocieteId = (societeId: MaybeRef<number>, signal?: AbortSignal) => {
   societeId = unref(societeId)
 
-  return customInstance<UserSocietesDto>({
+  return authzInstance<UserSocietesDto>({
     url: `/api/user-societes/societe/${societeId}/manager`,
     method: 'GET',
     signal,
@@ -750,7 +750,7 @@ export function useFindManagerBySocieteId<
 export const findActiveBySocieteId = (societeId: MaybeRef<number>, signal?: AbortSignal) => {
   societeId = unref(societeId)
 
-  return customInstance<UserSocietesDto[]>({
+  return authzInstance<UserSocietesDto[]>({
     url: `/api/user-societes/societe/${societeId}/active`,
     method: 'GET',
     signal,

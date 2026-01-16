@@ -153,25 +153,48 @@ AXIOS_INSTANCE.interceptors.response.use(
 // CUSTOM INSTANCE - Pour Orval
 // ============================================
 /**
- * Custom instance utilisée par Orval pour les appels API générés
- * @param config - Configuration Axios
- * @returns Promise avec les données de la réponse
+ * Factory pour créer des instances avec un préfixe d'URL (pour le routage gateway)
+ * @param prefix - Préfixe à ajouter aux URLs (ex: '/referentiel', '/authz')
  */
-export const customInstance = <T>(config: AxiosRequestConfig): Promise<T> => {
-  const source = Axios.CancelToken.source()
+export const createServiceInstance =
+  (prefix: string = '') =>
+  <T>(config: AxiosRequestConfig): Promise<T> => {
+    const source = Axios.CancelToken.source()
 
-  const promise = AXIOS_INSTANCE({
-    ...config,
-    cancelToken: source.token,
-  }).then(({ data }) => data)
+    const promise = AXIOS_INSTANCE({
+      ...config,
+      url: `${prefix}${config.url}`,
+      cancelToken: source.token,
+    }).then(({ data }) => data)
 
-  // Attache la méthode cancel pour permettre l'annulation
-  // @ts-expect-error - Ajout de cancel sur la promise pour Vue Query
-  promise.cancel = () => {
-    source.cancel('Query was cancelled')
+    // @ts-expect-error - Ajout de cancel sur la promise pour Vue Query
+    promise.cancel = () => {
+      source.cancel('Query was cancelled')
+    }
+
+    return promise
   }
 
-  return promise
+/**
+ * Instance par défaut (sans préfixe)
+ */
+export function customInstance<T>(config: AxiosRequestConfig): Promise<T> {
+  return createServiceInstance()<T>(config)
+}
+
+/**
+ * Instances par service (avec préfixe gateway)
+ */
+export function referentielInstance<T>(config: AxiosRequestConfig): Promise<T> {
+  return createServiceInstance('/referentiel')<T>(config)
+}
+
+export function authzInstance<T>(config: AxiosRequestConfig): Promise<T> {
+  return createServiceInstance('/authz')<T>(config)
+}
+
+export function documentsInstance<T>(config: AxiosRequestConfig): Promise<T> {
+  return createServiceInstance('/doc')<T>(config)
 }
 
 // ============================================

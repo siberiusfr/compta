@@ -26,7 +26,7 @@ import type {
   UserSocieteComptableDto,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { authzInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -37,7 +37,7 @@ export const updateRole1 = (id: MaybeRef<number>, params: MaybeRef<UpdateRole1Pa
   id = unref(id)
   params = unref(params)
 
-  return customInstance<UserSocieteComptableDto>({
+  return authzInstance<UserSocieteComptableDto>({
     url: `/api/user-societe-comptable/${id}/role`,
     method: 'PUT',
     params: unref(params),
@@ -113,10 +113,7 @@ export const useUpdateRole1 = <TError = ErrorType<UserSocieteComptableDto>, TCon
 export const deactivate1 = (id: MaybeRef<number>) => {
   id = unref(id)
 
-  return customInstance<void>({
-    url: `/api/user-societe-comptable/${id}/deactivate`,
-    method: 'PUT',
-  })
+  return authzInstance<void>({ url: `/api/user-societe-comptable/${id}/deactivate`, method: 'PUT' })
 }
 
 export const getDeactivate1MutationOptions = <
@@ -190,7 +187,7 @@ export const assignUser1 = (
 ) => {
   assignUserToSocieteComptableRequest = unref(assignUserToSocieteComptableRequest)
 
-  return customInstance<UserSocieteComptableDto>({
+  return authzInstance<UserSocieteComptableDto>({
     url: `/api/user-societe-comptable`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -268,7 +265,7 @@ export const useAssignUser1 = <TError = ErrorType<UserSocieteComptableDto>, TCon
 export const findById4 = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<UserSocieteComptableDto>({
+  return authzInstance<UserSocieteComptableDto>({
     url: `/api/user-societe-comptable/${id}`,
     method: 'GET',
     signal,
@@ -338,7 +335,7 @@ export function useFindById4<
 export const delete3 = (id: MaybeRef<number>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/user-societe-comptable/${id}`, method: 'DELETE' })
+  return authzInstance<void>({ url: `/api/user-societe-comptable/${id}`, method: 'DELETE' })
 }
 
 export const getDelete3MutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
@@ -396,7 +393,7 @@ export const useDelete3 = <TError = ErrorType<void>, TContext = unknown>(
 export const findByUserId1 = (userId: MaybeRef<number>, signal?: AbortSignal) => {
   userId = unref(userId)
 
-  return customInstance<UserSocieteComptableDto>({
+  return authzInstance<UserSocieteComptableDto>({
     url: `/api/user-societe-comptable/user/${userId}`,
     method: 'GET',
     signal,
@@ -466,7 +463,7 @@ export function useFindByUserId1<
 export const findActiveByUserId1 = (userId: MaybeRef<number>, signal?: AbortSignal) => {
   userId = unref(userId)
 
-  return customInstance<UserSocieteComptableDto>({
+  return authzInstance<UserSocieteComptableDto>({
     url: `/api/user-societe-comptable/user/${userId}/active`,
     method: 'GET',
     signal,
@@ -541,7 +538,7 @@ export const findBySocieteComptableId = (
 ) => {
   societeComptableId = unref(societeComptableId)
 
-  return customInstance<UserSocieteComptableDto[]>({
+  return authzInstance<UserSocieteComptableDto[]>({
     url: `/api/user-societe-comptable/cabinet/${societeComptableId}`,
     method: 'GET',
     signal,
@@ -621,7 +618,7 @@ export const findManagerBySocieteComptableId = (
 ) => {
   societeComptableId = unref(societeComptableId)
 
-  return customInstance<UserSocieteComptableDto>({
+  return authzInstance<UserSocieteComptableDto>({
     url: `/api/user-societe-comptable/cabinet/${societeComptableId}/manager`,
     method: 'GET',
     signal,
@@ -703,7 +700,7 @@ export const findActiveBySocieteComptableId = (
 ) => {
   societeComptableId = unref(societeComptableId)
 
-  return customInstance<UserSocieteComptableDto[]>({
+  return authzInstance<UserSocieteComptableDto[]>({
     url: `/api/user-societe-comptable/cabinet/${societeComptableId}/active`,
     method: 'GET',
     signal,

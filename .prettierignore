@@ -1,0 +1,6 @@
+frontend/.claude/
+frontend/openapi/
+frontend/orval/
+frontend/src/api/**/gen/
+frontend/orval.config.ts
+*.local.json

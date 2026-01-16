@@ -29,7 +29,7 @@ import type {
   RolePermissionDto,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { authzInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -43,7 +43,7 @@ export const updateDescription = (
   id = unref(id)
   updateDescriptionBody = unref(updateDescriptionBody)
 
-  return customInstance<PermissionDto>({
+  return authzInstance<PermissionDto>({
     url: `/api/permissions/${id}/description`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -120,7 +120,7 @@ export const useUpdateDescription = <TError = ErrorType<PermissionDto>, TContext
  * @summary Lister toutes les permissions
  */
 export const findAll2 = (signal?: AbortSignal) => {
-  return customInstance<PermissionDto[]>({ url: `/api/permissions`, method: 'GET', signal })
+  return authzInstance<PermissionDto[]>({ url: `/api/permissions`, method: 'GET', signal })
 }
 
 export const getFindAll2QueryKey = () => {
@@ -184,7 +184,7 @@ export const createPermission = (
 ) => {
   createPermissionRequest = unref(createPermissionRequest)
 
-  return customInstance<PermissionDto>({
+  return authzInstance<PermissionDto>({
     url: `/api/permissions`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -267,7 +267,7 @@ export const assignPermissionToRole = (
 ) => {
   assignPermissionToRoleRequest = unref(assignPermissionToRoleRequest)
 
-  return customInstance<RolePermissionDto>({
+  return authzInstance<RolePermissionDto>({
     url: `/api/permissions/role-assignment`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -350,7 +350,7 @@ export const useAssignPermissionToRole = <
 export const findById5 = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<PermissionDto>({ url: `/api/permissions/${id}`, method: 'GET', signal })
+  return authzInstance<PermissionDto>({ url: `/api/permissions/${id}`, method: 'GET', signal })
 }
 
 export const getFindById5QueryKey = (id?: MaybeRef<number>) => {
@@ -416,7 +416,7 @@ export function useFindById5<
 export const deletePermission = (id: MaybeRef<number>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/permissions/${id}`, method: 'DELETE' })
+  return authzInstance<void>({ url: `/api/permissions/${id}`, method: 'DELETE' })
 }
 
 export const getDeletePermissionMutationOptions = <
@@ -488,7 +488,7 @@ export const useDeletePermission = <TError = ErrorType<void>, TContext = unknown
  * @summary Lister les rôles
  */
 export const findDistinctRoles = (signal?: AbortSignal) => {
-  return customInstance<string[]>({ url: `/api/permissions/roles`, method: 'GET', signal })
+  return authzInstance<string[]>({ url: `/api/permissions/roles`, method: 'GET', signal })
 }
 
 export const getFindDistinctRolesQueryKey = () => {
@@ -551,7 +551,7 @@ export function useFindDistinctRoles<
 export const findPermissionsByRole = (role: MaybeRef<string>, signal?: AbortSignal) => {
   role = unref(role)
 
-  return customInstance<PermissionDto[]>({
+  return authzInstance<PermissionDto[]>({
     url: `/api/permissions/role/${role}`,
     method: 'GET',
     signal,
@@ -627,7 +627,7 @@ export function useFindPermissionsByRole<
 export const findRolePermissionsByRole = (role: MaybeRef<string>, signal?: AbortSignal) => {
   role = unref(role)
 
-  return customInstance<RolePermissionDto[]>({
+  return authzInstance<RolePermissionDto[]>({
     url: `/api/permissions/role/${role}/assignments`,
     method: 'GET',
     signal,
@@ -702,7 +702,7 @@ export function useFindRolePermissionsByRole<
  * @summary Lister les ressources
  */
 export const findDistinctResources = (signal?: AbortSignal) => {
-  return customInstance<string[]>({ url: `/api/permissions/resources`, method: 'GET', signal })
+  return authzInstance<string[]>({ url: `/api/permissions/resources`, method: 'GET', signal })
 }
 
 export const getFindDistinctResourcesQueryKey = () => {
@@ -767,7 +767,7 @@ export function useFindDistinctResources<
 export const findByResource = (resource: MaybeRef<string>, signal?: AbortSignal) => {
   resource = unref(resource)
 
-  return customInstance<PermissionDto[]>({
+  return authzInstance<PermissionDto[]>({
     url: `/api/permissions/resource/${resource}`,
     method: 'GET',
     signal,
@@ -837,7 +837,7 @@ export function useFindByResource<
 export const findByCode = (code: MaybeRef<string>, signal?: AbortSignal) => {
   code = unref(code)
 
-  return customInstance<PermissionDto>({
+  return authzInstance<PermissionDto>({
     url: `/api/permissions/code/${code}`,
     method: 'GET',
     signal,
@@ -907,7 +907,7 @@ export function useFindByCode<
 export const hasPermission = (params: MaybeRef<HasPermissionParams>, signal?: AbortSignal) => {
   params = unref(params)
 
-  return customInstance<boolean>({
+  return authzInstance<boolean>({
     url: `/api/permissions/check`,
     method: 'GET',
     params: unref(params),
@@ -980,7 +980,7 @@ export const hasPermissionOnResource = (
 ) => {
   params = unref(params)
 
-  return customInstance<boolean>({
+  return authzInstance<boolean>({
     url: `/api/permissions/check/resource`,
     method: 'GET',
     params: unref(params),
@@ -1057,7 +1057,7 @@ export function useHasPermissionOnResource<
  * @summary Lister les actions
  */
 export const findDistinctActions = (signal?: AbortSignal) => {
-  return customInstance<string[]>({ url: `/api/permissions/actions`, method: 'GET', signal })
+  return authzInstance<string[]>({ url: `/api/permissions/actions`, method: 'GET', signal })
 }
 
 export const getFindDistinctActionsQueryKey = () => {
@@ -1120,7 +1120,7 @@ export function useFindDistinctActions<
 export const findByAction = (action: MaybeRef<string>, signal?: AbortSignal) => {
   action = unref(action)
 
-  return customInstance<PermissionDto[]>({
+  return authzInstance<PermissionDto[]>({
     url: `/api/permissions/action/${action}`,
     method: 'GET',
     signal,
@@ -1194,7 +1194,7 @@ export const revokePermissionFromRole = (
   role = unref(role)
   permissionId = unref(permissionId)
 
-  return customInstance<void>({
+  return authzInstance<void>({
     url: `/api/permissions/role/${role}/permission/${permissionId}`,
     method: 'DELETE',
   })

@@ -23,7 +23,7 @@ import type { MaybeRef } from 'vue'
 
 import type { DocumentShareRequest, DocumentShareResponse } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { documentsInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -37,7 +37,7 @@ export const update1 = (
   shareId = unref(shareId)
   documentShareRequest = unref(documentShareRequest)
 
-  return customInstance<DocumentShareResponse>({
+  return documentsInstance<DocumentShareResponse>({
     url: `/api/documents/shares/${shareId}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -114,7 +114,7 @@ export const useUpdate1 = <TError = ErrorType<DocumentShareResponse>, TContext =
 export const revoke = (shareId: MaybeRef<number>) => {
   shareId = unref(shareId)
 
-  return customInstance<void>({ url: `/api/documents/shares/${shareId}`, method: 'DELETE' })
+  return documentsInstance<void>({ url: `/api/documents/shares/${shareId}`, method: 'DELETE' })
 }
 
 export const getRevokeMutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
@@ -182,7 +182,7 @@ export const useRevoke = <TError = ErrorType<void>, TContext = unknown>(
 export const getSharesByDocument = (documentId: MaybeRef<number>, signal?: AbortSignal) => {
   documentId = unref(documentId)
 
-  return customInstance<DocumentShareResponse[]>({
+  return documentsInstance<DocumentShareResponse[]>({
     url: `/api/documents/${documentId}/shares`,
     method: 'GET',
     signal,
@@ -259,7 +259,7 @@ export const share = (
   documentId = unref(documentId)
   documentShareRequest = unref(documentShareRequest)
 
-  return customInstance<DocumentShareResponse>({
+  return documentsInstance<DocumentShareResponse>({
     url: `/api/documents/${documentId}/shares`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -335,7 +335,7 @@ export const useShare = <TError = ErrorType<DocumentShareResponse>, TContext = u
  * @summary Cleanup expired shares
  */
 export const cleanupExpiredShares = (signal?: AbortSignal) => {
-  return customInstance<number>({ url: `/api/documents/shares/cleanup`, method: 'POST', signal })
+  return documentsInstance<number>({ url: `/api/documents/shares/cleanup`, method: 'POST', signal })
 }
 
 export const getCleanupExpiredSharesMutationOptions = <
@@ -407,7 +407,7 @@ export const useCleanupExpiredShares = <TError = ErrorType<unknown>, TContext = 
 export const getSharesWithUser = (userId: MaybeRef<string>, signal?: AbortSignal) => {
   userId = unref(userId)
 
-  return customInstance<DocumentShareResponse[]>({
+  return documentsInstance<DocumentShareResponse[]>({
     url: `/api/documents/shared-with/${userId}`,
     method: 'GET',
     signal,
@@ -477,7 +477,7 @@ export function useGetSharesWithUser<
  * @summary Get documents shared with me
  */
 export const getSharedWithMe = (signal?: AbortSignal) => {
-  return customInstance<DocumentShareResponse[]>({
+  return documentsInstance<DocumentShareResponse[]>({
     url: `/api/documents/shared-with-me`,
     method: 'GET',
     signal,

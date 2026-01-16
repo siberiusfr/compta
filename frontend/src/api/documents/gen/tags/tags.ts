@@ -23,7 +23,7 @@ import type { MaybeRef } from 'vue'
 
 import type { GetAllParams, TagRequest, TagResponse } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { documentsInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -33,7 +33,7 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const getAll = (params?: MaybeRef<GetAllParams>, signal?: AbortSignal) => {
   params = unref(params)
 
-  return customInstance<TagResponse[]>({
+  return documentsInstance<TagResponse[]>({
     url: `/api/tags`,
     method: 'GET',
     params: unref(params),
@@ -96,7 +96,7 @@ export function useGetAll<TData = Awaited<ReturnType<typeof getAll>>, TError = E
 export const create = (tagRequest: MaybeRef<TagRequest>, signal?: AbortSignal) => {
   tagRequest = unref(tagRequest)
 
-  return customInstance<TagResponse>({
+  return documentsInstance<TagResponse>({
     url: `/api/tags`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -174,7 +174,7 @@ export const useCreate = <TError = ErrorType<TagResponse>, TContext = unknown>(
 export const getById2 = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<TagResponse>({ url: `/api/tags/${id}`, method: 'GET', signal })
+  return documentsInstance<TagResponse>({ url: `/api/tags/${id}`, method: 'GET', signal })
 }
 
 export const getGetById2QueryKey = (id?: MaybeRef<number>) => {
@@ -240,7 +240,7 @@ export function useGetById2<
 export const delete2 = (id: MaybeRef<number>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/tags/${id}`, method: 'DELETE' })
+  return documentsInstance<void>({ url: `/api/tags/${id}`, method: 'DELETE' })
 }
 
 export const getDelete2MutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {

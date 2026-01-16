@@ -11,6 +11,7 @@ import { permissionsRoutes } from '@/modules/permissions/routes'
 import { companiesRoutes } from '@/modules/companies/routes'
 import { hrRoutes } from '@/modules/hr/routes'
 import { accountingRoutes } from '@/modules/accounting/routes'
+import { referentielRoutes } from '@/modules/referentiel/routes'
 
 const routes: RouteRecordRaw[] = [
   // Auth routes (outside dashboard layout)
@@ -33,6 +34,7 @@ const routes: RouteRecordRaw[] = [
       ...companiesRoutes,
       ...hrRoutes,
       ...accountingRoutes,
+      ...referentielRoutes,
     ],
   },
 

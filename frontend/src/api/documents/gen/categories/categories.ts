@@ -29,7 +29,7 @@ import type {
   GetTree200Item,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { documentsInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -39,7 +39,11 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const getById1 = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<CategoryResponse>({ url: `/api/categories/${id}`, method: 'GET', signal })
+  return documentsInstance<CategoryResponse>({
+    url: `/api/categories/${id}`,
+    method: 'GET',
+    signal,
+  })
 }
 
 export const getGetById1QueryKey = (id?: MaybeRef<number>) => {
@@ -106,7 +110,7 @@ export const update2 = (id: MaybeRef<number>, categoryRequest: MaybeRef<Category
   id = unref(id)
   categoryRequest = unref(categoryRequest)
 
-  return customInstance<CategoryResponse>({
+  return documentsInstance<CategoryResponse>({
     url: `/api/categories/${id}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -183,7 +187,7 @@ export const useUpdate2 = <TError = ErrorType<CategoryResponse>, TContext = unkn
 export const delete1 = (id: MaybeRef<number>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/categories/${id}`, method: 'DELETE' })
+  return documentsInstance<void>({ url: `/api/categories/${id}`, method: 'DELETE' })
 }
 
 export const getDelete1MutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
@@ -239,7 +243,7 @@ export const useDelete1 = <TError = ErrorType<void>, TContext = unknown>(
  * @summary Get all categories
  */
 export const getAll2 = (signal?: AbortSignal) => {
-  return customInstance<GetAll2200Item[]>({ url: `/api/categories`, method: 'GET', signal })
+  return documentsInstance<GetAll2200Item[]>({ url: `/api/categories`, method: 'GET', signal })
 }
 
 export const getGetAll2QueryKey = () => {
@@ -300,7 +304,7 @@ export function useGetAll2<
 export const create1 = (categoryRequest: MaybeRef<CategoryRequest>, signal?: AbortSignal) => {
   categoryRequest = unref(categoryRequest)
 
-  return customInstance<CategoryResponse>({
+  return documentsInstance<CategoryResponse>({
     url: `/api/categories`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -376,7 +380,7 @@ export const useCreate1 = <TError = ErrorType<CategoryResponse>, TContext = unkn
  * @summary Get category tree
  */
 export const getTree = (signal?: AbortSignal) => {
-  return customInstance<GetTree200Item[]>({ url: `/api/categories/tree`, method: 'GET', signal })
+  return documentsInstance<GetTree200Item[]>({ url: `/api/categories/tree`, method: 'GET', signal })
 }
 
 export const getGetTreeQueryKey = () => {
@@ -435,7 +439,7 @@ export function useGetTree<
  * @summary Get root categories
  */
 export const getRootCategories = (signal?: AbortSignal) => {
-  return customInstance<GetRootCategories200Item[]>({
+  return documentsInstance<GetRootCategories200Item[]>({
     url: `/api/categories/root`,
     method: 'GET',
     signal,

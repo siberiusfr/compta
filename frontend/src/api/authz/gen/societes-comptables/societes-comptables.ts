@@ -27,7 +27,7 @@ import type {
   UpdateSocieteComptableRequest,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { authzInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -37,7 +37,7 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const findById1 = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<SocieteComptableDto>({
+  return authzInstance<SocieteComptableDto>({
     url: `/api/societes-comptables/${id}`,
     method: 'GET',
     signal,
@@ -111,7 +111,7 @@ export const update1 = (
   id = unref(id)
   updateSocieteComptableRequest = unref(updateSocieteComptableRequest)
 
-  return customInstance<SocieteComptableDto>({
+  return authzInstance<SocieteComptableDto>({
     url: `/api/societes-comptables/${id}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -188,7 +188,7 @@ export const useUpdate1 = <TError = ErrorType<SocieteComptableDto>, TContext = u
 export const delete1 = (id: MaybeRef<number>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/societes-comptables/${id}`, method: 'DELETE' })
+  return authzInstance<void>({ url: `/api/societes-comptables/${id}`, method: 'DELETE' })
 }
 
 export const getDelete1MutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
@@ -244,7 +244,7 @@ export const useDelete1 = <TError = ErrorType<void>, TContext = unknown>(
  * @summary Lister toutes les societes comptables
  */
 export const findAll1 = (signal?: AbortSignal) => {
-  return customInstance<SocieteComptableDto[]>({
+  return authzInstance<SocieteComptableDto[]>({
     url: `/api/societes-comptables`,
     method: 'GET',
     signal,
@@ -312,7 +312,7 @@ export const create1 = (
 ) => {
   createSocieteComptableRequest = unref(createSocieteComptableRequest)
 
-  return customInstance<SocieteComptableDto>({
+  return authzInstance<SocieteComptableDto>({
     url: `/api/societes-comptables`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -390,7 +390,7 @@ export const useCreate1 = <TError = ErrorType<SocieteComptableDto>, TContext = u
 export const search1 = (params: MaybeRef<Search1Params>, signal?: AbortSignal) => {
   params = unref(params)
 
-  return customInstance<SocieteComptableDto[]>({
+  return authzInstance<SocieteComptableDto[]>({
     url: `/api/societes-comptables/search`,
     method: 'GET',
     params: unref(params),
@@ -461,7 +461,7 @@ export const findByMatriculeFiscale1 = (
 ) => {
   matriculeFiscale = unref(matriculeFiscale)
 
-  return customInstance<SocieteComptableDto>({
+  return authzInstance<SocieteComptableDto>({
     url: `/api/societes-comptables/matricule/${matriculeFiscale}`,
     method: 'GET',
     signal,
@@ -536,7 +536,7 @@ export function useFindByMatriculeFiscale1<
  * @summary Lister les societes comptables actives
  */
 export const findAllActive1 = (signal?: AbortSignal) => {
-  return customInstance<SocieteComptableDto[]>({
+  return authzInstance<SocieteComptableDto[]>({
     url: `/api/societes-comptables/active`,
     method: 'GET',
     signal,

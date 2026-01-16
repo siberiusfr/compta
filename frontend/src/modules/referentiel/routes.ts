@@ -4,7 +4,6 @@ export const referentielRoutes: RouteRecordRaw[] = [
   {
     path: 'referentiel',
     component: () => import('./views/ReferentielIndex.vue'),
-    meta: { requiresAuth: true },
     children: [
       {
         path: '',

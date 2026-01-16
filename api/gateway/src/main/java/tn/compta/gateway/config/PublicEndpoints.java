@@ -28,7 +28,9 @@ public final class PublicEndpoints {
     "/invoices/v3/api-docs/**",
     "/invoices/swagger-ui/**",
     "/employees/v3/api-docs/**",
-    "/employees/swagger-ui/**"
+    "/employees/swagger-ui/**",
+    "/referentiel/v3/api-docs/**",
+    "/referentiel/swagger-ui/**"
   };
 
   /** Exact paths that are public (no wildcard matching needed). */
@@ -50,7 +52,9 @@ public final class PublicEndpoints {
           "/invoices/v3/api-docs",
           "/invoices/swagger-ui",
           "/employees/v3/api-docs",
-          "/employees/swagger-ui");
+          "/employees/swagger-ui",
+          "/referentiel/v3/api-docs",
+          "/referentiel/swagger-ui");
 
   /**
    * Check if a path is a public endpoint. Uses exact match for specific paths, prefix match for

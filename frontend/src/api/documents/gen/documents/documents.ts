@@ -36,7 +36,7 @@ import type {
   UploadBody,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { documentsInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -46,7 +46,7 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const getById = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<DocumentResponse>({ url: `/api/documents/${id}`, method: 'GET', signal })
+  return documentsInstance<DocumentResponse>({ url: `/api/documents/${id}`, method: 'GET', signal })
 }
 
 export const getGetByIdQueryKey = (id?: MaybeRef<number>) => {
@@ -114,7 +114,7 @@ export const update = (
   id = unref(id)
   documentUpdateRequest = unref(documentUpdateRequest)
 
-  return customInstance<DocumentResponse>({
+  return documentsInstance<DocumentResponse>({
     url: `/api/documents/${id}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -191,7 +191,7 @@ export const useUpdate = <TError = ErrorType<DocumentResponse>, TContext = unkno
 export const _delete = (id: MaybeRef<number>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/documents/${id}`, method: 'DELETE' })
+  return documentsInstance<void>({ url: `/api/documents/${id}`, method: 'DELETE' })
 }
 
 export const getDeleteMutationOptions = <TError = ErrorType<void>, TContext = unknown>(options?: {
@@ -249,7 +249,7 @@ export const useDelete = <TError = ErrorType<void>, TContext = unknown>(
 export const getMetadata = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<GetMetadata200>({
+  return documentsInstance<GetMetadata200>({
     url: `/api/documents/${id}/metadata`,
     method: 'GET',
     signal,
@@ -320,7 +320,7 @@ export const setMetadata = (id: MaybeRef<number>, metadataRequest: MaybeRef<Meta
   id = unref(id)
   metadataRequest = unref(metadataRequest)
 
-  return customInstance<SetMetadata200>({
+  return documentsInstance<SetMetadata200>({
     url: `/api/documents/${id}/metadata`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -395,7 +395,7 @@ export const useSetMetadata = <TError = ErrorType<SetMetadata404>, TContext = un
  * @summary Get all documents
  */
 export const getAll1 = (signal?: AbortSignal) => {
-  return customInstance<DocumentResponse[]>({ url: `/api/documents`, method: 'GET', signal })
+  return documentsInstance<DocumentResponse[]>({ url: `/api/documents`, method: 'GET', signal })
 }
 
 export const getGetAll1QueryKey = () => {
@@ -459,7 +459,7 @@ export const upload = (uploadBody: MaybeRef<UploadBody>, signal?: AbortSignal) =
   formData.append(`file`, uploadBody.file)
   formData.append(`data`, JSON.stringify(uploadBody.data))
 
-  return customInstance<DocumentResponse>({
+  return documentsInstance<DocumentResponse>({
     url: `/api/documents`,
     method: 'POST',
     headers: { 'Content-Type': 'multipart/form-data' },
@@ -537,7 +537,7 @@ export const useUpload = <TError = ErrorType<DocumentResponse>, TContext = unkno
 export const searchGet = (params?: MaybeRef<SearchGetParams>, signal?: AbortSignal) => {
   params = unref(params)
 
-  return customInstance<DocumentResponse[]>({
+  return documentsInstance<DocumentResponse[]>({
     url: `/api/documents/search`,
     method: 'GET',
     params: unref(params),
@@ -610,7 +610,7 @@ export const search = (
 ) => {
   documentSearchRequest = unref(documentSearchRequest)
 
-  return customInstance<DocumentResponse[]>({
+  return documentsInstance<DocumentResponse[]>({
     url: `/api/documents/search`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -688,7 +688,7 @@ export const useSearch = <TError = ErrorType<unknown>, TContext = unknown>(
 export const download = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<Blob>({
+  return documentsInstance<Blob>({
     url: `/api/documents/${id}/download`,
     method: 'GET',
     responseType: 'blob',
@@ -759,7 +759,7 @@ export function useDownload<
 export const getDownloadUrl = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<GetDownloadUrl200>({
+  return documentsInstance<GetDownloadUrl200>({
     url: `/api/documents/${id}/download-url`,
     method: 'GET',
     signal,
@@ -827,7 +827,11 @@ export function useGetDownloadUrl<
  * @summary Get public documents
  */
 export const getPublic = (signal?: AbortSignal) => {
-  return customInstance<DocumentResponse[]>({ url: `/api/documents/public`, method: 'GET', signal })
+  return documentsInstance<DocumentResponse[]>({
+    url: `/api/documents/public`,
+    method: 'GET',
+    signal,
+  })
 }
 
 export const getGetPublicQueryKey = () => {
@@ -886,7 +890,7 @@ export function useGetPublic<
  * @summary Get my documents
  */
 export const getMyDocuments = (signal?: AbortSignal) => {
-  return customInstance<DocumentResponse[]>({ url: `/api/documents/my`, method: 'GET', signal })
+  return documentsInstance<DocumentResponse[]>({ url: `/api/documents/my`, method: 'GET', signal })
 }
 
 export const getGetMyDocumentsQueryKey = () => {
@@ -947,7 +951,7 @@ export function useGetMyDocuments<
 export const getByCategory = (categoryId: MaybeRef<number>, signal?: AbortSignal) => {
   categoryId = unref(categoryId)
 
-  return customInstance<DocumentResponse[]>({
+  return documentsInstance<DocumentResponse[]>({
     url: `/api/documents/category/${categoryId}`,
     method: 'GET',
     signal,
@@ -1018,7 +1022,7 @@ export const deleteMetadataKey = (id: MaybeRef<number>, key: MaybeRef<string>) =
   id = unref(id)
   key = unref(key)
 
-  return customInstance<void>({ url: `/api/documents/${id}/metadata/${key}`, method: 'DELETE' })
+  return documentsInstance<void>({ url: `/api/documents/${id}/metadata/${key}`, method: 'DELETE' })
 }
 
 export const getDeleteMetadataKeyMutationOptions = <

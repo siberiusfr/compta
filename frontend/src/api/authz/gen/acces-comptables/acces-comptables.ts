@@ -30,7 +30,7 @@ import type {
   UpdateComptableSocieteAccessRequest,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { authzInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -40,7 +40,7 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const findById2 = (id: MaybeRef<number>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<ComptableSocietesDto>({
+  return authzInstance<ComptableSocietesDto>({
     url: `/api/comptable-societes/${id}`,
     method: 'GET',
     signal,
@@ -114,7 +114,7 @@ export const updateAccess = (
   id = unref(id)
   updateComptableSocieteAccessRequest = unref(updateComptableSocieteAccessRequest)
 
-  return customInstance<ComptableSocietesDto>({
+  return authzInstance<ComptableSocietesDto>({
     url: `/api/comptable-societes/${id}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -194,7 +194,7 @@ export const assignComptableToSociete = (
 ) => {
   assignComptableToSocieteRequest = unref(assignComptableToSocieteRequest)
 
-  return customInstance<ComptableSocietesDto>({
+  return authzInstance<ComptableSocietesDto>({
     url: `/api/comptable-societes`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -277,7 +277,7 @@ export const useAssignComptableToSociete = <
 export const findByUserId2 = (userId: MaybeRef<number>, signal?: AbortSignal) => {
   userId = unref(userId)
 
-  return customInstance<ComptableSocietesDto[]>({
+  return authzInstance<ComptableSocietesDto[]>({
     url: `/api/comptable-societes/user/${userId}`,
     method: 'GET',
     signal,
@@ -347,7 +347,7 @@ export function useFindByUserId2<
 export const findSocietesByUserId = (userId: MaybeRef<number>, signal?: AbortSignal) => {
   userId = unref(userId)
 
-  return customInstance<SocieteDto[]>({
+  return authzInstance<SocieteDto[]>({
     url: `/api/comptable-societes/user/${userId}/societes`,
     method: 'GET',
     signal,
@@ -426,7 +426,7 @@ export const findSocietesWithWriteAccessByUserId = (
 ) => {
   userId = unref(userId)
 
-  return customInstance<SocieteDto[]>({
+  return authzInstance<SocieteDto[]>({
     url: `/api/comptable-societes/user/${userId}/societes/write`,
     method: 'GET',
     signal,
@@ -520,7 +520,7 @@ export const findByUserIdAndSocieteId = (
   userId = unref(userId)
   societeId = unref(societeId)
 
-  return customInstance<ComptableSocietesDto>({
+  return authzInstance<ComptableSocietesDto>({
     url: `/api/comptable-societes/user/${userId}/societe/${societeId}`,
     method: 'GET',
     signal,
@@ -603,7 +603,7 @@ export const revokeAccess = (userId: MaybeRef<number>, societeId: MaybeRef<numbe
   userId = unref(userId)
   societeId = unref(societeId)
 
-  return customInstance<void>({
+  return authzInstance<void>({
     url: `/api/comptable-societes/user/${userId}/societe/${societeId}`,
     method: 'DELETE',
   })
@@ -678,7 +678,7 @@ export const useRevokeAccess = <TError = ErrorType<void>, TContext = unknown>(
 export const findActiveByUserId2 = (userId: MaybeRef<number>, signal?: AbortSignal) => {
   userId = unref(userId)
 
-  return customInstance<ComptableSocietesDto[]>({
+  return authzInstance<ComptableSocietesDto[]>({
     url: `/api/comptable-societes/user/${userId}/active`,
     method: 'GET',
     signal,
@@ -750,7 +750,7 @@ export function useFindActiveByUserId2<
 export const findBySocieteId1 = (societeId: MaybeRef<number>, signal?: AbortSignal) => {
   societeId = unref(societeId)
 
-  return customInstance<ComptableSocietesDto[]>({
+  return authzInstance<ComptableSocietesDto[]>({
     url: `/api/comptable-societes/societe/${societeId}`,
     method: 'GET',
     signal,
@@ -820,7 +820,7 @@ export function useFindBySocieteId1<
 export const hasWriteAccess = (params: MaybeRef<HasWriteAccessParams>, signal?: AbortSignal) => {
   params = unref(params)
 
-  return customInstance<boolean>({
+  return authzInstance<boolean>({
     url: `/api/comptable-societes/check/write`,
     method: 'GET',
     params: unref(params),
@@ -893,7 +893,7 @@ export const hasValidateAccess = (
 ) => {
   params = unref(params)
 
-  return customInstance<boolean>({
+  return authzInstance<boolean>({
     url: `/api/comptable-societes/check/validate`,
     method: 'GET',
     params: unref(params),
@@ -965,7 +965,7 @@ export function useHasValidateAccess<
 export const hasAccess = (params: MaybeRef<HasAccessParams>, signal?: AbortSignal) => {
   params = unref(params)
 
-  return customInstance<boolean>({
+  return authzInstance<boolean>({
     url: `/api/comptable-societes/check/access`,
     method: 'GET',
     params: unref(params),
