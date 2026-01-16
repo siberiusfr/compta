@@ -29,7 +29,7 @@ import type {
   UserResponse,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { oauthInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -39,7 +39,7 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const getUserById = (id: MaybeRef<string>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<UserResponse>({ url: `/api/users/${id}`, method: 'GET', signal })
+  return oauthInstance<UserResponse>({ url: `/api/users/${id}`, method: 'GET', signal })
 }
 
 export const getGetUserByIdQueryKey = (id?: MaybeRef<string>) => {
@@ -109,7 +109,7 @@ export const updateUser = (
   id = unref(id)
   updateUserRequest = unref(updateUserRequest)
 
-  return customInstance<UserResponse>({
+  return oauthInstance<UserResponse>({
     url: `/api/users/${id}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -186,7 +186,7 @@ export const useUpdateUser = <TError = ErrorType<unknown>, TContext = unknown>(
 export const deleteUser = (id: MaybeRef<string>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/users/${id}`, method: 'DELETE' })
+  return oauthInstance<void>({ url: `/api/users/${id}`, method: 'DELETE' })
 }
 
 export const getDeleteUserMutationOptions = <
@@ -255,7 +255,7 @@ export const useDeleteUser = <TError = ErrorType<unknown>, TContext = unknown>(
  * @summary Get all users
  */
 export const getAllUsers = (signal?: AbortSignal) => {
-  return customInstance<UserResponse[]>({ url: `/api/users`, method: 'GET', signal })
+  return oauthInstance<UserResponse[]>({ url: `/api/users`, method: 'GET', signal })
 }
 
 export const getGetAllUsersQueryKey = () => {
@@ -319,7 +319,7 @@ export const createUser = (
 ) => {
   createUserRequest = unref(createUserRequest)
 
-  return customInstance<UserResponse>({
+  return oauthInstance<UserResponse>({
     url: `/api/users`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -397,7 +397,7 @@ export const useCreateUser = <TError = ErrorType<unknown>, TContext = unknown>(
 export const getUserRoles = (id: MaybeRef<string>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<string[]>({ url: `/api/users/${id}/roles`, method: 'GET', signal })
+  return oauthInstance<string[]>({ url: `/api/users/${id}/roles`, method: 'GET', signal })
 }
 
 export const getGetUserRolesQueryKey = (id?: MaybeRef<string>) => {
@@ -468,7 +468,7 @@ export const assignRoles = (
   id = unref(id)
   assignRolesBody = unref(assignRolesBody)
 
-  return customInstance<void>({
+  return oauthInstance<void>({
     url: `/api/users/${id}/roles`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -551,7 +551,7 @@ export const changePassword = (
   id = unref(id)
   changePasswordRequest = unref(changePasswordRequest)
 
-  return customInstance<void>({
+  return oauthInstance<void>({
     url: `/api/users/${id}/password`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -629,7 +629,7 @@ export const useChangePassword = <TError = ErrorType<unknown>, TContext = unknow
 export const enableUser = (id: MaybeRef<string>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/users/${id}/enable`, method: 'PATCH' })
+  return oauthInstance<void>({ url: `/api/users/${id}/enable`, method: 'PATCH' })
 }
 
 export const getEnableUserMutationOptions = <
@@ -700,7 +700,7 @@ export const useEnableUser = <TError = ErrorType<unknown>, TContext = unknown>(
 export const disableUser = (id: MaybeRef<string>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/users/${id}/disable`, method: 'PATCH' })
+  return oauthInstance<void>({ url: `/api/users/${id}/disable`, method: 'PATCH' })
 }
 
 export const getDisableUserMutationOptions = <
@@ -772,7 +772,7 @@ export const removeRole = (id: MaybeRef<string>, roleId: MaybeRef<string>) => {
   id = unref(id)
   roleId = unref(roleId)
 
-  return customInstance<void>({ url: `/api/users/${id}/roles/${roleId}`, method: 'DELETE' })
+  return oauthInstance<void>({ url: `/api/users/${id}/roles/${roleId}`, method: 'DELETE' })
 }
 
 export const getRemoveRoleMutationOptions = <

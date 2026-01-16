@@ -29,7 +29,7 @@ import type {
   UpdateClientRequest,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { oauthInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -39,7 +39,7 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const getClientById = (clientId: MaybeRef<string>, signal?: AbortSignal) => {
   clientId = unref(clientId)
 
-  return customInstance<ClientResponse>({ url: `/api/clients/${clientId}`, method: 'GET', signal })
+  return oauthInstance<ClientResponse>({ url: `/api/clients/${clientId}`, method: 'GET', signal })
 }
 
 export const getGetClientByIdQueryKey = (clientId?: MaybeRef<string>) => {
@@ -109,7 +109,7 @@ export const updateClient = (
   clientId = unref(clientId)
   updateClientRequest = unref(updateClientRequest)
 
-  return customInstance<ClientResponse>({
+  return oauthInstance<ClientResponse>({
     url: `/api/clients/${clientId}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -186,7 +186,7 @@ export const useUpdateClient = <TError = ErrorType<unknown>, TContext = unknown>
 export const deleteClient = (clientId: MaybeRef<string>) => {
   clientId = unref(clientId)
 
-  return customInstance<void>({ url: `/api/clients/${clientId}`, method: 'DELETE' })
+  return oauthInstance<void>({ url: `/api/clients/${clientId}`, method: 'DELETE' })
 }
 
 export const getDeleteClientMutationOptions = <
@@ -256,7 +256,7 @@ export const useDeleteClient = <TError = ErrorType<unknown>, TContext = unknown>
  * @summary Get all OAuth2 clients
  */
 export const getAllClients = (signal?: AbortSignal) => {
-  return customInstance<GetAllClients200>({ url: `/api/clients`, method: 'GET', signal })
+  return oauthInstance<GetAllClients200>({ url: `/api/clients`, method: 'GET', signal })
 }
 
 export const getGetAllClientsQueryKey = () => {
@@ -320,7 +320,7 @@ export const createClient = (
 ) => {
   createClientRequest = unref(createClientRequest)
 
-  return customInstance<ClientResponse>({
+  return oauthInstance<ClientResponse>({
     url: `/api/clients`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -398,7 +398,7 @@ export const useCreateClient = <TError = ErrorType<unknown>, TContext = unknown>
 export const rotateClientSecret = (clientId: MaybeRef<string>, signal?: AbortSignal) => {
   clientId = unref(clientId)
 
-  return customInstance<RotateClientSecret200>({
+  return oauthInstance<RotateClientSecret200>({
     url: `/api/clients/${clientId}/secret`,
     method: 'POST',
     signal,

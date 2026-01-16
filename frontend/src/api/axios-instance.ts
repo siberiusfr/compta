@@ -1,9 +1,17 @@
 import Axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios'
 import { authService } from '@/services/authService'
 
-// Instance Axios principale
+// Instance Axios principale (gateway)
 export const AXIOS_INSTANCE = Axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
+// Instance Axios pour le serveur OAuth
+export const OAUTH_AXIOS_INSTANCE = Axios.create({
+  baseURL: import.meta.env.VITE_OAUTH_AUTHORITY,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -46,29 +54,30 @@ const redirectToLogin = () => {
 // ============================================
 // REQUEST INTERCEPTOR - Injection du token JWT
 // ============================================
-AXIOS_INSTANCE.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
-    // Ne pas ajouter de token pour les endpoints publics
-    const publicEndpoints = ['/health', '/actuator']
-    const isPublicEndpoint = publicEndpoints.some((endpoint) => config.url?.includes(endpoint))
+const addAuthToken = async (config: InternalAxiosRequestConfig) => {
+  const publicEndpoints = ['/health', '/actuator']
+  const isPublicEndpoint = publicEndpoints.some((endpoint) => config.url?.includes(endpoint))
 
-    if (!isPublicEndpoint) {
-      try {
-        const token = await authService.getAccessToken()
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`
-        }
-      } catch (error) {
-        console.warn('[Axios] Failed to get access token:', error)
+  if (!isPublicEndpoint) {
+    try {
+      const token = await authService.getAccessToken()
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
       }
+    } catch (error) {
+      console.warn('[Axios] Failed to get access token:', error)
     }
-
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
   }
-)
+
+  return config
+}
+
+const handleRequestError = (error: unknown) => {
+  return Promise.reject(error)
+}
+
+AXIOS_INSTANCE.interceptors.request.use(addAuthToken, handleRequestError)
+OAUTH_AXIOS_INSTANCE.interceptors.request.use(addAuthToken, handleRequestError)
 
 // ============================================
 // RESPONSE INTERCEPTOR - Gestion des erreurs 401
@@ -195,6 +204,22 @@ export function authzInstance<T>(config: AxiosRequestConfig): Promise<T> {
 
 export function documentsInstance<T>(config: AxiosRequestConfig): Promise<T> {
   return createServiceInstance('/doc')<T>(config)
+}
+
+export function oauthInstance<T>(config: AxiosRequestConfig): Promise<T> {
+  const source = Axios.CancelToken.source()
+
+  const promise = OAUTH_AXIOS_INSTANCE({
+    ...config,
+    cancelToken: source.token,
+  }).then(({ data }) => data)
+
+  // @ts-expect-error - Ajout de cancel sur la promise pour Vue Query
+  promise.cancel = () => {
+    source.cancel('Query was cancelled')
+  }
+
+  return promise
 }
 
 // ============================================

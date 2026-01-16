@@ -18,7 +18,7 @@ import type { MaybeRef } from 'vue'
 
 import type { ConfirmEmailVerificationParams, EmailVerificationRequest } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { oauthInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -31,7 +31,7 @@ export const initiateEmailVerification = (
 ) => {
   emailVerificationRequest = unref(emailVerificationRequest)
 
-  return customInstance<string>({
+  return oauthInstance<string>({
     url: `/api/users/email/verify`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -114,7 +114,7 @@ export const confirmEmailVerification = (
 ) => {
   params = unref(params)
 
-  return customInstance<string>({
+  return oauthInstance<string>({
     url: `/api/users/email/verify/confirm`,
     method: 'POST',
     params: unref(params),

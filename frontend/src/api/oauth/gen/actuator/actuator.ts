@@ -26,14 +26,14 @@ import type {
   Links200Two,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { oauthInstance } from '../../../axios-instance'
 import type { ErrorType } from '../../../axios-instance'
 
 /**
  * @summary Actuator root web endpoint
  */
 export const links = (signal?: AbortSignal) => {
-  return customInstance<Links200One | Links200Two | Links200Three>({
+  return oauthInstance<Links200One | Links200Two | Links200Three>({
     url: `/actuator`,
     method: 'GET',
     signal,
@@ -89,7 +89,7 @@ export function useLinks<TData = Awaited<ReturnType<typeof links>>, TError = Err
  * @summary Actuator web endpoint 'health'
  */
 export const health = (signal?: AbortSignal) => {
-  return customInstance<Health200One | Health200Two | Health200Three>({
+  return oauthInstance<Health200One | Health200Two | Health200Three>({
     url: `/actuator/health`,
     method: 'GET',
     signal,

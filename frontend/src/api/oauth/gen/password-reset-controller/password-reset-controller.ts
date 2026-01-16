@@ -18,7 +18,7 @@ import type { MaybeRef } from 'vue'
 
 import type { PasswordResetConfirmRequest, PasswordResetRequest } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { oauthInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -31,7 +31,7 @@ export const initiatePasswordReset = (
 ) => {
   passwordResetRequest = unref(passwordResetRequest)
 
-  return customInstance<string>({
+  return oauthInstance<string>({
     url: `/api/users/password/reset`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -114,7 +114,7 @@ export const confirmPasswordReset = (
 ) => {
   passwordResetConfirmRequest = unref(passwordResetConfirmRequest)
 
-  return customInstance<string>({
+  return oauthInstance<string>({
     url: `/api/users/password/reset/confirm`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

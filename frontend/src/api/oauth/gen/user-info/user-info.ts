@@ -19,7 +19,7 @@ import { unref } from 'vue'
 
 import type { UserInfoResponse } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { oauthInstance } from '../../../axios-instance'
 import type { ErrorType } from '../../../axios-instance'
 
 /**
@@ -27,7 +27,7 @@ import type { ErrorType } from '../../../axios-instance'
  * @summary Get user info
  */
 export const getUserInfo = (signal?: AbortSignal) => {
-  return customInstance<UserInfoResponse>({ url: `/userinfo`, method: 'GET', signal })
+  return oauthInstance<UserInfoResponse>({ url: `/userinfo`, method: 'GET', signal })
 }
 
 export const getGetUserInfoQueryKey = () => {

@@ -1,0 +1,36 @@
+# Production Profile Configuration
+# Activated with: --spring.profiles.active=prod or SPRING_PROFILES_ACTIVE=prod
+
+logging:
+  level:
+    root: WARN
+    tn.cyberious.compta.oauth2: INFO
+    org.springframework.security: WARN
+    org.springframework.security.oauth2: WARN
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+
+# Production CORS - Only allow production domains
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://app.compta.tn,https://compta.tn}
+
+# Swagger disabled in production
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+
+# OAuth2 production settings
+oauth2:
+  issuer: ${OAUTH2_ISSUER:https://auth.compta.tn}
+  gateway:
+    secret: ${GATEWAY_SECRET} # Must be set via environment variable
+
+# Production database settings
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:20}
+      minimum-idle: ${HIKARI_MIN_IDLE:10}

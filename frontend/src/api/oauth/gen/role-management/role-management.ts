@@ -28,7 +28,7 @@ import type {
   UpdateRoleRequest,
 } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { oauthInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -38,7 +38,7 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const getRoleById = (id: MaybeRef<string>, signal?: AbortSignal) => {
   id = unref(id)
 
-  return customInstance<RoleResponse>({ url: `/api/roles/${id}`, method: 'GET', signal })
+  return oauthInstance<RoleResponse>({ url: `/api/roles/${id}`, method: 'GET', signal })
 }
 
 export const getGetRoleByIdQueryKey = (id?: MaybeRef<string>) => {
@@ -108,7 +108,7 @@ export const updateRole = (
   id = unref(id)
   updateRoleRequest = unref(updateRoleRequest)
 
-  return customInstance<RoleResponse>({
+  return oauthInstance<RoleResponse>({
     url: `/api/roles/${id}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -185,7 +185,7 @@ export const useUpdateRole = <TError = ErrorType<unknown>, TContext = unknown>(
 export const deleteRole = (id: MaybeRef<string>) => {
   id = unref(id)
 
-  return customInstance<void>({ url: `/api/roles/${id}`, method: 'DELETE' })
+  return oauthInstance<void>({ url: `/api/roles/${id}`, method: 'DELETE' })
 }
 
 export const getDeleteRoleMutationOptions = <
@@ -254,7 +254,7 @@ export const useDeleteRole = <TError = ErrorType<unknown>, TContext = unknown>(
  * @summary Get all roles
  */
 export const getAllRoles = (signal?: AbortSignal) => {
-  return customInstance<RoleWithUserCountDto[]>({ url: `/api/roles`, method: 'GET', signal })
+  return oauthInstance<RoleWithUserCountDto[]>({ url: `/api/roles`, method: 'GET', signal })
 }
 
 export const getGetAllRolesQueryKey = () => {
@@ -318,7 +318,7 @@ export const createRole = (
 ) => {
   createRoleRequest = unref(createRoleRequest)
 
-  return customInstance<RoleResponse>({
+  return oauthInstance<RoleResponse>({
     url: `/api/roles`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -396,7 +396,7 @@ export const useCreateRole = <TError = ErrorType<unknown>, TContext = unknown>(
 export const getRoleByName = (name: MaybeRef<string>, signal?: AbortSignal) => {
   name = unref(name)
 
-  return customInstance<RoleResponse>({ url: `/api/roles/name/${name}`, method: 'GET', signal })
+  return oauthInstance<RoleResponse>({ url: `/api/roles/name/${name}`, method: 'GET', signal })
 }
 
 export const getGetRoleByNameQueryKey = (name?: MaybeRef<string>) => {

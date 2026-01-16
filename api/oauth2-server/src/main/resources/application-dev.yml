@@ -1,0 +1,24 @@
+# Development Profile Configuration
+# Activated by default or with: --spring.profiles.active=dev
+
+logging:
+  level:
+    root: INFO
+    tn.cyberious.compta.oauth2: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
+
+# Development CORS - Allow localhost origins
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8080
+
+# Swagger enabled in dev
+springdoc:
+  swagger-ui:
+    enabled: true
+
+# OAuth2 dev settings
+oauth2:
+  issuer: http://localhost:9000

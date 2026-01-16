@@ -18,7 +18,7 @@ import type { MaybeRef } from 'vue'
 
 import type { RevocationRequest } from '../generated.schemas'
 
-import { customInstance } from '../../../axios-instance'
+import { oauthInstance } from '../../../axios-instance'
 import type { ErrorType, BodyType } from '../../../axios-instance'
 
 /**
@@ -28,7 +28,7 @@ import type { ErrorType, BodyType } from '../../../axios-instance'
 export const revoke = (revocationRequest: MaybeRef<RevocationRequest>, signal?: AbortSignal) => {
   revocationRequest = unref(revocationRequest)
 
-  return customInstance<void>({
+  return oauthInstance<void>({
     url: `/oauth2/revoke`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

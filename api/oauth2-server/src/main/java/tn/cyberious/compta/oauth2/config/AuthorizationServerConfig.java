@@ -3,18 +3,20 @@ package tn.cyberious.compta.oauth2.config;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,14 +36,22 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import tn.cyberious.compta.oauth2.security.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class AuthorizationServerConfig {
+
+  private final CorsProperties corsProperties;
+  private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
   @Value("${oauth2.issuer:http://localhost:9000}")
   private String issuerUrl;
@@ -67,7 +77,10 @@ public class AuthorizationServerConfig {
                 exceptions.defaultAuthenticationEntryPointFor(
                     new LoginUrlAuthenticationEntryPoint("/login"),
                     new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
-        .oauth2ResourceServer((resourceServer) -> resourceServer.jwt(Customizer.withDefaults()));
+        .oauth2ResourceServer(
+            resourceServer ->
+                resourceServer.jwt(
+                    jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
     return http.build();
   }
 
@@ -76,29 +89,25 @@ public class AuthorizationServerConfig {
     org.springframework.web.cors.CorsConfiguration configuration =
         new org.springframework.web.cors.CorsConfiguration();
 
-    // Configure allowed origins
-    configuration.setAllowedOrigins(
-        Arrays.asList("http://localhost:3000", "http://localhost:8080", "https://app.compta.tn"));
+    // Configure allowed origins from properties
+    configuration.setAllowedOrigins(corsProperties.getAllowedOriginsList());
 
-    // Configure allowed methods (use String list, not HttpMethod)
-    configuration.setAllowedMethods(
-        Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+    // Configure allowed methods from properties
+    configuration.setAllowedMethods(corsProperties.getAllowedMethodsList());
 
     // Configure allowed headers
-    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setAllowedHeaders(List.of(corsProperties.getAllowedHeaders()));
 
     // Allow credentials
-    configuration.setAllowCredentials(true);
+    configuration.setAllowCredentials(corsProperties.isAllowCredentials());
 
     // Set max age
-    configuration.setMaxAge(3600L);
+    configuration.setMaxAge(corsProperties.getMaxAge());
 
     // Use UrlBasedCorsConfigurationSource with path patterns
     org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
         new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
-    source.registerCorsConfiguration("/oauth2/**", configuration);
-    source.registerCorsConfiguration("/api/**", configuration);
     return source;
   }
 
@@ -107,15 +116,39 @@ public class AuthorizationServerConfig {
   public SecurityFilterChain defaultSecurityFilterChain(
       HttpSecurity http, CustomUserDetailsService userDetailsService, CsrfConfig csrfConfig)
       throws Exception {
-    http.userDetailsService(userDetailsService)
+    http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .userDetailsService(userDetailsService)
         .authorizeHttpRequests(
             (authorize) ->
                 authorize
-                    .requestMatchers("/login", "/error", "/actuator/**")
+                    .requestMatchers(
+                        "/login",
+                        "/error",
+                        "/actuator/**",
+                        "/api/users/password/reset",
+                        "/api/users/password/reset/confirm",
+                        "/api/users/email/verify",
+                        "/api/users/email/verify/confirm",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
-        .oauth2ResourceServer((resourceServer) -> resourceServer.jwt(Customizer.withDefaults()))
+        .oauth2ResourceServer(
+            resourceServer ->
+                resourceServer.jwt(
+                    jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
+        // Return 401 for API requests, redirect to login for browser requests
+        .exceptionHandling(
+            exceptions ->
+                exceptions
+                    .defaultAuthenticationEntryPointFor(
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                        new AntPathRequestMatcher("/api/**"))
+                    .defaultAuthenticationEntryPointFor(
+                        new LoginUrlAuthenticationEntryPoint("/login"),
+                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
         .formLogin(form -> form.loginPage("/login").permitAll())
         // Enable CSRF protection with custom token repository
         .csrf(
