@@ -2,31 +2,46 @@
 -- Zitadel Database Initialization Script
 -- =============================================================================
 -- Run this script BEFORE starting Zitadel for the first time
--- Creates a dedicated 'zitadel' database - Zitadel will manage its own schemas
+-- Creates a dedicated 'zitadel' database and user with full permissions
 --
 -- Usage:
 --   psql -h localhost -U postgres -f init-db.sql
 --   OR
 --   docker exec -i compta-postgres psql -U postgres < init-db.sql
 -- =============================================================================
--- Create the zitadel database
-CREATE DATABASE zitadel
+-- Drop existing database and user if they exist (clean start)
+DROP DATABASE IF EXISTS zitadel;
+
+DROP ROLE IF EXISTS zitadel;
+
+-- Create the zitadel user with CREATEDB permission
+CREATE ROLE zitadel
 WITH
-  OWNER = postgres ENCODING = 'UTF8' LC_COLLATE = 'en_US.utf8' LC_CTYPE = 'en_US.utf8' TEMPLATE = template0 CONNECTION
-LIMIT
-  = -1;
+  LOGIN PASSWORD 'zitadel' CREATEDB;
 
--- Grant all privileges to postgres user
-GRANT ALL PRIVILEGES ON DATABASE zitadel TO postgres;
+-- Create the zitadel database owned by zitadel user
+CREATE DATABASE zitadel OWNER zitadel;
 
--- Verify the database was created
-DO $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM pg_database WHERE datname = 'zitadel') THEN
-        RAISE NOTICE 'Database "zitadel" created successfully!';
-        RAISE NOTICE 'Zitadel will manage its own schemas internally.';
-    ELSE
-        RAISE EXCEPTION 'Failed to create database "zitadel"';
-    END IF;
-END
-$$;
+-- Grant all privileges
+GRANT ALL PRIVILEGES ON DATABASE zitadel TO zitadel;
+
+-- Make zitadel the owner of public schema
+ALTER SCHEMA public OWNER TO zitadel;
+
+-- Grant all privileges on public schema
+GRANT ALL ON SCHEMA public TO zitadel;
+
+GRANT CREATE ON SCHEMA public TO zitadel;
+
+-- Allow zitadel to create schemas
+GRANT CREATE ON DATABASE zitadel TO zitadel;
+
+-- Set default privileges
+ALTER DEFAULT PRIVILEGES
+GRANT ALL ON TABLES TO zitadel;
+
+ALTER DEFAULT PRIVILEGES
+GRANT ALL ON SEQUENCES TO zitadel;
+
+ALTER DEFAULT PRIVILEGES
+GRANT ALL ON FUNCTIONS TO zitadel;

@@ -10,17 +10,20 @@ Zitadel is the identity provider (IdP) for COMPTA, handling authentication (OIDC
 # 1. Ensure PostgreSQL is running (from project root)
 docker-compose up -d postgres
 
-# 2. Create the zitadel database
+# 2. Create the zitadel database and user
 psql -h localhost -U postgres -f init-db.sql
 # OR with Docker:
 docker exec -i compta-postgres psql -U postgres < init-db.sql
 
-# 3. Start Zitadel
+# 3. Create data directory for PAT files
+mkdir -p data
+
+# 4. Start Zitadel
 docker-compose -f docker-compose.dev.yml up -d
 
-# 4. Access Zitadel Console
-# URL: http://localhost:8085
-# Admin: admin@compta.local / Admin123!
+# 5. Access Zitadel Console
+# URL: http://localhost:8085/ui/console
+# Admin: admin@compta.localhost / Admin123!
 ```
 
 ## Configuration
@@ -37,10 +40,11 @@ Zitadel uses a dedicated PostgreSQL database:
 
 ### Ports
 
-| Environment | Port | Protocol |
-|-------------|------|----------|
-| Development | 8085 | HTTP |
-| Production | 8443 | HTTPS |
+| Environment | Port | Purpose |
+|-------------|------|---------|
+| Development | 8085 | Zitadel API & Console |
+| Development | 3001 | Login V2 UI |
+| Production | 8443 | Zitadel API & Console (HTTPS) |
 
 ## Files
 
@@ -110,7 +114,7 @@ export const authConfig = {
   authority: 'http://localhost:8085',  // dev
   // authority: 'https://auth.compta.tn',  // prod
   client_id: 'your-client-id',
-  redirect_uri: 'http://localhost:3000/callback',
+  redirect_uri: 'http://localhost:5173/callback',  // Vite dev server
   scope: 'openid profile email',
 };
 ```
@@ -120,9 +124,10 @@ export const authConfig = {
 ```bash
 # View logs
 docker-compose -f docker-compose.dev.yml logs -f zitadel
+docker-compose -f docker-compose.dev.yml logs -f login
 
 # Restart Zitadel
-docker-compose -f docker-compose.dev.yml restart zitadel
+docker-compose -f docker-compose.dev.yml restart
 
 # Stop and remove
 docker-compose -f docker-compose.dev.yml down
@@ -152,7 +157,11 @@ docker-compose -f docker-compose.dev.yml down
 
 # Drop and recreate database
 psql -h localhost -U postgres -c "DROP DATABASE IF EXISTS zitadel;"
+psql -h localhost -U postgres -c "DROP ROLE IF EXISTS zitadel;"
 psql -h localhost -U postgres -f init-db.sql
+
+# Clean PAT files
+rm -rf data/*
 
 # Restart
 docker-compose -f docker-compose.dev.yml up -d

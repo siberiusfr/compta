@@ -8,14 +8,11 @@ services:
   # Zitadel Identity Provider (Production)
   # ==========================================
   zitadel:
+    restart: unless-stopped
     image: ghcr.io/zitadel/zitadel:latest
     container_name: compta-zitadel
-    command: start-from-init --masterkeyFromEnv
+    command: start-from-init --masterkey "${ZITADEL_MASTERKEY:?ZITADEL_MASTERKEY is required}"
     environment:
-      # Master key for encryption (32 characters minimum)
-      # IMPORTANT: Generate a secure key: openssl rand -base64 32 | head -c 32
-      ZITADEL_MASTERKEY: ${ZITADEL_MASTERKEY:?ZITADEL_MASTERKEY is required}
-
       # External domain configuration (your public domain)
       ZITADEL_EXTERNALDOMAIN: ${ZITADEL_DOMAIN:?ZITADEL_DOMAIN is required}
       ZITADEL_EXTERNALPORT: ${ZITADEL_PORT:-443}
@@ -30,20 +27,31 @@ services:
       ZITADEL_DATABASE_POSTGRES_HOST: ${POSTGRES_HOST:?POSTGRES_HOST is required}
       ZITADEL_DATABASE_POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       ZITADEL_DATABASE_POSTGRES_DATABASE: zitadel
-      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: ${POSTGRES_USER:-postgres}
-      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: ${POSTGRES_SSL_MODE:-require}
-      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: ${POSTGRES_USER:-postgres}
-      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: ${POSTGRES_ADMIN_USER:-postgres}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?POSTGRES_ADMIN_PASSWORD is required}
       ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: ${POSTGRES_SSL_MODE:-require}
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${ZITADEL_DB_PASSWORD:?ZITADEL_DB_PASSWORD is required}
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: ${POSTGRES_SSL_MODE:-require}
+
+      # Login client configuration for Login V2
+      ZITADEL_FIRSTINSTANCE_LOGINCLIENTPATPATH: /current-dir/login-client.pat
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: ${ZITADEL_FORCE_PASSWORD_CHANGE:-true}
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_USERNAME: login-client
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_NAME: Automatically Initialized IAM_LOGIN_CLIENT
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_PAT_EXPIRATIONDATE: '2030-01-01T00:00:00Z'
+
+      # Login V2 configuration
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_REQUIRED: true
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_BASEURI: https://${ZITADEL_DOMAIN}/ui/v2/login
+      ZITADEL_OIDC_DEFAULTLOGINURLV2: https://${ZITADEL_DOMAIN}/ui/v2/login/login?authRequest=
+      ZITADEL_OIDC_DEFAULTLOGOUTURLV2: https://${ZITADEL_DOMAIN}/ui/v2/login/logout?post_logout_redirect=
+      ZITADEL_SAML_DEFAULTLOGINURLV2: https://${ZITADEL_DOMAIN}/ui/v2/login/login?samlRequest=
 
       # First instance configuration
       ZITADEL_FIRSTINSTANCE_ORG_NAME: ${ZITADEL_ORG_NAME:-COMPTA}
       ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: ${ZITADEL_ADMIN_USERNAME:?ZITADEL_ADMIN_USERNAME is required}
       ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: ${ZITADEL_ADMIN_PASSWORD:?ZITADEL_ADMIN_PASSWORD is required}
-
-      # OIDC configuration
-      ZITADEL_DEFAULTINSTANCE_OIDC_ISSUER: https://${ZITADEL_DOMAIN}
 
       # Security settings
       ZITADEL_DEFAULTINSTANCE_SECRETGENERATORS_PASSWORDSALTCOST: 14
@@ -57,25 +65,29 @@ services:
       ZITADEL_DEFAULTINSTANCE_LOGINPOLICY_MULTIFACTORCHECKLIFETIME: "720h"
 
       # Production log level
-      ZITADEL_LOG_LEVEL: warn
+      ZITADEL_LOG_LEVEL: ${ZITADEL_LOG_LEVEL:-warn}
 
-      # Telemetry (disable in production if not needed)
+      # Telemetry (disable in production)
       ZITADEL_TELEMETRY_ENABLED: "false"
 
+    healthcheck:
+      test:
+        - CMD
+        - /app/zitadel
+        - ready
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 10s
+    user: "0"
+    volumes:
+      - ./data:/current-dir:delegated
+      - ${ZITADEL_CERTS_PATH:-./certs}:/certs:ro
     ports:
       - "${ZITADEL_PORT:-8443}:8080"
+      - "${ZITADEL_LOGIN_PORT:-3001}:3000"
     networks:
       - compta-network
-    volumes:
-      # TLS certificates
-      - ${ZITADEL_CERTS_PATH:-./certs}:/certs:ro
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/debug/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -84,6 +96,25 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
+
+  # ==========================================
+  # Zitadel Login V2 Service (Production)
+  # ==========================================
+  login:
+    restart: unless-stopped
+    image: ghcr.io/zitadel/zitadel-login:latest
+    container_name: compta-zitadel-login
+    environment:
+      - ZITADEL_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_BASE_PATH=/ui/v2/login
+      - ZITADEL_SERVICE_USER_TOKEN_FILE=/current-dir/login-client.pat
+    network_mode: service:zitadel
+    user: "0"
+    volumes:
+      - ./data:/current-dir:ro
+    depends_on:
+      zitadel:
+        condition: service_healthy
 
 networks:
   compta-network:
@@ -94,32 +125,42 @@ networks:
 # PRODUCTION DEPLOYMENT CHECKLIST
 # =============================================================================
 #
-# 1. Generate a secure master key:
+# 1. Generate a secure master key (32 characters):
 #    openssl rand -base64 32 | head -c 32
 #
-# 2. Create .env.prod file with required variables:
+# 2. Generate a secure password for zitadel DB user:
+#    openssl rand -base64 24
+#
+# 3. Create .env.prod file with required variables:
 #    ZITADEL_MASTERKEY=<your-32-char-master-key>
 #    ZITADEL_DOMAIN=auth.yourdomain.com
 #    ZITADEL_PORT=443
-#    ZITADEL_ADMIN_USERNAME=admin@yourdomain.com
+#    ZITADEL_LOGIN_PORT=3001
+#    ZITADEL_ORG_NAME=COMPTA
+#    ZITADEL_ADMIN_USERNAME=admin
 #    ZITADEL_ADMIN_PASSWORD=<secure-password>
+#    ZITADEL_DB_PASSWORD=<zitadel-db-password>
 #    POSTGRES_HOST=<your-postgres-host>
-#    POSTGRES_PASSWORD=<your-secure-password>
+#    POSTGRES_ADMIN_USER=postgres
+#    POSTGRES_ADMIN_PASSWORD=<postgres-admin-password>
 #    POSTGRES_SSL_MODE=require
-#    ZITADEL_CERTS_PATH=/path/to/certs
+#    ZITADEL_CERTS_PATH=./certs
 #
-# 3. Prepare TLS certificates in certs/ directory:
+# 4. Prepare TLS certificates in certs/ directory:
 #    - cert.pem (certificate)
 #    - key.pem (private key)
 #
-# 4. Create the zitadel database in PostgreSQL:
+# 5. Create data directory:
+#    mkdir -p data
+#
+# 6. Create the zitadel database in PostgreSQL:
 #    psql -h $POSTGRES_HOST -U postgres -f init-db.sql
 #
-# 5. Start Zitadel:
+# 7. Start Zitadel:
 #    docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
 #
-# 6. Configure your reverse proxy (nginx/traefik) to handle TLS termination
-#    if using port 443 with a load balancer.
+# 8. Access Zitadel Console: https://<ZITADEL_DOMAIN>/ui/console
+#    Login: <ZITADEL_ADMIN_USERNAME>@<ZITADEL_ORG_NAME>.<ZITADEL_DOMAIN>
 #
 # =============================================================================
 # SECURITY RECOMMENDATIONS
@@ -132,4 +173,5 @@ networks:
 # - Configure backup for PostgreSQL
 # - Use a CDN for static assets
 # - Enable audit logging
+# - Configure ZITADEL_FORCE_PASSWORD_CHANGE=true for first login
 #

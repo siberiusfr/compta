@@ -78,14 +78,16 @@ Zitadel replaces the internal oauth2-server for authentication and authorization
 Uses a dedicated `zitadel` database (Zitadel manages its own schemas internally).
 
 ```bash
-# Create the zitadel database (run once before first start)
+# Create the zitadel database and user (run once before first start)
 cd api/zitadel
 psql -h localhost -U postgres -f init-db.sql
 # OR with Docker
 docker exec -i compta-postgres psql -U postgres < init-db.sql
 
+# Create data directory for PAT files
+mkdir -p data
+
 # Development mode
-cd api/zitadel
 docker-compose -f docker-compose.dev.yml up -d
 
 # Production mode
@@ -94,7 +96,7 @@ cp .env.example .env.prod
 docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
 
 # Access Zitadel Console
-# Dev: http://localhost:8085 (admin@compta.local / Admin123!)
+# Dev: http://localhost:8085/ui/console (admin@compta.localhost / Admin123!)
 # Prod: https://your-domain.com
 ```
 
@@ -106,7 +108,7 @@ All backend services are in `api/`:
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| zitadel | 8085 | Identity Provider (OIDC/OAuth2, user management) |
+| zitadel | 8085, 3001 | Identity Provider (OIDC/OAuth2, user management, Login V2) |
 | gateway | 8080 | Spring Cloud Gateway, JWT validation, rate limiting |
 | auth-service | 8081 | Authentication, users, companies, roles |
 | accounting-service | 8082 | Chart of accounts, journal entries, tax |
@@ -195,7 +197,7 @@ Each service has its own CLAUDE.md with detailed guidance:
 |-----------|-----|
 | Frontend | http://localhost:3000 |
 | API Gateway | http://localhost:8080 |
-| Zitadel Console | http://localhost:8085 (admin@compta.local / Admin123!) |
+| Zitadel Console | http://localhost:8085/ui/console (admin@compta.localhost / Admin123!) |
 | Swagger UI | http://localhost:8080/swagger-ui.html |
 | RabbitMQ UI | http://localhost:15672 (guest/guest) |
 | MinIO Console | http://localhost:9001 (minioadmin/minioadmin) |

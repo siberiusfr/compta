@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Zitadel ###
+zitadel/data/
+zitadel/certs/
+zitadel/.env
+zitadel/.env.prod
