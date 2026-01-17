@@ -54,7 +54,8 @@
       "Bash(python3:*)",
       "Bash(python -c:*)",
       "Bash(mvn test-compile exec:java:*)",
-      "Bash(docker exec:*)"
+      "Bash(docker exec:*)",
+      "Bash(mvn spotless:apply:*)"
     ]
   }
 }

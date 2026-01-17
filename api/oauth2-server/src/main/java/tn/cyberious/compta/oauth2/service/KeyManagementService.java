@@ -179,13 +179,13 @@ public class KeyManagementService {
   /** Check if a key is expiring soon (within 7 days) */
   private boolean isKeyExpiringSoon(String keyId) {
     String sql = "SELECT expires_at FROM oauth2.oauth2_keys WHERE key_id = ?";
-    LocalDateTime expiresAt = jdbcTemplate.queryForObject(sql, LocalDateTime.class, keyId);
+    List<LocalDateTime> results = jdbcTemplate.queryForList(sql, LocalDateTime.class, keyId);
 
-    if (expiresAt == null) {
+    if (results.isEmpty() || results.get(0) == null) {
       return true;
     }
 
-    return expiresAt.isBefore(LocalDateTime.now().plusDays(7));
+    return results.get(0).isBefore(LocalDateTime.now().plusDays(7));
   }
 
   /** Generate an RSA key pair */

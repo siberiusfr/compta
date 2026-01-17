@@ -63,6 +63,15 @@ public class AuthorizationServerConfig {
   @Value("${oauth2.gateway.secret:gateway-secret-change-in-production}")
   private String gatewaySecret;
 
+  @Value("${oauth2.clients.public-client.redirect-uris:http://localhost:3000/authorized}")
+  private String publicClientRedirectUri;
+
+  @Value("${oauth2.clients.public-client.post-logout-redirect-uris:http://localhost:3000}")
+  private String publicClientPostLogoutUri;
+
+  @Value("${oauth2.clients.gateway.redirect-uris:http://localhost:8080/authorized}")
+  private String gatewayRedirectUri;
+
   @Bean
   @Order(1)
   public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
@@ -195,8 +204,8 @@ public class AuthorizationServerConfig {
               .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
               .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
               .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-              .redirectUri("http://localhost:3000/authorized")
-              .postLogoutRedirectUri("http://localhost:3000")
+              .redirectUri(publicClientRedirectUri)
+              .postLogoutRedirectUri(publicClientPostLogoutUri)
               .scope(OidcScopes.OPENID)
               .scope("read")
               .scope("write")
@@ -223,7 +232,7 @@ public class AuthorizationServerConfig {
               .clientSecret(passwordEncoder.encode(gatewaySecret))
               .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
               .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-              .redirectUri("http://localhost:8080/authorized")
+              .redirectUri(gatewayRedirectUri)
               .scope(OidcScopes.OPENID)
               .scope("read")
               .scope("write")

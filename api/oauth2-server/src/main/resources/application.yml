@@ -61,6 +61,12 @@ oauth2:
       retention-days: 30
   rate-limiting:
     enabled: true
+  clients:
+    public-client:
+      redirect-uris: ${PUBLIC_CLIENT_REDIRECT_URIS:http://localhost:3000/authorized}
+      post-logout-redirect-uris: ${PUBLIC_CLIENT_POST_LOGOUT_URIS:http://localhost:3000}
+    gateway:
+      redirect-uris: ${GATEWAY_REDIRECT_URIS:http://localhost:8080/authorized}
 
 # Application Configuration
 app:

@@ -40,13 +40,12 @@ public class AuditLogAspect {
   }
 
   /** Pointcut for token revocation. */
-  @Pointcut(
-      "execution(* tn.cyberious.compta.oauth2.controller.TokenRevocationController.revokeToken(..))")
+  @Pointcut("execution(* tn.cyberious.compta.oauth2.controller.RevocationController.revoke(..))")
   public void tokenRevocation() {}
 
   /** Pointcut for token introspection. */
   @Pointcut(
-      "execution(* tn.cyberious.compta.oauth2.controller.TokenIntrospectionController.introspectToken(..))")
+      "execution(* tn.cyberious.compta.oauth2.controller.IntrospectionController.introspect(..))")
   public void tokenIntrospection() {}
 
   /** Pointcut for user management operations. */

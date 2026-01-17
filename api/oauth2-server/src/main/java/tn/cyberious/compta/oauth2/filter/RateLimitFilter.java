@@ -123,10 +123,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
             "{\"error\":\"rate_limit_exceeded\",\"message\":\"Too many requests. Please try again later.\"}");
   }
 
-  private void blockIp(String clientIp, long blockDurationMillis) {
-    blockedUntil.put(clientIp, Instant.now().plusMillis(blockDurationMillis));
-  }
-
   private static class RequestCounter {
     private final Map<Long, AtomicInteger> timestamps = new ConcurrentHashMap<>();
     private long lastWindowSize = 60000; // Default 1 minute
@@ -140,13 +136,13 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     public int increment() {
       long now = System.currentTimeMillis();
+      long cutoff = now - lastWindowSize;
+
+      // Clean old entries BEFORE adding to ensure accurate count
+      timestamps.entrySet().removeIf(entry -> entry.getKey() < cutoff);
 
       // Add current request
       timestamps.compute(now, (k, v) -> v == null ? new AtomicInteger(1) : v);
-
-      // Clean old entries based on last known window size
-      long cutoff = now - lastWindowSize;
-      timestamps.entrySet().removeIf(entry -> entry.getKey() < cutoff);
 
       // Return total count in window
       return timestamps.values().stream().mapToInt(AtomicInteger::get).sum();

@@ -4,6 +4,8 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.MeterBinder;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.springframework.stereotype.Component;
 
@@ -33,9 +35,9 @@ public class OAuth2Metrics implements MeterBinder {
   private Counter refreshTokenGrantCounter;
   private Counter clientCredentialsGrantCounter;
 
-  // Counters by client
-  private Counter publicClientCounter;
-  private Counter gatewayClientCounter;
+  // Dynamic counters by client (supports any client, not just hardcoded ones)
+  private final Map<String, Counter> clientCounters = new ConcurrentHashMap<>();
+  private MeterRegistry meterRegistry;
 
   // Counters for errors
   private Counter invalidGrantCounter;
@@ -152,18 +154,8 @@ public class OAuth2Metrics implements MeterBinder {
             .tag("type", "client_credentials")
             .register(registry);
 
-    // Client counters
-    publicClientCounter =
-        Counter.builder("oauth2.client.requests")
-            .description("Number of requests by client")
-            .tag("client_id", "public-client")
-            .register(registry);
-
-    gatewayClientCounter =
-        Counter.builder("oauth2.client.requests")
-            .description("Number of requests by client")
-            .tag("client_id", "gateway")
-            .register(registry);
+    // Store registry for dynamic client counter creation
+    this.meterRegistry = registry;
 
     // Error counters
     invalidGrantCounter =
@@ -378,20 +370,23 @@ public class OAuth2Metrics implements MeterBinder {
     }
   }
 
-  // Client methods
+  // Client methods - dynamically creates counters for any client
   private void recordClientRequest(String clientId) {
-    if (clientId == null) {
+    if (clientId == null || clientId.isEmpty() || meterRegistry == null) {
       return;
     }
 
-    switch (clientId) {
-      case "public-client":
-        publicClientCounter.increment();
-        break;
-      case "gateway":
-        gatewayClientCounter.increment();
-        break;
-    }
+    // Get or create counter for this client dynamically
+    Counter counter =
+        clientCounters.computeIfAbsent(
+            clientId,
+            id ->
+                Counter.builder("oauth2.client.requests")
+                    .description("Number of requests by client")
+                    .tag("client_id", id)
+                    .register(meterRegistry));
+
+    counter.increment();
   }
 
   // Error methods
