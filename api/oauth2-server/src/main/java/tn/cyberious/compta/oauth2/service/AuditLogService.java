@@ -1,10 +1,15 @@
 package tn.cyberious.compta.oauth2.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -307,7 +312,7 @@ public class AuditLogService {
     return jdbcTemplate.query(
         sql,
         rs -> {
-          Map<String, Integer> stats = new java.util.HashMap<>();
+          Map<String, Integer> stats = new HashMap<>();
           while (rs.next()) {
             stats.put(rs.getString("event_type"), rs.getInt("count"));
           }
@@ -318,8 +323,7 @@ public class AuditLogService {
   }
 
   /** Map a database row to an AuditLog object. */
-  private AuditLog mapRowToAuditLog(java.sql.ResultSet rs, int rowNum)
-      throws java.sql.SQLException {
+  private AuditLog mapRowToAuditLog(ResultSet rs, int rowNum) throws SQLException {
     AuditLog auditLog = new AuditLog();
     auditLog.setId(rs.getLong("id"));
     auditLog.setEventType(rs.getString("event_type"));
@@ -340,9 +344,7 @@ public class AuditLogService {
     if (detailsJson != null && !detailsJson.isEmpty()) {
       try {
         Map<String, Object> details =
-            objectMapper.readValue(
-                detailsJson,
-                new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
+            objectMapper.readValue(detailsJson, new TypeReference<Map<String, Object>>() {});
         auditLog.setDetails(details);
       } catch (JsonProcessingException e) {
         log.warn("Failed to parse audit log details", e);
@@ -366,7 +368,7 @@ public class AuditLogService {
   @Transactional
   public void cleanupOldLogs() {
     // Delete logs older than 90 days
-    Instant cutoff = Instant.now().minus(java.time.Duration.ofDays(90));
+    Instant cutoff = Instant.now().minus(Duration.ofDays(90));
     int deleted = deleteOldLogs(cutoff);
     log.info("Cleanup completed: {} old audit logs deleted", deleted);
   }

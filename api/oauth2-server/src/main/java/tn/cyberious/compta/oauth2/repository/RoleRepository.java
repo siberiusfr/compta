@@ -9,6 +9,7 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 import tn.cyberious.compta.oauth2.generated.tables.Roles;
 import tn.cyberious.compta.oauth2.generated.tables.UserRoles;
+import tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord;
 
 @Slf4j
 @Repository
@@ -17,13 +18,11 @@ public class RoleRepository {
 
   private final DSLContext dsl;
 
-  public Optional<tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord> findById(
-      UUID id) {
+  public Optional<RolesRecord> findById(UUID id) {
     return dsl.selectFrom(Roles.ROLES).where(Roles.ROLES.ID.eq(id)).fetchOptional();
   }
 
-  public Optional<tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord> findByName(
-      String name) {
+  public Optional<RolesRecord> findByName(String name) {
     return dsl.selectFrom(Roles.ROLES).where(Roles.ROLES.NAME.eq(name)).fetchOptional();
   }
 
@@ -31,12 +30,11 @@ public class RoleRepository {
     return dsl.fetchExists(dsl.selectFrom(Roles.ROLES).where(Roles.ROLES.NAME.eq(name)));
   }
 
-  public List<tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord> findAll() {
+  public List<RolesRecord> findAll() {
     return dsl.selectFrom(Roles.ROLES).fetch();
   }
 
-  public tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord insert(
-      String name, String description) {
+  public RolesRecord insert(String name, String description) {
     return dsl.insertInto(Roles.ROLES)
         .set(Roles.ROLES.NAME, name)
         .set(Roles.ROLES.DESCRIPTION, description)

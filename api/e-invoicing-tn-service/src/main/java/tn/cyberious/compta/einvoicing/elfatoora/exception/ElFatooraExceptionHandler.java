@@ -3,6 +3,10 @@ package tn.cyberious.compta.einvoicing.elfatoora.exception;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -109,10 +113,10 @@ public class ElFatooraExceptionHandler {
   }
 
   /** Error response structure. */
-  @lombok.Data
-  @lombok.Builder
-  @lombok.NoArgsConstructor
-  @lombok.AllArgsConstructor
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
   public static class ErrorResponse {
     private String code;
     private String message;

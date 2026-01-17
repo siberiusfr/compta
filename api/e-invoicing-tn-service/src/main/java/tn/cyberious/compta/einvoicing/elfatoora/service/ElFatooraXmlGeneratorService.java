@@ -16,6 +16,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.Validator;
 import lombok.RequiredArgsConstructor;
@@ -100,7 +101,7 @@ public class ElFatooraXmlGeneratorService {
 
     try {
       Validator validator = elFatooraSchema.newValidator();
-      validator.validate(new javax.xml.transform.stream.StreamSource(new StringReader(xml)));
+      validator.validate(new StreamSource(new StringReader(xml)));
       log.debug("XML validated successfully against XSD");
     } catch (Exception e) {
       log.error("XSD validation failed", e);

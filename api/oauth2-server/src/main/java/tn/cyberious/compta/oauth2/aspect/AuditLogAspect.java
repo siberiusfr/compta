@@ -1,6 +1,7 @@
 package tn.cyberious.compta.oauth2.aspect;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -255,7 +256,7 @@ public class AuditLogAspect {
     String authHeader = request.getHeader("Authorization");
     if (authHeader != null && authHeader.startsWith("Basic ")) {
       try {
-        String decoded = new String(java.util.Base64.getDecoder().decode(authHeader.substring(6)));
+        String decoded = new String(Base64.getDecoder().decode(authHeader.substring(6)));
         String[] parts = decoded.split(":", 2);
         if (parts.length > 0) {
           return parts[0];

@@ -66,7 +66,7 @@ class AmountCalculationValidatorTest {
       ValidationResult result = validator.validateLineCalculations(line, 0);
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_INCORRECT_LINE_AMOUNT"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_INCORRECT_LINE_AMOUNT".equals(e.getCode()));
     }
 
     @Test
@@ -86,7 +86,7 @@ class AmountCalculationValidatorTest {
       ValidationResult result = validator.validateLineCalculations(line, 0);
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_INCORRECT_TAX_AMOUNT"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_INCORRECT_TAX_AMOUNT".equals(e.getCode()));
     }
 
     @Test
@@ -107,7 +107,7 @@ class AmountCalculationValidatorTest {
       ValidationResult result = validator.validateLineCalculations(line, 0);
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_INCORRECT_LINE_TOTAL"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_INCORRECT_LINE_TOTAL".equals(e.getCode()));
     }
 
     @Test
@@ -125,7 +125,7 @@ class AmountCalculationValidatorTest {
       ValidationResult result = validator.validateLineCalculations(line, 0);
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_INVALID_TAX_RATE"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_INVALID_TAX_RATE".equals(e.getCode()));
     }
 
     @Test
@@ -150,7 +150,7 @@ class AmountCalculationValidatorTest {
 
         ValidationResult result = validator.validateLineCalculations(line, 0);
 
-        assertThat(result.getErrors()).noneMatch(e -> e.getCode().equals("ELF_INVALID_TAX_RATE"));
+        assertThat(result.getErrors()).noneMatch(e -> "ELF_INVALID_TAX_RATE".equals(e.getCode()));
       }
     }
 
@@ -168,7 +168,7 @@ class AmountCalculationValidatorTest {
       ValidationResult result = validator.validateLineCalculations(line, 0);
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_MISSING_QUANTITY"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_MISSING_QUANTITY".equals(e.getCode()));
     }
 
     @Test
@@ -193,8 +193,8 @@ class AmountCalculationValidatorTest {
       assertThat(result.getErrors())
           .noneMatch(
               e ->
-                  e.getCode().equals("ELF_INCORRECT_LINE_AMOUNT")
-                      || e.getCode().equals("ELF_INCORRECT_TAX_AMOUNT"));
+                  "ELF_INCORRECT_LINE_AMOUNT".equals(e.getCode())
+                      || "ELF_INCORRECT_TAX_AMOUNT".equals(e.getCode()));
     }
   }
 
@@ -252,7 +252,7 @@ class AmountCalculationValidatorTest {
       ValidationResult result = validator.validateTotals(invoice);
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_INCORRECT_TOTAL_EXCL"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_INCORRECT_TOTAL_EXCL".equals(e.getCode()));
     }
 
     @Test
@@ -277,7 +277,7 @@ class AmountCalculationValidatorTest {
       ValidationResult result = validator.validateTotals(invoice);
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_INCONSISTENT_TOTALS"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_INCONSISTENT_TOTALS".equals(e.getCode()));
     }
 
     @Test
@@ -289,7 +289,7 @@ class AmountCalculationValidatorTest {
       ValidationResult result = validator.validateTotals(invoice);
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_NO_LINES"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_NO_LINES".equals(e.getCode()));
     }
   }
 

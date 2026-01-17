@@ -69,7 +69,7 @@ public class UserSocieteComptableService {
             .orElseThrow(() -> new IllegalArgumentException("Assignation non trouvee: " + id));
 
     // Verifier la contrainte MANAGER unique si changement vers MANAGER
-    if (role == CabinetRole.MANAGER && !existing.getRole().equals("MANAGER")) {
+    if (role == CabinetRole.MANAGER && !"MANAGER".equals(existing.getRole())) {
       if (userSocieteComptableRepository.existsActiveManagerBySocieteComptableId(
           existing.getSocieteComptableId())) {
         throw new IllegalArgumentException("Cette societe comptable a deja un manager actif");
@@ -96,7 +96,7 @@ public class UserSocieteComptableService {
 
   @Transactional
   public void delete(Long id) {
-    if (!userSocieteComptableRepository.findById(id).isPresent()) {
+    if (userSocieteComptableRepository.findById(id).isEmpty()) {
       throw new IllegalArgumentException("Assignation non trouvee: " + id);
     }
     userSocieteComptableRepository.delete(id);

@@ -212,7 +212,7 @@ class DateValidatorTest {
               null);
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_INVALID_DUE_DATE"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_INVALID_DUE_DATE".equals(e.getCode()));
     }
 
     @Test
@@ -226,7 +226,7 @@ class DateValidatorTest {
               LocalDate.of(2025, 1, 1));
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_INVALID_PERIOD"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_INVALID_PERIOD".equals(e.getCode()));
     }
 
     @Test
@@ -241,7 +241,7 @@ class DateValidatorTest {
 
       assertThat(result.hasWarnings()).isTrue();
       assertThat(result.getWarnings())
-          .anyMatch(w -> w.getCode().equals("ELF_WARN_INCOMPLETE_PERIOD"));
+          .anyMatch(w -> "ELF_WARN_INCOMPLETE_PERIOD".equals(w.getCode()));
     }
 
     @Test
@@ -250,7 +250,7 @@ class DateValidatorTest {
       ValidationResult result = validator.validateDateCoherence(null, null, null, null);
 
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getCode().equals("ELF_MISSING_INVOICE_DATE"));
+      assertThat(result.getErrors()).anyMatch(e -> "ELF_MISSING_INVOICE_DATE".equals(e.getCode()));
     }
   }
 }

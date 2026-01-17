@@ -161,7 +161,9 @@ public class CategoryService {
   }
 
   private String getParentName(Long parentId) {
-    if (parentId == null) return null;
+    if (parentId == null) {
+      return null;
+    }
     return categoryRepository.findById(parentId).map(Categories::getName).orElse(null);
   }
 

@@ -1,6 +1,7 @@
 package tn.cyberious.compta.document.service;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.HexFormat;
@@ -9,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -84,12 +88,11 @@ public class StorageService {
   public String generatePresignedUrl(String filePath, Duration expiration) {
     try (S3Presigner presigner =
         S3Presigner.builder()
-            .region(software.amazon.awssdk.regions.Region.of(s3Properties.getRegion()))
+            .region(Region.of(s3Properties.getRegion()))
             .credentialsProvider(
-                software.amazon.awssdk.auth.credentials.StaticCredentialsProvider.create(
-                    software.amazon.awssdk.auth.credentials.AwsBasicCredentials.create(
-                        s3Properties.getKey(), s3Properties.getSecret())))
-            .endpointOverride(java.net.URI.create(s3Properties.getEndpoint()))
+                StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(s3Properties.getKey(), s3Properties.getSecret())))
+            .endpointOverride(URI.create(s3Properties.getEndpoint()))
             .build()) {
 
       GetObjectRequest getObjectRequest =

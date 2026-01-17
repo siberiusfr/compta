@@ -1,5 +1,6 @@
 package tn.cyberious.compta.einvoicing.elfatoora.config;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -12,16 +13,16 @@ import org.springframework.validation.annotation.Validated;
 public class ElFatooraProperties {
 
   /** XSD validation configuration. */
-  private XsdConfig xsd = new XsdConfig();
+  @Valid private XsdConfig xsd = new XsdConfig();
 
   /** Certificate configuration for signing. */
-  private CertificateConfig certificate = new CertificateConfig();
+  @Valid private CertificateConfig certificate = new CertificateConfig();
 
   /** Signature configuration. */
-  private SignatureConfig signature = new SignatureConfig();
+  @Valid private SignatureConfig signature = new SignatureConfig();
 
   /** TTN (Tunisie TradeNet) integration configuration. */
-  private TtnConfig ttn = new TtnConfig();
+  @Valid private TtnConfig ttn = new TtnConfig();
 
   /** XSD validation configuration. */
   @Data
@@ -52,7 +53,7 @@ public class ElFatooraProperties {
     private String type = "PKCS12";
 
     /** Whether certificate is required (false allows unsigned generation). */
-    private boolean required = false;
+    private boolean required;
   }
 
   /** XAdES signature configuration. */
@@ -94,7 +95,7 @@ public class ElFatooraProperties {
   @Data
   public static class TtnConfig {
     /** Whether TTN integration is enabled. */
-    private boolean enabled = false;
+    private boolean enabled;
 
     /** TTN test environment URL. */
     private String testUrl = "https://test.tradenet.com.tn";

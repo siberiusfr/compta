@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -165,7 +166,7 @@ class ElFatooraControllerIntegrationTest {
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(invoice)))
           .andExpect(status().isOk())
-          .andExpect(content().string(org.hamcrest.Matchers.not(containsString("<ds:Signature"))));
+          .andExpect(content().string(Matchers.not(containsString("<ds:Signature"))));
     }
   }
 
@@ -234,7 +235,7 @@ class ElFatooraControllerIntegrationTest {
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(invoice)))
           .andExpect(status().isOk())
-          .andExpect(jsonPath("$.errors", hasSize(org.hamcrest.Matchers.greaterThan(0))));
+          .andExpect(jsonPath("$.errors", hasSize(Matchers.greaterThan(0))));
     }
   }
 

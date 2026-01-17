@@ -1,6 +1,7 @@
 package tn.cyberious.compta.oauth2.metrics;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.concurrent.TimeUnit;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -46,15 +47,13 @@ public class MetricsAspect {
 
       // Record metrics
       oauth2Metrics.recordTokenRevoked();
-      oauth2Metrics.recordTokenRevocationDuration(
-          duration, java.util.concurrent.TimeUnit.NANOSECONDS);
+      oauth2Metrics.recordTokenRevocationDuration(duration, TimeUnit.NANOSECONDS);
 
       return result;
     } catch (Exception e) {
       long duration = System.nanoTime() - startTime;
       oauth2Metrics.recordError("token_revocation_failed");
-      oauth2Metrics.recordTokenRevocationDuration(
-          duration, java.util.concurrent.TimeUnit.NANOSECONDS);
+      oauth2Metrics.recordTokenRevocationDuration(duration, TimeUnit.NANOSECONDS);
       throw e;
     }
   }
@@ -71,15 +70,13 @@ public class MetricsAspect {
 
       // Record metrics
       oauth2Metrics.recordTokenIntrospected();
-      oauth2Metrics.recordTokenIntrospectionDuration(
-          duration, java.util.concurrent.TimeUnit.NANOSECONDS);
+      oauth2Metrics.recordTokenIntrospectionDuration(duration, TimeUnit.NANOSECONDS);
 
       return result;
     } catch (Exception e) {
       long duration = System.nanoTime() - startTime;
       oauth2Metrics.recordError("token_introspection_failed");
-      oauth2Metrics.recordTokenIntrospectionDuration(
-          duration, java.util.concurrent.TimeUnit.NANOSECONDS);
+      oauth2Metrics.recordTokenIntrospectionDuration(duration, TimeUnit.NANOSECONDS);
       throw e;
     }
   }
@@ -96,15 +93,13 @@ public class MetricsAspect {
 
       // Record metrics
       recordUserManagementMetrics(methodName, true);
-      oauth2Metrics.recordUserManagementDuration(
-          duration, java.util.concurrent.TimeUnit.NANOSECONDS);
+      oauth2Metrics.recordUserManagementDuration(duration, TimeUnit.NANOSECONDS);
 
       return result;
     } catch (Exception e) {
       long duration = System.nanoTime() - startTime;
       recordUserManagementMetrics(methodName, false);
-      oauth2Metrics.recordUserManagementDuration(
-          duration, java.util.concurrent.TimeUnit.NANOSECONDS);
+      oauth2Metrics.recordUserManagementDuration(duration, TimeUnit.NANOSECONDS);
       throw e;
     }
   }
@@ -121,15 +116,13 @@ public class MetricsAspect {
 
       // Record metrics
       recordPasswordResetMetrics(methodName, true);
-      oauth2Metrics.recordPasswordResetDuration(
-          duration, java.util.concurrent.TimeUnit.NANOSECONDS);
+      oauth2Metrics.recordPasswordResetDuration(duration, TimeUnit.NANOSECONDS);
 
       return result;
     } catch (Exception e) {
       long duration = System.nanoTime() - startTime;
       recordPasswordResetMetrics(methodName, false);
-      oauth2Metrics.recordPasswordResetDuration(
-          duration, java.util.concurrent.TimeUnit.NANOSECONDS);
+      oauth2Metrics.recordPasswordResetDuration(duration, TimeUnit.NANOSECONDS);
       throw e;
     }
   }
@@ -146,15 +139,13 @@ public class MetricsAspect {
 
       // Record metrics
       recordEmailVerificationMetrics(methodName, true);
-      oauth2Metrics.recordEmailVerificationDuration(
-          duration, java.util.concurrent.TimeUnit.NANOSECONDS);
+      oauth2Metrics.recordEmailVerificationDuration(duration, TimeUnit.NANOSECONDS);
 
       return result;
     } catch (Exception e) {
       long duration = System.nanoTime() - startTime;
       recordEmailVerificationMetrics(methodName, false);
-      oauth2Metrics.recordEmailVerificationDuration(
-          duration, java.util.concurrent.TimeUnit.NANOSECONDS);
+      oauth2Metrics.recordEmailVerificationDuration(duration, TimeUnit.NANOSECONDS);
       throw e;
     }
   }

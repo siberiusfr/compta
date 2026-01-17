@@ -43,21 +43,20 @@ public class PasswordResetController {
   @Operation(
       summary = "Initiate password reset",
       description = "Sends a password reset email to the user's email address")
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Password reset email sent (even if email doesn't exist for security)",
-            content = @Content(schema = @Schema(implementation = String.class))),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Invalid email format",
-            content = @Content(schema = @Schema(implementation = String.class))),
-        @ApiResponse(
-            responseCode = "429",
-            description = "Too many requests (rate limit exceeded)",
-            content = @Content(schema = @Schema(implementation = String.class)))
-      })
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "Password reset email sent (even if email doesn't exist for security)",
+        content = @Content(schema = @Schema(implementation = String.class))),
+    @ApiResponse(
+        responseCode = "400",
+        description = "Invalid email format",
+        content = @Content(schema = @Schema(implementation = String.class))),
+    @ApiResponse(
+        responseCode = "429",
+        description = "Too many requests (rate limit exceeded)",
+        content = @Content(schema = @Schema(implementation = String.class)))
+  })
   public ResponseEntity<String> initiatePasswordReset(
       @Valid @RequestBody PasswordResetRequest request, HttpServletRequest httpRequest) {
 
@@ -86,21 +85,20 @@ public class PasswordResetController {
   @Operation(
       summary = "Confirm password reset",
       description = "Resets the user's password using a valid reset token")
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Password reset successfully",
-            content = @Content(schema = @Schema(implementation = String.class))),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Invalid token or password",
-            content = @Content(schema = @Schema(implementation = String.class))),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Token not found or expired",
-            content = @Content(schema = @Schema(implementation = String.class)))
-      })
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "Password reset successfully",
+        content = @Content(schema = @Schema(implementation = String.class))),
+    @ApiResponse(
+        responseCode = "400",
+        description = "Invalid token or password",
+        content = @Content(schema = @Schema(implementation = String.class))),
+    @ApiResponse(
+        responseCode = "404",
+        description = "Token not found or expired",
+        content = @Content(schema = @Schema(implementation = String.class)))
+  })
   public ResponseEntity<String> confirmPasswordReset(
       @Valid @RequestBody PasswordResetConfirmRequest request, HttpServletRequest httpRequest) {
 

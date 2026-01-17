@@ -6,6 +6,7 @@ import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.XMLConstants;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ public class ElFatooraConfiguration {
       schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
       try (InputStream is = xsdResource.getInputStream()) {
-        Schema schema = schemaFactory.newSchema(new javax.xml.transform.stream.StreamSource(is));
+        Schema schema = schemaFactory.newSchema(new StreamSource(is));
         log.info(
             "El Fatoora XSD schema loaded successfully from: {}", properties.getXsd().getPath());
         return schema;

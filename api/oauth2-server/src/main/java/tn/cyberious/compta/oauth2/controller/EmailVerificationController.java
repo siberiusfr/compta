@@ -43,21 +43,20 @@ public class EmailVerificationController {
   @Operation(
       summary = "Initiate email verification",
       description = "Sends a verification email to the user's email address")
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Verification email sent (even if email doesn't exist for security)",
-            content = @Content(schema = @Schema(implementation = String.class))),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Invalid email format",
-            content = @Content(schema = @Schema(implementation = String.class))),
-        @ApiResponse(
-            responseCode = "429",
-            description = "Too many requests (rate limit exceeded)",
-            content = @Content(schema = @Schema(implementation = String.class)))
-      })
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "Verification email sent (even if email doesn't exist for security)",
+        content = @Content(schema = @Schema(implementation = String.class))),
+    @ApiResponse(
+        responseCode = "400",
+        description = "Invalid email format",
+        content = @Content(schema = @Schema(implementation = String.class))),
+    @ApiResponse(
+        responseCode = "429",
+        description = "Too many requests (rate limit exceeded)",
+        content = @Content(schema = @Schema(implementation = String.class)))
+  })
   public ResponseEntity<String> initiateEmailVerification(
       @Valid @RequestBody EmailVerificationRequest request, HttpServletRequest httpRequest) {
 
@@ -86,21 +85,20 @@ public class EmailVerificationController {
   @Operation(
       summary = "Confirm email verification",
       description = "Verifies the user's email address using a valid verification token")
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Email verified successfully",
-            content = @Content(schema = @Schema(implementation = String.class))),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Invalid or expired token",
-            content = @Content(schema = @Schema(implementation = String.class))),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Token not found",
-            content = @Content(schema = @Schema(implementation = String.class)))
-      })
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "Email verified successfully",
+        content = @Content(schema = @Schema(implementation = String.class))),
+    @ApiResponse(
+        responseCode = "400",
+        description = "Invalid or expired token",
+        content = @Content(schema = @Schema(implementation = String.class))),
+    @ApiResponse(
+        responseCode = "404",
+        description = "Token not found",
+        content = @Content(schema = @Schema(implementation = String.class)))
+  })
   public ResponseEntity<String> confirmEmailVerification(
       @Parameter(description = "The verification token from the email") String token,
       HttpServletRequest httpRequest) {

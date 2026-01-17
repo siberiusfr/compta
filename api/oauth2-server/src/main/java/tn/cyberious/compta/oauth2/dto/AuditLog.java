@@ -311,6 +311,8 @@ public class AuditLog {
     public static final String CLIENT_DELETED = "CLIENT_DELETED";
     public static final String RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED";
     public static final String CSRF_TOKEN_VALIDATION_FAILED = "CSRF_TOKEN_VALIDATION_FAILED";
+
+    private EventTypes() {}
   }
 
   // Event Categories
@@ -323,6 +325,8 @@ public class AuditLog {
     public static final String CLIENT = "CLIENT";
     public static final String SECURITY = "SECURITY";
     public static final String AUDIT = "AUDIT";
+
+    private EventCategories() {}
   }
 
   // Status Values
@@ -330,5 +334,7 @@ public class AuditLog {
     public static final String SUCCESS = "SUCCESS";
     public static final String FAILURE = "FAILURE";
     public static final String WARNING = "WARNING";
+
+    private Status() {}
   }
 }

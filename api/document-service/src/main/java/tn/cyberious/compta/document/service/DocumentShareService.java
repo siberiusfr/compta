@@ -78,7 +78,7 @@ public class DocumentShareService {
   public void revoke(Long shareId) {
     log.info("Revoking share: {}", shareId);
 
-    if (!documentShareRepository.findById(shareId).isPresent()) {
+    if (documentShareRepository.findById(shareId).isEmpty()) {
       throw new ResourceNotFoundException("Share not found: " + shareId);
     }
 

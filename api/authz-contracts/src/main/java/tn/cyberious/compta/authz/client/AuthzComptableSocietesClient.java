@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import tn.cyberious.compta.authz.dto.ComptableSocietesDto;
+import tn.cyberious.compta.authz.dto.SocieteDto;
 import tn.cyberious.compta.authz.dto.request.AssignComptableToSocieteRequest;
 import tn.cyberious.compta.authz.dto.request.UpdateComptableSocieteAccessRequest;
 
@@ -36,11 +37,10 @@ public interface AuthzComptableSocietesClient {
   List<ComptableSocietesDto> findBySocieteId(@PathVariable Long societeId);
 
   @GetMapping("/api/comptable-societes/user/{userId}/societes")
-  List<tn.cyberious.compta.authz.dto.SocieteDto> findSocietesByUserId(@PathVariable Long userId);
+  List<SocieteDto> findSocietesByUserId(@PathVariable Long userId);
 
   @GetMapping("/api/comptable-societes/user/{userId}/societes/write")
-  List<tn.cyberious.compta.authz.dto.SocieteDto> findSocietesWithWriteAccessByUserId(
-      @PathVariable Long userId);
+  List<SocieteDto> findSocietesWithWriteAccessByUserId(@PathVariable Long userId);
 
   @GetMapping("/api/comptable-societes/check/access")
   Boolean hasAccess(@RequestParam Long userId, @RequestParam Long societeId);

@@ -9,7 +9,7 @@ public record SocieteAccessDto(
         String raisonSociale,
     @Schema(description = "Matricule fiscale", example = "9876543XYZ000") String matriculeFiscale,
     @Schema(description = "Type d'accès", example = "COMPTABLE")
-        tn.cyberious.compta.authz.dto.UserAccessDto.AccessType accessType,
+        UserAccessDto.AccessType accessType,
     @Schema(description = "Role de l'utilisateur", example = "COMPTABLE") String role,
     @Schema(description = "Droit de lecture", example = "true") Boolean canRead,
     @Schema(description = "Droit d'ecriture", example = "true") Boolean canWrite,

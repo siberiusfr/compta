@@ -1,6 +1,7 @@
 package tn.cyberious.compta.oauth2.service;
 
 import com.nimbusds.jwt.SignedJWT;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
@@ -35,7 +36,7 @@ public class TokenRevocationService {
 
     // Add token to blacklist using JTI
     String jti = extractJti(tokenValue);
-    java.time.Instant expirationTime = extractExpirationTime(authorization);
+    Instant expirationTime = extractExpirationTime(authorization);
     if (jti != null && expirationTime != null) {
       tokenBlacklistService.addToBlacklist(
           jti, expirationTime, authorization.getPrincipalName(), "token_revocation");
@@ -85,7 +86,7 @@ public class TokenRevocationService {
   }
 
   /** Extract expiration time from an authorization. */
-  private java.time.Instant extractExpirationTime(OAuth2Authorization authorization) {
+  private Instant extractExpirationTime(OAuth2Authorization authorization) {
     try {
       if (authorization.getAccessToken() != null) {
         return authorization.getAccessToken().getToken().getExpiresAt();

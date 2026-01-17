@@ -10,6 +10,7 @@ import tn.cyberious.compta.oauth2.dto.CreateRoleRequest;
 import tn.cyberious.compta.oauth2.dto.RoleResponse;
 import tn.cyberious.compta.oauth2.dto.RoleWithUserCountDto;
 import tn.cyberious.compta.oauth2.dto.UpdateRoleRequest;
+import tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord;
 import tn.cyberious.compta.oauth2.repository.RoleRepository;
 
 @Slf4j
@@ -121,8 +122,7 @@ public class RoleManagementService {
     log.info("Successfully deleted role with id: {}", roleId);
   }
 
-  private RoleResponse toRoleResponse(
-      tn.cyberious.compta.oauth2.generated.tables.records.RolesRecord roleRecord) {
+  private RoleResponse toRoleResponse(RolesRecord roleRecord) {
     return RoleResponse.builder()
         .id(roleRecord.getId().toString())
         .name(roleRecord.getName())

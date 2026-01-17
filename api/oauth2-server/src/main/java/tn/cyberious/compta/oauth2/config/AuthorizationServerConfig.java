@@ -19,6 +19,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -42,6 +43,9 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tn.cyberious.compta.oauth2.security.CustomUserDetailsService;
 
 @Configuration
@@ -73,7 +77,7 @@ public class AuthorizationServerConfig {
     http.csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/**", "/.well-known/**", "/jwks"));
 
     http.exceptionHandling(
-            (exceptions) ->
+            exceptions ->
                 exceptions.defaultAuthenticationEntryPointFor(
                     new LoginUrlAuthenticationEntryPoint("/login"),
                     new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
@@ -85,9 +89,8 @@ public class AuthorizationServerConfig {
   }
 
   @Bean
-  public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-    org.springframework.web.cors.CorsConfiguration configuration =
-        new org.springframework.web.cors.CorsConfiguration();
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
 
     // Configure allowed origins from properties
     configuration.setAllowedOrigins(corsProperties.getAllowedOriginsList());
@@ -105,8 +108,7 @@ public class AuthorizationServerConfig {
     configuration.setMaxAge(corsProperties.getMaxAge());
 
     // Use UrlBasedCorsConfigurationSource with path patterns
-    org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
-        new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }
@@ -119,7 +121,7 @@ public class AuthorizationServerConfig {
     http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .userDetailsService(userDetailsService)
         .authorizeHttpRequests(
-            (authorize) ->
+            authorize ->
                 authorize
                     .requestMatchers(
                         "/login",
@@ -249,7 +251,7 @@ public class AuthorizationServerConfig {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
-    return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+    return new BCryptPasswordEncoder();
   }
 
   @Bean

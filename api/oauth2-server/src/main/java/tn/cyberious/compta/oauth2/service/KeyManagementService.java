@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -30,19 +31,19 @@ public class KeyManagementService {
 
   private final JdbcTemplate jdbcTemplate;
 
-  @org.springframework.beans.factory.annotation.Value("${oauth2.key.rotation.enabled:true}")
+  @Value("${oauth2.key.rotation.enabled:true}")
   private boolean keyRotationEnabled;
 
-  @org.springframework.beans.factory.annotation.Value("${oauth2.key.rotation.schedule:0 0 2 * * *}")
+  @Value("${oauth2.key.rotation.schedule:0 0 2 * * *}")
   private String keyRotationSchedule;
 
-  @org.springframework.beans.factory.annotation.Value("${oauth2.key.rotation.key-lifetime-days:90}")
+  @Value("${oauth2.key.rotation.key-lifetime-days:90}")
   private int keyLifetimeDays;
 
-  @org.springframework.beans.factory.annotation.Value("${oauth2.key.rotation.grace-period-days:7}")
+  @Value("${oauth2.key.rotation.grace-period-days:7}")
   private int gracePeriodDays;
 
-  @org.springframework.beans.factory.annotation.Value("${oauth2.key.rotation.retention-days:30}")
+  @Value("${oauth2.key.rotation.retention-days:30}")
   private int retentionDays;
 
   /** Get the current active JWK source */

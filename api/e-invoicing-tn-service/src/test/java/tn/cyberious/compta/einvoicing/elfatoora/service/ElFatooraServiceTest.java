@@ -94,7 +94,7 @@ class ElFatooraServiceTest {
 
       // Then
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getField().equals("invoiceNumber"));
+      assertThat(result.getErrors()).anyMatch(e -> "invoiceNumber".equals(e.getField()));
     }
 
     @Test
@@ -139,7 +139,7 @@ class ElFatooraServiceTest {
 
       // Then
       assertThat(result.isValid()).isFalse();
-      assertThat(result.getErrors()).anyMatch(e -> e.getField().equals("lines"));
+      assertThat(result.getErrors()).anyMatch(e -> "lines".equals(e.getField()));
     }
 
     @Test

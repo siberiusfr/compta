@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import javax.crypto.SecretKey;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import tn.cyberious.compta.auth.config.JwtProperties;
+import tn.cyberious.compta.auth.security.CustomUserDetails;
 
 @Slf4j
 @Component
@@ -32,20 +34,18 @@ public class JwtTokenUtil {
     claims.put("userId", userId);
 
     // Extract CustomUserDetails for additional information
-    if (userDetails instanceof tn.cyberious.compta.auth.security.CustomUserDetails) {
-      tn.cyberious.compta.auth.security.CustomUserDetails customUserDetails =
-          (tn.cyberious.compta.auth.security.CustomUserDetails) userDetails;
+    if (userDetails instanceof CustomUserDetails customUserDetails) {
 
       claims.put("username", customUserDetails.getUsername());
       claims.put("email", customUserDetails.getEmail());
       claims.put("roles", customUserDetails.getRoleNames());
 
       // TODO: Add societeIds and primarySocieteId when implemented
-      claims.put("societeIds", java.util.List.of());
+      claims.put("societeIds", List.of());
       claims.put("primarySocieteId", null);
 
       // TODO: Add permissions when implemented
-      claims.put("permissions", java.util.List.of());
+      claims.put("permissions", List.of());
     } else {
       claims.put("authorities", userDetails.getAuthorities());
     }

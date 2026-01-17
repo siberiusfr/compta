@@ -47,14 +47,13 @@ public class ValidTaxIdentifierValidator
                   + " 3 chiffres. Exemple: 0736202XAM000",
               value);
       case I_02 ->
-          String.format("CIN invalide '%s'. Format attendu: 8 chiffres. Exemple: 12345678", value);
+          "CIN invalide '%s'. Format attendu: 8 chiffres. Exemple: 12345678".formatted(value);
       case I_03 ->
           String.format(
               "Carte de séjour/Passeport invalide '%s'. Format attendu: 9 chiffres."
                   + " Exemple: 123456789",
               value);
-      case I_04 ->
-          String.format("Identifiant trop long '%s'. Maximum 35 caractères autorisés.", value);
+      case I_04 -> "Identifiant trop long '%s'. Maximum 35 caractères autorisés.".formatted(value);
     };
   }
 }

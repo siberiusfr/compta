@@ -33,7 +33,7 @@ public class TokenBlacklistService {
   private final ConcurrentHashMap<String, Instant> blacklistCache = new ConcurrentHashMap<>();
 
   // Cache initialized flag
-  private volatile boolean cacheInitialized = false;
+  private volatile boolean cacheInitialized;
 
   public TokenBlacklistService(JdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;

@@ -1,16 +1,16 @@
 package tn.cyberious.compta.einvoicing.elfatoora.service;
 
 import jakarta.annotation.PostConstruct;
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -20,14 +20,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import javax.xml.XMLConstants;
-import javax.xml.crypto.dsig.CanonicalizationMethod;
-import javax.xml.crypto.dsig.DigestMethod;
-import javax.xml.crypto.dsig.Reference;
-import javax.xml.crypto.dsig.SignatureMethod;
-import javax.xml.crypto.dsig.SignedInfo;
-import javax.xml.crypto.dsig.Transform;
-import javax.xml.crypto.dsig.XMLSignature;
-import javax.xml.crypto.dsig.XMLSignatureFactory;
+import javax.xml.crypto.dsig.*;
 import javax.xml.crypto.dsig.dom.DOMSignContext;
 import javax.xml.crypto.dsig.dom.DOMValidateContext;
 import javax.xml.crypto.dsig.keyinfo.KeyInfo;
@@ -78,7 +71,7 @@ public class XadesSignatureService {
   private PrivateKey privateKey;
   private X509Certificate certificate;
   private List<X509Certificate> certificateChain;
-  private boolean certificateLoaded = false;
+  private boolean certificateLoaded;
 
   @PostConstruct
   public void init() {
@@ -132,14 +125,14 @@ public class XadesSignatureService {
       }
 
       // Get certificate chain
-      java.security.cert.Certificate[] chain = keyStore.getCertificateChain(alias);
+      Certificate[] chain = keyStore.getCertificateChain(alias);
       if (chain == null || chain.length == 0) {
         throw new ElFatooraException(
             ErrorCode.CERTIFICATE_ERROR, "Certificate chain not found for alias: " + alias);
       }
 
       certificateChain = new ArrayList<>();
-      for (java.security.cert.Certificate cert : chain) {
+      for (Certificate cert : chain) {
         certificateChain.add((X509Certificate) cert);
       }
       certificate = certificateChain.get(0);
@@ -222,8 +215,7 @@ public class XadesSignatureService {
 
       String certBase64 = x509Certs.item(0).getTextContent().replaceAll("\\s", "");
       byte[] certBytes = Base64.getDecoder().decode(certBase64);
-      java.security.cert.CertificateFactory cf =
-          java.security.cert.CertificateFactory.getInstance("X.509");
+      CertificateFactory cf = CertificateFactory.getInstance("X.509");
       X509Certificate signerCert =
           (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certBytes));
       PublicKey publicKey = signerCert.getPublicKey();
@@ -503,7 +495,7 @@ public class XadesSignatureService {
     // This should be ASN.1 encoded IssuerAndSerialNumber in base64
     // For simplicity, we concatenate issuer DN and serial number
     // A proper implementation would use BouncyCastle for ASN.1 encoding
-    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
     // Create GeneralNames for issuer
     byte[] issuerBytes = certificate.getIssuerX500Principal().getEncoded();
@@ -529,11 +521,8 @@ public class XadesSignatureService {
       Element signedProps = (Element) signedPropsNodes.item(0);
 
       // Canonicalize
-      javax.xml.crypto.dsig.XMLSignatureFactory factory =
-          javax.xml.crypto.dsig.XMLSignatureFactory.getInstance("DOM");
-      javax.xml.crypto.dsig.TransformService c14n =
-          javax.xml.crypto.dsig.TransformService.getInstance(
-              CanonicalizationMethod.EXCLUSIVE, "DOM");
+      XMLSignatureFactory factory = XMLSignatureFactory.getInstance("DOM");
+      TransformService c14n = TransformService.getInstance(CanonicalizationMethod.EXCLUSIVE, "DOM");
 
       // For now, the reference was calculated without the Object
       // In production, you'd need to re-sign or pre-calculate
@@ -570,7 +559,7 @@ public class XadesSignatureService {
   private String bytesToHex(byte[] bytes) {
     StringBuilder sb = new StringBuilder();
     for (byte b : bytes) {
-      sb.append(String.format("%02X", b));
+      sb.append("%02X".formatted(b));
       sb.append(":");
     }
     if (sb.length() > 0) {
@@ -580,10 +569,10 @@ public class XadesSignatureService {
   }
 
   private int getKeySize(PublicKey key) {
-    if (key instanceof java.security.interfaces.RSAPublicKey) {
-      return ((java.security.interfaces.RSAPublicKey) key).getModulus().bitLength();
-    } else if (key instanceof java.security.interfaces.ECPublicKey) {
-      return ((java.security.interfaces.ECPublicKey) key).getParams().getOrder().bitLength();
+    if (key instanceof RSAPublicKey publicKey1) {
+      return publicKey1.getModulus().bitLength();
+    } else if (key instanceof ECPublicKey publicKey) {
+      return publicKey.getParams().getOrder().bitLength();
     }
     return 0;
   }

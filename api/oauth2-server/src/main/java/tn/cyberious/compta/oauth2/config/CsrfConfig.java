@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
 /**
@@ -45,8 +46,7 @@ public class CsrfConfig {
     @Override
     public CsrfToken generateToken(HttpServletRequest request) {
       String tokenValue = UUID.randomUUID().toString();
-      return new org.springframework.security.web.csrf.DefaultCsrfToken(
-          CSRF_HEADER_NAME, CSRF_PARAM_NAME, tokenValue);
+      return new DefaultCsrfToken(CSRF_HEADER_NAME, CSRF_PARAM_NAME, tokenValue);
     }
 
     @Override
@@ -119,8 +119,7 @@ public class CsrfConfig {
     @Override
     public CsrfToken generateToken(HttpServletRequest request) {
       String tokenValue = UUID.randomUUID().toString();
-      return new org.springframework.security.web.csrf.DefaultCsrfToken(
-          CSRF_HEADER_NAME, CSRF_PARAM_NAME, tokenValue);
+      return new DefaultCsrfToken(CSRF_HEADER_NAME, CSRF_PARAM_NAME, tokenValue);
     }
 
     @Override

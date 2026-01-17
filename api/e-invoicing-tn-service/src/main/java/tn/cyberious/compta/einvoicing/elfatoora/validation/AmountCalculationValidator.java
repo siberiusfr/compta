@@ -272,9 +272,7 @@ public class AmountCalculationValidator {
     }
 
     // Vérifier montants positifs (sauf pour avoirs)
-    boolean isCreditNote =
-        invoice.getDocumentType() != null
-            && DocumentTypeCode.CREDIT_NOTE.getCode().equals(invoice.getDocumentType());
+    boolean isCreditNote = DocumentTypeCode.CREDIT_NOTE.getCode().equals(invoice.getDocumentType());
 
     if (!isCreditNote && invoice.getTotalIncludingTax() != null) {
       if (invoice.getTotalIncludingTax().compareTo(BigDecimal.ZERO) < 0) {

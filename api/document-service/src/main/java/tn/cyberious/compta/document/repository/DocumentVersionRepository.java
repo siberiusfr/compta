@@ -8,6 +8,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import tn.cyberious.compta.document.generated.tables.pojos.DocumentVersions;
 import tn.cyberious.compta.document.generated.tables.records.DocumentVersionsRecord;
@@ -84,7 +85,7 @@ public class DocumentVersionRepository {
 
   public Integer getNextVersionNumber(Long documentId) {
     Integer maxVersion =
-        dsl.select(org.jooq.impl.DSL.max(DOCUMENT_VERSIONS.VERSION_NUMBER))
+        dsl.select(DSL.max(DOCUMENT_VERSIONS.VERSION_NUMBER))
             .from(DOCUMENT_VERSIONS)
             .where(DOCUMENT_VERSIONS.DOCUMENT_ID.eq(documentId))
             .fetchOne(0, Integer.class);

@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.cyberious.compta.contracts.notification.SendVerificationEmailPayload;
+import tn.cyberious.compta.oauth2.dto.AuditLog;
 import tn.cyberious.compta.oauth2.queue.EmailVerificationQueuePublisher;
 
 /**
@@ -100,16 +101,16 @@ public class EmailVerificationService {
 
     // Log the event
     auditLogService.logAsync(
-        tn.cyberious.compta.oauth2.dto.AuditLog.builder()
-            .eventType(tn.cyberious.compta.oauth2.dto.AuditLog.EventTypes.EMAIL_VERIFIED)
-            .eventCategory(tn.cyberious.compta.oauth2.dto.AuditLog.EventCategories.USER)
+        AuditLog.builder()
+            .eventType(AuditLog.EventTypes.EMAIL_VERIFIED)
+            .eventCategory(AuditLog.EventCategories.USER)
             .userId(userId)
             .username(username)
             .ipAddress(ipAddress)
             .userAgent(userAgent)
             .requestUri("/api/users/email/verify")
             .requestMethod("POST")
-            .status(tn.cyberious.compta.oauth2.dto.AuditLog.Status.SUCCESS)
+            .status(AuditLog.Status.SUCCESS)
             .build());
 
     log.info("Email verification initiated for user: {}", username);
@@ -149,16 +150,16 @@ public class EmailVerificationService {
 
     // Log the event
     auditLogService.logAsync(
-        tn.cyberious.compta.oauth2.dto.AuditLog.builder()
-            .eventType(tn.cyberious.compta.oauth2.dto.AuditLog.EventTypes.EMAIL_VERIFIED)
-            .eventCategory(tn.cyberious.compta.oauth2.dto.AuditLog.EventCategories.USER)
+        AuditLog.builder()
+            .eventType(AuditLog.EventTypes.EMAIL_VERIFIED)
+            .eventCategory(AuditLog.EventCategories.USER)
             .userId(userId)
             .username(username)
             .ipAddress(ipAddress)
             .userAgent(userAgent)
             .requestUri("/api/users/email/verify")
             .requestMethod("POST")
-            .status(tn.cyberious.compta.oauth2.dto.AuditLog.Status.SUCCESS)
+            .status(AuditLog.Status.SUCCESS)
             .build());
 
     log.info("Email verified successfully for user: {}", username);
@@ -181,7 +182,7 @@ public class EmailVerificationService {
 
     return jdbcTemplate.query(
         sql,
-        (rs) -> {
+        rs -> {
           if (rs.next()) {
             LocalDateTime expiresAt = rs.getObject("expires_at", LocalDateTime.class);
             boolean verified = rs.getBoolean("verified");

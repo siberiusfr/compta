@@ -1,7 +1,10 @@
 package tn.cyberious.compta.oauth2.service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -203,43 +206,30 @@ public class RateLimitService {
   }
 
   private static class RequestCounter {
-    private final Map<java.time.Instant, java.util.concurrent.atomic.AtomicInteger> timestamps =
-        new ConcurrentHashMap<>();
+    private final Map<Instant, AtomicInteger> timestamps = new ConcurrentHashMap<>();
 
     public void cleanup(long windowSizeMillis) {
-      java.time.Instant now = java.time.Instant.now();
+      Instant now = Instant.now();
       timestamps
           .entrySet()
-          .removeIf(
-              entry ->
-                  java.time.temporal.ChronoUnit.MILLIS.between(entry.getKey(), now)
-                      > windowSizeMillis);
+          .removeIf(entry -> ChronoUnit.MILLIS.between(entry.getKey(), now) > windowSizeMillis);
     }
 
     public int increment() {
-      java.time.Instant now = java.time.Instant.now();
-      timestamps.put(now, new java.util.concurrent.atomic.AtomicInteger(1));
+      Instant now = Instant.now();
+      timestamps.put(now, new AtomicInteger(1));
 
       // Count requests in the current window (1 minute default)
       long windowSizeMillis = 60000;
       timestamps
           .entrySet()
-          .removeIf(
-              entry ->
-                  java.time.temporal.ChronoUnit.MILLIS.between(entry.getKey(), now)
-                      > windowSizeMillis);
+          .removeIf(entry -> ChronoUnit.MILLIS.between(entry.getKey(), now) > windowSizeMillis);
 
-      return (int)
-          timestamps.values().stream()
-              .mapToInt(java.util.concurrent.atomic.AtomicInteger::get)
-              .sum();
+      return (int) timestamps.values().stream().mapToInt(AtomicInteger::get).sum();
     }
 
     public int getCount() {
-      return (int)
-          timestamps.values().stream()
-              .mapToInt(java.util.concurrent.atomic.AtomicInteger::get)
-              .sum();
+      return (int) timestamps.values().stream().mapToInt(AtomicInteger::get).sum();
     }
   }
 }

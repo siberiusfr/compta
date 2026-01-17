@@ -296,7 +296,7 @@ public class ElFatooraValidationService {
     }
 
     // Règle 5: Devise supportée
-    if (invoice.getCurrency() != null && !invoice.getCurrency().equals("TND")) {
+    if (invoice.getCurrency() != null && !"TND".equals(invoice.getCurrency())) {
       result.addWarning(
           ValidationWarning.of(
               "currency",
