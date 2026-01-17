@@ -19,7 +19,6 @@
     <module>compta-security-commons</module>
     <module>notification-contracts</module>
     <module>authz-contracts</module>
-    <module>auth-service</module>
     <module>authz-service</module>
     <module>document-service</module>
     <module>accounting-service</module>
@@ -27,7 +26,6 @@
     <module>referentiel-service</module>
     <module>e-invoicing-tn-service</module>
     <module>migration-service</module>
-    <module>oauth2-server</module>
   </modules>
 
   <properties>
