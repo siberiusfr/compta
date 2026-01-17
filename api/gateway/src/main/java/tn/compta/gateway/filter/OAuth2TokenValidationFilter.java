@@ -1,7 +1,8 @@
 package tn.compta.gateway.filter;
 
 import java.nio.charset.StandardCharsets;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.Ordered;
@@ -12,9 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import tn.compta.gateway.config.OAuth2TokenValidator;
 import tn.compta.gateway.config.PublicEndpoints;
@@ -97,7 +95,7 @@ public class OAuth2TokenValidationFilter implements GatewayFilter, Ordered {
 
   /** Détérmine si la validation doit être sautée pour certains chemins */
   private boolean shouldSkipValidation(String path) {
-    return PublicEndpoints.isPublic(path) || path.equals("/favicon.ico");
+    return PublicEndpoints.isPublic(path) || "/favicon.ico".equals(path);
   }
 
   @Override

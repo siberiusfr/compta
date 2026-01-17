@@ -1,15 +1,13 @@
 package tn.compta.gateway.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.Scheduled;
-
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.Scheduled;
 
 /**
  * Configuration pour la validation des tokens JWT issus par le serveur OAuth2. La validation
@@ -33,7 +31,7 @@ public class OAuth2TokenValidator {
   @Value("${oauth2.jwks-cache-duration:300000}")
   private Long jwksCacheDuration;
 
-  private long lastJwksFetchTime = 0;
+  private long lastJwksFetchTime;
 
   @PostConstruct
   public void init() {

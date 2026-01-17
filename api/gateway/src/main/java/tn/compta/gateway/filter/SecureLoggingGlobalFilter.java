@@ -1,11 +1,12 @@
 package tn.compta.gateway.filter;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -14,8 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -114,7 +113,7 @@ public class SecureLoggingGlobalFilter implements GlobalFilter, Ordered {
     }
 
     String maskedQuery =
-        java.util.Arrays.stream(query.split("&"))
+        Arrays.stream(query.split("&"))
             .map(
                 param -> {
                   String[] parts = param.split("=", 2);
