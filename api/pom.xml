@@ -244,7 +244,7 @@
           <configuration>
             <exportDatatables>true</exportDatatables>
             <exclusions>
-              <exclusion>src/generated/jooq/**</exclusion>
+              <exclusion>**/generated/jooq/**</exclusion>
             </exclusions>
             <activeRecipes>
               <recipe>org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_5</recipe>
