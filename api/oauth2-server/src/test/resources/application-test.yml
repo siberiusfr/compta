@@ -1,0 +1,73 @@
+spring:
+  application:
+    name: oauth2-server-test
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/compta
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      schema: oauth2
+
+  flyway:
+    enabled: false
+    schemas: oauth2
+    default-schema: oauth2
+    clean-disabled: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+server:
+  port: 0
+
+# OAuth2 Server Configuration for tests
+oauth2:
+  issuer: http://localhost:9000
+  gateway:
+    secret: gateway-secret-change-in-production
+  authorization-code:
+    access-token-validity: 300
+    refresh-token-validity: 3600
+  client-credentials:
+    access-token-validity: 300
+  key:
+    rotation:
+      enabled: false
+  rate-limiting:
+    enabled: true
+  clients:
+    public-client:
+      redirect-uris: http://localhost:3000/authorized
+      post-logout-redirect-uris: http://localhost:3000
+    gateway:
+      redirect-uris: http://localhost:8080/authorized
+
+# Application Configuration
+app:
+  frontend:
+    url: http://localhost:3000
+
+# Notification Queue Configuration
+notification:
+  queue:
+    enabled: false
+
+# CORS Configuration
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8080
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+  allowed-headers: '*'
+  allow-credentials: true
+  max-age: 3600
+
+# Logging for tests
+logging:
+  level:
+    tn.cyberious.compta.oauth2: DEBUG
+    org.springframework.security: DEBUG

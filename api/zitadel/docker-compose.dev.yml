@@ -1,0 +1,72 @@
+# Zitadel Development Configuration
+# Uses a dedicated 'zitadel' database - Zitadel manages its own schemas
+# User: postgres, Password: password
+
+services:
+  # ==========================================
+  # Zitadel Identity Provider (Dev Mode)
+  # ==========================================
+  zitadel:
+    image: ghcr.io/zitadel/zitadel:latest
+    container_name: compta-zitadel-dev
+    command: start-from-init --masterkeyFromEnv --tlsMode disabled
+    environment:
+      # Master key for encryption (32 bytes base64 encoded)
+      # IMPORTANT: Change this in production!
+      ZITADEL_MASTERKEY: "MasterkeyNeedsToHave32Characters"
+
+      # External domain configuration
+      ZITADEL_EXTERNALDOMAIN: localhost
+      ZITADEL_EXTERNALPORT: 8085
+      ZITADEL_EXTERNALSECURE: "false"
+
+      # Database configuration (PostgreSQL - dedicated zitadel database)
+      ZITADEL_DATABASE_POSTGRES_HOST: ${POSTGRES_HOST:-host.docker.internal}
+      ZITADEL_DATABASE_POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      ZITADEL_DATABASE_POSTGRES_DATABASE: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: ${POSTGRES_USER:-postgres}
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: ${POSTGRES_USER:-postgres}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
+
+      # First instance configuration
+      ZITADEL_FIRSTINSTANCE_ORG_NAME: "COMPTA"
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: "admin@compta.local"
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: "Admin123!"
+
+      # Default settings
+      ZITADEL_DEFAULTINSTANCE_OIDC_ISSUER: "http://localhost:8085"
+
+      # Log level
+      ZITADEL_LOG_LEVEL: debug
+
+    ports:
+      - "8085:8080"
+    networks:
+      - compta-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/debug/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+networks:
+  compta-network:
+    external: true
+    name: compta-network
+
+# Usage:
+# 1. First, ensure PostgreSQL is running and create the zitadel database:
+#    psql -h localhost -U postgres -f init-db.sql
+#
+# 2. Start Zitadel:
+#    docker-compose -f docker-compose.dev.yml up -d
+#
+# 3. Access Zitadel Console: http://localhost:8085
+#    Default admin: admin@compta.local / Admin123!

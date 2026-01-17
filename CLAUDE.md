@@ -8,6 +8,7 @@ COMPTA is a French accounting ERP application built on a microservices architect
 
 **Tech Stack:**
 - Backend: Java 21, Spring Boot 3.5.9, jOOQ, PostgreSQL 16
+- Identity Provider: Zitadel (OIDC/OAuth2)
 - Notification Service: NestJS, Prisma, BullMQ
 - Frontend: Vue 3, TypeScript, Vite, TailwindCSS, Pinia
 - Infrastructure: Redis 8.4, RabbitMQ 4.2, MinIO (S3-compatible storage)
@@ -71,6 +72,32 @@ docker-compose logs -f auth-service  # View service logs
 docker-compose down               # Stop all services
 ```
 
+### Zitadel (Identity Provider)
+
+Zitadel replaces the internal oauth2-server for authentication and authorization.
+Uses a dedicated `zitadel` database (Zitadel manages its own schemas internally).
+
+```bash
+# Create the zitadel database (run once before first start)
+cd api/zitadel
+psql -h localhost -U postgres -f init-db.sql
+# OR with Docker
+docker exec -i compta-postgres psql -U postgres < init-db.sql
+
+# Development mode
+cd api/zitadel
+docker-compose -f docker-compose.dev.yml up -d
+
+# Production mode
+cp .env.example .env.prod
+# Edit .env.prod with your production values
+docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+
+# Access Zitadel Console
+# Dev: http://localhost:8085 (admin@compta.local / Admin123!)
+# Prod: https://your-domain.com
+```
+
 ## Architecture
 
 ### Service Layout
@@ -79,6 +106,7 @@ All backend services are in `api/`:
 
 | Service | Port | Purpose |
 |---------|------|---------|
+| zitadel | 8085 | Identity Provider (OIDC/OAuth2, user management) |
 | gateway | 8080 | Spring Cloud Gateway, JWT validation, rate limiting |
 | auth-service | 8081 | Authentication, users, companies, roles |
 | accounting-service | 8082 | Chart of accounts, journal entries, tax |
@@ -95,8 +123,10 @@ All backend services are in `api/`:
 
 ### Database Architecture
 
-Single PostgreSQL database with **schema-based isolation**:
-- Each service owns its schema (`auth`, `accounting`, `hr`, `document`, `notification`)
+PostgreSQL with **schema-based isolation**:
+- Main database `compta` with schemas: `auth`, `accounting`, `hr`, `document`, `notification`
+- Zitadel uses a **dedicated `zitadel` database** (manages its own schemas internally)
+- Initialize Zitadel database with `api/zitadel/init-db.sql`
 - Migrations centralized in `migration-service/src/main/resources/db/migration/`
 - jOOQ generates type-safe query classes per service (in `src/generated/jooq/`)
 
@@ -108,9 +138,10 @@ Single PostgreSQL database with **schema-based isolation**:
 
 ### Authentication Flow
 
-1. `POST /api/auth/login` returns JWT access + refresh tokens
-2. Gateway validates JWT on all requests to downstream services
-3. Roles: ADMIN, COMPTABLE (accountant), SOCIETE (company owner), EMPLOYEE
+1. Users authenticate via Zitadel (OIDC/OAuth2) at `http://localhost:8085` (dev) or your configured domain (prod)
+2. Zitadel issues JWT access + refresh tokens
+3. Gateway validates JWT from Zitadel on all requests to downstream services
+4. Roles: ADMIN, COMPTABLE (accountant), SOCIETE (company owner), EMPLOYEE
 
 ## Key Patterns
 
@@ -152,6 +183,7 @@ cd frontend && pnpm run api:generate
 ## Service-Specific Documentation
 
 Each service has its own CLAUDE.md with detailed guidance:
+- `api/zitadel/CLAUDE.md` - Identity provider setup, OIDC configuration
 - `api/gateway/CLAUDE.md` - Routing, security filters, resilience patterns
 - `api/auth-service/CLAUDE.md` - Auth schema, endpoints, jOOQ patterns
 - `api/notification-service/CLAUDE.md` - NestJS patterns, Prisma, BullMQ jobs
@@ -163,6 +195,7 @@ Each service has its own CLAUDE.md with detailed guidance:
 |-----------|-----|
 | Frontend | http://localhost:3000 |
 | API Gateway | http://localhost:8080 |
+| Zitadel Console | http://localhost:8085 (admin@compta.local / Admin123!) |
 | Swagger UI | http://localhost:8080/swagger-ui.html |
 | RabbitMQ UI | http://localhost:15672 (guest/guest) |
 | MinIO Console | http://localhost:9001 (minioadmin/minioadmin) |
